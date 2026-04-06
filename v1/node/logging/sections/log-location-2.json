@@ -1,0 +1,17 @@
+{
+  "heading": "Log Location",
+  "headingLevel": 4,
+  "body": "You can specify whether the driver logs to `stderr` or `stdout` by setting\nthe `mongodbLogPath` option to `\"stderr\"` or `\"stdout\"`, as shown in the\nfollowing example:\n\n```javascript\nconst mongodbLogComponentSeverities = {\n    default: \"debug\"\n};\n\nconst mongodbLogPath = \"stdout\";\nconst client = new MongoClient(\"<connection string>\",\n    { mongodbLogComponentSeverities, mongodbLogPath }\n);\n```\n\nBy default, the driver logs to `stderr`.\n\nYou can also specify a custom log destination. The following example creates a\ncustom log destination:\n\n```javascript\nimport fs from 'node:fs/promises';\nimport util from 'node:util';\n\nconst mongodbLogPath = {\n    file: await fs.open(`./server-${+new Date()}.logs`, 'w'),\n    async write(log) {\n        try {\n            await this.file?.appendFile(util.inspect(log) + '\\n');\n        } catch (fileError) {\n            console.log('cannot log anymore', fileError);\n            this.file = null;\n        }\n    }\n}\n\nconst client = new MongoClient(\"<connection string>\", { mongodbLogPath });\n```\n\nIf your function throws an error in the write operation, the thrown error\nends the logger. Because of this, we recommend that you handle errors by\nmaking the write function a no-op rather than throwing an error, as shown in\nthe preceding example.\n\n> **Note:** Logging can exhaust disk space if the proper log rotation system is not in\n> place. We recommend that you connect your custom write function to a popular\n> logging library.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const mongodbLogComponentSeverities = {\n    default: \"debug\"\n};\n\nconst mongodbLogPath = \"stdout\";\nconst client = new MongoClient(\"<connection string>\",\n    { mongodbLogComponentSeverities, mongodbLogPath }\n);",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "javascript",
+      "content": "import fs from 'node:fs/promises';\nimport util from 'node:util';\n\nconst mongodbLogPath = {\n    file: await fs.open(`./server-${+new Date()}.logs`, 'w'),\n    async write(log) {\n        try {\n            await this.file?.appendFile(util.inspect(log) + '\\n');\n        } catch (fileError) {\n            console.log('cannot log anymore', fileError);\n            this.file = null;\n        }\n    }\n}\n\nconst client = new MongoClient(\"<connection string>\", { mongodbLogPath });",
+      "tokenEstimate": 112
+    }
+  ]
+}

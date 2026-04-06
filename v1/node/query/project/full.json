@@ -1,0 +1,69 @@
+{
+  "path": "node/query/project",
+  "product": "node",
+  "title": "Specify Which Fields to Return",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Use a projection to control which fields appear in the documents\nreturned by read operations. Many requests only require certain fields,\nso projections can help you limit unnecessary network bandwidth usage.\nProjections work in two ways:\n\n- Explicitly include fields with a value of `1`. This has the\n  side-effect of implicitly excluding all unspecified fields.\n\n- Implicitly exclude fields with a value of `0`. This has the\n  side-effect of implicitly including all unspecified fields.\n\nThese two methods of projection are mutually exclusive: if you\nexplicitly include fields, you cannot explicitly exclude fields, and\nvice versa.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Documents",
+      "headingLevel": 3,
+      "body": "To follow the examples in this guide, use the following code snippet to insert documents\nthat describe fruits into the `myDB.fruits` collection:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"fruits\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"name\": \"apples\", \"qty\": 5, \"rating\": 3 },\n  { \"_id\": 2, \"name\": \"bananas\", \"qty\": 7, \"rating\": 1 },\n  { \"_id\": 3, \"name\": \"oranges\", \"qty\": 6, \"rating\": 2 },\n  { \"_id\": 4, \"name\": \"avocados\", \"qty\": 3, \"rating\": 5 },\n]);\n```\n\n> **Note:** Your query operation may return a reference to a\n> cursor that contains matching documents. To learn how to\n> examine data stored in the cursor, see the\n> [Access Data From a Cursor](node-access-cursor).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"fruits\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"name\": \"apples\", \"qty\": 5, \"rating\": 3 },\n  { \"_id\": 2, \"name\": \"bananas\", \"qty\": 7, \"rating\": 1 },\n  { \"_id\": 3, \"name\": \"oranges\", \"qty\": 6, \"rating\": 2 },\n  { \"_id\": 4, \"name\": \"avocados\", \"qty\": 3, \"rating\": 5 },\n]);",
+          "tokenEstimate": 137
+        }
+      ]
+    },
+    {
+      "heading": "Single Field",
+      "headingLevel": 2,
+      "body": "In the following query, pass the projection to only return the `name`\nfield of each document:\n\n```javascript\n// return only* the name field\nconst projectFields = { name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThe projection document specifies a value of `1` for `name`. This instructs\nthe operation to *include* the `name` field of each returned document in\nthe results and *exclude* the `qty` and `rating` fields. Passing this projection\nto `find()` with an empty query document and no sort document yields the following\nresults:\n\n```json\n{ \"_id\": 1, \"name\": \"apples\" }\n{ \"_id\": 2, \"name\": \"bananas\" }\n{ \"_id\": 3, \"name\": \"oranges\" }\n{ \"_id\": 4, \"name\": \"avocados\" }\n```\n\nAlthough this projection only explicitly included the `name` field, the query returned\nthe `_id` field as well.\n\nThe `_id` field is a special case because it is always included in every query unless\nexplicitly specified otherwise. This is because `_id` is a unique identifier for each\ndocument, a property that is often used when constructing queries. The `movies`\ncollection data demonstrates why this property is necessary: two or more movies can share\nthe same title, such as movie remakes. Because of this, you need a unique `_id` value to\nreliably reference a specific movie. `_id` is the only exception to the mutually\nexclusive include-exclude behavior in projections: you *can* explicitly exclude `_id`\neven when explicitly including other fields if you do not want `_id` to be present in\nreturned documents.\n\n```javascript\n// return only the name field\nconst projectFields = { _id: 0, name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThe projection document specifies a value of `1` for `name` and `0` for\n`_id`. This instructs the operation to *include* the `name` field of each\nreturned document in the results and *exclude* the `_id`, `qty`, and `rating`\nfields. Passing this projection to `find()` with an empty query document and\nno sort document yields the following results:\n\n```json\n{ \"name\": \"apples\" }\n{ \"name\": \"bananas\" }\n{ \"name\": \"oranges\" }\n{ \"name\": \"avocados\" }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// return only* the name field\nconst projectFields = { name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 44
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 1, \"name\": \"apples\" }\n{ \"_id\": 2, \"name\": \"bananas\" }\n{ \"_id\": 3, \"name\": \"oranges\" }\n{ \"_id\": 4, \"name\": \"avocados\" }",
+          "tokenEstimate": 61
+        },
+        {
+          "language": "javascript",
+          "content": "// return only the name field\nconst projectFields = { _id: 0, name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 49
+        },
+        {
+          "language": "json",
+          "content": "{ \"name\": \"apples\" }\n{ \"name\": \"bananas\" }\n{ \"name\": \"oranges\" }\n{ \"name\": \"avocados\" }",
+          "tokenEstimate": 37
+        }
+      ]
+    },
+    {
+      "heading": "Multiple Fields",
+      "headingLevel": 2,
+      "body": "You can also specify multiple fields to include in your projection. Note: the\norder in which you specify the fields in the projection does not alter the\norder in which they are returned.\n\n```javascript\nconst projectFields = { _id: 0, rating: 1, name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThis example that identifies two fields to include in the projection yields\nthe following results:\n\n```json\n  { \"name\": \"apples\", \"rating\": 3 }\n  { \"name\": \"bananas\", \"rating\": 1 }\n  { \"name\": \"oranges\", \"rating\": 2 }\n  { \"name\": \"avocados\", \"rating\": 5 }\n```\n\nFor more projection examples, see the\n[MongoDB Manual page on Project Fields to Return from Query](manual/tutorial/project-fields-from-query-results).\n\n> **Note:** You must chain a cursor method such as `sort()`, `limit()`,\n> `skip()`, or `project()` to a read operation before iterating the cursor.\n> If you specify a cursor method after iterating the cursor, the setting does\n> not apply to the read operation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const projectFields = { _id: 0, rating: 1, name: 1 };\nconst cursor = myColl.find().project(projectFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 47
+        },
+        {
+          "language": "json",
+          "content": "  { \"name\": \"apples\", \"rating\": 3 }\n  { \"name\": \"bananas\", \"rating\": 1 }\n  { \"name\": \"oranges\", \"rating\": 2 }\n  { \"name\": \"avocados\", \"rating\": 5 }",
+          "tokenEstimate": 61
+        }
+      ]
+    }
+  ]
+}

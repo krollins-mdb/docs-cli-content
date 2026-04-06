@@ -1,0 +1,27 @@
+{
+  "heading": "Insert Multiple Documents",
+  "headingLevel": 2,
+  "body": "Use the `insertMany()` method when you want to insert multiple\ndocuments. This method inserts documents in the order specified until an\nexception occurs, if any.\n\nFor example, assume you want to insert the following documents:\n\n```json\n{ \"_id\": 1, \"color\": \"red\" }\n{ \"_id\": 2, \"color\": \"purple\" }\n{ \"_id\": 1, \"color\": \"yellow\" }\n{ \"_id\": 3, \"color\": \"blue\" }\n```\n\nWhen you pass the preceding documents to the `insertMany()` method, the driver\ninserts the first and second documents, but throws a `WriteError` for the third document\nbecause the ID `1` is a duplicate. The driver does not insert any documents after this\nerror.\n\n> **Note:** Use a try-catch block to get an acknowledgment for successfully\n> processed documents before the error occurs:\n>\n> ```javascript\n> const myDB = client.db(\"myDB\");\n> const myColl = myDB.collection(\"colors\");\n>\n> try {\n>    const docs = [\n>       { \"_id\": 1, \"color\": \"red\"},\n>       { \"_id\": 2, \"color\": \"purple\"},\n>       { \"_id\": 1, \"color\": \"yellow\"},\n>       { \"_id\": 3, \"color\": \"blue\"}\n>    ];\n>\n>    const insertManyresult = await myColl.insertMany(docs);\n>    let ids = insertManyresult.insertedIds;\n>\n>    console.log(`${insertManyresult.insertedCount} documents were inserted.`);\n>    for (let id of Object.values(ids)) {\n>       console.log(`Inserted a document with id ${id}`);\n>    }\n> } catch(e) {\n>    console.log(`A MongoBulkWriteException occurred, but there are successfully processed documents.`);\n>    let ids = e.result.result.insertedIds;\n>    for (let id of Object.values(ids)) {\n>       console.log(`Processed a document with id ${id._id}`);\n>    }\n>    console.log(`Number of documents inserted: ${e.result.result.nInserted}`);\n> }\n> ```\n>\n> The output consists of documents MongoDB can process and looks similar to the\n> following:\n>\n> ```\n> A MongoBulkWriteException occurred, but there are successfully processed documents.\n> Processed a document with id 1\n> Processed a document with id 2\n> Processed a document with id 1\n> Processed a document with id 3\n> Number of documents inserted: 2\n> ```\n>\n> If you look inside your collection, you see the following documents:\n>\n> ```json\n> { \"_id\": 1, \"color\": \"red\" }\n> { \"_id\": 2, \"color\": \"purple\" }\n> ```\n\nOn successful insertion, the method returns an\n`InsertManyResult` instance representing the number of\ndocuments inserted and the `_id` of the new document.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{ \"_id\": 1, \"color\": \"red\" }\n{ \"_id\": 2, \"color\": \"purple\" }\n{ \"_id\": 1, \"color\": \"yellow\" }\n{ \"_id\": 3, \"color\": \"blue\" }",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "javascript",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"colors\");\n\ntry {\n   const docs = [\n      { \"_id\": 1, \"color\": \"red\"},\n      { \"_id\": 2, \"color\": \"purple\"},\n      { \"_id\": 1, \"color\": \"yellow\"},\n      { \"_id\": 3, \"color\": \"blue\"}\n   ];\n\n   const insertManyresult = await myColl.insertMany(docs);\n   let ids = insertManyresult.insertedIds;\n\n   console.log(`${insertManyresult.insertedCount} documents were inserted.`);\n   for (let id of Object.values(ids)) {\n      console.log(`Inserted a document with id ${id}`);\n   }\n} catch(e) {\n   console.log(`A MongoBulkWriteException occurred, but there are successfully processed documents.`);\n   let ids = e.result.result.insertedIds;\n   for (let id of Object.values(ids)) {\n      console.log(`Processed a document with id ${id._id}`);\n   }\n   console.log(`Number of documents inserted: ${e.result.result.nInserted}`);\n}",
+      "tokenEstimate": 227
+    },
+    {
+      "language": "text",
+      "content": "A MongoBulkWriteException occurred, but there are successfully processed documents.\nProcessed a document with id 1\nProcessed a document with id 2\nProcessed a document with id 1\nProcessed a document with id 3\nNumber of documents inserted: 2",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "json",
+      "content": "{ \"_id\": 1, \"color\": \"red\" }\n{ \"_id\": 2, \"color\": \"purple\" }",
+      "tokenEstimate": 28
+    }
+  ]
+}

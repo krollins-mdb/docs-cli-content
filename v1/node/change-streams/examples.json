@@ -1,0 +1,112 @@
+{
+  "path": "node/change-streams",
+  "product": "node",
+  "title": "Monitor Data with Change Streams",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "javascript": 6,
+      "js": 1,
+      "none": 1
+    },
+    "bySection": [
+      {
+        "heading": "Open a Change Stream",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 4
+          }
+        ]
+      },
+      {
+        "heading": "Iteration",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 204
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 95
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 35
+          }
+        ]
+      },
+      {
+        "heading": "Listener Function",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 315
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Open a Change Stream",
+      "content": "const pipeline = [ { $match: { runtime: { $lt: 15 } } } ];\nconst changeStream = myColl.watch(pipeline);",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "js",
+      "section": "Open a Change Stream",
+      "content": "for await (const change of changeStream) {\n  console.log(\"Received change: \", change);\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "javascript",
+      "section": "Open a Change Stream",
+      "content": "changeStream.on(\"change\", (changeEvent) => { /* your listener function */ });",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "section": "Open a Change Stream",
+      "content": "changeStream.close();",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "section": "Iteration",
+      "content": "// Watch for changes in a collection by using a change stream\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Declare a variable to hold the change stream\nlet changeStream;\n\n// Define an asynchronous function to manage the change stream\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Print change events as they occur\n    for await (const change of changeStream) {\n      console.log(\"Received change:\\n\", change);\n    }\n    // Close the change stream when done\n    await changeStream.close();\n    \n  } finally {\n    // Close the MongoDB client connection\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 204
+    },
+    {
+      "language": "none",
+      "section": "Iteration",
+      "content": "Received change:\n{\n  _id: {\n    _data: '...'\n  },\n  operationType: 'insert',\n  clusterTime: new Timestamp({ t: 1675800603, i: 31 }),\n  fullDocument: {\n    _id: new ObjectId(\"...\"),\n    ...\n  },\n  ns: { db: 'insertDB', coll: 'haikus' },\n  documentKey: { _id: new ObjectId(\"...\") }\n}",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "javascript",
+      "section": "Iteration",
+      "content": "const options = { fullDocument: \"updateLookup\" };\n// This could be any pipeline.\nconst pipeline = [];\n\nconst changeStream = myColl.watch(pipeline, options);",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "javascript",
+      "section": "Listener Function",
+      "content": "/* Change stream listener */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nconst simulateAsyncPause = () =>\n  new Promise(resolve => {\n    setTimeout(() => resolve(), 1000);\n  });\n\nlet changeStream;\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Set up a change stream listener when change events are emitted\n    changeStream.on(\"change\", next => {\n      // Print any change event\n      console.log(\"received a change to the collection: \\t\", next);\n    });\n\n    // Pause before inserting a document\n    await simulateAsyncPause();\n\n    // Insert a new document into the collection\n    await myColl.insertOne({\n      title: \"Record of a Shriveled Datum\",\n      content: \"No bytes, no problem. Just insert a document, in MongoDB\",\n    });\n\n    // Pause before closing the change stream\n    await simulateAsyncPause();\n\n    // Close the change stream and print a message to the console when it is closed\n    await changeStream.close();    \n    console.log(\"closed the change stream\");\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 315
+    }
+  ]
+}

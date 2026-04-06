@@ -1,0 +1,73 @@
+{
+  "path": "node/authentication/aws-iam",
+  "product": "node",
+  "title": "AWS IAM Authentication Mechanism",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "The `MONGODB-AWS` authentication mechanism uses Amazon Web Services\nIdentity and Access Management (AWS IAM) credentials to authenticate a user to MongoDB.\nYou can use this mechanism only when authenticating to MongoDB Atlas.\n\n> **Tip:**&#x20;\n>\n> Configure Atlas for AWS IAM Authentication\n>\n> To learn more about configuring MongoDB Atlas for AWS IAM authentication, see\n> [Set Up Authentication with AWS IAM](atlas/security/aws-iam-authentication) in\n> the Atlas documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Specify MONGODB-AWS Authentication",
+      "headingLevel": 2,
+      "body": "The `MONGODB-AWS` authentication mechanism uses your Amazon Web Services\nIdentity and Access Management (AWS IAM) credentials to authenticate your\nuser. For the Node.js driver v7.1.0 and later, the [aws4](https://www.npmjs.com/package/aws4)\npackage is no longer required for AWS authentication, so you do not need to\ninstall the `aws4` package.To connect to a MongoDB instance with `MONGODB-AWS` authentication\nenabled, specify the `MONGODB-AWS` authentication mechanism.The driver checks for your credentials in the following sources in order:- Custom credential provider (if provided to the `MongoClient`)\n\n- Environment variables available through process.env\n\n- SSO credentials from the token cache\n\n- Web identity token credentials through the `AWS_WEB_IDENTITY_TOKEN_FILE`\n\n- Shared credentials and config `.ini` files\n\n- EC2 or ECS Instance Metadata Service. For more information, see [IAM Roles for Tasks](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html).> **Important:** The driver only reads the credentials from the first method that it detects\n> in the order as given by the preceding list. For example, if you specify\n> your AWS credentials in environment variables, the driver ignores any\n> credentials that you specified in a web identity token file.**Environment variables:**Environment VariablesTo authenticate to your MongoDB instance using AWS credentials stored in\nenvironment variables available through process.env, set the following\nvariables by using a shell:```bash\nexport AWS_ACCESS_KEY_ID=<awsKeyId>\nexport AWS_SECRET_ACCESS_KEY=<awsSecretKey>\nexport AWS_SESSION_TOKEN=<awsSessionToken>\n```> **Note:** Omit the line containing `AWS_SESSION_TOKEN` if you don't need an AWS\n> session token for that role.AWS recommends using regional AWS STS endpoints instead of global\nendpoints to reduce latency, build-in redundancy, and increase session token validity.\nTo set the AWS region, set [AWS\\_REGION](https://docs.aws.amazon.com/sdkref/latest/guide/feature-region.html)\nand [AWS\\_STS\\_REGIONAL\\_ENDPOINTS](https://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html)\nas environment variables, as shown in the following example:```bash\nexport AWS_STS_REGIONAL_ENDPOINTS=regional // Enables regional endpoints\nexport AWS_REGION=us-east-1 // Sets your AWS region\n```If both these environment variables aren't set, the default region is\n`us-east-1`. For a list of available AWS regions, see the\n[Regional Endpoints](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints)\nsection of the AWS Service Endpoints reference in the AWS documentation.After you've set the preceding environment variables, specify the `MONGODB-AWS`\nauthentication mechanism in your connection string as shown in the following example:```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**Web-identity-token-file:**Web Identity Token FileYou can use the OpenID Connect (OIDC) token obtained from a web identity\nprovider to authenticate to Amazon Elastic Kubernetes Service (EKS) or\nother services.To authenticate with your OIDC token you must first install\n[@aws-sdk/credential-providers](https://www.npmjs.com/package/@aws-sdk/credential-providers). You can\ninstall this dependency using the following `npm` command:```bash\nnpm install @aws-sdk/credential-providers\n```Next, create a file that contains your OIDC token. Then\nset the absolute path to this file in an environment variable by using\na shell as shown in the following example:```bash\nexport AWS_WEB_IDENTITY_TOKEN_FILE=<absolute path to file containing your OIDC token>\n```After you've set the preceding environment variable, specify the `MONGODB-AWS`\nauthentication mechanism in your connection string as shown in the following example:```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "export AWS_ACCESS_KEY_ID=<awsKeyId>\nexport AWS_SECRET_ACCESS_KEY=<awsSecretKey>\nexport AWS_SESSION_TOKEN=<awsSessionToken>",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "bash",
+          "content": "export AWS_STS_REGIONAL_ENDPOINTS=regional // Enables regional endpoints\nexport AWS_REGION=us-east-1 // Sets your AWS region",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 147
+        },
+        {
+          "language": "bash",
+          "content": "npm install @aws-sdk/credential-providers",
+          "tokenEstimate": 9
+        },
+        {
+          "language": "bash",
+          "content": "export AWS_WEB_IDENTITY_TOKEN_FILE=<absolute path to file containing your OIDC token>",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 147
+        }
+      ]
+    },
+    {
+      "heading": "Manually Specify AWS Credentials",
+      "headingLevel": 2,
+      "body": "When you install the optional `aws-sdk/credential-providers` dependency, the driver\nretrieves credentials in a priority order defined by the AWS SDK. If you have a shared AWS\ncredentials file or config file, the driver uses those credentials by default.\n\n> **Tip:** To learn more about how the `aws-sdk/credential-providers` dependency retrieves\n> credentials, see the [AWS SDK documentation](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/#fromnodeproviderchain).\n\nTo manually specify the AWS credentials to retrieve, you can set the `AWS_CREDENTIAL_PROVIDER`\nproperty to a defined credential provider from the AWS SDK. The following example passes a provider chain\nfrom the AWS SDK to the AWS authentication mechanism:\n\n```javascript\nconst { MongoClient } = require('mongodb');\nconst { fromNodeProviderChain } = require('@aws-sdk/credential-providers');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: fromNodeProviderChain()\n    }\n});\n```\n\nTo use a custom provider, you can pass any asynchronous function that returns your credentials\nto the `AWS_CREDENTIAL_PROVIDER` authentication mechanism property. The following example shows how to pass\na custom provider function that fetches credentials from environment variables to the\nAWS authentication mechanism:\n\n```javascript\nconst { MongoClient } = require('mongodb');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: async () => {\n            return {\n                accessKeyId: process.env.ACCESS_KEY_ID,\n                secretAccessKey: process.env.SECRET_ACCESS_KEY\n            }\n        }\n    }\n});\n```\n\nA custom credential provider takes precedence over any other form of authentication.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require('mongodb');\nconst { fromNodeProviderChain } = require('@aws-sdk/credential-providers');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: fromNodeProviderChain()\n    }\n});",
+          "tokenEstimate": 65
+        },
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require('mongodb');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: async () => {\n            return {\n                accessKeyId: process.env.ACCESS_KEY_ID,\n                secretAccessKey: process.env.SECRET_ACCESS_KEY\n            }\n        }\n    }\n});",
+          "tokenEstimate": 77
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the methods or types discussed on this\npage, see the following API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)",
+      "codeBlocks": []
+    }
+  ]
+}

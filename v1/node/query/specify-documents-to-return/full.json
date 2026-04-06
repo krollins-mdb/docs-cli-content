@@ -1,0 +1,120 @@
+{
+  "path": "node/query/specify-documents-to-return",
+  "product": "node",
+  "title": "Specify Documents to Return",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to specify which documents to return from a read\noperation by using the following methods:\n\n- `sort()`: Specifies the sort order for the returned documents.\n\n- `limit()`: Specifies the maximum number of documents to return from a query.\n\n- `skip()`: Specifies the number of documents to skip before returning query results.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Data for Examples",
+      "headingLevel": 3,
+      "body": "To run the examples in this guide, use the following code snippet to insert documents\nthat describe books into the `myDB.books` collection:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"books\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"name\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 },\n  { \"_id\": 2, \"name\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 },\n  { \"_id\": 3, \"name\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 },\n  { \"_id\": 4, \"name\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 },\n  { \"_id\": 5, \"name\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 },\n  { \"_id\": 6, \"name\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 },\n]);\n```\n\n> **Note:** You must chain a cursor method such as `sort()`, `limit()`,\n> `skip()`, or `project()` to a read operation before iterating the cursor.\n> If you specify a cursor method after iterating the cursor, the setting does\n> not apply to the read operation.\n\n> **Note:** Your query operation may return a reference to a\n> cursor that contains matching documents. To learn how to\n> examine data stored in the cursor, see the\n> [Access Data From a Cursor](node-access-cursor).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"books\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"name\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 },\n  { \"_id\": 2, \"name\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 },\n  { \"_id\": 3, \"name\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 },\n  { \"_id\": 4, \"name\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 },\n  { \"_id\": 5, \"name\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 },\n  { \"_id\": 6, \"name\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 },\n]);",
+          "tokenEstimate": 212
+        }
+      ]
+    },
+    {
+      "heading": "Sort",
+      "headingLevel": 2,
+      "body": "Use the `sort()` method to change the order in which read operations return\ndocuments. This method tells MongoDB to order returned documents by the\nvalues of one or more fields in a certain direction. To sort returned\ndocuments by a field in ascending (lowest first) order, use a value of\n`1`. To sort in descending (greatest first) order instead, use `-1`.\nIf you do not specify a sort, MongoDB does not guarantee the order of\nquery results.\n\nThe following example passes the sort document to a read operation to ensure that the\noperation returns books with longer lengths before books with shorter\nlengths:\n\n```javascript\n// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nIn this case, the number `-1` tells the read operation to sort the\nbooks in descending order by length. `find()` returns the following\ndocuments when this sort is used with an empty query:\n\n```json\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }\n```\n\nSometimes, the order of two or more documents is ambiguous using a specified sort. In the\npreceding example, the documents that have `title` values of `\"A Dance with Dragons\"` and\n`\"Infinite Jest\"` both have a `length` of `1104`, so the order in which they are\nreturned is not guaranteed. To resolve ties in your sorted results in a repeatable way,\nadd more fields to the sort document:\n\n```javascript\n// define an empty query document\nconst query = {};\n// sort in ascending (1) order by length\nconst sortFields = { length: 1, author: 1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nWith the addition of the `author` field to the sort document, the read operation sorts\nmatching documents first by `length` then, if there is a tie, by `author`. Matched\ndocument fields are compared in the same order as fields are specified in the sort\ndocument. `find()` returns the following ordering of documents when this sort is used on\nthe documents matching the query:\n\n```json\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }",
+          "tokenEstimate": 179
+        },
+        {
+          "language": "javascript",
+          "content": "// define an empty query document\nconst query = {};\n// sort in ascending (1) order by length\nconst sortFields = { length: 1, author: 1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 64
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }",
+          "tokenEstimate": 179
+        }
+      ]
+    },
+    {
+      "heading": "Limit",
+      "headingLevel": 2,
+      "body": "Use the `limit()` method to cap the number of documents that can be returned from a read\noperation. This method specifies the maximum number of documents that the operation can\nreturn, but the operation can return a smaller number of documents if there are not enough\ndocuments present to reach the limit. If `limit()` is used with the [skip()](node-fundamentals-skip) method, the skip applies first and the limit only applies to the\ndocuments left over after the skip.\n\nThis example performs the following actions:\n\n- Uses an empty query filter to match all documents in the collection\n\n- Calls the `sort()` method to apply a descending sort on the `length` field to the results\n\n- Calls the `limit()` method to return only the first `3` results\n\n```javascript\n// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst limitNum = 3;\nconst cursor = myColl.find(query).sort(sortFields).limit(limitNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThe code example above outputs the following three documents, sorted by\nlength:\n\n```json\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 6, \"title\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n```\n\n> **Note:** The order in which you call `limit()` and `sort()` does not matter because the\n> driver reorders the calls to apply the sort first. The following two calls are\n> equivalent:\n>\n> ```javascript\n> myColl.find(query).sort({ length: -1 }).limit(3);\n> myColl.find(query).limit(3).sort({ length: -1 });\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst limitNum = 3;\nconst cursor = myColl.find(query).sort(sortFields).limit(limitNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 70
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 6, \"title\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }",
+          "tokenEstimate": 88
+        },
+        {
+          "language": "javascript",
+          "content": "myColl.find(query).sort({ length: -1 }).limit(3);\nmyColl.find(query).limit(3).sort({ length: -1 });",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Skip",
+      "headingLevel": 2,
+      "body": "Use the `skip()` method to omit documents from the beginning of the read operation\nresults. You can combine `skip()` with\n[sort()](node-fundamentals-sort) to omit the top\n(for descending order) or bottom (for ascending order) results for a\ngiven query. Since the [order of documents returned](manual/reference/method/cursor.sort) is not guaranteed in\nthe absence of a sort, using `skip()` without using `sort()` omits\narbitrary documents.\n\nIf the value of `skip()` exceeds the number of matched documents for\na query, then that query returns no documents.\n\nThis example queries the collection for the books with the fifth and sixth highest lengths\nby performing the following actions:\n\n- Uses an empty query filter to match all documents in the collection\n\n- Calls the `sort()` method to apply a descending sort to the `length` field, which returns longer books before shorter books\n\n- Calls the `skip()` method to omit the first four matching documents from the result\n\n```javascript\n// define an empty query document\nconst query = {};\nconst sortFields = { length: -1 };\nconst skipNum = 4;\nconst cursor = myColl.find(query).sort(sortFields).skip(skipNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nSince the query skips the first four matching documents, the preceding code snippet prints\nthe fifth and sixth highest length documents:\n\n```json\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// define an empty query document\nconst query = {};\nconst sortFields = { length: -1 };\nconst skipNum = 4;\nconst cursor = myColl.find(query).sort(sortFields).skip(skipNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }",
+          "tokenEstimate": 63
+        }
+      ]
+    },
+    {
+      "heading": "Combine Limit, Sort, and Skip",
+      "headingLevel": 2,
+      "body": "You can combine the `limit`, `sort`, and `skip` options in a single\noperation. This allows you to set a maximum number of sorted documents to\nreturn, skipping a specified number of documents before returning.\n\nThe following example returns documents with the `length` value of\n`\"1104\"`. The results are sorted in alphabetical order, skipping the first\ndocument and includes only the first result:\n\n**Input:**\n\n```javascript\nconst query = {length: \"1104\"};\n\nconst cursor = myColl.find(query).sort({ title: 1 }).skip(1).limit(1);\n\nfor await (const doc of cursor) {\n   console.dir(doc);\n}\n```\n\n**Output:**\n\n```json\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n```\n\n> **Note:** The order in which you call these methods doesn't change the documents\n> that are returned.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = {length: \"1104\"};\n\nconst cursor = myColl.find(query).sort({ title: 1 }).skip(1).limit(1);\n\nfor await (const doc of cursor) {\n   console.dir(doc);\n}",
+          "tokenEstimate": 48
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Additional Information",
+      "headingLevel": 2,
+      "body": "For more information about specifying a query, see [Query Operations](node-query).\n\nFor more information about retrieving documents, see [Find Documents](node-fundamentals-retrieve-data).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 3,
+      "body": "To learn more about any of the methods discussed in this\nguide, see the following API documentation:\n\n- [find()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#find)\n\n- [limit()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#limit)\n\n- [sort()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#sort)\n\n- [skip()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#skip)",
+      "codeBlocks": []
+    }
+  ]
+}

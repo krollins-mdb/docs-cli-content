@@ -1,0 +1,128 @@
+{
+  "path": "node/next-vercel",
+  "product": "node",
+  "title": "Tutorial: Deploy a Next.js Application on Vercel",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this tutorial, you learn how to create a Next.js application\nthat connects to MongoDB. You also learn how to deploy the\napplication on Vercel, a platform that hosts Next.js\napplications.\n\n> **Note:** This tutorial uses the [Next.js Pages Router](https://nextjs.org/docs/pages) instead of the App\n> Router that Next.js introduced in version 13.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 3,
+      "body": "Before you begin, complete the following steps:\n\n- Complete the [MongoDB Get Started](get-started) guide to set\n  up a new Atlas account and load sample data into a new\n  free tier MongoDB deployment.\n\n- Get the [connection string](manual/reference/connection-string) for your cluster and save it to use\n  later in this tutorial.\n\n- Create a Vercel account by visiting the [Vercel website](https://vercel.com/).\n\n- [Download Node.js](https://nodejs.org/en/download) version 18 or later.\n\n- Ensure you have [npm and npx installed](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Tutorial",
+      "headingLevel": 2,
+      "body": "This tutorial guides you through the following steps:\n\n- Create a Next.js application.\n\n- Connect MongoDB to Next.js.\n\n- Query MongoDB from Next.js.\n\n- Deploy your application on Vercel.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a Next.js Application",
+      "headingLevel": 3,
+      "body": "You can create a Next.js application with MongoDB integration by\nusing the **with-mongodb** example template.\n\nTo create a new Next.js application with MongoDB\nintegration, run the following command in your terminal:\n\n```bash\nnpx create-next-app --example with-mongodb sample_mflix\n```\n\nThe command uses `npx create-next-app` and the\n`--example with-mongodb` parameter to create an\napplication from the MongoDB integration example.\n`sample_mflix` is the name of the application. Use a\ndifferent name if you prefer.\n\nAfter the command completes, navigate to your project\ndirectory by running the following command:\n\n```bash\ncd sample_mflix\n```\n\nInstall the npm dependencies by running the following\ncommand:\n\n```bash\nnpm install\n```\n\nTo start your Next.js application, run the following command:\n\n```bash\nnpm run dev\n```\n\nAfter the application builds, navigate to\n`localhost:3000` in your browser. The page displays an\nerror message because you have not yet provided your MongoDB\nconnection string.",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "npx create-next-app --example with-mongodb sample_mflix",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "bash",
+          "content": "cd sample_mflix",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "bash",
+          "content": "npm install",
+          "tokenEstimate": 2
+        },
+        {
+          "language": "bash",
+          "content": "npm run dev",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Connect MongoDB to Next.js",
+      "headingLevel": 3,
+      "body": "The Next.js application directory contains an\n`env.local.example` file. Rename this file to\n`env.local` and open it. The file contains one property:\n`MONGODB_URI`.\n\nSet your MongoDB connection string as the value for the\n`MONGODB_URI` property. Your `env.local` file looks\nsimilar to the following example:\n\n```none\nMONGODB_URI=<Your connection string>\n```\n\nTo verify your configuration, restart your Next.js\napplication by running the following command in your\nterminal:\n\n```bash\nnpm run dev\n```\n\nWhen the application builds, navigate to `localhost:3000`\nin your browser. You see the **with-mongodb** Next.js\napplication welcome page.\n\n> **Tip:** Your connection is successful if you see the message\n> \"*You are connected to MongoDB*\". If you see the message\n> \"*You are NOT connected to MongoDB*\", verify your\n> connection string and ensure that your database user and\n> network connection are configured correctly.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "MONGODB_URI=<Your connection string>",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "bash",
+          "content": "npm run dev",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Query MongoDB from Next.js",
+      "headingLevel": 3,
+      "body": "Next.js supports multiple ways to retrieve data. You can\ncreate API endpoints, run server-side rendered functions for\na page, or generate static pages by getting data at build\ntime. This tutorial shows examples of all three methods.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example 1: Create a Next.js API Endpoint for MongoDB",
+      "headingLevel": 4,
+      "body": "To create a new API endpoint route, create an `api`\ndirectory in your `pages` directory. Each file you create\nin the `api` directory becomes an individual API endpoint.\n\nCreate a new file in the `api` directory called\n`movies.tsx`. This endpoint returns a list of movies from\nyour MongoDB database. Add the following code to the\n`movies.tsx` file:\n\n```typescript\nimport clientPromise from \"../../lib/mongodb\";\nimport { NextApiRequest, NextApiResponse } from 'next';\n\nexport default async (req: NextApiRequest, res: NextApiResponse) => {\n    try {\n        const client = await clientPromise;\n        const db = client.db(\"sample_mflix\");\n        const movies = await db\n            .collection(\"movies\")\n            .find({})\n            .sort({ metacritic: -1 })\n            .limit(10)\n            .toArray();\n        res.json(movies);\n    } catch (e) {\n        console.error(e);\n    }\n}\n```\n\nThe preceding code creates an API endpoint that returns the\ntop 10 movies from the `sample_mflix` database sorted by\ntheir `metacritic` rating in descending order. The\n`res.json` method serves the array of movies in JSON format\nto the browser. When you navigate to\n`localhost:3000/api/movies`, the browser displays a list of movies\nreturned from your database.\n\nAdd more API routes by creating additional files in the\n`api` directory.",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import clientPromise from \"../../lib/mongodb\";\nimport { NextApiRequest, NextApiResponse } from 'next';\n\nexport default async (req: NextApiRequest, res: NextApiResponse) => {\n    try {\n        const client = await clientPromise;\n        const db = client.db(\"sample_mflix\");\n        const movies = await db\n            .collection(\"movies\")\n            .find({})\n            .sort({ metacritic: -1 })\n            .limit(10)\n            .toArray();\n        res.json(movies);\n    } catch (e) {\n        console.error(e);\n    }\n}",
+          "tokenEstimate": 120
+        }
+      ]
+    },
+    {
+      "heading": "Example 2: Next.js Pages with MongoDB",
+      "headingLevel": 4,
+      "body": "You can get data directly into your Next.js pages by using the\n`getServerSideProps()` method. This method is available\nwhen you use Next.js pages.\n\nThe `getServerSideProps()` method forces a Next.js page to\nuse server-side rendering to load. Every time the page loads,\nthe `getServerSideProps()` method runs on the backend, gets\ndata, and sends it into the React component through props.\nThe code inside `getServerSideProps()` is never sent to the\nclient.\n\nCreate a new file in the `pages` directory called\n`movies.tsx`. The following code shows how to use\n`getServerSideProps()` to query MongoDB:\n\n```typescript\nimport clientPromise from \"../lib/mongodb\";\nimport { GetServerSideProps } from 'next';\n\ninterface Movie {\n   _id: string;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface MoviesProps {\n   movies: Movie[];\n}\n\nconst Movies: React.FC<MoviesProps> = ({ movies }) => {\n   return (\n       <div>\n           <h1>Top 20 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n};\n\nexport default Movies;\n\nexport const getServerSideProps: GetServerSideProps = async () => {\n   try {\n       const client = await clientPromise;\n       const db = client.db(\"sample_mflix\");\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(20)\n           .toArray();\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return { props: { movies: [] } };\n   }\n};\n```\n\nThe `Movies` page component receives the props from the\n`getServerSideProps()` method and uses that data to render\nthe page. The page shows the top movie title, metacritic\nrating, and plot.\n\n> **Note:** The `getServerSideProps()` method runs every time the\n> page is called. If your data does not change often, use\n> static page generation instead.",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import clientPromise from \"../lib/mongodb\";\nimport { GetServerSideProps } from 'next';\n\ninterface Movie {\n   _id: string;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface MoviesProps {\n   movies: Movie[];\n}\n\nconst Movies: React.FC<MoviesProps> = ({ movies }) => {\n   return (\n       <div>\n           <h1>Top 20 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n};\n\nexport default Movies;\n\nexport const getServerSideProps: GetServerSideProps = async () => {\n   try {\n       const client = await clientPromise;\n       const db = client.db(\"sample_mflix\");\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(20)\n           .toArray();\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return { props: { movies: [] } };\n   }\n};",
+          "tokenEstimate": 312
+        }
+      ]
+    },
+    {
+      "heading": "Example 3: Next.js Static Generation with MongoDB",
+      "headingLevel": 4,
+      "body": "You can use static page generation to pre-render pages at build time.\nThis method is useful when your data does not change\nfrequently.\n\nCreate a new file in the `pages` directory called\n`top.tsx`. The following code shows how to use\n`getStaticProps()` to render the top one-thousand highest\nrated movies from your MongoDB database:\n\n```typescript\nimport { ObjectId } from \"mongodb\";\nimport clientPromise from \"../lib/mongodb\";\nimport { GetStaticProps } from \"next\";\n\ninterface Movie {\n   _id: ObjectId;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface TopProps {\n   movies: Movie[];\n}\n\nexport default function Top({ movies }: TopProps) {\n   return (\n       <div>\n           <h1>Top 1000 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id.toString()}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n}\n\nexport const getStaticProps: GetStaticProps<TopProps> = async () => {\n   try {\n       const client = await clientPromise;\n\n       const db = client.db(\"sample_mflix\");\n\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(1000)\n           .toArray();\n\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return {\n           props: { movies: [] },\n       };\n   }\n};\n```\n\nWhen you navigate to `localhost:3000/top`, the browser displays\na list of movies.\n\nIn development mode, your application calls the `getStaticProps()` method\nevery time similar to the `getServerSideProps()` method. In\nproduction mode, the `/top` page pre-renders and loads\nalmost immediately.\n\nTo run your Next.js application in production mode, build it\nfirst. Then, run the `start` command to serve the built\napplication. Run the following commands in your terminal:\n\n```bash\nnpm run build\nnpm run start\n```\n\nWhen you run the `npm run start` command, Next.js\nserves your application in production mode. The\n`getStaticProps()` method does not run every time you\naccess the `/top` route because Next.js serves the page statically.\nTo see the pre-rendered static page, view the\n`.next/server/pages/top.html` file.",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { ObjectId } from \"mongodb\";\nimport clientPromise from \"../lib/mongodb\";\nimport { GetStaticProps } from \"next\";\n\ninterface Movie {\n   _id: ObjectId;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface TopProps {\n   movies: Movie[];\n}\n\nexport default function Top({ movies }: TopProps) {\n   return (\n       <div>\n           <h1>Top 1000 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id.toString()}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n}\n\nexport const getStaticProps: GetStaticProps<TopProps> = async () => {\n   try {\n       const client = await clientPromise;\n\n       const db = client.db(\"sample_mflix\");\n\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(1000)\n           .toArray();\n\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return {\n           props: { movies: [] },\n       };\n   }\n};",
+          "tokenEstimate": 318
+        },
+        {
+          "language": "bash",
+          "content": "npm run build\nnpm run start",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Deploy your application on Vercel",
+      "headingLevel": 3,
+      "body": "Deploy your Next.js application with MongoDB on Vercel.\nBefore you deploy, you must commit the application code from the\npreceding steps to a GitHub repository. To learn\nhow to create a Github account and commit to a repository,\nsee the [GitHub documentation](https://docs.github.com/en/get-started).\n\nAfter you commit your code to a repository, navigate to\n[Vercel](https://vercel.com/) and log in. On your Vercel\ndashboard, click the **Import Project** button, and then click\n**Import Git Repository**.\n\nEnter your GitHub repository URL and click **Continue**. On\nthe next screen, add the variables from your `env.local`\nfile.\n\nClick the **Deploy** button. Vercel automatically builds and\ndeploys your Next.js application. When it completes, you\nwill receive a URL where you can access your application.\n\n> **Note:** Vercel uses dynamic IP addresses, so you must add an exception to\n> access your data from any IP address in your MongoDB Atlas\n> dashboard. To do this, navigate to the Network Access tab,\n> click the `Add IP Address` button, and then click the\n> **Allow Access From Anywhere** button.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Additional Resources",
+      "headingLevel": 2,
+      "body": "For more information about the concepts in this tutorial, see the\nfollowing resources:\n\n- [Next.js Documentation](https://nextjs.org/docs)\n\n- [Vercel Documentation](https://vercel.com/docs)\n\n- [Next.js Dynamic API Routes](https://nextjs.org/docs/api-routes/dynamic-api-routes)",
+      "codeBlocks": []
+    }
+  ]
+}

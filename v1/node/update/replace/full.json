@@ -1,0 +1,75 @@
+{
+  "path": "node/update/replace",
+  "product": "node",
+  "title": "Replace Documents",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to use Node.js driver to perform a replace\noperation on a document in a MongoDB collection. A replace operation performs\ndifferently than an update operation. An update operation\nmodifies only the specified fields in a target document. A replace operation removes *all* fields\nin the target document and replaces them with new ones.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Replace a Document",
+      "headingLevel": 2,
+      "body": "To perform a replacement operation, create a **replacement document** that\nconsists of the fields and values that you want to use in your\n**replace** operation. Replacement documents use the following format:\n\n```javascript\n{\n   <field>: {\n      <value>\n   },\n   <field>: {\n      ...\n   }\n}\n```\n\nReplacement documents are the documents that you want to take the place of\nexisting documents that match the query filters.\n\nYou can specify more options, such as `upsert`, using the\noptional `options` parameter. If you set the `upsert` option field to\n`true` the method inserts a new document if no document matches the query.\n\nThe `replaceOne()` method throws an exception if an error occurs\nduring execution. For example, if you specify a value that violates a\nunique index rule, `replaceOne()` throws a `duplicate key error`.\n\n> **Note:** If your application requires the document after updating,\n> use the [collection.findOneAndReplace()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndReplace)\n> method which has a similar interface to `replaceOne()`.\n> You can configure `findOneAndReplace()` to return either the\n> original matched document or the replacement document.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   <field>: {\n      <value>\n   },\n   <field>: {\n      ...\n   }\n}",
+          "tokenEstimate": 22
+        }
+      ]
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 3,
+      "body": "Consider a document in the `myDB.items` collection with fields\ndescribing an item for sale, its price, and the quantity available:\n\n```javascript\n{\n   _id: 501,\n   item: \"3-wick beeswax candle\",\n   price: 18.99,\n   quantity: 10,\n}\n```\n\nSuppose you wanted to replace this document with one that contains a\ndescription for an entirely different item. Your replacement operation might\nresemble the following:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 501 };\n\n// replace the matched document with the replacement document\nconst replacementDocument = {\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n};\nconst result = await myColl.replaceOne(filter, replacementDocument);\n```\n\nThe replaced document contains the contents of the replacement document\nand the immutable `_id` field as follows:\n\n```javascript\n{\n   _id: 501,\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n}\n```\n\nIf a replace operation fails to match any documents in a collection, it\ndoes not make any changes. Replace operations can be configured to perform\nan [upsert](node-upsert) which\nattempts to perform the replacement, but if no documents are matched, it\ninserts a new document with the specified fields and values.\n\nYou cannot modify the `_id` field of a document nor change a field to\na value that violates a unique index constraint. See the MongoDB Server manual\nfor more information on [unique indexes](manual/core/index-unique).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   _id: 501,\n   item: \"3-wick beeswax candle\",\n   price: 18.99,\n   quantity: 10,\n}",
+          "tokenEstimate": 35
+        },
+        {
+          "language": "javascript",
+          "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 501 };\n\n// replace the matched document with the replacement document\nconst replacementDocument = {\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n};\nconst result = await myColl.replaceOne(filter, replacementDocument);",
+          "tokenEstimate": 83
+        },
+        {
+          "language": "javascript",
+          "content": "{\n   _id: 501,\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n}",
+          "tokenEstimate": 33
+        }
+      ]
+    },
+    {
+      "heading": "replaceOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).The following code is a complete, standalone file that performs a replace one\noperation:**JavaScript:**JavaScript```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**TypeScript:**TypeScript```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```Running the preceding example results in the following output:```none\nModified 1 document(s)\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 214
+        },
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 159
+        },
+        {
+          "language": "none",
+          "content": "Modified 1 document(s)",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the types or methods discussed in this guide, see the\nfollowing API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [Db](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html)\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html)\n\n- [replaceOne()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#replaceOne)\n\n- [findOneAndReplace()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndReplace)",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Specify a Primary Key Factory",
+  "headingLevel": 2,
+  "body": "To specify a primary key factory, apply the `pkFactory` option to your\n`MongoClient` instance.\n\nThe following code snippet applies the `pkFactory` option to\ngenerate `_id` values of type `uuid`:\n\n```javascript\nconst { UUID } = require('bson');\n...\nconst client = new MongoClient(uri, {\n  pkFactory: { createPk: () =>  new UUID().toBinary() }\n});\n```\n\n> **Note:**&#x20;\n>\n> Data Consistency\n>\n> If you insert a document with an `_id` field with a different\n> type than the type specified by the primary key factory, then you\n> will have inconsistent data.\n>\n> For example, if you run the following insert operation on a primary\n> key factory that generates `uuid` types, your `_id` values will\n> contain both the `uuid` and `string` types:\n>\n> ```javascript\n> myColl.insertOne({ _id: \"user1388\", ... });\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { UUID } = require('bson');\n...\nconst client = new MongoClient(uri, {\n  pkFactory: { createPk: () =>  new UUID().toBinary() }\n});",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "javascript",
+      "content": "myColl.insertOne({ _id: \"user1388\", ... });",
+      "tokenEstimate": 15
+    }
+  ]
+}

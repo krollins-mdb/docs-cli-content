@@ -1,0 +1,27 @@
+{
+  "heading": "Operational Considerations",
+  "headingLevel": 2,
+  "body": "One common mistake when using `async` methods is to forget to use `await`\noperator on Promises to get the value of the result rather than the Promise\nobject. Consider the following example in which we iterate over a cursor\nusing `hasNext()`, which returns a Promise that resolves to a boolean that\nindicates whether more results exist, and `next()` which returns a\nPromise that resolves to the next entry the cursor is pointing to.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet may cause an infinite loop\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}\n```\n\nSince the call to `hasNext()` returns a `Promise`, the conditional\nstatement returns `true` regardless of the value that it resolves to.\n\nIf we alter the code to `await` the call to `next()` only, as demonstrated\nin the following code snippet, it throws the following error:\n`MongoError: Cursor is closed`.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet throws a MongoError\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}\n```\n\nWhile `hasNext()` is not called until after the result of `next()` returns,\nthe call to `hasNext()` returns a Promise which evaluates to `true` rather\nthan the value it resolves to, similar to the prior example. The code\nattempts to call `next()` on a Cursor that has already returned its results\nand closed as a result.\n\nIf we alter the code to only `await` the call to `hasNext()` as shown in\nthe following example, the console prints Promise objects rather than the\ndocument objects.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet prints Promises instead of the objects they resolve to\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}\n```\n\nUse `await` before both the `hasNext()` and `next()` method calls to\nensure that you are operating on the correct return values as demonstrated\nin the following code:\n\n```js\nasync function run() {\n  ...\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "async function run() {\n  ...\n  // WARNING: this snippet may cause an infinite loop\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "js",
+      "content": "async function run() {\n  ...\n  // WARNING: this snippet throws a MongoError\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "js",
+      "content": "async function run() {\n  ...\n  // WARNING: this snippet prints Promises instead of the objects they resolve to\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "js",
+      "content": "async function run() {\n  ...\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}",
+      "tokenEstimate": 33
+    }
+  ]
+}

@@ -1,0 +1,248 @@
+{
+  "path": "node/multiple-connections",
+  "product": "node",
+  "title": "Multiple Connections in a Single Application",
+  "summary": {
+    "total": 17,
+    "byLanguage": {
+      "bash": 4,
+      "javascript": 10,
+      "text": 1,
+      "console": 2
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Create a New Project",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Install Dependencies",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 4
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Set Up Environment Variables",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 3
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Project Structure",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 95
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Create the Primary Connection File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 283
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Create the Product Schema",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 92
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Use the Primary Connection",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 466
+          },
+          {
+            "language": "console",
+            "tokenEstimate": 58
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Create the Secondary Connection File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 251
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Use the Secondary Connection",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 427
+          },
+          {
+            "language": "console",
+            "tokenEstimate": 122
+          }
+        ]
+      },
+      {
+        "heading": "Use an Existing Schema",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 254
+          }
+        ]
+      },
+      {
+        "heading": "Set Schema Flexibility",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 334
+          }
+        ]
+      },
+      {
+        "heading": "Example: Store with Separate Database",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 886
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 315
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "Step 1: Create a New Project",
+      "content": "mkdir mongodb-multiple-connections\ncd mongodb-multiple-connections\nnpm init -y",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Install Dependencies",
+      "content": "npm install express mongoose",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "bash",
+      "section": "Step 3: Set Up Environment Variables",
+      "content": "touch .env",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "section": "Step 3: Set Up Environment Variables",
+      "content": ":orphan:\n\nPRIMARY_CONN_STR=<your-primary-connection-string>\nSECONDARY_CONN_STR=<your-secondary-connection-string>\n",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "bash",
+      "section": "Step 3: Set Up Environment Variables",
+      "content": "npm install dotenv",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "section": "Project Structure",
+      "content": "mongodb-multiple-connections/\n├── .env                          # Environment variables\n├── package.json                  # Project dependencies\n├── package-lock.json             # Dependency lock file\n├── node_modules/                 # Installed packages\n├── index.js                      # Main application file\n├── db.primary.js                 # Primary connection configuration\n├── db.secondary.js               # Secondary connection configuration\n└── product.schema.js             # Product schema definition",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "javascript",
+      "section": "Step 1: Create the Primary Connection File",
+      "content": "require('dotenv').config();\nconst mongoose = require(\"mongoose\");\n\nmodule.exports = async (uri, options = {}) => {\n  // By default, Mongoose skips properties not defined in the schema (strictQuery). \n  // You can adjust it based on your configuration.\n  mongoose.set('strictQuery', true);\n\n  // Connect to MongoDB\n  try {\n    await mongoose.connect(uri, options);\n    console.info(\"MongoDB primary connection initiated\");\n  } catch (err) {\n    console.error(\"MongoDB primary connection failed, \" + err);\n  }\n\n  // Event handling\n  mongoose.connection.once('open', () => console.info(\"MongoDB primary connection opened!\"));\n  mongoose.connection.on('connected', () => console.info(\"MongoDB primary connection succeeded!\"));\n  mongoose.connection.on('error', (err) => {\n    console.error(\"MongoDB primary connection failed, \" + err);\n    mongoose.disconnect();\n  });\n  mongoose.connection.on('disconnected', () => console.info(\"MongoDB primary connection disconnected!\"));\n\n  // Graceful exit\n  process.on('SIGINT', async () => {\n    try {\n      await mongoose.connection.close();\n      console.info(\"Mongoose primary connection disconnected through app termination!\");\n      process.exit(0);\n    } catch (err) {\n      console.error(\"Error during graceful shutdown:\", err);\n      process.exit(1);\n    }\n  });\n}",
+      "tokenEstimate": 283
+    },
+    {
+      "language": "javascript",
+      "section": "Step 2: Create the Product Schema",
+      "content": "const mongoose = require(\"mongoose\");\n\nmodule.exports = (options = {}) => {\n  // Schema for Product\n  return new mongoose.Schema(\n    {\n      store: {\n        _id: mongoose.Types.ObjectId, // Reference-id to the store collection\n        name: String\n        },\n        name: String,\n        price: Number,\n        category: String,\n        description: String\n        // add required properties\n  }, \n      options\n  );\n}",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "javascript",
+      "section": "Step 3: Use the Primary Connection",
+      "content": "// Load environment variables\nrequire('dotenv').config();\nconst mongoose = require(\"mongoose\");\n\n// Async function to establish the primary MongoDB connection\nasync function establishPrimaryConnection() {\n    try {\n        await require(\"./db.primary.js\")(process.env.PRIMARY_CONN_STR, {\n            // (optional) connection options\n        });\n    } catch (error) {\n        console.error('Failed to establish primary connection:', error);\n        process.exit(1);\n    }\n}\n\n// Initialize connection\nestablishPrimaryConnection();\n\n// Import Product Schema\nconst productSchema = require(\"./product.schema.js\")({\n    collection: \"products\",\n    // Pass configuration options if needed\n});\n\n// Create Model\nconst ProductModel = mongoose.model(\"Product\", productSchema);\n\n// Sample products data\nconst sampleProducts = [\n    {\n        name: \"Laptop Pro\",\n        price: 1299.99,\n        category: \"Electronics\",\n        description: \"High-performance laptop for professionals\"\n    },\n    {\n        name: \"Wireless Headphones\",\n        price: 199.99,\n        category: \"Electronics\",\n        description: \"Premium noise-cancelling headphones\"\n    },\n    {\n        name: \"Coffee Maker\",\n        price: 89.99,\n        category: \"Kitchen\",\n        description: \"Automatic drip coffee maker\"\n    }\n];\n\n// Wait for connection to be ready before executing operations\nmongoose.connection.once('open', async () => {\n    console.log('Primary database connected, executing operations...');\n\n    try {\n        // Check if products already exist\n        const existingCount = await ProductModel.countDocuments();\n        console.log(`Existing products in primary DB: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            console.log('Inserting sample products into primary database...');\n            await ProductModel.insertMany(sampleProducts);\n            console.log('Sample products inserted into primary database!');\n        }\n\n        // Find and display a product\n        let product = await ProductModel.findOne();\n        console.log('Product found in primary DB:', product);\n        \n        // Display all products\n        const allProducts = await ProductModel.find();\n        console.log(`Total products in primary DB: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with primary database operations:', error);\n    }\n});\n",
+      "tokenEstimate": 466
+    },
+    {
+      "language": "console",
+      "section": "Step 3: Use the Primary Connection",
+      "content": "Primary database connected, executing operations...\nMongoDB primary connection initiated\nExisting products in primary DB: 3\nProduct found in primary DB: {\n_id: new ObjectId('...'),\nname: 'Laptop Pro',\n__v: 0\n}\nTotal products in primary DB: 3",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "javascript",
+      "section": "Step 1: Create the Secondary Connection File",
+      "content": "const mongoose = require(\"mongoose\");\n\nmodule.exports = (uri, options = {}) => {\n    // Connect to MongoDB\n    const db = mongoose.createConnection(uri, options);\n    \n    // By default, Mongoose skips properties not defined in the schema (strictQuery). \n    // Adjust it based on your configuration.\n    db.set('strictQuery', true);\n    \n    // Event handling\n    db.once('open', () => console.info(\"MongoDB secondary connection opened!\"));\n    db.on('connected', () => console.info(`MongoDB secondary connection succeeded!`));\n    db.on('error', (err) => {\n        console.error(`MongoDB secondary connection failed, ` + err);\n        db.close();\n    });\n    db.on('disconnected', () => console.info(`MongoDB secondary connection disconnected!`));\n\n    // Graceful exit\n    process.on('SIGINT', async () => {\n        try {\n            await db.close();\n            console.info(`Mongoose secondary connection disconnected through app termination!`);\n            process.exit(0);\n        } catch (err) {\n            console.error(\"Error during graceful shutdown:\", err);\n            process.exit(1);\n        }\n    });\n\n    // Export db object\n    return db;\n}\n",
+      "tokenEstimate": 251
+    },
+    {
+      "language": "javascript",
+      "section": "Step 2: Use the Secondary Connection",
+      "content": "// Load environment variables\nrequire('dotenv').config();\n\n// Establish the secondary MongoDB connection\nconst db = require(\"./db.secondary.js\")(process.env.SECONDARY_CONN_STR, {\n    // (optional) connection options\n});\n\n// Import Product Schema\nconst SecondaryProductSchema = require(\"./product.schema.js\")({\n    collection: \"products\",\n    // Pass configuration options if needed\n});\n\n// Create Model using the secondary connection\nconst SecondaryProductModel = db.model(\"Product\", SecondaryProductSchema);\n\n// Sample products data for secondary database\nconst SecondarySampleProducts = [\n    {\n        name: \"Smart Watch\",\n        price: 199.99,\n        category: \"Electronics\",\n        description: \"Advanced fitness tracking smartwatch\"\n    },\n    {\n        name: \"Bluetooth Speaker\",\n        price: 79.99,\n        category: \"Electronics\", \n        description: \"Portable wireless speaker with premium sound\"\n    },\n    {\n        name: \"Desk Lamp\",\n        price: 49.99,\n        category: \"Home\",\n        description: \"LED desk lamp with adjustable brightness\"\n    }\n];\n\n// Wait for secondary connection to be ready before executing operations\ndb.once('open', async () => {\n    console.log('Secondary database connected, executing operations...');\n\n    try {\n        // Check if products already exist\n        const existingCount = await SecondaryProductModel.countDocuments();\n        console.log(`Existing products in secondary DB: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            console.log('Inserting sample products into secondary database...');\n            await SecondaryProductModel.insertMany(SecondarySampleProducts);\n            console.log('Sample products inserted into secondary database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryProductModel.findOne();\n        console.log('Product found in secondary DB:', product);\n        \n        // Display all products\n        const allProducts = await SecondaryProductModel.find();\n        console.log(`Total products in secondary DB: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with secondary database operations:', error);\n    }\n});",
+      "tokenEstimate": 427
+    },
+    {
+      "language": "console",
+      "section": "Step 2: Use the Secondary Connection",
+      "content": "Primary database connected, executing operations...\nMongoDB primary connection initiated\nMongoDB secondary connection succeeded!\nMongoDB secondary connection opened!\nSecondary database connected, executing operations...\nExisting products in primary DB: 3\nExisting products in secondary DB: 6\nProduct found in primary DB: {\n_id: new ObjectId('...'),\nname: 'Laptop Pro',\n__v: 0\n}\nProduct found in secondary DB: {\n_id: new ObjectId('...'),\nname: 'Smart Watch',\n__v: 0\n}\nTotal products in primary DB: 3\nTotal products in secondary DB: 3",
+      "tokenEstimate": 122
+    },
+    {
+      "language": "javascript",
+      "section": "Use an Existing Schema",
+      "content": "// Import Product Schema\nconst secondaryProductSchema = require(\"./product.schema.js\")({\n    collection: \"products\",\n    // Pass configuration options if needed\n});\n\n// Create Model\nconst SecondaryProductModel = db.model(\"Product\", secondaryProductSchema);\n\n// Wait for secondary connection to be ready before executing operations\ndb.once('open', async () => {\n    console.log('Secondary database connected, executing operations...');\n    \n    try {\n        // Check if products already exist in secondary database\n        const existingCount = await SecondaryProductModel.countDocuments();\n        console.log(`Existing products in secondary DB: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            console.log('Inserting sample products into secondary database...');\n            await SecondaryProductModel.insertMany(sampleProducts);\n            console.log('Sample products inserted into secondary database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryProductModel.findOne();\n        console.log('Product found in secondary DB:', product);\n        \n        // Display all products\n        const allProducts = await SecondaryProductModel.find();\n        console.log(`Total products in secondary DB: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with secondary database operations:', error);\n    }\n});\n",
+      "tokenEstimate": 254
+    },
+    {
+      "language": "javascript",
+      "section": "Set Schema Flexibility",
+      "content": "// Import Product Schema\nconst secondaryProductSchema = require(\"./product.schema.js\")({\n    collection: \"products\",\n    strict: false\n    // Pass configuration options if needed\n});\n\n// Create Model\nconst SecondaryProductModel = db.model(\"Product\", secondaryProductSchema);\n\n// Wait for secondary connection to be ready before executing operations\ndb.once('open', async () => {\n    console.log('Secondary database (flexible schema) connected, executing operations...');\n    \n    try {\n        // Check if products already exist in secondary database\n        const existingCount = await SecondaryProductModel.countDocuments();\n        console.log(`Existing products in secondary DB: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            // Add extra fields to demonstrate schema flexibility\n            const flexibleSampleProducts = sampleProducts.map(product => ({\n                ...product,\n                extraField: \"This field is not in the schema but will be saved due to strict: false\",\n                timestamp: new Date()\n            }));\n            \n            console.log('Inserting sample products with extra fields into secondary database...');\n            await SecondaryProductModel.insertMany(flexibleSampleProducts);\n            console.log('Sample products with extra fields inserted into secondary database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryProductModel.findOne();\n        console.log('Product found in secondary DB (flexible schema):', product);\n        \n        // Display all products\n        const allProducts = await SecondaryProductModel.find();\n        console.log(`Total products in secondary DB: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with secondary database operations:', error);\n    }\n});\n",
+      "tokenEstimate": 334
+    },
+    {
+      "language": "javascript",
+      "section": "Example: Store with Separate Database",
+      "content": "// Load environment variables\nrequire('dotenv').config();\n\n// Establish the secondary MongoDB connection\nconst db = require(\"./db.secondary.js\")(process.env.SECONDARY_CONN_STR, {\n    // (optional) connection options\n});\n\n// Import Product Schema\nconst secondaryProductSchema = require(\"./product.schema.js\")({\n    collection: \"products\",\n    // strict: false // that doesn't adhere strictly to the schema!\n    // Pass configuration options if needed\n});\n\n// Base sample products data\nconst sampleProducts = [\n    {\n        name: \"Laptop Pro\",\n        price: 1299.99,\n        category: \"Electronics\",\n        description: \"High-performance laptop for professionals\"\n    },\n    {\n        name: \"Wireless Headphones\",\n        price: 199.99,\n        category: \"Electronics\",\n        description: \"Premium noise-cancelling headphones\"\n    },\n    {\n        name: \"Coffee Maker\",\n        price: 89.99,\n        category: \"Kitchen\",\n        description: \"Automatic drip coffee maker\"\n    }\n];\n\n// Sample store-specific products\nconst storeAProducts = sampleProducts.map(product => ({\n    ...product,\n    store: { name: \"Store A\" },\n    storeId: \"A\"\n}));\n\nconst storeBProducts = [\n    {\n        name: \"Gaming Chair\",\n        price: 299.99,\n        category: \"Furniture\",\n        description: \"Ergonomic gaming chair with RGB lighting\",\n        store: { name: \"Store B\" },\n        storeId: \"B\"\n    },\n    {\n        name: \"Mechanical Keyboard\",\n        price: 149.99,\n        category: \"Electronics\",\n        description: \"RGB mechanical gaming keyboard\",\n        store: { name: \"Store B\" },\n        storeId: \"B\"\n    }\n];\n\n// Create a connection for 'Store A'\nconst storeA = db.useDb('StoreA');\n\n// Create Model\nconst SecondaryStoreAProductModel = storeA.model(\"Product\", secondaryProductSchema);\n\n// Wait for Store A connection to be ready\nstoreA.once('open', async () => {\n    console.log('Store A database connected, executing operations...');\n    \n    try {\n        // Check if products already exist in Store A\n        const existingCount = await SecondaryStoreAProductModel.countDocuments();\n        console.log(`Existing products in Store A: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            console.log('Inserting sample products into Store A database...');\n            await SecondaryStoreAProductModel.insertMany(storeAProducts);\n            console.log('Sample products inserted into Store A database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryStoreAProductModel.findOne();\n        console.log('Product found in Store A:', product);\n        \n        // Display all products\n        const allProducts = await SecondaryStoreAProductModel.find();\n        console.log(`Total products in Store A: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with Store A operations:', error);\n    }\n});\n\n// Create a connection for 'Store B'\nconst storeB = db.useDb('StoreB');\n\n// Create Model\nconst SecondaryStoreBProductModel = storeB.model(\"Product\", secondaryProductSchema);\n\n// Wait for Store B connection to be ready\nstoreB.once('open', async () => {\n    console.log('Store B database connected, executing operations...');\n    \n    try {\n        // Check if products already exist in Store B\n        const existingCount = await SecondaryStoreBProductModel.countDocuments();\n        console.log(`Existing products in Store B: ${existingCount}`);\n        \n        if (existingCount === 0) {\n            console.log('Inserting sample products into Store B database...');\n            await SecondaryStoreBProductModel.insertMany(storeBProducts);\n            console.log('Sample products inserted into Store B database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryStoreBProductModel.findOne();\n        console.log('Product found in Store B:', product);\n        \n        // Display all products\n        const allProducts = await SecondaryStoreBProductModel.find();\n        console.log(`Total products in Store B: ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with Store B operations:', error);\n    }\n});\n",
+      "tokenEstimate": 886
+    },
+    {
+      "language": "javascript",
+      "section": "Example: Store with Separate Database",
+      "content": "// Function to get connection object for particular store's database\nfunction getStoreConnection(storeId) {\n    return db.useDb(\"Store\"+storeId, { useCache: true });\n}\n\n// Create a connection for 'Store A'\nconst store = getStoreConnection(\"A\");\n\n// Create Model\nconst SecondaryStoreProductModel = store.model(\"Product\", secondaryProductSchema);\n\n// Wait for store connection to be ready\nstore.once('open', async () => {\n    console.log('Store A (dynamic) database connected, executing operations...');\n    \n    try {\n        // Check if products already exist in the store\n        const existingCount = await SecondaryStoreProductModel.countDocuments();\n        console.log(`Existing products in Store A (dynamic): ${existingCount}`);\n        \n        if (existingCount === 0) {\n            // Use the same store A products from the previous example\n            console.log('Inserting sample products into Store A (dynamic) database...');\n            await SecondaryStoreProductModel.insertMany(storeAProducts);\n            console.log('Sample products inserted into Store A (dynamic) database!');\n        }\n\n        // Find and display a product\n        let product = await SecondaryStoreProductModel.findOne();\n        console.log('Product found in Store A (dynamic):', product);\n        \n        // Display all products\n        const allProducts = await SecondaryStoreProductModel.find();\n        console.log(`Total products in Store A (dynamic): ${allProducts.length}`);\n    } catch (error) {\n        console.error('Error with Store A (dynamic) operations:', error);\n    }\n});\n",
+      "tokenEstimate": 315
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "heading": "Step 7: Introduce multiple schemas",
+  "headingLevel": 3,
+  "body": "Next, you can add more complexity to your `author` field by creating a\nanother schema, and nesting it in the blog schema.\n\nIn the `model` folder, create a new file named `User.js`. Add the\nfollowing code to this file:\n\n```javascript\nimport mongoose from 'mongoose';\nconst {Schema, model} = mongoose;\n\nconst userSchema = new Schema({\n  name: {\n    type: String,\n    required: true,\n  },\n  email: {\n    type: String,\n    minLength: 10,\n    required: true,\n    lowercase: true\n  },\n});\n\nconst User = model('User', userSchema);\nexport default User;\n\n```\n\nTo use your new User model to define the `author` field in the blog\nschema, update the `Blog.js` file with the following changes:\n\n- Add `SchemaTypes` to the list of properties extracted from the\n  Mongoose library.\n\n- Change the `author` field `type` to `SchemaTypes.ObjectId` and add\n  a reference (`ref`) to the `'User'` model.\n\nThe following code shows these updates:\n\n```javascript\nconst { Schema, SchemaTypes, model } = mongoose;\n\n... // Inside Schema block:\n   author: {\n      type: SchemaTypes.ObjectId,\n      ref: 'User',\n      required: true,\n   },\n...\n```\n\nYou can reuse the same `User` model for the `comment.user` field by\nchanging the `blogSchema` definition:\n\n```javascript\n... // Inside Schema block:\n   comments: [{\n      user: {\n         type: SchemaTypes.ObjectId,\n         ref: 'User',\n         required: true,\n      },\n...\n```\n\nTo use the new user model in your application, go to the `index.js`\nfile. Add the following code to the top of the file to import the user\nmodel:\n\n```javascript\nimport User from './model/User.js';\n```\n\nBecause you added field validation to the blog schema, the previous code to\ninsert, update, and delete blogs, and to specify fields to project, won't\npass the validation and the application will error.\n\nCreate a new user by adding the following `create()` call:\n\n```javascript\n// Create a new user\nconst user = await User.create({\n  name: 'Jess Garica',\n  email: 'jgarcia@email.com',\n});\n```\n\nUpdate the existing `create()` call with the following code to create a\nnew article that uses the new user as the author, as shown\nin the following code:\n\n**Input:**\n\n```javascript\n// Creates a new blog post that references the user as the author\nconst articleAuthor = await Blog.create({\n  title: 'Awesome Post!',\n  slug: 'Awesome-Post',\n  author: user._id,\n  content: 'This is the best post ever',\n  tags: ['featured', 'announcement'],\n});\n\nconsole.log('Article with Author:', articleAuthor);\n```\n\n**Output:**\n\n```console\nArticle with Author: {\n   title: 'Awesome Post!',\n   slug: 'awesome-post',\n   published: false,\n   author: new ObjectId('...'),\n   content: 'This is the best post ever',\n   tags: [ 'featured', 'announcement' ],\n   _id: new ObjectId('...'),\n   createdAt: 2025-05-15T18:05:23.780Z,\n   comments: [],\n   __v: 0\n}\n```\n\nThe preceding code adds a `users` collection with the `blogs`\ncollection in the MongoDB database. This code adds the required `author`\nfield and sets its value to the `user._id`.\n\nTo add the values of the `name` and `email` fields to the `author`\nfield for the article, you can append the Mongoose `populate()` method\nto your Blog query. The `populate()` method will perform a second query\nfor the User document referenced by `user._id`.\n\nAdd the following code to `index.js` to populate this data:\n\n**Input:**\n\n```javascript\n// Populates the author field with user data\nconst articlePopulate = await Blog.findOne({ title: \"Awesome Post!\" }).populate(\"author\");\nconsole.log('Article Populated:', articlePopulate);\n```\n\n**Output:**\n\n```console\nArticle Populated: {\n   _id: new ObjectId('...'),\n   title: 'Awesome Post!',\n   slug: 'awesome-post',\n   published: false,\n   author: {\n      _id: new ObjectId('...'),\n      name: 'Jess Garica',\n      email: 'jgarcia@email.com',\n      __v: 0\n   },\n   content: 'This is the best post ever',\n   tags: [ 'featured', 'announcement' ],\n   createdAt: 2025-05-15T18:04:28.590Z,\n   comments: [],\n   __v: 0\n}\n```\n\nFor more information, see the [Document.populate()](https://mongoosejs.com/docs/api/document.html#Document.prototype.populate\\(\\))\npage of the Mongoose API documentation.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import mongoose from 'mongoose';\nconst {Schema, model} = mongoose;\n\nconst userSchema = new Schema({\n  name: {\n    type: String,\n    required: true,\n  },\n  email: {\n    type: String,\n    minLength: 10,\n    required: true,\n    lowercase: true\n  },\n});\n\nconst User = model('User', userSchema);\nexport default User;\n",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "javascript",
+      "content": "const { Schema, SchemaTypes, model } = mongoose;\n\n... // Inside Schema block:\n   author: {\n      type: SchemaTypes.ObjectId,\n      ref: 'User',\n      required: true,\n   },\n...",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "javascript",
+      "content": "... // Inside Schema block:\n   comments: [{\n      user: {\n         type: SchemaTypes.ObjectId,\n         ref: 'User',\n         required: true,\n      },\n...",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "javascript",
+      "content": "import User from './model/User.js';",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "content": "// Create a new user\nconst user = await User.create({\n  name: 'Jess Garica',\n  email: 'jgarcia@email.com',\n});",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "javascript",
+      "content": "// Creates a new blog post that references the user as the author\nconst articleAuthor = await Blog.create({\n  title: 'Awesome Post!',\n  slug: 'Awesome-Post',\n  author: user._id,\n  content: 'This is the best post ever',\n  tags: ['featured', 'announcement'],\n});\n\nconsole.log('Article with Author:', articleAuthor);",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "console",
+      "content": "Article with Author: {\n   title: 'Awesome Post!',\n   slug: 'awesome-post',\n   published: false,\n   author: new ObjectId('...'),\n   content: 'This is the best post ever',\n   tags: [ 'featured', 'announcement' ],\n   _id: new ObjectId('...'),\n   createdAt: 2025-05-15T18:05:23.780Z,\n   comments: [],\n   __v: 0\n}",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "javascript",
+      "content": "// Populates the author field with user data\nconst articlePopulate = await Blog.findOne({ title: \"Awesome Post!\" }).populate(\"author\");\nconsole.log('Article Populated:', articlePopulate);",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "console",
+      "content": "Article Populated: {\n   _id: new ObjectId('...'),\n   title: 'Awesome Post!',\n   slug: 'awesome-post',\n   published: false,\n   author: {\n      _id: new ObjectId('...'),\n      name: 'Jess Garica',\n      email: 'jgarcia@email.com',\n      __v: 0\n   },\n   content: 'This is the best post ever',\n   tags: [ 'featured', 'announcement' ],\n   createdAt: 2025-05-15T18:04:28.590Z,\n   comments: [],\n   __v: 0\n}",
+      "tokenEstimate": 128
+    }
+  ]
+}

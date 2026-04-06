@@ -1,0 +1,110 @@
+{
+  "path": "node/run-command",
+  "product": "node",
+  "title": "Run a Database Command",
+  "summary": {
+    "total": 7,
+    "byLanguage": {
+      "javascript": 7
+    },
+    "bySection": [
+      {
+        "heading": "Execute a Command",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          }
+        ]
+      },
+      {
+        "heading": "Command Options",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 47
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 25
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 78
+          }
+        ]
+      },
+      {
+        "heading": "Output",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 65
+          }
+        ]
+      },
+      {
+        "heading": "Run Command Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 147
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 30
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Execute a Command",
+      "content": "const result = await myDB.command({ hello: 1 });",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "section": "Command Options",
+      "content": "const commandDoc = {\n    grantRolesToUser: \"user011\",\n    roles: [ \"readWrite\" ],\n    writeConcern: { w: \"majority\" }\n};\nconst result = await myDB.command(commandDoc);",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "javascript",
+      "section": "Command Options",
+      "content": "const commandOptions = { readPreference: \"nearest\" };\nconst result = await myDB.command(commandDoc, commandOptions);",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "// Connect to the \"testDB\" database\nconst db = client.db(\"testDB\");\n\n// Run a cursor command to check metadata consistency within the database\nconst cursor = await db.runCursorCommand({\n    checkMetadataConsistency: 1,\n});\n// Iterate through the cursor's results and print the contents\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "javascript",
+      "section": "Output",
+      "content": "{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    info: ...\n  }\n}\n{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    collectionUUID: ...,\n    maxKeyObj: ...,\n    ...\n  }\n}",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "javascript",
+      "section": "Run Command Example: Full File",
+      "content": "/* Run a database command */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Get the \"sample_mflix\" database\n    const db = client.db(\"sample_mflix\");\n\n    // Find and print the storage statistics for the \"sample_mflix\" database using the 'dbStats' command\n    const result = await db.command({\n      dbStats: 1,\n    });\n    console.log(result);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "javascript",
+      "section": "Run Command Example: Full File",
+      "content": "{\n  db: 'sample_mflix',\n  collections: 6,\n  views: 0,\n  objects: 75620,\n  ..",
+      "tokenEstimate": 30
+    }
+  ]
+}

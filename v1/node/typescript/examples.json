@@ -1,0 +1,281 @@
+{
+  "path": "node/typescript",
+  "product": "node",
+  "title": "Mutual Recursion",
+  "summary": {
+    "total": 23,
+    "byLanguage": {
+      "typescript": 21,
+      "none": 2
+    },
+    "bySection": [
+      {
+        "heading": "Features",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 12
+          }
+        ]
+      },
+      {
+        "heading": "Type Parameters that Extend Document",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 35
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 43
+          }
+        ]
+      },
+      {
+        "heading": "Type Safety and Dot Notation",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 27
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 32
+          }
+        ]
+      },
+      {
+        "heading": "Referencing Keys that Incorporate Variables",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 33
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 51
+          }
+        ]
+      },
+      {
+        "heading": "Insert Operations and the _id Field",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 43
+          }
+        ]
+      },
+      {
+        "heading": "Find Methods and the _id Field",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 45
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 69
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 69
+          }
+        ]
+      },
+      {
+        "heading": "Known Limitations",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 23
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 40
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 33
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 32
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "section": "Features",
+      "content": "interface Document {\n  [key: string]: any;\n}",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "typescript",
+      "section": "Type Parameters that Extend Document",
+      "content": "interface Pet {\n  name: string;\n  age: number;\n}\n\nconst database = client.db(\"<your database>\");\nconst collection = database.collection<Pet>(\"<your collection>\");\n",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "typescript",
+      "section": "Type Parameters that Extend Document",
+      "content": "interface User {\n  email: string;\n}\n\nconst database = client.db(\"<your database>\");\nconst myColl = db.collection<User>(\"<your collection>\");\nmyColl.find({ age: \"Accepts any type!\" });",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "typescript",
+      "section": "Type Safety and Dot Notation",
+      "content": "interface ClassificationPet {\n  name: string;\n  age: number;\n  classification: { genus: \"Canis\" | \"Felis\"; color: string };\n}",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "typescript",
+      "section": "Type Safety and Dot Notation",
+      "content": "await myColl.findOneAndDelete({ \"classification.color\": false });",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "typescript",
+      "section": "Type Safety and Dot Notation",
+      "content": "const filterPredicate: StrictFilter<ClassificationPet> = { \"classification.color\": false };\nawait myColl.findOneAndDelete(filterPredicate);",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "typescript",
+      "section": "Type Safety and Dot Notation",
+      "content": "const updateFilter: StrictUpdateFilter<ClassificationPet> = { $set: { \"classification.color\": false } }\nawait pets.updateOne({}, updateFilter);",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "typescript",
+      "section": "Referencing Keys that Incorporate Variables",
+      "content": "interface ClassificationPet {\n  name: string;\n  mealtimes: Mealtime[];\n}\n\ninterface Mealtime{\n  time: string;\n  amount: number;\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "typescript",
+      "section": "Referencing Keys that Incorporate Variables",
+      "content": "const mealCounter = 1;\n\nawait myColl.findOneAndUpdate(\n  { name: \"Lassie\" },\n  { $set: { [`mealtimes.${mealCounter}.time` as const]: '04:00 PM' } },\n);",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "typescript",
+      "section": "Insert Operations and the _id Field",
+      "content": "interface IdPet {\n  _id: ObjectId;\n  name: string;\n  age: number;\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "typescript",
+      "section": "Insert Operations and the _id Field",
+      "content": "const database = client.db(\"<your database>\");\nconst collection = db.collection<OptionalId<IdPet>>(\"<your collection>\");\n\nmyColl.insertOne({\n  name: \"Spot\",\n  age: 2\n});",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "typescript",
+      "section": "Find Methods and the _id Field",
+      "content": "const database = client.db(\"<your database>\");\nconst collection = db.collection<Pet>(\"<your collection>\");\n\nconst document = await myColl.findOne({\n  name: \"Spot\",\n});\nconst id : ObjectId = document._id;",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "typescript",
+      "section": "Find Methods and the _id Field",
+      "content": "interface IdNumberPet {\n  _id: number;\n  name: string;\n  age: number;\n}\n\nconst database = client.db(\"<your database>\");\nconst collection = db.collection<IdNumberPet>(\"<your collection>\");\n\nconst document = await myColl.findOne({\n  name: \"Spot\",\n});\nconst id : number = document._id;",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "typescript",
+      "section": "Find Methods and the _id Field",
+      "content": "const doc = await myColl.findOne(\n  {},\n  { projection: { _id: 0, name: 1 } }\n);\nconsole.log(doc._id.generationTime);",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "typescript",
+      "section": "Find Methods and the _id Field",
+      "content": "interface ProjectedDocument {\n   name: string\n}\n\nconst doc = await myColl.findOne<ProjectedDocument>(\n  {},\n  { projection: { _id: 0, name: 1 } }\n);\n// Compile time error: Property '_id' does not exist on type 'ProjectedDocument'.\nconsole.log(doc._id.generationTime);",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "interface RecursivePet {\n   pet?: RecursivePet;\n   name: string;\n   age: number;\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "database\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ \"pet.age\": \"Spot\" });",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "database\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ pet: \"Spot\" });",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "none",
+      "section": "Known Limitations",
+      "content": "index.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<Pet>'.",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "interface Pet {\n   handler?: Handler;\n   name: string;\n   age: number;\n}\n\ninterface Handler {\n   pet: Pet;\n   name: string;\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "database\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.age': \"four\"});",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "none",
+      "section": "Known Limitations",
+      "content": "index.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<number> | undefined'.",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "typescript",
+      "section": "Known Limitations",
+      "content": "database\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.handler.pet.handler.pet.handler.pet.age': \"four\"});",
+      "tokenEstimate": 32
+    }
+  ]
+}

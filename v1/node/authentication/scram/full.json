@@ -1,0 +1,61 @@
+{
+  "path": "node/authentication/scram",
+  "product": "node",
+  "title": "SCRAM Authentication Mechanisms",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "**Salted Challenge Response Authentication Mechanism (SCRAM)** is a family of\nauthentication mechanisms that use a challenge-response mechanism to authenticate\nthe user. SCRAM-SHA-256, which uses the SHA-256 algorithm to hash your password, is the\ndefault authentication mechanism in MongoDB Server version 4.0\nand later. SCRAM-SHA-1, which uses the SHA-1 algorithm instead, is the default\nauthentication mechanism in MongoDB Server versions earlier than 4.0.\n\nYou can use SCRAM to authenticate to MongoDB Atlas, MongoDB\nEnterprise Advanced, and MongoDB Community Edition.\n\n> **Tip:**&#x20;\n>\n> SCRAM Mechanisms\n>\n> To learn more about the SCRAM family of authentication mechanisms, see\n> [RFC 5802](https://tools.ietf.org/html/rfc5802) and\n> [Salted Challenge Response Authentication Mechanism](https://en.wikipedia.org/wiki/Salted_Challenge_Response_Authentication_Mechanism)\n> on Wikipedia.\n>\n> For more information about the MongoDB implementation of SCRAM, see\n> [SCRAM](manual/core/security-scram) in the MongoDB Server manual.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Code Placeholders",
+      "headingLevel": 3,
+      "body": "The code examples on this page use the following placeholders:\n\n- `<db_username>`: The MongoDB username of the user to authenticate.\n\n- `<db_password>`: The MongoDB password of the user to authenticate.\n\n- `<cluster_url>`: The network address of your MongoDB deployment.\n\nTo use the code examples, replace these placeholders with your own values.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Default Authentication Mechanism",
+      "headingLevel": 2,
+      "body": "The `DEFAULT` authentication mechanism is a fallback setting that instructs\nthe driver to negotiate the first authentication mechanism supported by the\nserver in the following order of preference:\n\n- `SCRAM-SHA-256`\n\n- `SCRAM-SHA-1`\n\n- `MONGODB-CR`\n\nIf the `DEFAULT` option is specified, the driver first attempts to\nauthenticate using `SCRAM-SHA-256`. If the version of the MongoDB instance\ndoes not support that mechanism, the driver attempts to authenticate using\n`SCRAM-SHA-1`. If the instance does not support that mechanism either,\nthe driver attempts to authenticate using `MONGODB-CR`.\n\nYou can specify the default authentication mechanism by setting the\n`authMechanism` parameter to `DEFAULT` in the connection string, or by\nomitting the parameter since it is the default value.\n\nThe following example shows how to set the authentication mechanism to the\ndefault by setting `authMechanism` to `DEFAULT` in the connection string:\n\n> **Important:** Always **URI encode** the username and password using the\n> `encodeURIComponent` method to ensure they are correctly parsed.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"DEFAULT\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\nTo learn more about the SCRAM version that MongoDB supports,\nsee the [SCRAM](manual/core/security-scram) section of the MongoDB Server\nmanual.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"DEFAULT\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 180
+        }
+      ]
+    },
+    {
+      "heading": "SCRAM-SHA-256",
+      "headingLevel": 2,
+      "body": "> **Note:** `SCRAM-SHA-256` is the default authentication method for MongoDB starting\n> in version 4.0\n\n`SCRAM-SHA-256` is a SCRAM version that uses your username and password,\nencrypted with the `SHA-256` algorithm to authenticate your user.\n\nYou can specify this authentication mechanism by setting the `authMechanism`\nto the value `SCRAM-SHA-256` in the\n[connection string](manual/reference/connection-string) as shown in the\nfollowing sample code.\n\n> **Important:** Always **URI encode** the username and password using the\n> `encodeURIComponent` method to ensure they are correctly parsed.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"SCRAM-SHA-256\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"SCRAM-SHA-256\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 185
+        }
+      ]
+    },
+    {
+      "heading": "SCRAM-SHA-1",
+      "headingLevel": 2,
+      "body": "> **Note:** `SCRAM-SHA-1` is the default authentication method for MongoDB versions\n> 3.0, 3.2, 3.4, and 3.6.\n\n`SCRAM-SHA-1` is a SCRAM version that uses your\nusername and password, encrypted with the `SHA-1` algorithm to authenticate\nyour user.\n\nYou can specify this authentication mechanism by setting the `authMechanism`\nparameter to the value `SCRAM-SHA-1` in the\n[connection string](manual/reference/connection-string) as shown\nin the following sample code.\n\n> **Important:** Always **URI encode** the username and password using the\n> `encodeURIComponent` method to ensure they are correctly parsed.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"SCRAM-SHA-1\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the following with values for your environment.\nconst username = encodeURIComponent(\"<db_username>\");\nconst password = encodeURIComponent(\"<db_password>\");\nconst clusterUrl = \"<cluster_url>\";\n\nconst authMechanism = \"SCRAM-SHA-1\";\n\n// Replace the following with your MongoDB deployment's connection string.\nconst uri =\n  `mongodb+srv://${username}:${password}@${clusterUrl}/?authMechanism=${authMechanism}`;\n\n// Create a new MongoClient\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 185
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the methods or types discussed on this\npage, see the following API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)",
+      "codeBlocks": []
+    }
+  ]
+}

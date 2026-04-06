@@ -1,0 +1,32 @@
+{
+  "heading": "Finding Documents",
+  "headingLevel": 2,
+  "body": "You can call the `find()` method on a `Collection` object. The\nmethod accepts a query document that describes the documents you want to\nretrieve. For more information on how to specify your query document,\nsee the [Specify a Query](node-fundamentals-query-document) guide.\n\n> **Tip:**&#x20;\n>\n> No Query Criteria\n>\n> To execute a find operation that has no query criteria, you can\n> pass an empty query or omit the query document in your find\n> method parameters.\n>\n> The following operations both return all documents in the\n> `myColl` collection:\n>\n> ```javascript\n> myColl.find(); // no query\n> myColl.find({}); // empty query\n> ```\n>\n> If you don't pass a query or pass an empty query\n> to the `findOne()` method, the operation returns a single\n> document from a collection.\n>\n> You can chain cursor methods to a find operation even when you pass an\n> empty query. For example, the following code shows how you can\n> specify a projection while performing a find operation\n> that receives an empty query parameter:\n>\n> ```javascript\n> const projectFields = { _id: 0, field1: 1 };\n>\n> const findResult = await myColl.findOne().project(projectFields);\n> ```\n>\n> For more information about projecting document fields, see the\n> [Specify Which Fields to Return](node-fundamentals-project) guide.\n\nThe `find()` method returns a `Cursor` instance from which you can\naccess the matched documents. The `findOne()` method returns a `Promise`\ninstance, which you can resolve to access either the matching document or\na `null` value if there are no matches.\n\n> **Example:** A pizza restaurant wants to find all pizzas ordered by Lemony Snicket\n> yesterday. They run the following `find()` query on the\n> `orders` collection:\n>\n> ```javascript\n>     // Search for orders by name and within a specific date range\n>     const findResult = orders.find({\n>       name: \"Lemony Snicket\",\n>       date: {\n>         $gte: new Date(new Date().setHours(00, 00, 00)),\n>         $lt: new Date(new Date().setHours(23, 59, 59)),\n>       },\n>     });\n> ```\n>\n> Once the operation returns, the `findResult` variable references a\n> `Cursor`. You can print the documents retrieved using the `for await...of`\n> syntax as shown below:\n>\n> ```javascript\n> for await (const doc of findResult) {\n>   console.log(doc);\n> }\n> ```\n>\n> The output might resemble the following:\n>\n> ```javascript\n> [\n>   { name: \"Lemony Snicket\", type: \"horseradish pizza\", qty: 1, status: \"delivered\", date: ... },\n>   { name: \"Lemony Snicket\", type: \"coal-fired oven pizza\", qty: 3, status: \"canceled\", date: ...},\n>   ...\n> ]\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "myColl.find(); // no query\nmyColl.find({}); // empty query",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "content": "const projectFields = { _id: 0, field1: 1 };\n\nconst findResult = await myColl.findOne().project(projectFields);",
+      "tokenEstimate": 30
+    },
+    {
+      "language": "javascript",
+      "content": "    // Search for orders by name and within a specific date range\n    const findResult = orders.find({\n      name: \"Lemony Snicket\",\n      date: {\n        $gte: new Date(new Date().setHours(00, 00, 00)),\n        $lt: new Date(new Date().setHours(23, 59, 59)),\n      },\n    });",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "javascript",
+      "content": "for await (const doc of findResult) {\n  console.log(doc);\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  { name: \"Lemony Snicket\", type: \"horseradish pizza\", qty: 1, status: \"delivered\", date: ... },\n  { name: \"Lemony Snicket\", type: \"coal-fired oven pizza\", qty: 3, status: \"canceled\", date: ...},\n  ...\n]",
+      "tokenEstimate": 71
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "path": "node/extended-json",
+  "product": "node",
+  "title": "Work with Extended JSON Data",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "JSON is a data format that represents the values of objects, arrays, numbers,\nstrings, booleans, and nulls. The **Extended JSON** format defines a reserved\nset of keys prefixed with \"`$`\" to represent field type information that\ndirectly corresponds to each type in BSON, the format that MongoDB uses to\nstore data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Extended JSON Formats",
+      "headingLevel": 2,
+      "body": "MongoDB Extended JSON features different string formats to represent BSON data.\nEach of the different formats conform to the JSON RFC\nand meet specific use cases. The **Extended** format, also known as the\n**Canonical** format, features specific representations for every BSON type\nfor bidirectional conversion without loss of information. The **Relaxed Mode**\nformat is more concise and closer to ordinary JSON, but does not represent\nall the type information such as the specific bit width of numeric fields.\n\nSee the following table to see a description of each format:\n\n| Name         | Description                                                                                                                                                                                                           |\n| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Extended     | Also known as the Canonical format, this JSON representation avoids loss of BSON type information.This format prioritizes type preservation at the loss of human-readability and interoperability with older formats. |\n| Relaxed Mode | JSON representation that describes BSON documents with some type information loss.This format prioritizes human-readability and interoperability at the loss of certain type information.                             |\n\nTo learn more about JSON, BSON, and Extended JSON, see\n[our article about JSON and BSON](https://www.mongodb.com/resources/basics/json-and-bson)\nand [Extended JSON](manual/reference/mongodb-extended-json) in the MongoDB Server manual.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Extended JSON Examples",
+      "headingLevel": 3,
+      "body": "The following examples show a document containing an ObjectId, date, and long\nnumber field represented in the Extended JSON format. Click the tab that\ncorresponds to the format of the example you want to see:**Extended-format:**Extended```json\n{\n  \"_id\": { \"$oid\": \"573a1391f29313caabcd9637\" },\n  \"createdAt\": { \"$date\": { \"$numberLong\": \"1601499609\" }},\n  \"numViews\": { \"$numberLong\": \"36520312\" }\n}\n```**Relaxed-mode-format:**Relaxed Mode```json\n{\n  \"_id\": { \"$oid\": \"573a1391f29313caabcd9637\" },\n  \"createdAt\": { \"$date\": \"2020-09-30T18:22:51.648Z\" },\n  \"numViews\": 36520312\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": { \"$oid\": \"573a1391f29313caabcd9637\" },\n  \"createdAt\": { \"$date\": { \"$numberLong\": \"1601499609\" }},\n  \"numViews\": { \"$numberLong\": \"36520312\" }\n}",
+          "tokenEstimate": 60
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": { \"$oid\": \"573a1391f29313caabcd9637\" },\n  \"createdAt\": { \"$date\": \"2020-09-30T18:22:51.648Z\" },\n  \"numViews\": 36520312\n}",
+          "tokenEstimate": 60
+        }
+      ]
+    },
+    {
+      "heading": "Write Extended JSON",
+      "headingLevel": 2,
+      "body": "You can write an Extended JSON string from a BSON document object by using the\n`EJSON.stringify()` method.\n\nThe following example outputs an Extended JSON string in the Relaxed format:\n\n**Input:**\n\n```js\nimport { Code, BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst doc = {\n   foo: [1, 2],\n   bar: { hello: \"world\" },\n   code: new Code(\"function x() { return 1; }\", {}),\n   date: new Date(2024, 6, 20, 10, 30, 0),\n};\n\nconst ejsonStr = EJSON.stringify(doc);\nconsole.log(ejsonStr);\n```\n\n**Output:**\n\n```none\n{\"foo\":[1,2],\"bar\":{\"hello\":\"world\"},\"code\":{\"$code\":\"function x() { return 1; }\",\"$scope\":{}},\"date\":{\"$date\":\"2024-07-20T14:30:00Z\"}}\n```\n\nBy default, the `stringify()` method returns the Extended JSON string in the\nRelaxed format. To specify the Canonical format, set the `relaxed`\noption to `false`.\n\nThe following example shows how to output Extended JSON in the Canonical format:\n\n**Input:**\n\n```js\nimport { Code, BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst doc = {\n   foo: [1, 2],\n   bar: { hello: \"world\" },\n   code: new Code(\"function x() { return 1; }\", {}),\n   date: new Date(2024, 6, 20, 10, 30, 0),\n};\n\nconst ejsonStr = EJSON.stringify(doc, { relaxed: false });\nprint(ejsonStr)\n```\n\n**Output:**\n\n```none\n{\"foo\":[{\"$numberInt\":\"1\"},{\"$numberInt\":\"2\"}],\"bar\":{\"hello\":\"world\"},\"code\":{\"$code\":\"function x() { return 1; }\",\"$scope\":{}},\"date\":{\"$date\":{\"$numberLong\":\"1721485800000\"}}}\n```",
+      "codeBlocks": [
+        {
+          "language": "js",
+          "content": "import { Code, BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst doc = {\n   foo: [1, 2],\n   bar: { hello: \"world\" },\n   code: new Code(\"function x() { return 1; }\", {}),\n   date: new Date(2024, 6, 20, 10, 30, 0),\n};\n\nconst ejsonStr = EJSON.stringify(doc);\nconsole.log(ejsonStr);",
+          "tokenEstimate": 99
+        },
+        {
+          "language": "none",
+          "content": "{\"foo\":[1,2],\"bar\":{\"hello\":\"world\"},\"code\":{\"$code\":\"function x() { return 1; }\",\"$scope\":{}},\"date\":{\"$date\":\"2024-07-20T14:30:00Z\"}}",
+          "tokenEstimate": 53
+        },
+        {
+          "language": "js",
+          "content": "import { Code, BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst doc = {\n   foo: [1, 2],\n   bar: { hello: \"world\" },\n   code: new Code(\"function x() { return 1; }\", {}),\n   date: new Date(2024, 6, 20, 10, 30, 0),\n};\n\nconst ejsonStr = EJSON.stringify(doc, { relaxed: false });\nprint(ejsonStr)",
+          "tokenEstimate": 103
+        },
+        {
+          "language": "none",
+          "content": "{\"foo\":[{\"$numberInt\":\"1\"},{\"$numberInt\":\"2\"}],\"bar\":{\"hello\":\"world\"},\"code\":{\"$code\":\"function x() { return 1; }\",\"$scope\":{}},\"date\":{\"$date\":{\"$numberLong\":\"1721485800000\"}}}",
+          "tokenEstimate": 59
+        }
+      ]
+    },
+    {
+      "heading": "Read Extended JSON",
+      "headingLevel": 2,
+      "body": "You can read an Extended JSON string into the JavaScript value or object described\nby the string by using the `EJSON.parse()` method.\n\nThe following example shows how you can read an Extended JSON string into a\nJavaScript value or object by using the `parse()` method:\n\n**Input:**\n\n```javascript\nimport { BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst ejsonStr = `{\n   \"foo\": [\n      { \"$numberInt\": \"1\" },\n      { \"$numberInt\": \"2\" }\n   ],\n   \"bar\": { \"hello\": \"world\" },\n   \"code\": {\n      \"$code\": \"function x() { return 1; }\",\n      \"$scope\": {}\n   },\n   \"bin\": { \"$binary\": { \"base64\": \"AQIDBA==\", \"subType\": \"00\" } }\n}`;\n\nconst doc = EJSON.parse(ejsonStr);\nconsole.log(doc);\n```\n\n**Output:**\n\n```none\n{\n  foo: [ 1, 2 ],\n  bar: { hello: 'world' },\n  code: new Code('function x() { return 1; }', {}),\n  bin: Binary.createFromBase64('AQIDBA==', 0)\n}\n```\n\n> **Note:** The driver parses the `$uuid` Extended JSON type from a string to a\n> `BsonBinary` object of binary subtype 4. For more information about `$uuid` field\n> parsing, see the\n> [Special Rules for Parsing $uuid Fields](https://github.com/mongodb/specifications/blob/master/source/extended-json/extended-json.md#special-rules-for-parsing-uuid-fields)\n> section in the extended JSON specification.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { BSON } from 'mongodb';\nconst EJSON = BSON.EJSON;\n\nconst ejsonStr = `{\n   \"foo\": [\n      { \"$numberInt\": \"1\" },\n      { \"$numberInt\": \"2\" }\n   ],\n   \"bar\": { \"hello\": \"world\" },\n   \"code\": {\n      \"$code\": \"function x() { return 1; }\",\n      \"$scope\": {}\n   },\n   \"bin\": { \"$binary\": { \"base64\": \"AQIDBA==\", \"subType\": \"00\" } }\n}`;\n\nconst doc = EJSON.parse(ejsonStr);\nconsole.log(doc);",
+          "tokenEstimate": 132
+        },
+        {
+          "language": "none",
+          "content": "{\n  foo: [ 1, 2 ],\n  bar: { hello: 'world' },\n  code: new Code('function x() { return 1; }', {}),\n  bin: Binary.createFromBase64('AQIDBA==', 0)\n}",
+          "tokenEstimate": 55
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the methods or types discussed in this\nguide, see the [EJSON](https://github.com/mongodb/js-bson#ejson) API documentation.",
+      "codeBlocks": []
+    }
+  ]
+}

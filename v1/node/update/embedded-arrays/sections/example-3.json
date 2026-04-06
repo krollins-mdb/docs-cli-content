@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "This example uses the following sample documents, which describe\nshopping lists for specific recipes, to show how to update certain matching array elements:\n\n```javascript\n{\n  _id: ...,\n  date: \"11/12/2023\",\n  items: [\n    { item: \"Scallions\", quantity: 3, recipe: \"Fried rice\" },\n    { item: \"Mangos\", quantity: 4, recipe: \"Salsa\" },\n    { item: \"Pork shoulder\", quantity: 1, recipe: \"Fried rice\" },\n    { item: \"Sesame oil\", quantity: 1, recipe: \"Fried rice\" }\n  ]\n},\n{\n  _id: ...,\n  date: \"11/20/2023\",\n  items: [\n    { item: \"Coffee beans\", quantity: 1, recipe: \"Coffee\" }\n  ]\n}\n```\n\nSuppose you want to increase the quantity of items you purchase for a\nrecipe on your `\"11/12/2023\"` grocery trip. You want to double the quantity if\nthe item meets all the following criteria:\n\n- The item is for the `\"Fried rice\"` recipe.\n\n- The item name does not include the word `\"oil\"`.\n\nTo double the `quantity` value in the matching array\nentries, use the filtered positional operator as shown in the following\ncode:\n\n```javascript\n// Query for all documents where date is the string \"11/12/2023\"\nconst query = { date: \"11/12/2023\" };\n\n// For each matched document, change the quantity of items to 2 \nconst updateDocument = {\n  $mul: { \"items.$[i].quantity\": 2 }\n};\n\n// Update only non-oil items used for fried rice \nconst options = {\n  arrayFilters: [\n    {\n      \"i.recipe\": \"Fried rice\",\n      \"i.item\": { $not: { $regex: \"oil\" } },\n    }\n  ]\n};\n\n// Execute the update operation\nconst result = await myColl.updateOne(query, updateDocument, options);\n```\n\nThe update multiplied the `quantity` value by `2` for\nitems that matched the criteria. The item `\"Sesame oil\"` did not match\nthe criteria in the `arrayFilters` object and therefore was excluded\nfrom the update. The following documents reflect these changes:\n\n```javascript\n{\n  _id: ...,\n  date: \"11/12/2023\",\n  items: [\n    { item: \"Scallions\", quantity: 6, recipe: \"Fried rice\" },\n    { item: \"Mangos\", quantity: 4, recipe: \"Salsa\" },\n    { item: \"Pork shoulder\", quantity: 2, recipe: \"Fried rice\" },\n    { item: \"Sesame oil\", quantity: 1, recipe: \"Fried rice\" }\n  ]\n},\n{\n  _id: ...,\n  date: \"11/20/2023\",\n  items: [\n    { item: \"Coffee beans\", quantity: 1, recipe: \"Coffee\" }\n  ]\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  _id: ...,\n  date: \"11/12/2023\",\n  items: [\n    { item: \"Scallions\", quantity: 3, recipe: \"Fried rice\" },\n    { item: \"Mangos\", quantity: 4, recipe: \"Salsa\" },\n    { item: \"Pork shoulder\", quantity: 1, recipe: \"Fried rice\" },\n    { item: \"Sesame oil\", quantity: 1, recipe: \"Fried rice\" }\n  ]\n},\n{\n  _id: ...,\n  date: \"11/20/2023\",\n  items: [\n    { item: \"Coffee beans\", quantity: 1, recipe: \"Coffee\" }\n  ]\n}",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "javascript",
+      "content": "// Query for all documents where date is the string \"11/12/2023\"\nconst query = { date: \"11/12/2023\" };\n\n// For each matched document, change the quantity of items to 2 \nconst updateDocument = {\n  $mul: { \"items.$[i].quantity\": 2 }\n};\n\n// Update only non-oil items used for fried rice \nconst options = {\n  arrayFilters: [\n    {\n      \"i.recipe\": \"Fried rice\",\n      \"i.item\": { $not: { $regex: \"oil\" } },\n    }\n  ]\n};\n\n// Execute the update operation\nconst result = await myColl.updateOne(query, updateDocument, options);",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  _id: ...,\n  date: \"11/12/2023\",\n  items: [\n    { item: \"Scallions\", quantity: 6, recipe: \"Fried rice\" },\n    { item: \"Mangos\", quantity: 4, recipe: \"Salsa\" },\n    { item: \"Pork shoulder\", quantity: 2, recipe: \"Fried rice\" },\n    { item: \"Sesame oil\", quantity: 1, recipe: \"Fried rice\" }\n  ]\n},\n{\n  _id: ...,\n  date: \"11/20/2023\",\n  items: [\n    { item: \"Coffee beans\", quantity: 1, recipe: \"Coffee\" }\n  ]\n}",
+      "tokenEstimate": 157
+    }
+  ]
+}

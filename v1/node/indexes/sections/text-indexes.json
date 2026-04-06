@@ -1,0 +1,17 @@
+{
+  "heading": "Text Indexes",
+  "headingLevel": 3,
+  "body": "**Text indexes** support text queries on string content. These indexes\ncan include any field whose value is a string or an array of string elements.\n\nMongoDB supports text queries for various languages, so you can specify the\ndefault language as an option when creating the index. You can also\nspecify a weight option to prioritize certain text fields in your\nindex. These weights denote the significance of fields relative to the\nother indexed fields.\n\nTo learn more about text queries, see our guide on [text queries](node-fundamentals-text).\n\nThe following example uses the `createIndex()` method to perform the\nfollowing actions:\n\n- Create a `text` index on the `title` and `body` fields in the\n  `blogPosts` collection\n\n- Specify `english` as the default language\n\n- Set the field weight of `body` to `10` and `title` to `3`\n\n```js\n// Get the database and collection on which to create the index \nconst myDB = client.db(\"testDB\");\nconst myColl = myDB.collection(\"blogPosts\");\n\n// Create a text index on the \"title\" and \"body\" fields\nconst result = await myColl.createIndex(\n  { title: \"text\", body: \"text\" },\n  {\n     default_language: \"english\",\n     weights: { body: 10, title: 3 }\n  }\n);\n```\n\nThe following query uses the text index created in the preceding code:\n\n```js\n// Query for documents where body or title contain \"life ahead\"\nconst query = { $text: { $search: \"life ahead\" } };\n\n// Show only the title field\nconst projection = { _id: 0, title: 1 };\n\n// Execute the find operation\nconst cursor = myColl.find(query).project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}\n```\n\nTo learn more about text indexes, see [Text Indexes](manual/core/index-text) in the Server manual.",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "// Get the database and collection on which to create the index \nconst myDB = client.db(\"testDB\");\nconst myColl = myDB.collection(\"blogPosts\");\n\n// Create a text index on the \"title\" and \"body\" fields\nconst result = await myColl.createIndex(\n  { title: \"text\", body: \"text\" },\n  {\n     default_language: \"english\",\n     weights: { body: 10, title: 3 }\n  }\n);",
+      "tokenEstimate": 98
+    },
+    {
+      "language": "js",
+      "content": "// Query for documents where body or title contain \"life ahead\"\nconst query = { $text: { $search: \"life ahead\" } };\n\n// Show only the title field\nconst projection = { _id: 0, title: 1 };\n\n// Execute the find operation\nconst cursor = myColl.find(query).project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 85
+    }
+  ]
+}
