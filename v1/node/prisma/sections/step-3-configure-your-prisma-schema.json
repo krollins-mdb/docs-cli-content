@@ -1,0 +1,17 @@
+{
+  "heading": "Step 3: Configure your Prisma schema",
+  "headingLevel": 3,
+  "body": "Navigate to the `prisma/schema.prisma` file in the example application\ndirectory. In the `datasource db` object of this file, set the `provider` field to `\"mongodb\"` and\nthe `url` field to your Atlas connection URI.\n\nIn the `User` model in the same file, change the `id` field type from `Int` to\n`String` and set the default value to `auto()`. The `id` property must map\nto the MongoDB `_id` field. You must also instruct Prisma to set the data type for this\nproperty to `ObjectId`.\n\nIn the `Post` model, perform the same changes to the `id` field as you did in the `User`\nmodel. You must also change the `authorId` field type from `Int` to `String` and set the\ndata type to `ObjectId`.\n\nYour `schema.prisma` file should resemble the following:\n\n```typescript\ngenerator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = \"<your connection URI>\"\n}\n\nmodel Post {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  String   @db.ObjectId\n}\n\nmodel User {\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email String  @unique\n  name  String?\n  posts Post[]\n}\n```\n\nThis schema defines separate `User` and `Post` collections in your MongoDB\ndatabase, where each `Post` contains a reference to a `User`.\n\nOnce you have made these changes, navigate to the project directory in your\nterminal and run the following commands to install the necessary dependencies and\ngenerate the schema:\n\n```shell\nnpm install\nnpx prisma generate\n```\n\n> **Note:** If you make any further changes to the schema, you must re-run the\n> `npx prisma generate` command for the changes to take effect.",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "generator client {\n  provider = \"prisma-client-js\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = \"<your connection URI>\"\n}\n\nmodel Post {\n  id        String   @id @default(auto()) @map(\"_id\") @db.ObjectId\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User     @relation(fields: [authorId], references: [id])\n  authorId  String   @db.ObjectId\n}\n\nmodel User {\n  id    String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  email String  @unique\n  name  String?\n  posts Post[]\n}",
+      "tokenEstimate": 166
+    },
+    {
+      "language": "shell",
+      "content": "npm install\nnpx prisma generate",
+      "tokenEstimate": 8
+    }
+  ]
+}

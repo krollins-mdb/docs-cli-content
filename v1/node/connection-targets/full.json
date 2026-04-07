@@ -1,0 +1,72 @@
+{
+  "path": "node/connection-targets",
+  "product": "node",
+  "title": "Choose a Connection Target",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to use a connection string and a `MongoClient`\nobject to connect to different types of MongoDB deployments.\n\n> **Tip:** To learn more about how to retrieve your connection string, see\n> the [Connect via Drivers](atlas/driver-connection) guide in\n> the Atlas documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas",
+      "headingLevel": 2,
+      "body": "To connect to a MongoDB deployment on Atlas, include the following elements\nin your connection string:\n\n- URL of your Atlas cluster\n\n- MongoDB username\n\n- MongoDB password\n\nThen, pass your connection string to the `MongoClient` constructor.\n\nWhen you connect to Atlas, we recommend using the Stable API client option to avoid\nbreaking changes when Atlas upgrades to a new version of MongoDB Server.\nTo learn more about the Stable API feature, see the [Stable API](nodejs-stable-api)\nguide.\n\nThe following code shows how to use the Node.js driver to connect to an Atlas cluster. The\ncode also uses the `server_api` field to specify a Stable API version.\n\n```javascript\nconst { MongoClient, ServerApiVersion } = require(\"mongodb\");\n\n// Replace the placeholder with your Atlas connection string\nconst uri = \"<connection string>\";\n\n// Creates a MongoClient with a MongoClientOptions object to set the Stable API version\nconst client = new MongoClient(uri,  {\n        serverApi: {\n            version: ServerApiVersion.v1,\n            strict: true,\n            deprecationErrors: true,\n        }\n    }\n);\n\nasync function run() {\n  try {\n    // Connects the client to the server (optional starting in v4.7)\n    await client.connect();\n\n    // Sends a ping to confirm a successful connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient, ServerApiVersion } = require(\"mongodb\");\n\n// Replace the placeholder with your Atlas connection string\nconst uri = \"<connection string>\";\n\n// Creates a MongoClient with a MongoClientOptions object to set the Stable API version\nconst client = new MongoClient(uri,  {\n        serverApi: {\n            version: ServerApiVersion.v1,\n            strict: true,\n            deprecationErrors: true,\n        }\n    }\n);\n\nasync function run() {\n  try {\n    // Connects the client to the server (optional starting in v4.7)\n    await client.connect();\n\n    // Sends a ping to confirm a successful connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
+          "tokenEstimate": 189
+        }
+      ]
+    },
+    {
+      "heading": "Local Deployments",
+      "headingLevel": 2,
+      "body": "To connect to a local standalone MongoDB deployment, specify the host of the\nserver. Optionally, specify the port of the server. If no port is specified,\nthe default port is `27017`.\n\nYou can specify the host and port to connect to by using a\nconnection string, as shown in the following code:\n\n```javascript\nconst client = new MongoClient(\"mongodb://host1:27017\");\n```\n\nYou can also specify your host as `localhost`. The following code example\nconnects to `localhost` on the specified port:\n\n```javascript\nconst client = new MongoClient(\"mongodb://localhost:27017\");\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const client = new MongoClient(\"mongodb://host1:27017\");",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "javascript",
+          "content": "const client = new MongoClient(\"mongodb://localhost:27017\");",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Replica Sets",
+      "headingLevel": 2,
+      "body": "To connect to a replica set, we recommend that you specify all nodes that are\npart of the replica set. If one or more nodes becomes unavailable,\nspecifying all nodes allows the driver to still connect to the replica set\nif one node is available.\n\nHowever, it is sufficient to pass the address of any one node in the replica set\nto the driver. The node does not need to be the primary, and it may be a hidden node.\nThe driver will then automatically discover the remaining nodes.\n\nThe following example shows how to connect to the replica set by using a connection\nstring and how to verify the replica set name on connection by using the\n`replicaSet` connection string option:\n\n```javascript\nconst client = new MongoClient(\"mongodb://host1:27017,host2:27017,host3:27017/?replicaSet=myRs\");\n```\n\n> **Note:**&#x20;\n>\n> Replica Set in Docker\n>\n> When a replica set runs in Docker, it might expose only one MongoDB endpoint.\n> In this case, the replica set is not discoverable. Specifying `directConnection=false` in your connection URI,\n> or leaving this option unset, can prevent your application from connecting to it.\n>\n> In a test or development environment, you can connect to the replica set by specifying\n> `directConnection=true`. In a production environment, we\n> recommend configuring the cluster to make each MongoDB instance accessible outside of\n> the Docker virtual network.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const client = new MongoClient(\"mongodb://host1:27017,host2:27017,host3:27017/?replicaSet=myRs\");",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "DNS Service Discovery",
+      "headingLevel": 2,
+      "body": "To use DNS service discovery to look up the DNS SRV record of the service you're connecting to,\nspecify the SRV connection format in your connection string. If you specify this format,\nthe Node.js driver automatically rescans for new hosts. Your deployment can add hosts to its\ntopology without requiring changes in your client configuration.\n\nThe following code shows a connection string that uses the SRV connection format:\n\n```javascript\nconst uri = \"mongodb+srv://<hostname>/\"\n```\n\nTo learn more about the SRV connection format, see the [SRV Connection Format](manual/reference/connection-string-formats)\nentry in the MongoDB Server manual.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const uri = \"mongodb+srv://<hostname>/\"",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about creating a `MongoClient` object with the Node.js driver,\nsee the API documentation for [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html) .",
+      "codeBlocks": []
+    }
+  ]
+}

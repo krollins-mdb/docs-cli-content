@@ -1,0 +1,32 @@
+{
+  "heading": "Step 8: Add middleware",
+  "headingLevel": 3,
+  "body": "In Mongoose, middleware are functions that run before, or during, the\nexecution of asynchronous functions at the schema level.\n\nOne example of middleware is a function that validates the\n`email` field of a `User` instance before saving or updating.\n\nThis example uses the `validator` package. You can install the\n`validator` package by running the following command:\n\n```bash\nnpm install validator\n```\n\nTo add this middleware function, add the following code to the\n`userSchema` declaration in your `User.js` file:\n\n```javascript\nimport validator from 'validator';\n```\n\n```javascript\nuserSchema.pre('save', function (next) {\n  const user = this;\n\n  // Normalize email\n  if (user.email) {\n    user.email = user.email.trim().toLowerCase();\n  }\n\n  // Validate email format\n  if (!validator.isEmail(user.email)) {\n    return next(new Error('Invalid email format'));\n  }\n\n  next();\n});\n```\n\nTo see the effect of this function, modify the `user.email` field in\nyour `index.js` file to make it an invalid email address:\n\n**Input:**\n\n```javascript\nconst user = await User.create({\n  name: 'Jess Garica',\n  email: 'jgarciaemail.com',\n});\n```\n\n**Output:**\n\n```console\nError: Invalid email format\n```\n\nIf you correct the email address, you can see that the error is not thrown.\n\nBesides the `pre()` middleware function, Mongoose also offers a\n`post()` middleware function. For more information about middleware, see\nthe [Middleware](https://mongoosejs.com/docs/middleware.html) page in\nthe Mongoose documentation.",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "npm install validator",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "content": "import validator from 'validator';",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "javascript",
+      "content": "userSchema.pre('save', function (next) {\n  const user = this;\n\n  // Normalize email\n  if (user.email) {\n    user.email = user.email.trim().toLowerCase();\n  }\n\n  // Validate email format\n  if (!validator.isEmail(user.email)) {\n    return next(new Error('Invalid email format'));\n  }\n\n  next();\n});",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "javascript",
+      "content": "const user = await User.create({\n  name: 'Jess Garica',\n  email: 'jgarciaemail.com',\n});",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "console",
+      "content": "Error: Invalid email format",
+      "tokenEstimate": 5
+    }
+  ]
+}

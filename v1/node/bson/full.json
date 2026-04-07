@@ -1,0 +1,101 @@
+{
+  "path": "node/bson",
+  "product": "node",
+  "title": "Work with BSON Data",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to create BSON documents, read BSON from a file,\nand write BSON to a file by using the Node.js driver.\n\n**BSON**, or Binary JSON, is the data format that MongoDB uses to organize\nand store data. You can use BSON documents in your JavaScript application\nby importing the BSON package.\n\nThe code samples in this guide use the following BSON document as an example:\n\n```none\n{\n    \"address\" : {\n        \"street\" : \"Pizza St\",\n        \"zipcode\" : \"10003\"\n    },\n    \"coord\" : [-73.982419, 41.579505],\n    \"cuisine\" : \"Pizza\",\n    \"name\" : \"Mongo's Pizza\"\n}\n```\n\n> **Note:**&#x20;\n>\n> Use the Node.js driver's BSON package\n>\n> We recommend that you use the BSON package that is bundled with the driver to avoid\n> compatibility issues with other BSON packages. You can import the Node.js driver's\n> BSON package with the following import statement:\n>\n> ```js\n> import { BSON } from 'mongodb';\n> ```",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "{\n    \"address\" : {\n        \"street\" : \"Pizza St\",\n        \"zipcode\" : \"10003\"\n    },\n    \"coord\" : [-73.982419, 41.579505],\n    \"cuisine\" : \"Pizza\",\n    \"name\" : \"Mongo's Pizza\"\n}",
+          "tokenEstimate": 64
+        },
+        {
+          "language": "js",
+          "content": "import { BSON } from 'mongodb';",
+          "tokenEstimate": 8
+        }
+      ]
+    },
+    {
+      "heading": "BSON Data Types",
+      "headingLevel": 2,
+      "body": "BSON supports all JSON data structure types and adds support for types including\ndates, different size integers, `ObjectId`, and binary data. For a complete list of\nsupported types, see the [BSON Types](manual/reference/bson-types) page in the\nMongoDB Server Manual.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Universally Unique IDs (UUIDs)",
+      "headingLevel": 3,
+      "body": "The Node.js driver supports UUIDs by using the BSON Binary subclass `UUID`. You\ncan create a `UUID` object by using the `UUID()` constructor. The following code\nexample generates a random UUID:\n\n```javascript\nimport { UUID } from 'mongodb';\n\nconst myUuid = new UUID();\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { UUID } from 'mongodb';\n\nconst myUuid = new UUID();",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Create a BSON Document",
+      "headingLevel": 2,
+      "body": "You can create a BSON document by using the same notation you use to create an\nobject in JavaScript. The Node.js driver automatically converts JavaScript objects\ninto BSON documents when inserting them into a collection.\n\nThe following example creates a BSON document that\nrepresents the preceding sample BSON document:\n\n```javascript\nconst document = {\n    \"address\": {\n        \"street\": \"Pizza St\",\n        \"zipcode\": \"10003\",\n      },\n    \"coord\": [-73.982419, 41.579505],\n    \"cuisine\": \"Pizza\",\n    \"name\": \"Mongo's Pizza\",\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const document = {\n    \"address\": {\n        \"street\": \"Pizza St\",\n        \"zipcode\": \"10003\",\n      },\n    \"coord\": [-73.982419, 41.579505],\n    \"cuisine\": \"Pizza\",\n    \"name\": \"Mongo's Pizza\",\n}",
+          "tokenEstimate": 61
+        }
+      ]
+    },
+    {
+      "heading": "Change a BSON Document",
+      "headingLevel": 2,
+      "body": "You can modify the contents of a BSON document by using the same notation you use to modify\nan object in JavaScript. The following example makes three changes to the previous\nBSON document:\n\n- Adds a new field, `restaurant_id`, with the value `12345`\n\n- Removes the `cuisine` field\n\n- Sets the value of the `name` field to `\"Mongo's Pizza Place\"`\n\n```javascript\ndocument.restaurant_id = \"12345\";\ndelete document.cuisine;\ndocument.name = \"Mongo's Pizza Place\";\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "document.restaurant_id = \"12345\";\ndelete document.cuisine;\ndocument.name = \"Mongo's Pizza Place\";",
+          "tokenEstimate": 22
+        }
+      ]
+    },
+    {
+      "heading": "Write BSON to a File",
+      "headingLevel": 2,
+      "body": "To write BSON data to a file, import the file system module and open the output file.\nThen, write each document to the output file. Ensure that documents are encoded in BSON\nformat by using the `BSON.serialize()` method.\n\nThe following example writes the sample BSON document to `file.bson`:\n\n```javascript\nimport fs from 'fs/promises';  // Import the file system module\nimport { BSON } from 'mongodb';  // Import the BSON package\n\n// Create a BSON object\nconst bsonData = BSON.serialize(result);\n\n// Write the BSON data to a file\nawait fs.writeFile('file.bson', bsonData);\nconsole.log('BSON data written to file.bson');\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import fs from 'fs/promises';  // Import the file system module\nimport { BSON } from 'mongodb';  // Import the BSON package\n\n// Create a BSON object\nconst bsonData = BSON.serialize(result);\n\n// Write the BSON data to a file\nawait fs.writeFile('file.bson', bsonData);\nconsole.log('BSON data written to file.bson');",
+          "tokenEstimate": 77
+        }
+      ]
+    },
+    {
+      "heading": "Read BSON from a File",
+      "headingLevel": 2,
+      "body": "To read BSON documents from a file, open a file in read mode. Then, decode the documents\nfrom BSON format as you read them by using the `BSON.deserialize()` method.\n\nThe following example reads the sample BSON document from `file.bson`:\n\n**Input:**\n\n```javascript\nimport fs from 'fs/promises';  // Import the file system module\nimport { BSON } from 'mongodb';  // Import the BSON package\n\n// Read the BSON data from a file\nconst data = await fs.readFile('file.bson');\nconst document = BSON.deserialize(data);\nconsole.log(document);\n```\n\n**Output:**\n\n```\n{\n   _id: new ObjectId('67e1823d0d63bfdf87e8928e'),\n   address: { street: 'Pizza St', zipcode: '10003' },\n   coord: [ -73.982419, 41.579505 ],\n   cuisine: 'Pizza',\n   name: \"Mongo's Pizza\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import fs from 'fs/promises';  // Import the file system module\nimport { BSON } from 'mongodb';  // Import the BSON package\n\n// Read the BSON data from a file\nconst data = await fs.readFile('file.bson');\nconst document = BSON.deserialize(data);\nconsole.log(document);",
+          "tokenEstimate": 62
+        },
+        {
+          "language": "text",
+          "content": "{\n   _id: new ObjectId('67e1823d0d63bfdf87e8928e'),\n   address: { street: 'Pizza St', zipcode: '10003' },\n   coord: [ -73.982419, 41.579505 ],\n   cuisine: 'Pizza',\n   name: \"Mongo's Pizza\"\n}",
+          "tokenEstimate": 72
+        }
+      ]
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the methods or types discussed in this\nguide, see the following API documentation:\n\n- [BSON](https://mongodb.github.io/node-mongodb-native/7.1/modules/BSON.html)\n\n- [UUID](https://mongodb.github.io/node-mongodb-native/7.1/classes/BSON.UUID.html)",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "path": "node/promises",
+  "product": "node",
+  "title": "Use Promises with Asynchronous JavaScript",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "The Node.js driver uses the asynchronous JavaScript API to communicate with\nyour MongoDB cluster.\n\nAsynchronous JavaScript allows you to execute operations without waiting for\nthe processing thread to become free. This helps prevent your application\nfrom becoming unresponsive when\nexecuting long-running operations. For more information about asynchronous\nJavaScript, see the MDN web documentation on\n[Asynchronous JavaScript](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous).\n\nThis section describes `Promises` that you can use with the Node.js driver to\naccess the results of your method calls to your MongoDB cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Promises",
+      "headingLevel": 2,
+      "body": "A Promise is an object returned by the asynchronous method call that allows\nyou to access information on the eventual success or failure of the operation\nthat they wrap. The Promise is in the **Pending** state if the operation is\nstill running, **Fulfilled** if the operation completed successfully, and\n**Rejected** if the operation threw an exception. For more information on\nPromises and related terminology, see the MDN documentation on\n[Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).\n\nMost driver methods that communicate with your MongoDB cluster, such as\n`findOneAndUpdate()` and `countDocuments()`, return Promise\nobjects and already contain logic to handle the success or failure of the\noperation.\n\nYou can define your own logic that executes once the Promise reaches the\n**Fulfilled** or **Rejected** state by appending the `then()` method.\nThe first parameter of `then()` is the method that gets called when the\nPromise reaches the **Fulfilled** state and the optional second parameter is\nthe method that gets called when it reaches the **Rejected** state. The\n`then()` method returns a Promise to which you can append more\n`then()` methods.\n\nWhen you append one or more `then()` methods to a Promise, each call passes\nits execution result to the next one. This pattern is called\n**Promise chaining**. The following code snippet shows an example of Promise\nchaining by appending a single `then()` method.\n\n```js\ncollection\n  .updateOne({ name: \"Mount McKinley\" }, { $set: { meters: 6190 } })\n  .then(\n    res => console.log(`Updated ${res.result.n} documents`),\n    err => console.error(`Something went wrong: ${err}`),\n  );\n```\n\nTo handle only Promise transitions to the **Rejected** state, use the `catch()` method\nrather than passing a `null` first parameter to `then()`. The `catch()` method\naccepts a single callback that is executed when the Promise transitions to the **Rejected**\nstate.\n\nThe `catch()` method is often appended at the end of a Promise chain to\nhandle any exceptions thrown. The following code snippet demonstrates appending\na `catch()` method to the end of a Promise chain.\n\n```js\ndeleteOne({ name: \"Mount Doom\" })\n  .then(result => {\n    if (result.deletedCount !== 1) {\n      throw \"Could not find Mount Doom!\";\n    }\n    return new Promise((resolve, reject) => {\n      ...\n    });\n  })\n  .then(result => console.log(`Vanquished ${result.quantity} Nazgul`))\n  .catch(err => console.error(`Fatal error occurred: ${err}`));\n```\n\n> **Note:** Certain methods in the driver such as `find()` return a `Cursor`\n> instead of a Promise. To determine what type each method returns, see\n> the [Node.js API documentation](https://mongodb.github.io/node-mongodb-native/7.1).",
+      "codeBlocks": [
+        {
+          "language": "js",
+          "content": "collection\n  .updateOne({ name: \"Mount McKinley\" }, { $set: { meters: 6190 } })\n  .then(\n    res => console.log(`Updated ${res.result.n} documents`),\n    err => console.error(`Something went wrong: ${err}`),\n  );",
+          "tokenEstimate": 61
+        },
+        {
+          "language": "js",
+          "content": "deleteOne({ name: \"Mount Doom\" })\n  .then(result => {\n    if (result.deletedCount !== 1) {\n      throw \"Could not find Mount Doom!\";\n    }\n    return new Promise((resolve, reject) => {\n      ...\n    });\n  })\n  .then(result => console.log(`Vanquished ${result.quantity} Nazgul`))\n  .catch(err => console.error(`Fatal error occurred: ${err}`));",
+          "tokenEstimate": 91
+        }
+      ]
+    },
+    {
+      "heading": "Await",
+      "headingLevel": 3,
+      "body": "If you are using `async` functions, you can use the `await` operator on\na Promise to pause further execution until the Promise reaches either the\n**Fulfilled** or **Rejected** state and returns. Since the `await` operator\nwaits for the resolution of the Promise, you can use it in place of\nPromise chaining to sequentially execute your logic. The following code\nsnippet uses `await` to execute the same logic as the first Promise\nchaining example.\n\n```js\nasync function run() {\n  ...\n  try {\n    res = await myColl.updateOne(\n      { name: \"Mount McKinley\" },\n      { $set: { meters: 6190 } },\n    );\n    console.log(`Updated ${res.result.n} documents`);\n  } catch (err) {\n    console.error(`Something went wrong: ${err}`);\n  }\n}\n```\n\nFor more information, see the MDN documentation on\n[await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).",
+      "codeBlocks": [
+        {
+          "language": "js",
+          "content": "async function run() {\n  ...\n  try {\n    res = await myColl.updateOne(\n      { name: \"Mount McKinley\" },\n      { $set: { meters: 6190 } },\n    );\n    console.log(`Updated ${res.result.n} documents`);\n  } catch (err) {\n    console.error(`Something went wrong: ${err}`);\n  }\n}",
+          "tokenEstimate": 77
+        }
+      ]
+    },
+    {
+      "heading": "Operational Considerations",
+      "headingLevel": 2,
+      "body": "One common mistake when using `async` methods is to forget to use `await`\noperator on Promises to get the value of the result rather than the Promise\nobject. Consider the following example in which we iterate over a cursor\nusing `hasNext()`, which returns a Promise that resolves to a boolean that\nindicates whether more results exist, and `next()` which returns a\nPromise that resolves to the next entry the cursor is pointing to.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet may cause an infinite loop\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}\n```\n\nSince the call to `hasNext()` returns a `Promise`, the conditional\nstatement returns `true` regardless of the value that it resolves to.\n\nIf we alter the code to `await` the call to `next()` only, as demonstrated\nin the following code snippet, it throws the following error:\n`MongoError: Cursor is closed`.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet throws a MongoError\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}\n```\n\nWhile `hasNext()` is not called until after the result of `next()` returns,\nthe call to `hasNext()` returns a Promise which evaluates to `true` rather\nthan the value it resolves to, similar to the prior example. The code\nattempts to call `next()` on a Cursor that has already returned its results\nand closed as a result.\n\nIf we alter the code to only `await` the call to `hasNext()` as shown in\nthe following example, the console prints Promise objects rather than the\ndocument objects.\n\n```js\nasync function run() {\n  ...\n  // WARNING: this snippet prints Promises instead of the objects they resolve to\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}\n```\n\nUse `await` before both the `hasNext()` and `next()` method calls to\nensure that you are operating on the correct return values as demonstrated\nin the following code:\n\n```js\nasync function run() {\n  ...\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "js",
+          "content": "async function run() {\n  ...\n  // WARNING: this snippet may cause an infinite loop\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}",
+          "tokenEstimate": 43
+        },
+        {
+          "language": "js",
+          "content": "async function run() {\n  ...\n  // WARNING: this snippet throws a MongoError\n  const cursor = myColl.find();\n\n  while (cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}",
+          "tokenEstimate": 43
+        },
+        {
+          "language": "js",
+          "content": "async function run() {\n  ...\n  // WARNING: this snippet prints Promises instead of the objects they resolve to\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(cursor.next());\n  }\n}",
+          "tokenEstimate": 49
+        },
+        {
+          "language": "js",
+          "content": "async function run() {\n  ...\n  const cursor = myColl.find();\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n}",
+          "tokenEstimate": 33
+        }
+      ]
+    }
+  ]
+}

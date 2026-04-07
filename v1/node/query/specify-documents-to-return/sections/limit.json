@@ -1,0 +1,22 @@
+{
+  "heading": "Limit",
+  "headingLevel": 2,
+  "body": "Use the `limit()` method to cap the number of documents that can be returned from a read\noperation. This method specifies the maximum number of documents that the operation can\nreturn, but the operation can return a smaller number of documents if there are not enough\ndocuments present to reach the limit. If `limit()` is used with the [skip()](node-fundamentals-skip) method, the skip applies first and the limit only applies to the\ndocuments left over after the skip.\n\nThis example performs the following actions:\n\n- Uses an empty query filter to match all documents in the collection\n\n- Calls the `sort()` method to apply a descending sort on the `length` field to the results\n\n- Calls the `limit()` method to return only the first `3` results\n\n```javascript\n// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst limitNum = 3;\nconst cursor = myColl.find(query).sort(sortFields).limit(limitNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThe code example above outputs the following three documents, sorted by\nlength:\n\n```json\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 6, \"title\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n```\n\n> **Note:** The order in which you call `limit()` and `sort()` does not matter because the\n> driver reorders the calls to apply the sort first. The following two calls are\n> equivalent:\n>\n> ```javascript\n> myColl.find(query).sort({ length: -1 }).limit(3);\n> myColl.find(query).limit(3).sort({ length: -1 });\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst limitNum = 3;\nconst cursor = myColl.find(query).sort(sortFields).limit(limitNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "json",
+      "content": "{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 6, \"title\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "javascript",
+      "content": "myColl.find(query).sort({ length: -1 }).limit(3);\nmyColl.find(query).limit(3).sort({ length: -1 });",
+      "tokenEstimate": 32
+    }
+  ]
+}

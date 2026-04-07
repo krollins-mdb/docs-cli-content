@@ -1,0 +1,119 @@
+{
+  "path": "node/gridfs",
+  "product": "node",
+  "title": "Store Large Files with GridFS",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to store and retrieve large files in\nMongoDB using **GridFS**. GridFS is a specification that describes how\nto split files into chunks during storage\nand reassemble them during retrieval. The driver implementation of\nGridFS manages the operations and organization of\nthe file storage.\n\nUse GridFS if the size of your file exceeds the BSON-document\nsize limit of 16 megabytes. For more detailed information on whether GridFS is\nsuitable for your use case, see the [GridFS Server manual page](manual/core/gridfs).\n\nNavigate the following sections to learn more about GridFS operations\nand implementation:\n\n- [Create a GridFS Bucket](gridfs-create-bucket)\n\n- [Upload Files](gridfs-upload-files)\n\n- [Retrieve File Information](gridfs-retrieve-file-info)\n\n- [Download Files](gridfs-download-files)\n\n- [Rename Files](gridfs-rename-files)\n\n- [Delete Files](gridfs-delete-files)\n\n- [Delete a GridFS Bucket](gridfs-delete-bucket)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How GridFS Works",
+      "headingLevel": 2,
+      "body": "GridFS organizes files in a **bucket**, a group of MongoDB collections\nthat contain the chunks of files and descriptive information.\nBuckets contain the following collections, named using the convention\ndefined in the GridFS specification:\n\n- The `chunks` collection stores the binary file chunks.\n\n- The `files` collection stores the file metadata.\n\nWhen you create a new GridFS bucket, the driver creates the `chunks`\nand `files` collections, prefixed with the default bucket name `fs`, unless\nyou specify a different name. The driver also creates an index on each\ncollection to ensure efficient retrieval of files and related\nmetadata. The driver only creates the GridFS bucket on the first write\noperation if it does not already exist. The driver only creates indexes if\nthey do not exist and when the bucket is empty. For more information on\nGridFS indexes, see the Server manual page on [GridFS Indexes](manual/core/gridfs).\n\nWhen storing files with GridFS, the driver splits the files into smaller\npieces, each represented by a separate document in the `chunks` collection.\nIt also creates a document in the `files` collection that contains\na unique file id, file name, and other file metadata. You can upload the file from\nmemory or from a stream. The following diagram describes how GridFS splits\nfiles when uploading to a bucket:\n\n![A diagram that shows how GridFS uploads a file to a bucket](/_includes/figures/GridFS-upload.png)\n\nWhen retrieving files, GridFS fetches the metadata from the `files`\ncollection in the specified bucket and uses the information to reconstruct\nthe file from documents in the `chunks` collection. You can read the file\ninto memory or output it to a stream.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create a GridFS Bucket",
+      "headingLevel": 2,
+      "body": "Create a bucket or get a reference to an existing one to begin storing\nor retrieving files from GridFS. Create a `GridFSBucket`\ninstance, passing a database as the parameter. You can then use the\n`GridFSBucket` instance to call read and write operations on the files\nin your bucket:\n\n```javascript\nconst db = client.db(dbName);\nconst bucket = new mongodb.GridFSBucket(db);\n```\n\nPass your bucket name as the second parameter to the `create()` method\nto create or reference a bucket with a custom name other than the\ndefault name `fs`, as shown in the following example:\n\n```javascript\nconst bucket = new mongodb.GridFSBucket(db, { bucketName: 'myCustomBucket' });\n```\n\nFor more information, see the [GridFSBucket API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const db = client.db(dbName);\nconst bucket = new mongodb.GridFSBucket(db);",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "javascript",
+          "content": "const bucket = new mongodb.GridFSBucket(db, { bucketName: 'myCustomBucket' });",
+          "tokenEstimate": 20
+        }
+      ]
+    },
+    {
+      "heading": "Upload Files",
+      "headingLevel": 2,
+      "body": "Use the `openUploadStream()` method from `GridFSBucket` to create an upload\nstream for a given file name. You can use the `pipe()` method to\nconnect a Node.js read stream to the upload stream. The\n`openUploadStream()` method allows you to specify configuration information\nsuch as file chunk size and other field/value pairs to store as metadata.\n\nThe following example shows how to pipe a Node.js read stream, represented by the\nvariable `fs`, to the `openUploadStream()` method of a `GridFSBucket` instance:\n\n```javascript\nfs.createReadStream('./myFile').\n     pipe(bucket.openUploadStream('myFile', {\n         chunkSizeBytes: 1048576,\n         metadata: { field: 'myField', value: 'myValue' }\n     }));\n```\n\nSee the [openUploadStream() API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#openUploadStream) for more information.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "fs.createReadStream('./myFile').\n     pipe(bucket.openUploadStream('myFile', {\n         chunkSizeBytes: 1048576,\n         metadata: { field: 'myField', value: 'myValue' }\n     }));",
+          "tokenEstimate": 48
+        }
+      ]
+    },
+    {
+      "heading": "Retrieve File Information",
+      "headingLevel": 2,
+      "body": "In this section, you can learn how to retrieve file metadata stored in the\n`files` collection of the GridFS bucket. The metadata contains information\nabout the file it refers to, including:\n\n- The `_id` of the file\n\n- The name of the file\n\n- The length/size of the file\n\n- The upload date and time\n\n- A `metadata` document in which you can store any other information\n\nCall the `find()` method on the `GridFSBucket` instance to retrieve\nfiles from a GridFS bucket. The method returns a `FindCursor` instance\nfrom which you can access the results.\n\nThe following code example shows you how to retrieve and print file metadata\nfrom all your files in a GridFS bucket. Among the different ways that you can\ntraverse the retrieved results from the `FindCursor` iterable, the\nfollowing example uses the `for await...of` syntax to display the results:\n\n```javascript\nconst cursor = bucket.find({});\nfor await (const doc of cursor) {\n   console.log(doc);\n}\n```\n\nThe `find()` method accepts various query specifications and can be\ncombined with other methods such as `sort()`, `limit()`, and `project()`.\n\nFor more information on the classes and methods mentioned in this section,\nsee the following resources:\n\n- [find() API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#find)\n\n- [FindCursor API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html)\n\n- [Access Data From a Cursor](node-cursor)\n\n- [Find Documents](node-find)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const cursor = bucket.find({});\nfor await (const doc of cursor) {\n   console.log(doc);\n}",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Download Files",
+      "headingLevel": 2,
+      "body": "You can download files from your MongoDB database by using the\n`openDownloadStreamByName()` method from `GridFSBucket` to create a\ndownload stream.\n\nThe following example shows you how to download a file referenced\nby the file name, stored in the `filename` field, into your working\ndirectory:\n\n```javascript\nbucket.openDownloadStreamByName('myFile').\n     pipe(fs.createWriteStream('./outputFile'));\n```\n\n> **Note:** If there are multiple documents with the same `filename` value,\n> GridFS will stream the most recent file with the given name (as\n> determined by the `uploadDate` field).\n\nAlternatively, you can use the `openDownloadStream()`\nmethod, which takes the `_id` field of a file as a parameter:\n\n```javascript\nbucket.openDownloadStream(ObjectId(\"60edece5e06275bf0463aaf3\")).\n     pipe(fs.createWriteStream('./outputFile'));\n```\n\n> **Note:** The GridFS streaming API cannot load partial chunks. When a download\n> stream needs to pull a chunk from MongoDB, it pulls the entire chunk\n> into memory. The 255 kilobyte default chunk size is usually\n> sufficient, but you can reduce the chunk size to reduce memory\n> overhead.\n\nFor more information on the `openDownloadStreamByName()` method, see\nits [API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#openDownloadStreamByName).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "bucket.openDownloadStreamByName('myFile').\n     pipe(fs.createWriteStream('./outputFile'));",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "javascript",
+          "content": "bucket.openDownloadStream(ObjectId(\"60edece5e06275bf0463aaf3\")).\n     pipe(fs.createWriteStream('./outputFile'));",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Rename Files",
+      "headingLevel": 2,
+      "body": "Use the `rename()` method to update the name of a GridFS file in your\nbucket. You must specify the file to rename by its `_id` field\nrather than its file name.\n\n> **Note:** The `rename()` method only supports updating the name of one file at\n> a time. To rename multiple files, retrieve a list of files matching the\n> file name from the bucket, extract the `_id` field from the files you\n> want to rename, and pass each value in separate calls to the `rename()`\n> method.\n\nThe following example shows how to update the `filename` field to\n\"newFileName\" by referencing a document's `_id` field:\n\n```javascript\nbucket.rename(ObjectId(\"60edece5e06275bf0463aaf3\"), \"newFileName\");\n```\n\nFor more information on this method, see the [rename()](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#rename)\nAPI documentation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "bucket.rename(ObjectId(\"60edece5e06275bf0463aaf3\"), \"newFileName\");",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "Delete Files",
+      "headingLevel": 2,
+      "body": "Use the `delete()` method to remove a file from your bucket. You must\nspecify the file by its `_id` field rather than its file name.\n\n> **Note:** The `delete()` method only supports deleting one file at a time. To\n> delete multiple files, retrieve the files from the bucket, extract\n> the `_id` field from the files you want to delete, and pass each value\n> in separate calls to the `delete()` method.\n\nThe following example shows you how to delete a file by referencing its `_id` field:\n\n```javascript\nbucket.delete(ObjectId(\"60edece5e06275bf0463aaf3\"));\n```\n\nFor more information on this method, see the [delete()](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#delete)\nAPI documentation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "bucket.delete(ObjectId(\"60edece5e06275bf0463aaf3\"));",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Delete a GridFS Bucket",
+      "headingLevel": 2,
+      "body": "Use the `drop()` method to remove a bucket's `files` and `chunks`\ncollections, which effectively deletes the bucket. The following\ncode example shows you how to delete a GridFS bucket:\n\n```javascript\nbucket.drop();\n```\n\nFor more information on this method, see the [drop()](https://mongodb.github.io/node-mongodb-native/7.1/classes/GridFSBucket.html#drop)\nAPI documentation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "bucket.drop();",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Additional Resources",
+      "headingLevel": 2,
+      "body": "- [MongoDB GridFS specification](https://github.com/mongodb/specifications/blob/master/source/gridfs/gridfs-spec.rst)",
+      "codeBlocks": []
+    }
+  ]
+}

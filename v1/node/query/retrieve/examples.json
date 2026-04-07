@@ -1,0 +1,191 @@
+{
+  "path": "node/query/retrieve",
+  "product": "node",
+  "title": "Find Documents",
+  "summary": {
+    "total": 15,
+    "byLanguage": {
+      "javascript": 13,
+      "typescript": 2
+    },
+    "bySection": [
+      {
+        "heading": "Finding Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 30
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 79
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 71
+          }
+        ]
+      },
+      {
+        "heading": "findOne() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 222
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 246
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 30
+          }
+        ]
+      },
+      {
+        "heading": "find() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 239
+          },
+          {
+            "language": "typescript",
+            "tokenEstimate": 236
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 124
+          }
+        ]
+      },
+      {
+        "heading": "Aggregate Data from Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 102
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 43
+          }
+        ]
+      },
+      {
+        "heading": "Monitor Data Changes",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 107
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Finding Documents",
+      "content": "myColl.find(); // no query\nmyColl.find({}); // empty query",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Finding Documents",
+      "content": "const projectFields = { _id: 0, field1: 1 };\n\nconst findResult = await myColl.findOne().project(projectFields);",
+      "tokenEstimate": 30
+    },
+    {
+      "language": "javascript",
+      "section": "Finding Documents",
+      "content": "    // Search for orders by name and within a specific date range\n    const findResult = orders.find({\n      name: \"Lemony Snicket\",\n      date: {\n        $gte: new Date(new Date().setHours(00, 00, 00)),\n        $lt: new Date(new Date().setHours(23, 59, 59)),\n      },\n    });",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "javascript",
+      "section": "Finding Documents",
+      "content": "for await (const doc of findResult) {\n  console.log(doc);\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Finding Documents",
+      "content": "[\n  { name: \"Lemony Snicket\", type: \"horseradish pizza\", qty: 1, status: \"delivered\", date: ... },\n  { name: \"Lemony Snicket\", type: \"coal-fired oven pizza\", qty: 3, status: \"canceled\", date: ...},\n  ...\n]",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "javascript",
+      "section": "findOne() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for a movie that has the title 'The Room'\n    const query = { title: \"The Room\" };\n\n    const options = {\n      // Sort matched documents in descending order by rating\n      sort: { \"imdb.rating\": -1 },\n      // Include only the `title` and `imdb` fields in the returned document\n      projection: { _id: 0, title: 1, imdb: 1 },\n    };\n\n    // Execute query\n    const movie = await movies.findOne(query, options);\n\n    // Print the document returned by findOne()\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 222
+    },
+    {
+      "language": "typescript",
+      "section": "findOne() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\nexport interface Movie {\n  title: string;\n  year: number;\n  released: Date;\n  plot: string;\n  type: \"movie\" | \"series\";\n  imdb: IMDB;\n}\n\ntype MovieSummary = Pick<Movie, \"title\" | \"imdb\">;\n\nasync function run(): Promise<void> {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is always optional, but it enables type hinting on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const movie = await movies.findOne<MovieSummary>(\n      { title: \"The Room\" },\n      {\n        sort: { rating: -1 },\n        projection: { _id: 0, title: 1, imdb: 1 },\n      }\n    );\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 246
+    },
+    {
+      "language": "javascript",
+      "section": "findOne() Example: Full File",
+      "content": "{ title: 'The Room', imdb: { rating: 3.5, votes: 25673, id: 368226 } }",
+      "tokenEstimate": 30
+    },
+    {
+      "language": "javascript",
+      "section": "find() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 239
+    },
+    {
+      "language": "typescript",
+      "section": "find() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ntype Minutes = number;\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\ninterface Movie {\n  title: string;\n  imdb: IMDB;\n  runtime: Minutes;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    const cursor = movies.find<Movie>(query).sort(sortFields).project(projectFields);\n\n    if ((await movies.countDocuments(query)) === 0) {\n      console.warn(\"No documents found!\");\n    }\n\n    for await (const doc of cursor) {\n      console.dir(doc);\n    } \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 236
+    },
+    {
+      "language": "javascript",
+      "section": "find() Example: Full File",
+      "content": "{ title: '10 Minutes', imdb: { rating: 7.9, votes: 743, id: 339976 } }\n{ title: '3x3', imdb: { rating: 6.9, votes: 206, id: 1654725 } }\n{ title: '7:35 in the Morning', imdb: { rating: 7.3, votes: 1555, id: 406501 } }\n{ title: '8', imdb: { rating: 7.8, votes: 883, id: 1592502 } }\n...",
+      "tokenEstimate": 124
+    },
+    {
+      "language": "javascript",
+      "section": "Aggregate Data from Documents",
+      "content": "    // Group orders by status within the last week\n    const aggregateResult = orders.aggregate([\n      {\n        $match: {\n          date: {\n            $gte: new Date(new Date().getTime() - 1000 * 3600 * 24 * 7),\n            $lt: new Date(),\n          },\n        },\n      },\n      {\n        $group: {\n          _id: \"$status\",\n          count: {\n            $sum: 1,\n          },\n        },\n      },\n    ]);",
+      "tokenEstimate": 102
+    },
+    {
+      "language": "javascript",
+      "section": "Aggregate Data from Documents",
+      "content": "for await (const doc of aggregateResult) {\n  console.log(doc);\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Aggregate Data from Documents",
+      "content": "[\n  { _id: 'delivering', count: 5 },\n  { _id: 'delivered', count: 37 },\n  { _id: 'created', count: 9 }\n]",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "javascript",
+      "section": "Monitor Data Changes",
+      "content": "    // Set up a change stream to listen for new order insertions\n    const changeStream = orders.watch([\n      { $match: { operationType: \"insert\" } },\n      {\n        $project: {\n          \"fullDocument.name\": 1,\n          \"fullDocument.address\": 1,\n        },\n      },\n    ]);\n    changeStream.on(\"change\", change => {\n      const { name, address } = change.fullDocument;\n      console.log(`New order for ${name} at ${address}.`);\n    });",
+      "tokenEstimate": 107
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "path": "node/query/specify-documents-to-return",
+  "product": "node",
+  "title": "Specify Documents to Return",
+  "summary": {
+    "total": 12,
+    "byLanguage": {
+      "javascript": 7,
+      "json": 5
+    },
+    "bySection": [
+      {
+        "heading": "Sample Data for Examples",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 212
+          }
+        ]
+      },
+      {
+        "heading": "Sort",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 59
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 179
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 64
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 179
+          }
+        ]
+      },
+      {
+        "heading": "Limit",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 70
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 88
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 32
+          }
+        ]
+      },
+      {
+        "heading": "Skip",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 59
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 63
+          }
+        ]
+      },
+      {
+        "heading": "Combine Limit, Sort, and Skip",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 29
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Sample Data for Examples",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"books\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"name\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 },\n  { \"_id\": 2, \"name\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 },\n  { \"_id\": 3, \"name\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 },\n  { \"_id\": 4, \"name\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 },\n  { \"_id\": 5, \"name\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 },\n  { \"_id\": 6, \"name\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 },\n]);",
+      "tokenEstimate": 212
+    },
+    {
+      "language": "javascript",
+      "section": "Sort",
+      "content": "// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "json",
+      "section": "Sort",
+      "content": "{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }",
+      "tokenEstimate": 179
+    },
+    {
+      "language": "javascript",
+      "section": "Sort",
+      "content": "// define an empty query document\nconst query = {};\n// sort in ascending (1) order by length\nconst sortFields = { length: 1, author: 1 };\nconst cursor = myColl.find(query).sort(sortFields);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "json",
+      "section": "Sort",
+      "content": "{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }\n{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 3, \"title\": \"Atlas Shrugged\", \"author\": \"Rand\", \"length\": 1088 }\n{ \"_id\": 6, \"title\": \"A Dance with Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }\n{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }",
+      "tokenEstimate": 179
+    },
+    {
+      "language": "javascript",
+      "section": "Limit",
+      "content": "// define an empty query document\nconst query = {};\n// sort in descending (-1) order by length\nconst sortFields = { length: -1 };\nconst limitNum = 3;\nconst cursor = myColl.find(query).sort(sortFields).limit(limitNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "json",
+      "section": "Limit",
+      "content": "{ \"_id\": 2, \"title\": \"Les Misérables\", \"author\": \"Hugo\", \"length\": 1462 }\n{ \"_id\": 6, \"title\": \"A Dance With Dragons\", \"author\": \"Martin\", \"length\": 1104 }\n{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "javascript",
+      "section": "Limit",
+      "content": "myColl.find(query).sort({ length: -1 }).limit(3);\nmyColl.find(query).limit(3).sort({ length: -1 });",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "javascript",
+      "section": "Skip",
+      "content": "// define an empty query document\nconst query = {};\nconst sortFields = { length: -1 };\nconst skipNum = 4;\nconst cursor = myColl.find(query).sort(sortFields).skip(skipNum);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "json",
+      "section": "Skip",
+      "content": "{ \"_id\": 5, \"title\": \"Cryptonomicon\", \"author\": \"Stephenson\", \"length\": 918 }\n{ \"_id\": 1, \"title\": \"The Brothers Karamazov\", \"author\": \"Dostoyevsky\", \"length\": 824 }",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "javascript",
+      "section": "Combine Limit, Sort, and Skip",
+      "content": "const query = {length: \"1104\"};\n\nconst cursor = myColl.find(query).sort({ title: 1 }).skip(1).limit(1);\n\nfor await (const doc of cursor) {\n   console.dir(doc);\n}",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "json",
+      "section": "Combine Limit, Sort, and Skip",
+      "content": "{ \"_id\": 4, \"title\": \"Infinite Jest\", \"author\": \"Wallace\", \"length\": 1104 }",
+      "tokenEstimate": 29
+    }
+  ]
+}

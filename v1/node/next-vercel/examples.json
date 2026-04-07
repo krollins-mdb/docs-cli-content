@@ -1,0 +1,142 @@
+{
+  "path": "node/next-vercel",
+  "product": "node",
+  "title": "Tutorial: Deploy a Next.js Application on Vercel",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "bash": 6,
+      "none": 1,
+      "typescript": 3
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Create a Next.js Application",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 4
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 2
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Connect MongoDB to Next.js",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 8
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Example 1: Create a Next.js API Endpoint for MongoDB",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 120
+          }
+        ]
+      },
+      {
+        "heading": "Example 2: Next.js Pages with MongoDB",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 312
+          }
+        ]
+      },
+      {
+        "heading": "Example 3: Next.js Static Generation with MongoDB",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 318
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 7
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "Step 1: Create a Next.js Application",
+      "content": "npx create-next-app --example with-mongodb sample_mflix",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "bash",
+      "section": "Step 1: Create a Next.js Application",
+      "content": "cd sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "bash",
+      "section": "Step 1: Create a Next.js Application",
+      "content": "npm install",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "bash",
+      "section": "Step 1: Create a Next.js Application",
+      "content": "npm run dev",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "none",
+      "section": "Step 2: Connect MongoDB to Next.js",
+      "content": "MONGODB_URI=<Your connection string>",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Connect MongoDB to Next.js",
+      "content": "npm run dev",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "typescript",
+      "section": "Example 1: Create a Next.js API Endpoint for MongoDB",
+      "content": "import clientPromise from \"../../lib/mongodb\";\nimport { NextApiRequest, NextApiResponse } from 'next';\n\nexport default async (req: NextApiRequest, res: NextApiResponse) => {\n    try {\n        const client = await clientPromise;\n        const db = client.db(\"sample_mflix\");\n        const movies = await db\n            .collection(\"movies\")\n            .find({})\n            .sort({ metacritic: -1 })\n            .limit(10)\n            .toArray();\n        res.json(movies);\n    } catch (e) {\n        console.error(e);\n    }\n}",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "typescript",
+      "section": "Example 2: Next.js Pages with MongoDB",
+      "content": "import clientPromise from \"../lib/mongodb\";\nimport { GetServerSideProps } from 'next';\n\ninterface Movie {\n   _id: string;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface MoviesProps {\n   movies: Movie[];\n}\n\nconst Movies: React.FC<MoviesProps> = ({ movies }) => {\n   return (\n       <div>\n           <h1>Top 20 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n};\n\nexport default Movies;\n\nexport const getServerSideProps: GetServerSideProps = async () => {\n   try {\n       const client = await clientPromise;\n       const db = client.db(\"sample_mflix\");\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(20)\n           .toArray();\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return { props: { movies: [] } };\n   }\n};",
+      "tokenEstimate": 312
+    },
+    {
+      "language": "typescript",
+      "section": "Example 3: Next.js Static Generation with MongoDB",
+      "content": "import { ObjectId } from \"mongodb\";\nimport clientPromise from \"../lib/mongodb\";\nimport { GetStaticProps } from \"next\";\n\ninterface Movie {\n   _id: ObjectId;\n   title: string;\n   metacritic: number;\n   plot: string;\n}\n\ninterface TopProps {\n   movies: Movie[];\n}\n\nexport default function Top({ movies }: TopProps) {\n   return (\n       <div>\n           <h1>Top 1000 Movies of All Time</h1>\n           <p>\n               <small>(According to Metacritic)</small>\n           </p>\n           <ul>\n               {movies.map((movie) => (\n                   <li key={movie._id.toString()}>\n                       <h2>{movie.title}</h2>\n                       <h3>{movie.metacritic}</h3>\n                       <p>{movie.plot}</p>\n                   </li>\n               ))}\n           </ul>\n       </div>\n   );\n}\n\nexport const getStaticProps: GetStaticProps<TopProps> = async () => {\n   try {\n       const client = await clientPromise;\n\n       const db = client.db(\"sample_mflix\");\n\n       const movies = await db\n           .collection(\"movies\")\n           .find({})\n           .sort({ metacritic: -1 })\n           .limit(1000)\n           .toArray();\n\n       return {\n           props: { movies: JSON.parse(JSON.stringify(movies)) },\n       };\n   } catch (e) {\n       console.error(e);\n       return {\n           props: { movies: [] },\n       };\n   }\n};",
+      "tokenEstimate": 318
+    },
+    {
+      "language": "bash",
+      "section": "Example 3: Next.js Static Generation with MongoDB",
+      "content": "npm run build\nnpm run start",
+      "tokenEstimate": 7
+    }
+  ]
+}

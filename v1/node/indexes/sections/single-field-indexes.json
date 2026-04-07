@@ -1,0 +1,17 @@
+{
+  "heading": "Single Field Indexes",
+  "headingLevel": 3,
+  "body": "**Single field indexes** are indexes that improve performance for queries\nthat specify ascending or descending sort order on a single field of a\ndocument.\n\nThe following example uses the `createIndex()` method to create an\nascending order index on the `title` field in the `movies` collection in\nthe `sample_mflix` database.\n\n```js\nconst database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n// Create an ascending index on the \"title\" field in the\n// \"movies\" collection.\nconst result = await movies.createIndex({ title: 1 });\nconsole.log(`Index created: ${result}`);\n```\n\nThe following is an example of a query that is covered by the index\ncreated above.\n\n```js\n// Define the query parameters\nconst query = { title: \"Batman\" }\nconst sort = { title: 1 };\nconst projection = { _id: 0, title: 1 };\n// Execute the query using the defined parameters\nconst cursor = movies\n  .find(query)\n  .sort(sort)\n  .project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}\n```\n\nTo learn more, see  [Single Field Indexes](manual/core/index-single).",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n// Create an ascending index on the \"title\" field in the\n// \"movies\" collection.\nconst result = await movies.createIndex({ title: 1 });\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "js",
+      "content": "// Define the query parameters\nconst query = { title: \"Batman\" }\nconst sort = { title: 1 };\nconst projection = { _id: 0, title: 1 };\n// Execute the query using the defined parameters\nconst cursor = movies\n  .find(query)\n  .sort(sort)\n  .project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 85
+    }
+  ]
+}

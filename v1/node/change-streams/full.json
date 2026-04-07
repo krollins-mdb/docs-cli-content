@@ -1,0 +1,80 @@
+{
+  "path": "node/change-streams",
+  "product": "node",
+  "title": "Monitor Data with Change Streams",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to use a **change stream** to monitor real-time\nchanges to your database. A change stream is a MongoDB Server feature that\nallows your application to subscribe to data changes on a collection, database,\nor deployment.\n\n> **Tip:**&#x20;\n>\n> Atlas Stream Processing\n>\n> As an alternative to change streams, you can use Atlas Stream\n> Processing to process and transform streams of data. Unlike change streams,\n> which register only database events, Atlas Stream Processing\n> manages multiple data event types and provides extended data processing\n> capabilities. To learn more about this feature, see\n> [Atlas Stream Processing](atlas/atlas-stream-processing) in the\n> MongoDB Atlas documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Open a Change Stream",
+      "headingLevel": 2,
+      "body": "You can watch for changes in MongoDB using the `watch()` method on the\nfollowing objects:\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#watch)\n\n- [Database](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html#watch)\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html#watch)\n\nFor each object, the `watch()` method opens a **change stream** to\nemit **change event** documents when they occur.\n\nThe `watch()` method optionally takes an **aggregation pipeline** which consists of an array of **aggregation stages**\nas the first parameter. The aggregation stages filter and transform the change events.\n\nIn the following snippet, the `$match` stage matches all change event documents with a `runtime` value of less than\n15, filtering all others out.\n\n```javascript\nconst pipeline = [ { $match: { runtime: { $lt: 15 } } } ];\nconst changeStream = myColl.watch(pipeline);\n```\n\nThe `watch()` method accepts an `options` object as the second parameter. Refer to the links at the end of this\nsection for more information on the settings you can configure with this object.\n\nThe `watch()` method returns an instance of a [ChangeStream](https://mongodb.github.io/node-mongodb-native/7.1/classes/ChangeStream.html). You can read events from\nchange streams by iterating over them or listening for events.\n\n> **Warning:** Using a `ChangeStream` in `EventEmitter` and `Iterator` mode\n> concurrently is not supported by the driver and causes an error. This\n> is to prevent undefined behavior, where the driver cannot guarantee\n> which consumer receives documents first.\n\nSelect the tab that corresponds to the way you want to\nread events from the change stream:\n\n**Idiomatic Iteration:**\n\nStarting in version 4.12, `ChangeStream` objects are async\niterables. With this change, you can use `for-await` loops to\nretrieve events from an open change stream:\n\n```js\nfor await (const change of changeStream) {\n  console.log(\"Received change: \", change);\n}\n```\n\n**Manual Iteration:**\n\nYou can call methods on the `ChangeStream` object such as:\n\n- `hasNext()` to check for remaining documents in the stream\n\n- `next()` to request the next document in the stream\n\n- `close()` to close the ChangeStream\n\n**Event:**\n\nYou can attach listener functions to the `ChangeStream`  object\nby calling the `on()` method. This method is inherited from the\nJavaScript `EventEmitter` class. Pass the string `\"change\"` as\nthe first parameter and your listener function as the second parameter as shown below:\n\n```javascript\nchangeStream.on(\"change\", (changeEvent) => { /* your listener function */ });\n```\n\nThe listener function triggers when a `change` event is emitted. You\ncan specify logic in the listener to process the change event document\nwhen it is received.\n\nYou can control the change stream by calling `pause()` to stop emitting events or `resume()` to continue to emit events.\n\nTo stop processing change events, call the [close()](https://mongodb.github.io/node-mongodb-native/7.1/classes/ChangeStream.html#close) method on the\n`ChangeStream` instance. This closes the change stream and frees resources.\n\n```javascript\nchangeStream.close();\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const pipeline = [ { $match: { runtime: { $lt: 15 } } } ];\nconst changeStream = myColl.watch(pipeline);",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "js",
+          "content": "for await (const change of changeStream) {\n  console.log(\"Received change: \", change);\n}",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "javascript",
+          "content": "changeStream.on(\"change\", (changeEvent) => { /* your listener function */ });",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "javascript",
+          "content": "changeStream.close();",
+          "tokenEstimate": 4
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Iteration",
+      "headingLevel": 3,
+      "body": "> **Note:** You can use this example to connect to an instance of MongoDB\n> and interact with a database that contains sample data. To learn more about connecting to your MongoDB\n> instance and loading a sample dataset, see the [Get Started with the Node.js Driver](node-get-started) guide.\n\n> **Note:**&#x20;\n>\n> No TypeScript Specific Features\n>\n> The following code example uses JavaScript. There are no TypeScript\n> specific features of the driver relevant to this use case.\n\nThe following example opens a change stream on the `haikus` collection in\nthe `insertDB` database and prints change events as they occur:\n\n```javascript\n// Watch for changes in a collection by using a change stream\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Declare a variable to hold the change stream\nlet changeStream;\n\n// Define an asynchronous function to manage the change stream\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Print change events as they occur\n    for await (const change of changeStream) {\n      console.log(\"Received change:\\n\", change);\n    }\n    // Close the change stream when done\n    await changeStream.close();\n    \n  } finally {\n    // Close the MongoDB client connection\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\n> **Tip:**&#x20;\n>\n> Explicit Resource Management\n>\n> The Node.js driver natively supports explicit resource management for\n> `MongoClient`, `ClientSession`, `ChangeStreams`, and cursors. This\n> feature is experimental and subject to change. To learn how to use explicit\n> resource management, see the [v6.9 Release Notes.](https://github.com/mongodb/node-mongodb-native/releases/tag/v6.9.0)\n\nWhen you run this code and then make a change to the `haikus`\ncollection, such as performing an insert or delete operation, you can\nsee the change event document printed in your terminal.\n\nFor example, if you insert a document to the collection, the code prints\nthe following output:\n\n```none\nReceived change:\n{\n  _id: {\n    _data: '...'\n  },\n  operationType: 'insert',\n  clusterTime: new Timestamp({ t: 1675800603, i: 31 }),\n  fullDocument: {\n    _id: new ObjectId(\"...\"),\n    ...\n  },\n  ns: { db: 'insertDB', coll: 'haikus' },\n  documentKey: { _id: new ObjectId(\"...\") }\n}\n```\n\n> **Note:**&#x20;\n>\n> Receive Full Documents From Updates\n>\n> Change events that contain information on update operations only return the modified\n> fields by default rather than the full updated document. You can configure\n> your change stream to also return the most current version of the document\n> by setting the `fullDocument` field of the options object to\n> `\"updateLookup\"` as follows:\n>\n> ```javascript\n> const options = { fullDocument: \"updateLookup\" };\n> // This could be any pipeline.\n> const pipeline = [];\n>\n> const changeStream = myColl.watch(pipeline, options);\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// Watch for changes in a collection by using a change stream\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Declare a variable to hold the change stream\nlet changeStream;\n\n// Define an asynchronous function to manage the change stream\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Print change events as they occur\n    for await (const change of changeStream) {\n      console.log(\"Received change:\\n\", change);\n    }\n    // Close the change stream when done\n    await changeStream.close();\n    \n  } finally {\n    // Close the MongoDB client connection\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 204
+        },
+        {
+          "language": "none",
+          "content": "Received change:\n{\n  _id: {\n    _data: '...'\n  },\n  operationType: 'insert',\n  clusterTime: new Timestamp({ t: 1675800603, i: 31 }),\n  fullDocument: {\n    _id: new ObjectId(\"...\"),\n    ...\n  },\n  ns: { db: 'insertDB', coll: 'haikus' },\n  documentKey: { _id: new ObjectId(\"...\") }\n}",
+          "tokenEstimate": 95
+        },
+        {
+          "language": "javascript",
+          "content": "const options = { fullDocument: \"updateLookup\" };\n// This could be any pipeline.\nconst pipeline = [];\n\nconst changeStream = myColl.watch(pipeline, options);",
+          "tokenEstimate": 35
+        }
+      ]
+    },
+    {
+      "heading": "Listener Function",
+      "headingLevel": 3,
+      "body": "The following example opens a change stream on the `haikus` collection in\nthe `insertDB` database. Let's create a listener function to receive and\nprint change events that occur on the collection.\n\nFirst, open the change stream on the collection and then define a listener\non the change stream using the `on()` method. Once you set the\nlistener, generate a change event by performing a change to the collection.\n\nTo generate the change event on the collection, let's use the `insertOne()`\nmethod to add a new document. Since `insertOne()` may run before the\nlistener function can register, we use a timer, defined as\n`simulateAsyncPause` to wait 1 second before executing the insert.\n\nWe also use `simulateAsyncPause` after the insertion of the document.\nThis provides ample time for the listener function to receive the change\nevent and for the listener to complete its execution before\nclosing the `ChangeStream` instance using the `close()` method.\n\n> **Note:**&#x20;\n>\n> Reason to include timers\n>\n> The timers used in this example are only for demonstration\n> purposes. They make sure that there is enough time to register\n> the listener and have the listener process the change event before\n> exiting.\n\n> **Note:**&#x20;\n>\n> No TypeScript Specific Features\n>\n> The following code example uses JavaScript. There are no TypeScript\n> specific features of the driver relevant to this use case.\n\n```javascript\n/* Change stream listener */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nconst simulateAsyncPause = () =>\n  new Promise(resolve => {\n    setTimeout(() => resolve(), 1000);\n  });\n\nlet changeStream;\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Set up a change stream listener when change events are emitted\n    changeStream.on(\"change\", next => {\n      // Print any change event\n      console.log(\"received a change to the collection: \\t\", next);\n    });\n\n    // Pause before inserting a document\n    await simulateAsyncPause();\n\n    // Insert a new document into the collection\n    await myColl.insertOne({\n      title: \"Record of a Shriveled Datum\",\n      content: \"No bytes, no problem. Just insert a document, in MongoDB\",\n    });\n\n    // Pause before closing the change stream\n    await simulateAsyncPause();\n\n    // Close the change stream and print a message to the console when it is closed\n    await changeStream.close();    \n    console.log(\"closed the change stream\");\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n```\n\nVisit the following resources for more material on the classes and\nmethods mentioned on this page:\n\n- [Change streams](manual/changeStreams)\n\n- [Change events](manual/reference/change-events)\n\n- [Aggregation pipeline](manual/reference/operator/aggregation-pipeline)\n\n- [Aggregation stages](manual/changeStreams)\n\n- [ChangeStream class API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/ChangeStream.html)\n\n- [Collection.watch()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#watch),\n\n- [Db.watch()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html#watch),\n\n- [MongoClient.watch() API documentation](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html#watch)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "/* Change stream listener */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nconst simulateAsyncPause = () =>\n  new Promise(resolve => {\n    setTimeout(() => resolve(), 1000);\n  });\n\nlet changeStream;\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Set up a change stream listener when change events are emitted\n    changeStream.on(\"change\", next => {\n      // Print any change event\n      console.log(\"received a change to the collection: \\t\", next);\n    });\n\n    // Pause before inserting a document\n    await simulateAsyncPause();\n\n    // Insert a new document into the collection\n    await myColl.insertOne({\n      title: \"Record of a Shriveled Datum\",\n      content: \"No bytes, no problem. Just insert a document, in MongoDB\",\n    });\n\n    // Pause before closing the change stream\n    await simulateAsyncPause();\n\n    // Close the change stream and print a message to the console when it is closed\n    await changeStream.close();    \n    console.log(\"closed the change stream\");\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
+          "tokenEstimate": 315
+        }
+      ]
+    }
+  ]
+}

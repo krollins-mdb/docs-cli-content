@@ -1,0 +1,17 @@
+{
+  "heading": "Set the Scope for Serializing Undefined Values",
+  "headingLevel": 3,
+  "body": "You can specify the `ignoreUndefined` setting at the following levels:\n\n- The client level\n\n- The database level\n\n- The collection level\n\n- The operation level\n\nThe `ignoreUndefined` setting automatically applies to the scope of the\nobject instance in which you specified it and any other objects created\nfrom that instance.\n\nFor example, if you set the `ignoreUndefined` setting when\ninstantiating a database object, any collection instance created from\nthat object inherits the setting. Furthermore, any operations that you\ncall on that collection instance also inherit the setting.\n\nThe following example performs an find-and-update operation that\ninherits the `ignoreUndefined` setting from the `myDB` database\nobject. This operation does not produce any data changes because the\ndriver ignores the `gasTax` field:\n\n```javascript\nconst myDB = client.db(\"test\", { ignoreUndefined: true });\n\n// The collection inherits the ignoreUndefined setting\nconst myColl = myDB.collection(\"states\");\n\n// Any write operation will not serialize undefined values\nawait myColl.findOneAndUpdate(\n  { state: \"Georgia\" },\n  { $set: { gasTax: undefined } }\n);\n```\n\nYou can specify the `ignoreUndefined` setting again at any level to\noverride any inherited settings.\n\nFor example, if you set `ignoreUndefined` to `true` on your\ncollection object, you can override the setting in individual write\noperations that you execute on that collection.\n\n```javascript\nconst myColl = myDB.collection(\"states\", { ignoreUndefined: true });\n\n// The insert operation will not serialize undefined values\nawait myColl.insertOne({\n  state: \"South Dakota\",\n  capitalGainsTax: undefined,\n});\n\n// The insert operation will serialize undefined values\nawait myColl.insertOne(\n  { state: \"Texas\", capitalGainsTax: undefined },\n  { ignoreUndefined: false }\n);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const myDB = client.db(\"test\", { ignoreUndefined: true });\n\n// The collection inherits the ignoreUndefined setting\nconst myColl = myDB.collection(\"states\");\n\n// Any write operation will not serialize undefined values\nawait myColl.findOneAndUpdate(\n  { state: \"Georgia\" },\n  { $set: { gasTax: undefined } }\n);",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "javascript",
+      "content": "const myColl = myDB.collection(\"states\", { ignoreUndefined: true });\n\n// The insert operation will not serialize undefined values\nawait myColl.insertOne({\n  state: \"South Dakota\",\n  capitalGainsTax: undefined,\n});\n\n// The insert operation will serialize undefined values\nawait myColl.insertOne(\n  { state: \"Texas\", capitalGainsTax: undefined },\n  { ignoreUndefined: false }\n);",
+      "tokenEstimate": 85
+    }
+  ]
+}

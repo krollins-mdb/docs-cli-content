@@ -1,0 +1,12 @@
+{
+  "heading": "Monitor Data Changes",
+  "headingLevel": 2,
+  "body": "You can use the `watch()` method to monitor a collection for changes to\na collection that match certain criteria. These changes include inserted,\nupdated, replaced, and deleted documents. You can pass this method\na pipeline of aggregation commands that sequentially runs on the changed\ndata whenever write operations are executed on the collection.\n\n> **Example:** A pizza restaurant wants to receive a notification whenever a new pizza\n> order comes in. To accomplish this, they create an aggregation pipeline\n> to filter on insert operations and return specific fields. They pass\n> this pipeline to the `watch()` method called on the `orders`\n> collection as shown below:\n>\n> ```javascript\n>     // Set up a change stream to listen for new order insertions\n>     const changeStream = orders.watch([\n>       { $match: { operationType: \"insert\" } },\n>       {\n>         $project: {\n>           \"fullDocument.name\": 1,\n>           \"fullDocument.address\": 1,\n>         },\n>       },\n>     ]);\n>     changeStream.on(\"change\", change => {\n>       const { name, address } = change.fullDocument;\n>       console.log(`New order for ${name} at ${address}.`);\n>     });\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "    // Set up a change stream to listen for new order insertions\n    const changeStream = orders.watch([\n      { $match: { operationType: \"insert\" } },\n      {\n        $project: {\n          \"fullDocument.name\": 1,\n          \"fullDocument.address\": 1,\n        },\n      },\n    ]);\n    changeStream.on(\"change\", change => {\n      const { name, address } = change.fullDocument;\n      console.log(`New order for ${name} at ${address}.`);\n    });",
+      "tokenEstimate": 107
+    }
+  ]
+}

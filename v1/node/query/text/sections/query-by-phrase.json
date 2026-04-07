@@ -1,0 +1,17 @@
+{
+  "heading": "Query By Phrase",
+  "headingLevel": 3,
+  "body": "To make your query more specific, try using the phrase \"star trek\"\ninstead of just the word \"trek\". To search by phrase, surround your\nmulti-word phrase with escaped quotes (`\\\"<term>\\\"`):\n\n```javascript\n  // Create a query that searches for the phrase \"star trek\"\n  const query = { $text: { $search: \"\\\"star trek\\\"\" } };\n\n  // Return only the `title` of each matched document\n  const projection = {\n    _id: 0,\n    title: 1,\n  };\n\n  // Find documents based on the query and projection\n  const cursor = movies.find(query).project(projection);\n```\n\nQuerying by the phrase `\"star trek\"` instead of just the term `\"trek\"`\nmatches the following documents:\n\n```javascript\n{ title: 'Star Trek' }\n{ title: 'Star Trek Into Darkness' }\n{ title: 'Star Trek: Nemesis' }\n{ title: 'Star Trek: Insurrection' }\n{ title: 'Star Trek: Generations' }\n{ title: 'Star Trek: First Contact' }\n{ title: 'Star Trek: The Motion Picture' }\n{ title: 'Star Trek VI: The Undiscovered Country' }\n{ title: 'Star Trek V: The Final Frontier' }\n{ title: 'Star Trek IV: The Voyage Home' }\n{ title: 'Star Trek III: The Search for Spock' }\n{ title: 'Star Trek II: The Wrath of Khan' }\n```\n\nThese results include all movies in the database that contain the phrase\n`\"star trek\"`, which in this case results in only fictional Star Trek\nmovies. Unfortunately, this query returned `\"Star Trek Into\nDarkness\"`, a movie that was not part of the original series of movies. To\nresolve this issue, we can omit that document with a **negation**.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "  // Create a query that searches for the phrase \"star trek\"\n  const query = { $text: { $search: \"\\\"star trek\\\"\" } };\n\n  // Return only the `title` of each matched document\n  const projection = {\n    _id: 0,\n    title: 1,\n  };\n\n  // Find documents based on the query and projection\n  const cursor = movies.find(query).project(projection);",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "javascript",
+      "content": "{ title: 'Star Trek' }\n{ title: 'Star Trek Into Darkness' }\n{ title: 'Star Trek: Nemesis' }\n{ title: 'Star Trek: Insurrection' }\n{ title: 'Star Trek: Generations' }\n{ title: 'Star Trek: First Contact' }\n{ title: 'Star Trek: The Motion Picture' }\n{ title: 'Star Trek VI: The Undiscovered Country' }\n{ title: 'Star Trek V: The Final Frontier' }\n{ title: 'Star Trek IV: The Voyage Home' }\n{ title: 'Star Trek III: The Search for Spock' }\n{ title: 'Star Trek II: The Wrath of Khan' }",
+      "tokenEstimate": 144
+    }
+  ]
+}

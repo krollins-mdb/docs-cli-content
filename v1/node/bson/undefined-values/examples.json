@@ -1,0 +1,65 @@
+{
+  "path": "node/bson/undefined-values",
+  "product": "node",
+  "title": "Undefined Values",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "javascript": 4
+    },
+    "bySection": [
+      {
+        "heading": "Ignore Undefined Values",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 36
+          }
+        ]
+      },
+      {
+        "heading": "Set the Scope for Serializing Undefined Values",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 71
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 85
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Ignore Undefined Values",
+      "content": "await myColl.insertOne(\n  {\n    state: \"Montana\",\n    salesTax: undefined,\n  },\n  { ignoreUndefined: true }\n);\n\nawait myColl.insertOne({\n  state: \"New Hampshire\",\n  salesTax: undefined,\n});",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "javascript",
+      "section": "Ignore Undefined Values",
+      "content": "{\n  _id: ...,\n  state: \"Montana\",\n},\n{\n  _id: ...,\n  state: \"New Hampshire\",\n  salesTax: null\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "javascript",
+      "section": "Set the Scope for Serializing Undefined Values",
+      "content": "const myDB = client.db(\"test\", { ignoreUndefined: true });\n\n// The collection inherits the ignoreUndefined setting\nconst myColl = myDB.collection(\"states\");\n\n// Any write operation will not serialize undefined values\nawait myColl.findOneAndUpdate(\n  { state: \"Georgia\" },\n  { $set: { gasTax: undefined } }\n);",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "javascript",
+      "section": "Set the Scope for Serializing Undefined Values",
+      "content": "const myColl = myDB.collection(\"states\", { ignoreUndefined: true });\n\n// The insert operation will not serialize undefined values\nawait myColl.insertOne({\n  state: \"South Dakota\",\n  capitalGainsTax: undefined,\n});\n\n// The insert operation will serialize undefined values\nawait myColl.insertOne(\n  { state: \"Texas\", capitalGainsTax: undefined },\n  { ignoreUndefined: false }\n);",
+      "tokenEstimate": 85
+    }
+  ]
+}

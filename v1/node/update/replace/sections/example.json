@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "Consider a document in the `myDB.items` collection with fields\ndescribing an item for sale, its price, and the quantity available:\n\n```javascript\n{\n   _id: 501,\n   item: \"3-wick beeswax candle\",\n   price: 18.99,\n   quantity: 10,\n}\n```\n\nSuppose you wanted to replace this document with one that contains a\ndescription for an entirely different item. Your replacement operation might\nresemble the following:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 501 };\n\n// replace the matched document with the replacement document\nconst replacementDocument = {\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n};\nconst result = await myColl.replaceOne(filter, replacementDocument);\n```\n\nThe replaced document contains the contents of the replacement document\nand the immutable `_id` field as follows:\n\n```javascript\n{\n   _id: 501,\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n}\n```\n\nIf a replace operation fails to match any documents in a collection, it\ndoes not make any changes. Replace operations can be configured to perform\nan [upsert](node-upsert) which\nattempts to perform the replacement, but if no documents are matched, it\ninserts a new document with the specified fields and values.\n\nYou cannot modify the `_id` field of a document nor change a field to\na value that violates a unique index constraint. See the MongoDB Server manual\nfor more information on [unique indexes](manual/core/index-unique).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n   _id: 501,\n   item: \"3-wick beeswax candle\",\n   price: 18.99,\n   quantity: 10,\n}",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "javascript",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 501 };\n\n// replace the matched document with the replacement document\nconst replacementDocument = {\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n};\nconst result = await myColl.replaceOne(filter, replacementDocument);",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "javascript",
+      "content": "{\n   _id: 501,\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n}",
+      "tokenEstimate": 33
+    }
+  ]
+}

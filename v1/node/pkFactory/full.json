@@ -1,0 +1,36 @@
+{
+  "path": "node/pkFactory",
+  "product": "node",
+  "title": "Generate Custom Values for _id",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to use the MongoDB Node.js driver to generate your\nown `_id` values using the **primary key factory**.\n\nThe primary key factory allows you to create unique identifiers in your\ndocuments when you choose not to specify an `_id` during an\n[Insert Documents](node-fundamentals-insert-data). The\ndefault primary key factory generates `ObjectId` values.\n\n> **Note:**&#x20;\n>\n> Upsert Operations\n>\n> The driver doesn't use the primary key factory for\n> [Update Documents](node-fundamentals-upsert) because it's\n> unable to determine whether to apply the primary key factory. If you\n> specified the primary key factory in an upsert operation and it\n> performs an insert operation, the server autogenerates an\n> `ObjectId` for that document.\n>\n> If you want to use your specified primary key factory, perform a\n> [Find Documents](node-fundamentals-retrieve-data), then an\n> [Modify Documents](node-fundamentals-change-a-document) or\n> [Insert Documents](node-fundamentals-insert-data) operation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Specify a Primary Key Factory",
+      "headingLevel": 2,
+      "body": "To specify a primary key factory, apply the `pkFactory` option to your\n`MongoClient` instance.\n\nThe following code snippet applies the `pkFactory` option to\ngenerate `_id` values of type `uuid`:\n\n```javascript\nconst { UUID } = require('bson');\n...\nconst client = new MongoClient(uri, {\n  pkFactory: { createPk: () =>  new UUID().toBinary() }\n});\n```\n\n> **Note:**&#x20;\n>\n> Data Consistency\n>\n> If you insert a document with an `_id` field with a different\n> type than the type specified by the primary key factory, then you\n> will have inconsistent data.\n>\n> For example, if you run the following insert operation on a primary\n> key factory that generates `uuid` types, your `_id` values will\n> contain both the `uuid` and `string` types:\n>\n> ```javascript\n> myColl.insertOne({ _id: \"user1388\", ... });\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { UUID } = require('bson');\n...\nconst client = new MongoClient(uri, {\n  pkFactory: { createPk: () =>  new UUID().toBinary() }\n});",
+          "tokenEstimate": 37
+        },
+        {
+          "language": "javascript",
+          "content": "myColl.insertOne({ _id: \"user1388\", ... });",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Additional Information",
+      "headingLevel": 2,
+      "body": "To learn more about the types, interfaces, and classes discussed in this\nsection, see the following resources:\n\n- [pkFactory](https://mongodb.github.io/node-mongodb-native/7.1/interfaces/PkFactory.html)\n\n- [The \\_id Field](manual/core/document)\n\n- [Update Documents](node-fundamentals-upsert)\n\n- [Find Documents](node-fundamentals-retrieve-data)\n\n- [Modify Documents](node-fundamentals-change-a-document)\n\n- [Insert Documents](node-fundamentals-insert-data)",
+      "codeBlocks": []
+    }
+  ]
+}

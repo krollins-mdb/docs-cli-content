@@ -1,0 +1,95 @@
+{
+  "path": "node/query/geo",
+  "product": "node",
+  "title": "Search Geospatially",
+  "summary": {
+    "total": 6,
+    "byLanguage": {
+      "javascript": 6
+    },
+    "bySection": [
+      {
+        "heading": "Coordinates on an Earth-like Sphere",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 40
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "Coordinates on a 2D Plane",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "Query by Proximity",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 100
+          }
+        ]
+      },
+      {
+        "heading": "Query Within a Range",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 127
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Coordinates on an Earth-like Sphere",
+      "content": "<field> : {\n   type: <GeoJSON type>,\n   coordinates: [\n      [longitude_1, latitude_1],\n      ...\n      [longitude_n, latitude_n]\n   ]\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "javascript",
+      "section": "Coordinates on an Earth-like Sphere",
+      "content": "await db.theaters.createIndex({location.geo: \"2dsphere\"});",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Coordinates on a 2D Plane",
+      "content": "<field> : [ x, y ]",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "javascript",
+      "section": "Coordinates on a 2D Plane",
+      "content": "await db.shipwrecks.createIndex({coordinates: \"2d\"});",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Query by Proximity",
+      "content": "// Find theaters within a certain proximity\nasync function proximity(theaters) {\n  // Define the query to find theaters near a specific location\n  const query = {\n    \"location.geo\": {\n      $near: {\n        $geometry: { type: \"Point\", coordinates: [-73.9667, 40.78] },\n        $maxDistance: 10000,\n      },\n    },\n  };\n  // Find documents based on our query\n  const cursor = theaters.find(query);",
+      "tokenEstimate": 100
+    },
+    {
+      "language": "javascript",
+      "section": "Query Within a Range",
+      "content": "// Find theaters within a specific geographic range\nasync function range(theaters) {\n  // Define the query to find theaters within a specified polygon\n  const query = {\n    \"location.geo\": {\n      $geoWithin: {\n        $geometry: {\n          type: \"Polygon\",\n          coordinates: [\n            [\n              [-72, 40], // Polygon coordinates defining the range\n              [-74, 41],\n              [-72, 39],\n              [-72, 40],\n            ],\n          ],\n        },\n      },\n    },\n  };\n\n  // Find documents based on our query\n  const cursor = theaters.find(query);",
+      "tokenEstimate": 127
+    }
+  ]
+}

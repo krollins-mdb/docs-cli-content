@@ -1,0 +1,121 @@
+{
+  "path": "node/query/cursor",
+  "product": "node",
+  "title": "Access Data From a Cursor",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Read operations that return multiple documents do not immediately return all values\nmatching the query. Because a query can potentially match very large sets of documents,\nthese operations return an object called a cursor, which references documents identified\nby the query. A cursor fetches documents in batches to reduce both memory consumption and\nnetwork bandwidth usage. Cursors are highly configurable and offer multiple interaction\nparadigms for different use cases.\n\nThe following functions directly return cursors:\n\n- `Collection.find()`\n\n- `Collection.aggregate()`\n\n- `Collection.listIndexes()`\n\n- `Collection.listSearchIndexes()`\n\n- `Db.aggregate()`\n\n- `Db.listCollections()`\n\nOther methods such as [Collection.findOne()](node-usage-findone)\nand Collection.watch() use\ncursors internally, and return the results of the operations instead of\na cursor.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Cursor Paradigms",
+      "headingLevel": 2,
+      "body": "You can use several different **cursor paradigms** to access data.\nMost cursor paradigms allow you to access query results one document at\na time, abstracting away network and caching logic. However, since use\ncases differ, other paradigms offer different access patterns, like\npulling all matching documents into a collection in process memory.\n\n> **Warning:** Do not combine different cursor paradigms on a single cursor.\n> Operations such as `hasNext()` and `toArray()`\n> each predictably modify the original cursor. If you mix these calls\n> on a single cursor, you may receive unexpected results.\n\n> **Warning:** Because asynchronous calls directly modify the cursor, executing\n> asynchronous calls on a single cursor simultaneously can also cause\n> undefined behavior. Always wait for the previous\n> asynchronous operation to complete before running another.\n\n> **Note:** When you reach the last result through iteration or through an at-once\n> fetch, the cursor is  **exhausted**,  which means it ceases to respond to methods\n> that access the results.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Asynchronous Iteration",
+      "headingLevel": 3,
+      "body": "Cursors implement the [AsyncIterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of) interface, which\nallows you to use cursors in `for await...of` loops:\n\n```javascript\n  const cursor = myColl.find({});\n  console.log(\"async\");\n  for await (const doc of cursor) {\n    console.log(doc);\n  }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n  console.log(\"async\");\n  for await (const doc of cursor) {\n    console.log(doc);\n  }",
+          "tokenEstimate": 31
+        }
+      ]
+    },
+    {
+      "heading": "Manual Iteration",
+      "headingLevel": 3,
+      "body": "You can use the [hasNext()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#hasNext)\nmethod to check if a cursor can retrieve more data, and then use\nthe [next()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#next)\nmethod to retrieve the subsequent element of the cursor:\n\n```javascript\n  const cursor = myColl.find({});\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }",
+          "tokenEstimate": 26
+        }
+      ]
+    },
+    {
+      "heading": "Return an Array of All Documents",
+      "headingLevel": 3,
+      "body": "For use cases that require all documents matched by a query to be held\nin memory at the same time, use the [toArray()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#toArray)\nmethod. Note that large numbers of matched documents can cause performance issues\nor failures if the operation exceeds memory constraints. Consider using\nthe `for await...of` syntax to iterate\nthrough results rather than returning all documents at once.\n\n```javascript\n  const cursor = myColl.find({});\n  const allValues = await cursor.toArray();\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n  const allValues = await cursor.toArray();",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Stream API",
+      "headingLevel": 3,
+      "body": "Cursors expose the `stream()` method to convert them to Node Readable Streams. These streams operate in **Object\nMode**, which passes JavaScript objects rather than Buffers or Strings through the pipeline.\n\n```javascript\n  const cursor = myColl.find({});\n  cursor.stream().on(\"data\", doc => console.log(doc));\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n  cursor.stream().on(\"data\", doc => console.log(doc));",
+          "tokenEstimate": 22
+        }
+      ]
+    },
+    {
+      "heading": "Event API",
+      "headingLevel": 3,
+      "body": "As Readable Streams, cursors also support the Event API's\n`close`, `data`, `end`, and `readable` events:\n\n```javascript\n  const cursor = myColl.find({});\n  // the \"data\" event is fired once per document\n  cursor.on(\"data\", data => console.log(data));\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n  // the \"data\" event is fired once per document\n  cursor.on(\"data\", data => console.log(data));",
+          "tokenEstimate": 33
+        }
+      ]
+    },
+    {
+      "heading": "Cursor Utility Methods",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Rewind",
+      "headingLevel": 3,
+      "body": "To reset a cursor to its initial position in the set of returned\ndocuments, use [rewind()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#rewind).\n\n```javascript\n  const cursor = myColl.find({});\n  const firstResult = await cursor.toArray();\n  console.log(\"First count: \" + firstResult.length);\n  await cursor.rewind();\n  const secondResult = await cursor.toArray();\n  console.log(\"Second count: \" + secondResult.length);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const cursor = myColl.find({});\n  const firstResult = await cursor.toArray();\n  console.log(\"First count: \" + firstResult.length);\n  await cursor.rewind();\n  const secondResult = await cursor.toArray();\n  console.log(\"Second count: \" + secondResult.length);",
+          "tokenEstimate": 58
+        }
+      ]
+    },
+    {
+      "heading": "Close",
+      "headingLevel": 3,
+      "body": "Cursors consume memory and network resources both in the client\napplication and in the connected instance of MongoDB. Use\n[close()](https://mongodb.github.io/node-mongodb-native/7.1/classes/FindCursor.html#close)\nto free up a cursor's resources in both the client application\nand the MongoDB Server, as shown in the following example:\n\n```javascript\n  await cursor.close();\n```\n\nWe recommend manually closing any non-exhausted cursors that your application no longer uses\nto prevent resource leaks.\n\n> **Tip:**&#x20;\n>\n> Explicit Resource Management\n>\n> The Node.js driver natively supports explicit resource management for\n> `MongoClient`, `ClientSession`, `ChangeStreams`, and cursors. This\n> feature is experimental and subject to change. To learn how to use explicit\n> resource management, see the [v6.9 Release Notes.](https://github.com/mongodb/node-mongodb-native/releases/tag/v6.9.0)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  await cursor.close();",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Abort",
+      "headingLevel": 3,
+      "body": "You can cancel cursor operations by using an [abort signal](https://mongodb.github.io/node-mongodb-native/7.1/types/Abortable.html).  This can help you manage your resources by\nreleasing memory and network resources used by the cursor if they're no longer\nneeded.\n\n> **Note:** This feature is experimental. Aborting a signal closes a connection, which\n> might cause unnecessary connection reestablishment.\n\nYou can pass the `signal` command to the following methods:\n\n- `collection.find()`\n\n- `collection.findOne()`\n\n- `collection.aggregate()`\n\n- `collection.countDocuments()`\n\n- `db.listCollections()`\n\n- `db.command()`\n\nTo use an abort signal, create an `AbortController` instance and extract the\n`signal` from the controller. In this code example, the process listens for a\n`SIGINT` (`Ctrl+C`) to trigger the `abort()` method. You can pass the\n`signal` option to the `find()` method to abort the cursor operation if the\nsignal triggers, as shown in the following example:\n\n```javascript\n  const controller = new AbortController();\n  const { signal } = controller;\n\n  process.on('SIGINT', () => controller.abort(new Error('^C pressed')));\n\n  try {\n    const cursor = myColl.find({}, { signal });\n    for await (const doc of cursor) {\n      console.log(doc);\n    }\n  } catch (error) {\n    if (error === signal.reason) {\n      console.error('Operation aborted:', error);\n    } else {\n      console.error('Unexpected error:', error);\n    }\n  }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "  const controller = new AbortController();\n  const { signal } = controller;\n\n  process.on('SIGINT', () => controller.abort(new Error('^C pressed')));\n\n  try {\n    const cursor = myColl.find({}, { signal });\n    for await (const doc of cursor) {\n      console.log(doc);\n    }\n  } catch (error) {\n    if (error === signal.reason) {\n      console.error('Operation aborted:', error);\n    } else {\n      console.error('Unexpected error:', error);\n    }\n  }",
+          "tokenEstimate": 106
+        }
+      ]
+    }
+  ]
+}

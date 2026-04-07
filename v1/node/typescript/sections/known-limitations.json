@@ -1,0 +1,47 @@
+{
+  "heading": "Known Limitations",
+  "headingLevel": 2,
+  "body": "Learn about the following TypeScript specific limitations of the Node.js driver:\n\n- [Recursive Types and Dot Notation](node-driver-recursive-types-dot-notation)\n\n- [Depth limitations on type safety for mutually recursive types](node-driver-limitations-mutual-recursion)\n\nThe Node.js driver cannot provide type safety within nested instances of\n**recursive types** referenced through dot notation.\n\nA recursive type is a type that references itself. You can update\nthe [Pet](mongodb-node-typescript-pet-interface) interface\nto be recursive by allowing a pet to have its own pet. The following is the\nrecursive `Pet` interface:\n\n```typescript\ninterface RecursivePet {\n   pet?: RecursivePet;\n   name: string;\n   age: number;\n}\n```\n\n> **Note:**&#x20;\n>\n> Depth Limit\n>\n> The Node.js driver does not traverse nested recursive types when\n> type checking dot notation keys to avoid hitting\n> TypeScript's recursive depth limit.\n\nThe following code snippet references a nested instance of the\n[RecursivePet](node-driver-limitations-recursive-pet) interface\nwith an incorrect type using dot notation, but the TypeScript compiler\ndoes not raise a type error:\n\n```typescript\ndatabase\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ \"pet.age\": \"Spot\" });\n```\n\nThe following code snippet references a top-level instance of the\n`RecursivePet` interface with an incorrect type and raises a type error:\n\n```typescript\ndatabase\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ pet: \"Spot\" });\n```\n\nThe error raised by the preceding code snippet is as follows:\n\n```none\nindex.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<Pet>'.\n```\n\nIf you must have type safety within nested instances of recursive types,\nyou must write your query or update without dot notation.\n\nTo learn more about dot notation, see\n[Dot Notation](manual/core/document)\nin the MongoDB manual.\n\nA  **mutually recursive**  type exists when two types contain a property that is of\nthe other's type. You can update the [Pet](mongodb-node-typescript-pet-interface)\ninterface to be mutually recursive by allowing a pet to have a handler, and\ndefining a handler to have a pet. The following examples reference the mutually\nrecursive `Pet` and `Handler` interfaces:\n\n```typescript\ninterface Pet {\n   handler?: Handler;\n   name: string;\n   age: number;\n}\n\ninterface Handler {\n   pet: Pet;\n   name: string;\n}\n```\n\nThe Node.js driver provides type safety for mutually recursive types\nreferenced through dot notation up to a depth of eight. The following code\nsnippet assigns a `string` to a `number` and raises a type error because\nthe referenced property is at a depth of four:\n\n```typescript\ndatabase\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.age': \"four\"});\n```\n\nThe error raised by the preceding code snippet is as follows:\n\n```none\nindex.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<number> | undefined'.\n```\n\nAt a depth greater than or equal to eight, TypeScript compiles your code but no\nlonger type checks it. The following code assigns a `string` to a `number`\nproperty but does not cause a compilation error because the referenced property\nis at a depth of 10:\n\n```typescript\ndatabase\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.handler.pet.handler.pet.handler.pet.age': \"four\"});\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "interface RecursivePet {\n   pet?: RecursivePet;\n   name: string;\n   age: number;\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "typescript",
+      "content": "database\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ \"pet.age\": \"Spot\" });",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "typescript",
+      "content": "database\n   .collection<RecursivePet>(\"<your collection>\")\n   .findOne({ pet: \"Spot\" });",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "none",
+      "content": "index.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<Pet>'.",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "typescript",
+      "content": "interface Pet {\n   handler?: Handler;\n   name: string;\n   age: number;\n}\n\ninterface Handler {\n   pet: Pet;\n   name: string;\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "typescript",
+      "content": "database\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.age': \"four\"});",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "none",
+      "content": "index.ts(19,59): error TS2769: No overload matches this call.\nThe last overload gave the following error.\nType 'string' is not assignable to type 'Condition<number> | undefined'.",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "typescript",
+      "content": "database\n   .collection<Pet>(\"<your collection>\")\n   .findOne({'handler.pet.handler.pet.handler.pet.handler.pet.handler.pet.age': \"four\"});",
+      "tokenEstimate": 32
+    }
+  ]
+}
