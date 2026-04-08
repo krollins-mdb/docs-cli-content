@@ -1,0 +1,17 @@
+{
+  "heading": "Sample from a Stream Processor",
+  "headingLevel": 2,
+  "body": "To return an array of sampled results from an existing stream processor\nto `STDOUT` with [mongosh](mongodb-shell), use the [sp.processor.sample()](manual/reference/method/sp.processor.sample)\nmethod. For example, the following command samples from a stream\nprocessor named `proc01`.\n\n```sh\nsp.proc01.sample()\n```\n\nThis command runs continuously until you cancel it by using\n`CTRL-C`, or until the returned samples cumulatively reach 40 MB in\nsize. The stream processor reports invalid documents in the sample in\na `_dlqMessage` document of the following form:\n\n```json&#xA;&#x20;:copyable:&#x20;false\n {\n   _dlqMessage: {\n     errInfo: {\n       reason: \"<reasonForError>\"\n     },\n     doc: {\n       _id: ObjectId('<group-id>'),\n       ...\n     },\n     processorName: '<procName>',\n     workspaceName: '<workspaceName>',\n     dlqTime: ISODate('2024-09-19T20:04:34.263+00:00')\n   }\n}\n```\n\nYou can use these messages to diagnose data hygiene issues without\ndefining a [Dead Letter Queue](atlas-sp-dlq) collection.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "sp.proc01.sample()",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "json\n :copyable: false",
+      "content": " {\n   _dlqMessage: {\n     errInfo: {\n       reason: \"<reasonForError>\"\n     },\n     doc: {\n       _id: ObjectId('<group-id>'),\n       ...\n     },\n     processorName: '<procName>',\n     workspaceName: '<workspaceName>',\n     dlqTime: ISODate('2024-09-19T20:04:34.263+00:00')\n   }\n}",
+      "tokenEstimate": 87
+    }
+  ]
+}

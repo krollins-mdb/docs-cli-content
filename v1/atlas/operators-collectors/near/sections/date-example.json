@@ -1,0 +1,22 @@
+{
+  "heading": "Date Example",
+  "headingLevel": 3,
+  "body": "The following example uses the `near` operator to query a date field.\n\n> **Example:** The following index definition named `releaseddate` indexes the\n> `released` field values in the `movies` collection:\n>\n> ```javascript\n> {\n>    \"mappings\": {\n>       \"dynamic\": false,\n>       \"fields\": {\n>          \"released\": {\n>             \"type\": \"date\"\n>          }\n>       }\n>    }\n> }\n> ```\n>\n> The following query searches for movies released near September 13,\n> 1\\.    It includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to\n> `3` results and a [$project](manual/reference/operator/aggregation/project) stage to:\n>\n> - Exclude all fields except `title` and `released`\n>\n> - Add a field named `score`\n>\n> The `score` of results is calculated using `pivot`.\n>\n> > **Note:** `pivot` is measured here in milliseconds, and\n> > `7,776,000,000 ms` is equal to approximately three months.\n>\n> ```javascript\n> db.movies.aggregate([\n>    {\n>       $search: {\n>          \"index\": \"releaseddate\",\n>          \"near\": {\n>             \"path\": \"released\",\n>             \"origin\": ISODate(\"1915-09-13T00:00:00.000+00:00\"),\n>             \"pivot\": 7776000000\n>          }\n>       }\n>    },\n>    {\n>       $limit: 3\n>    },\n>    {\n>       $project: {\n>          \"_id\": 0,\n>          \"title\": 1,\n>          \"released\": 1,\n>          score: { $meta: \"searchScore\" }\n>       }\n>    }\n> ])\n> ```\n>\n> The above query returns the following search results:\n>\n> ```json\n> { \"title\" : \"Regeneration\", \"released\" : ISODate(\"1915-09-13T00:00:00Z\"), \"score\" : 1 }\n> { \"title\" : \"The Cheat\", \"released\" : ISODate(\"1915-12-13T00:00:00Z\"), \"score\" : 0.49723756313323975 }\n> { \"title\" : \"Hell's Hinges\", \"released\" : ISODate(\"1916-03-05T00:00:00Z\"), \"score\" : 0.34090909361839294 }\n> ```\n>\n> In the above MongoDB Search results, the movie `Regeneration` receives a\n> score of `1` because the `released` field value of\n> `1915-09-13` is an exact match. The movie `The Cheat`, which was\n> released on `1915-12-13`, receives a score of approximately\n> `0.5` because the `released` field value distance from\n> `origin` is approximately `7,776,000,000` milliseconds from\n> `1915-09-13`.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"released\": {\n            \"type\": \"date\"\n         }\n      }\n   }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n   {\n      $search: {\n         \"index\": \"releaseddate\",\n         \"near\": {\n            \"path\": \"released\",\n            \"origin\": ISODate(\"1915-09-13T00:00:00.000+00:00\"),\n            \"pivot\": 7776000000\n         }\n      }\n   },\n   {\n      $limit: 3\n   },\n   {\n      $project: {\n         \"_id\": 0,\n         \"title\": 1,\n         \"released\": 1,\n         score: { $meta: \"searchScore\" }\n      }\n   }\n])",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"Regeneration\", \"released\" : ISODate(\"1915-09-13T00:00:00Z\"), \"score\" : 1 }\n{ \"title\" : \"The Cheat\", \"released\" : ISODate(\"1915-12-13T00:00:00Z\"), \"score\" : 0.49723756313323975 }\n{ \"title\" : \"Hell's Hinges\", \"released\" : ISODate(\"1916-03-05T00:00:00Z\"), \"score\" : 0.34090909361839294 }",
+      "tokenEstimate": 127
+    }
+  ]
+}

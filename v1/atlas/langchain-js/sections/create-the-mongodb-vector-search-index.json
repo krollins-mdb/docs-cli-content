@@ -1,0 +1,17 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 2,
+  "body": "To enable vector search queries on your vector store,\ncreate a MongoDB Vector Search index on the `langchain_db.test` collection.\n\nAdd the following code to the asynchronous function that you defined in your `get-started.js` file.\nThis code creates an index of the [index definition](avs-types-vector-search) type that indexes the following fields:\n\n- `embedding` field as the [index definition](avs-types-vector-search) type. The `embedding` field\n  contains the embeddings created using Voyage AI's `voyage-3-large` embedding model. The index\n  definition specifies `1024` vector dimensions and measures similarity using `cosine`.\n\n- `loc.pageNumber` field as the [index definition](avs-types-vector-search) type for pre-filtering data\n  by the page number in the PDF.\n\nThis code also uses an await function to ensure that your search index has [initial sync process](troubleshoot-initial-sync) to your data before it's used.\n\n```javascript\n// Ensure index does not already exist, then create your MongoDB Vector Search index\nconst indexes = await collection.listSearchIndexes(\"vector_index\").toArray();\nif(indexes.length === 0){\n\n   // Define your MongoDB Vector Search Index\n   const index = {\n      name: \"vector_index\",\n      type: \"vectorSearch\",\n      definition: {\n         \"fields\": [\n            {\n               \"type\": \"vector\",\n               \"numDimensions\": 1024,\n               \"path\": \"embedding\",\n               \"similarity\": \"cosine\"\n            },\n            {\n               \"type\": \"filter\",\n               \"path\": \"loc.pageNumber\"\n            }\n         ]\n      }\n   }\n\n   // Run the helper method\n   const result = await collection.createSearchIndex(index);\n   console.log(result);\n\n   // Wait for index to build and become queryable\n   console.log(\"Waiting for initial sync...\");\n   await new Promise(resolve => setTimeout(() => {\n      resolve();\n   }, 10000));\n}\n```\n\nSave the file, then run the following command to create you MongoDB Vector Search index.\n\n```\nnode get-started.js\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// Ensure index does not already exist, then create your MongoDB Vector Search index\nconst indexes = await collection.listSearchIndexes(\"vector_index\").toArray();\nif(indexes.length === 0){\n\n   // Define your MongoDB Vector Search Index\n   const index = {\n      name: \"vector_index\",\n      type: \"vectorSearch\",\n      definition: {\n         \"fields\": [\n            {\n               \"type\": \"vector\",\n               \"numDimensions\": 1024,\n               \"path\": \"embedding\",\n               \"similarity\": \"cosine\"\n            },\n            {\n               \"type\": \"filter\",\n               \"path\": \"loc.pageNumber\"\n            }\n         ]\n      }\n   }\n\n   // Run the helper method\n   const result = await collection.createSearchIndex(index);\n   console.log(result);\n\n   // Wait for index to build and become queryable\n   console.log(\"Waiting for initial sync...\");\n   await new Promise(resolve => setTimeout(() => {\n      resolve();\n   }, 10000));\n}",
+      "tokenEstimate": 201
+    },
+    {
+      "language": "text",
+      "content": "node get-started.js",
+      "tokenEstimate": 5
+    }
+  ]
+}

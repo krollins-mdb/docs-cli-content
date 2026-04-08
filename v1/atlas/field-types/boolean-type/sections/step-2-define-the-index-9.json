@@ -1,0 +1,22 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Paste the following code into the `Program.cs` file.```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\nvar client = new MongoClient(uri);\nvar db = client.GetDatabase(\"<database-name>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection-name>\");\n// Create the MongoDB Search index definition for the boolean field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true | false },\n        { \"fields\", new BsonDocument\n          {\n            { \"<fieldName>\", new BsonDocument\n              {\n                { \"type\", \"boolean\" },\n              }\n            }\n          }\n        }\n      }\n    }\n  });\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\nvar client = new MongoClient(uri);\nvar db = client.GetDatabase(\"<database-name>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection-name>\");\n// Create the MongoDB Search index definition for the boolean field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true | false },\n        { \"fields\", new BsonDocument\n          {\n            { \"<fieldName>\", new BsonDocument\n              {\n                { \"type\", \"boolean\" },\n              }\n            }\n          }\n        }\n      }\n    }\n  });\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 183
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ]
+}

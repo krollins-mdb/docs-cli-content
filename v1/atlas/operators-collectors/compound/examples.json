@@ -1,0 +1,261 @@
+{
+  "path": "atlas/operators-collectors/compound",
+  "product": "atlas",
+  "title": "compound Operator",
+  "summary": {
+    "total": 20,
+    "byLanguage": {
+      "javascript": 17,
+      "json": 3
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 58
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 96
+          }
+        ]
+      },
+      {
+        "heading": "Sample Collection",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 167
+          }
+        ]
+      },
+      {
+        "heading": "must and mustNot Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 83
+          }
+        ]
+      },
+      {
+        "heading": "must and should Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 106
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 44
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 122
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 26
+          }
+        ]
+      },
+      {
+        "heading": "minimumShouldMatch Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 117
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 59
+          }
+        ]
+      },
+      {
+        "heading": "filter Examples",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 110
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 59
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 117
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 96
+          }
+        ]
+      },
+      {
+        "heading": "Nested Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 133
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 113
+          }
+        ]
+      },
+      {
+        "heading": "Metadata Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 128
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 69
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 235
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 155
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"compound\": {\n      <must | mustNot | should | filter>: [ { <clauses> } ],\n      \"score\": <options>\n    }\n  }\n}",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "[\n  {\n    $search: {\n      index: \"default\",\n      compound: {\n        filter: [\n          {\n            compound: {\n              should: [\n                {\n                  equals: {\n                    path: \"accommodates\",\n                    value: 2\n                  }\n                },\n                {\n                  range: {\n                    path: \"pricePerNight\",\n                    lte: 200\n                  }\n                }\n              ]\n            }\n          }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 96
+    },
+    {
+      "language": "json",
+      "section": "Sample Collection",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n},\n{\n  \"_id\" : 2,\n  \"type\" : \"banana\",\n  \"description\" : \"Bananas are usually sold in bunches of five or six.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : true\n},\n{\n  \"_id\" : 3,\n  \"type\" : \"pear\",\n  \"description\" : \"Bosc and Bartlett are the most common varieties of pears.\",\n  \"category\" : \"organic\",\n  \"in_stock\" : true\n}",
+      "tokenEstimate": 167
+    },
+    {
+      "language": "javascript",
+      "section": "must and mustNot Example",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"mustNot\": [{\n          \"text\": {\n            \"query\": \"apples\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "javascript",
+      "section": "must and should Example",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "javascript",
+      "section": "must and should Example",
+      "content": "{ \"_id\" : 1, \"score\" : 0.6425117254257202 }\n{ \"_id\" : 3, \"score\" : 0.21649497747421265 }",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "javascript",
+      "section": "must and should Example",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }],\n        \"score\": { \"constant\": { \"value\": 3 } }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 122
+    },
+    {
+      "language": "javascript",
+      "section": "must and should Example",
+      "content": "[ { _id: 1, score: 3 }, { _id: 3, score: 3 } ]",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "javascript",
+      "section": "minimumShouldMatch Example",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n             \"query\": \"varieties\",\n             \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        },\n        {\n          \"text\": {\n            \"query\": \"Golden Delicious\",\n            \"path\": \"description\"\n          }\n        }],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])",
+      "tokenEstimate": 117
+    },
+    {
+      "language": "javascript",
+      "section": "minimumShouldMatch Example",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "javascript",
+      "section": "filter Examples",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"banana\",\n            \"path\": \"description\"\n          }\n        }],\n        \"filter\": [{\n          \"text\": {\n            \"query\": \"granny\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "javascript",
+      "section": "filter Examples",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "javascript",
+      "section": "filter Examples",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"filter\": [{\n          \"text\": {\n            \"query\": [\"apples\", \"bananas\"],\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 117
+    },
+    {
+      "language": "javascript",
+      "section": "filter Examples",
+      "content": "[\n  {\n    _id: 1,\n    description: 'Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp. The most popular varieties are McIntosh, Gala, and Granny Smith.',\n    score: 0.36074575781822205\n  },\n  {\n    _id: 2,\n    description: 'Bananas are usually sold in bunches of five or six.',\n    score: 0\n  }\n]",
+      "tokenEstimate": 96
+    },
+    {
+      "language": "javascript",
+      "section": "Nested Example",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"query\": \"organic\",\n                    \"path\": \"category\"\n                  }\n                },\n                {\n                  \"equals\": {\n                    \"value\": true,\n                    \"path\": \"in_stock\"\n                  }\n                }\n              ]\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "javascript",
+      "section": "Nested Example",
+      "content": "{\n  \"_id\" : 3,\n  \"type\" : \"pear\",\n  \"description\" : \"Bosc and Bartlett are the most common varieties of pears.\",\n  \"category\" : \"organic\",\n  \"in_stock\" : true\n}\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "json",
+      "section": "Metadata Examples",
+      "content": "db.fruit.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"compound\": {\n            \"must\": [{\n              \"text\": {\n                \"query\": \"varieties\",\n                \"path\": \"description\"\n              }\n            }],\n            \"should\": [{\n              \"text\": {\n                \"query\": \"Fuji\",\n                \"path\": \"description\"\n              }\n            }]\n          }\n        },\n        \"facets\": {\n          \"categoryFacet\": {\n            \"type\": \"string\",\n            \"path\": \"category\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 128
+    },
+    {
+      "language": "javascript",
+      "section": "Metadata Examples",
+      "content": "[\n  {\n    count: { lowerBound: Long('2') },\n    facet: {\n      categoryFacet: {\n        buckets: [\n          { _id: 'nonorganic', count: Long('1') },\n          { _id: 'organic', count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "json",
+      "section": "Metadata Examples",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"compound\": {\n            \"must\": [{\n              \"text\": {\n                \"query\": \"varieties\",\n                \"path\": \"description\"\n              }\n            }],\n            \"should\": [{\n              \"text\": {\n                \"query\": \"Fuji\",\n                \"path\": \"description\"\n              }\n            }]\n          }\n        },\n        \"facets\": {\n          \"categoryFacet\": {\n            \"type\": \"string\",\n            \"path\": \"category\"\n          }\n        }\n      }\n    }\n  },\n  { \"$limit\": 2 },\n  {\n    \"$facet\": {\n      \"docs\": [\n        { \"$project\":\n          {\n            \"type\": 1,\n            \"description\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  },\n  {\n    \"$set\": {\n      \"meta\": {\n        \"$arrayElemAt\": [\"$meta\", 0]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 235
+    },
+    {
+      "language": "javascript",
+      "section": "Metadata Examples",
+      "content": "[\n  {\n    docs: [\n      {\n        _id: 1,\n        type: 'apple',\n        description: 'Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.'\n      },\n      {\n        _id: 3,\n        type: 'pear',\n        description: 'Bosc and Bartlett are the most common varieties of pears.'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        categoryFacet: {\n          buckets: [\n            { _id: 'nonorganic', count: Long('1') },\n            { _id: 'organic', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]",
+      "tokenEstimate": 155
+    }
+  ]
+}

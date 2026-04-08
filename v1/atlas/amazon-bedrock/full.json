@@ -1,0 +1,136 @@
+{
+  "path": "atlas/amazon-bedrock",
+  "product": "atlas",
+  "title": "Step 5: Once you've finished, click .",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "The Amazon Bedrock Knowledge Base integration with Atlas\nenables the following use cases:\n\n- Use foundation models with MongoDB Vector Search\n  to build AI applications and implement RAG (Retrieval-Augmented Generation).\n  To get started, see [Get Started](amazon-bedrock-get-started).\n\n- Enable hybrid search with MongoDB Vector Search and MongoDB Search\n  for your knowledge base. To learn more, see\n  [Hybrid Search with Amazon Bedrock and Atlas](bedrock-hybrid-search).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Get Started",
+      "headingLevel": 2,
+      "body": "This tutorial demonstrates\nhow to start using MongoDB Vector Search with Amazon Bedrock.\nSpecifically, you perform the following actions:\n\n- Load custom data into an Amazon S3 (Simple Storage Service) bucket.\n\n- Optionally, configure an endpoint service using AWS PrivateLink.\n\n- Create a MongoDB Vector Search index on your data.\n\n- Create a knowledge base to store data on Atlas.\n\n- Create an agent that uses MongoDB Vector Search to implement RAG (Retrieval-Augmented Generation).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Background",
+      "headingLevel": 2,
+      "body": "Amazon Bedrock is a fully-managed service for building\ngenerative AI applications. It allows you to leverage\n[foundation models (FMs)](https://aws.amazon.com/what-is/foundation-models/)\nfrom various AI companies as a single API (Application Programming Interface).\n\nYou can use MongoDB Vector Search as a knowledge base for Amazon Bedrock\nto store custom data in Atlas and create an [agent](https://aws.amazon.com/bedrock/agents/) to implement RAG (Retrieval-Augmented Generation) and\nanswer questions on your data. To learn more about RAG (Retrieval-Augmented Generation),\nsee [Retrieval-Augmented Generation (RAG) with MongoDB](ai-key-concepts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To complete this tutorial, you must have the following:\n\n- An Atlas M10+ cluster running MongoDB version 6.0.11, 7.0.2, or later.\n\n- An AWS (Amazon Web Services) account with a [secret](http://docs.aws.amazon.com/secretsmanager/latest/userguide/create_secret.html)\n  that contains credentials to your Atlas cluster.\n\n- [Access](http://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html) to\n  the following foundation models used in this tutorial:\n\n  - [Amazon Titan Embeddings G1 - Text](http://docs.aws.amazon.com/bedrock/latest/userguide/titan-embedding-models.html)\n\n  - [Anthropic Claude](http://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-claude.html)\n\n- The [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) and\n  [npm](https://www.npmjs.com/) installed if you plan to configure an\n  AWS PrivateLink endpoint service.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Load Custom Data",
+      "headingLevel": 2,
+      "body": "If you don't already have an Amazon S3 (Simple Storage Service) bucket that contains text\ndata, create a new bucket and load the following publicly\naccessible PDF about MongoDB best practices:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Download the PDF.",
+      "headingLevel": 3,
+      "body": "- Navigate to the [Best Practices Guide for MongoDB](https://www.mongodb.com/collateral/best-practices-guide-for-mongodb?tck=docs).\n\n- Click either **Read Whitepaper** or **Email me the PDF** to access the PDF.\n\n- Download and save the PDF locally.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Upload the PDF to an Amazon  bucket.",
+      "headingLevel": 3,
+      "body": "- Follow the steps to [create an S3 Bucket](http://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html).\n  Ensure that you use a descriptive **Bucket Name**.\n\n- Follow the steps to [upload a file to your Bucket](http://docs.aws.amazon.com/AmazonS3/latest/userguide/uploading-an-object-bucket.html).\n  Select the file that contains the PDF that you just downloaded.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure an Endpoint Service",
+      "headingLevel": 2,
+      "body": "By default, Amazon Bedrock connects to your knowledge base over\nthe public internet. To further secure your connection, MongoDB Vector Search\nsupports connecting to your knowledge base over a virtual\nnetwork through an [AWS PrivateLink](http://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink)\n[endpoint service](http://docs.aws.amazon.com/vpc/latest/privatelink/create-endpoint-service).\n\nOptionally, complete the following steps to enable an endpoint service\nthat connects to an AWS PrivateLink private endpoint for your Atlas cluster:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Set up a private endpoint in .",
+      "headingLevel": 3,
+      "body": "Follow the steps to [set up a private endpoint for a cluster](cluster-private-endpoint) for your Atlas cluster.\nEnsure that you use a descriptive **VPC ID** to\nidentify your private endpoint.\n\nFor more information, see [Learn About Private Endpoints in Atlas](private-endpoint-overview).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Configure the endpoint service.",
+      "headingLevel": 3,
+      "body": "MongoDB and partners provide a Cloud Development Kit (CDK)\nthat you can use to configure an endpoint service backed by a\nnetwork load balancer that forwards traffic to your private endpoint.\n\nFollow the steps specified in the\n[CDK GitHub Repository](https://github.com//mongodb-partners/mongodb_atlas_as_aws_bedrock_knowledge_base/)\nto prepare and run the CDK (Cloud Development Kit) script.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create the MongoDB Vector Search Index",
+      "headingLevel": 2,
+      "body": "In this section, you set up Atlas as a vector database,\nalso called a vector store, by creating a MongoDB Vector Search index\non your collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 3,
+      "body": "To create a MongoDB Vector Search index, you must have [Project Data Access Admin](<Project Data Access Admin>) or higher access to the Atlas project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 3,
+      "body": "- Click the + Create Database button.\n\n- For the Database name enter `bedrock_db`.\n\n- For the Collection name,  enter `test`.\n\n- Click Create to create the database and its\n  first collection.This [index definition](avs-types-vector-search) type index definition\nindexes the following fields:- `embedding` field as the [index definition](avs-types-vector-search) type. The `embedding` field\n  contains the vector embeddings created\n  using the embedding model that you specify when\n  you configure the knowledge base. The index definition\n  specifies `1024` vector dimensions and\n  measures similarity using `cosine`.\n\n- `bedrock_metadata`, `bedrock_text_chunk`, and\n  `x-amz-bedrock-kb-document-page-number` fields\n  as the [index definition](avs-types-vector-search) type for\n  pre-filtering your data. You will also specify these fields\n  in Amazon Bedrock when you configure the knowledge base.> **Note:** If you previously created an index with the filter field `page_number`,\n> you must update your index definition to use the new filter field name\n> `x-amz-bedrock-kb-document-page-number` instead. Amazon Bedrock has\n> updated the field name, and indexes using the old field name no longer\n> work correctly with Amazon Bedrock knowledge bases.<Tab tabid=\"vib\">\n  Visual Editor\n\n  Specify plot\\_embedding as the field to index and specify\n  `1024` dimensions.\n\n  To configure the index, do the following:\n\n  - Select Dot Product from the Similarity Method dropdown.\n\n  - In the Filter Field section,\n    specify the genres and year fields to filter the data by.\n</Tab>JSON EditorPaste the following index definition in the JSON editor:```json\n{\n    \"fields\": [\n        {\n            \"numDimensions\": 1024,\n            \"path\": \"embedding\",\n            \"similarity\": \"cosine\",\n            \"type\": \"vector\"\n        },\n        {\n            \"path\": \"bedrock_metadata\",\n            \"type\": \"filter\"\n        },\n        {\n            \"path\": \"bedrock_text_chunk\",\n            \"type\": \"filter\"\n        },\n        {\n            \"path\": \"x-amz-bedrock-kb-document-page-number\",\n            \"type\": \"filter\"\n        }\n    ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n    \"fields\": [\n        {\n            \"numDimensions\": 1024,\n            \"path\": \"embedding\",\n            \"similarity\": \"cosine\",\n            \"type\": \"vector\"\n        },\n        {\n            \"path\": \"bedrock_metadata\",\n            \"type\": \"filter\"\n        },\n        {\n            \"path\": \"bedrock_text_chunk\",\n            \"type\": \"filter\"\n        },\n        {\n            \"path\": \"x-amz-bedrock-kb-document-page-number\",\n            \"type\": \"filter\"\n        }\n    ]\n}",
+          "tokenEstimate": 113
+        }
+      ]
+    },
+    {
+      "heading": "Create a Knowledge Base",
+      "headingLevel": 2,
+      "body": "In this section, you create a [knowledge base](http://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html)\nto load custom data into your vector store.\n\n- Log in to the [AWS Console](https://aws.amazon.com/console/).\n\n- In the upper-left corner, click the Services dropdown menu.\n\n- Click Machine Learning, and then select Amazon Bedrock.\n\nAmazon Bedrock doesn't grant access to FMs (foundation models)\nautomatically. If you haven't already,\nfollow the steps to [add model access](http://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html)\nfor the **Titan Embeddings G1 - Text** and **Anthropic Claude V2.1** models.\n\n- In the left navigation of the Amazon Bedrock console,\n  click Knowledge Bases.\n\n- Click Create and then select Knowledge base with vector store.\n\n- Specify `mongodb-atlas-knowledge-base` as the Knowledge Base name.\n\n- Click Next.\n\nBy default, Amazon Bedrock creates a new IAM (Identity and Access Management) role to access\nthe knowledge base.\n\n- Specify a name for the data source used by the knowledge base.\n\n- Enter the URI (Uniform Resource Identifier) for the S3 (Simple Storage Service) bucket that contains your data source.\n  Or, click Browse S3 and find the S3 (Simple Storage Service) bucket\n  that contains your data source from the list.\n\n- Click Next.\n\n  Amazon Bedrock displays available embedding models that you can use to\n  convert your data source's text data into vector embeddings.\n\n- Select the Titan Embeddings G1 - Text model.\n\n* In the Vector database section, select Use an existing vector store.\n\n* Select MongoDB Atlas and configure the following options:\n\n  ![Screenshot of the Amazon Bedrock vector store configuration section.](/_includes/images/amazon-bedrock-vector-store-config.png)\n\n  - For the Hostname, enter the URL (Uniform Resource Locator) for your Atlas cluster\n    located in its [connection string](manual/reference/connection-string).\n    The hostname uses the following format:\n\n    ```\n    <clusterName>.mongodb.net\n    ```\n\n  - For the Database name, enter `bedrock_db`.\n\n  - For the Collection name, enter `test`.\n\n  - For the Credentials secret ARN, enter the ARN (Amazon Resource Name)\n    for the secret that contains your Atlas cluster credentials.\n    To learn more, see [AWS Secrets Manager concepts](http://docs.aws.amazon.com/secretsmanager/latest/userguide/getting-started.html).\n\n* In the Metadata field mapping section, configure the\n  following options to determine the MongoDB Vector Search index and field names\n  that Atlas uses to embed and store your data source:\n\n  ![Screenshot of the vector store field mapping configuration section.](/_includes/images/amazon-bedrock-field-mapping-config.png)\n\n  - For the Vector search index name, enter `vector_index`.\n\n  - For the Vector embedding field path, enter `embedding`.\n\n  - For the Text field path, enter `bedrock_text_chunk`.\n\n  - For the Metadata field path, enter `bedrock_metadata`.\n\n  > **Note:** Optionally, you can specify the Text search index name field\n  > to configure hybrid search. To learn more, see [Hybrid Search with Amazon Bedrock and Atlas](bedrock-hybrid-search).\n\n* If you [configured an endpoint service](bedrock-configure-privatelink),\n  enter your PrivateLink Service Name.\n\n* Click Next.\n\nAfter reviewing the details for your knowledge base,\nclick Create knowledge base to finalize your creation.\n\nAfter Amazon Bedrock creates the knowledge base, it prompts you\nto sync your data. In the Data source section,\nselect your data source and click Sync to sync\nthe data from the S3 (Simple Storage Service) bucket and load it into Atlas.\n\nWhen the sync completes, if you're using Atlas, you can verify your vector embeddings\nby navigating to the `bedrock_db.test` namespace\n[in the Atlas UI](atlas-ui-view-collections).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "<clusterName>.mongodb.net",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "Build an Agent",
+      "headingLevel": 2,
+      "body": "In this section, you deploy an [agent](http://docs.aws.amazon.com/bedrock/latest/userguide/agents.html)\nthat uses MongoDB Vector Search to implement RAG (Retrieval-Augmented Generation) and answer questions on your data.\nWhen you prompt this agent, it does the following:\n\n- Connects to your knowledge base to access the custom data stored in Atlas.\n\n- Uses MongoDB Vector Search to retrieve relevant documents from your vector store based on the prompt.\n\n- Leverages an AI chat model to generate a context-aware response based on these documents.\n\nComplete the following steps to create and test the RAG (Retrieval-Augmented Generation) agent:\n\n- In the left navigation for Amazon Bedrock,\n  click Agents.\n\n- Click Create Agent.\n\n- Specify `mongodb-rag-agent` as the\n  Name and click Create.\n\nBy default, Amazon Bedrock creates a new IAM (Identity and Access Management) role to access\nthe agent. In the Agent details section,\nspecify the following:\n\n- From the dropdown menus, select Anthropic\n  and Claude V2.1 as the provider and AI model\n  used to answer questions on your data.\n\n  > **Note:** Amazon Bedrock doesn't grant access to FMs (foundation models)\n  > automatically. If you haven't already,\n  > follow the steps to [add model access](http://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html)\n  > for the Anthropic Claude V2.1 model.\n\n- Provide instructions for the agent so that it knows\n  how to complete the task.\n\n  For example, if you're using the [sample data](bedrock-load-data),\n  paste the following instructions:\n\n  ```\n  You are a friendly AI chatbot that answers questions about working with MongoDB.\n  ```\n\n- Click Save.\n\nTo connect the agent to the knowledge base that you created:\n\n- In the Knowledge Bases section, click Add.\n\n- Select mongodb-atlas-knowledge-base from the dropdown.\n\n- Describe the knowledge base to determine how the\n  agent should interact with the data source.\n\n  If you're using the sample data, paste the following instructions:\n\n  ```\n  This knowledge base describes best practices when working with MongoDB.\n  ```\n\n- Click Add, and then click Save.\n\n* Click the Prepare button.\n\n* Click Test. Amazon Bedrock displays\n  a testing window to the right of your agent details\n  if it's not already displayed.\n\n* In the testing window, enter a prompt. The agent\n  prompts the model, uses MongoDB Vector Search to retrieve\n  relevant documents, and then generates a response\n  based on the documents.\n\n  If you used the sample data, enter the following prompt.\n  The generated response might vary.\n\n  **Input:**\n\n  ```\n  What's the best practice to reduce network utilization with MongoDB?\n  ```\n\n  **Output:**\n\n  ```\n  The best practice to reduce network utilization with MongoDB is\n  to issue updates only on fields that have changed rather than\n  retrieving the entire documents in your application, updating\n  fields, and then saving the document back to the database. [1]\n  ```\n\n  > **Tip:** Click the annotation in the agent's response\n  > to view the text chunk that MongoDB Vector Search retrieved.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "You are a friendly AI chatbot that answers questions about working with MongoDB.",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "text",
+          "content": "This knowledge base describes best practices when working with MongoDB.",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "What's the best practice to reduce network utilization with MongoDB?",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "text",
+          "content": "The best practice to reduce network utilization with MongoDB is\nto issue updates only on fields that have changed rather than\nretrieving the entire documents in your application, updating\nfields, and then saving the document back to the database. [1]",
+          "tokenEstimate": 50
+        }
+      ]
+    },
+    {
+      "heading": "Other Resources",
+      "headingLevel": 2,
+      "body": "To troubleshoot issues, see [Troubleshooting the Amazon Bedrock Knowledge Base Integration](bedrock-troubleshooting).\n\n> **See Also:**&#x20;\n>\n> - [Amazon Bedrock Documentation](http://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-setup.html)\n>\n> - [MongoDB Atlas on AWS Marketplace](https://aws.amazon.com/marketplace/pp/prodview-pp445qepfdy34)",
+      "codeBlocks": []
+    }
+  ]
+}

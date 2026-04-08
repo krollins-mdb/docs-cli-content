@@ -1,0 +1,17 @@
+{
+  "heading": "Obtain Private IPs with DNS Lookup",
+  "headingLevel": 3,
+  "body": "When a client in your VNet connects to an Atlas cluster using\none of these private endpoint-aware connection strings, the\nclient attempts to establish a connection to the Private Link\nService in the Atlas VNet through the private endpoint's\nnetwork interface. The Private Link service sends traffic through\nan Azure (Microsoft Azure) Standard Load Balancer to the Atlas cluster nodes\nthat you deployed in that region. Your client's DNS (Domain Name System) resolution\nmechanism handles resolving the hostname to the network\ninterface's private IP address. The driver is only aware of the\nhostname in the connection string, listening on one port for each\nnode in the cluster's replica set.\n\n**SRV Record for DNS Seedlist Private Endpoint-Aware Connection Strings**\n\nThe following example shows the SRV record for an\nAzure Private Link-enabled single-region cluster, showing three unique\nports defined for `pl-0-eastus2.uzgh6.mongodb.net`:\n\n```sh\n$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.\n```\n\nIn the preceding example:\n\n- `_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net` is\n  the SRV record that the connection string references.\n\n- `pl-0-eastus2.uzgh6.mongodb.net` is the hostname for\n  each node in one Atlas cluster in one region for which\n  you have configured Azure Private Link.\n\n- `1024`, `1025`, and `1026` are unique ports that\n  Atlas assigns on the load balancer for each Atlas\n  replica set node in the region for which you enabled\n  Azure Private Link. All nodes in an Atlas replica set are\n  accessible via the same hostname, with the load balancer\n  resolving individual nodes by their unique port.\n\n**Hostname DNS Resolution in Private Endpoint-Aware Connection Strings and SRV Records**\n\nThe hostname in the SRV record and the standard connection string\nis a DNS (Domain Name System) `A` record that resolves to the private IP address\nof the private endpoint's network interface.\n\nThe following example shows the DNS (Domain Name System) lookup for the hostname in\nthe SRV record and in the standard connection string:\n\n```sh\n$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.",
+      "tokenEstimate": 166
+    },
+    {
+      "language": "sh",
+      "content": "$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4",
+      "tokenEstimate": 73
+    }
+  ]
+}

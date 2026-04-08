@@ -1,0 +1,210 @@
+{
+  "path": "atlas/langchain/memory-semantic-cache",
+  "product": "atlas",
+  "title": "Add Memory and Semantic Caching with LangChain and MongoDB",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "Before you begin, ensure that you have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- An environment to run interactive Python notebooks\n  such as [Colab](https://colab.research.google.com).\n\n> **Tip:** We recommend completing the [Tutorial](langchain-get-started)\n> tutorial to learn how to create a naive RAG (Retrieval-Augmented Generation) implementation\n> before completing this tutorial.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Use MongoDB as a Vector Store",
+      "headingLevel": 2,
+      "body": "In this section, you create a vector store instance\nusing your MongoDB cluster as a vector database.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Set up the environment.",
+      "headingLevel": 3,
+      "body": "Set up the environment for this tutorial.\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension. This notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.\n\nTo set up your notebook environment:\n\n- Run the following command in your notebook:\n\n  ```shell\n  pip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai pypdf\n  ```\n\n- Set environment variables.\n\n  Run the following code to set the environment variables for this tutorial.\n  Provide your Voyage API key, OpenAI API Key, and MongoDB cluster's\n  SRV (DNS Service Record) [connection string](manual/reference/connection-string).\n\n  ```python\n  import os\n\n  os.environ[\"OPENAI_API_KEY\"] = \"<openai-key>\"\n  os.environ[\"VOYAGE_API_KEY\"] = \"<voyage-key>\"\n  MONGODB_URI = \"<connection-string>\"\n  ```\n\n  > **Note:**&#x20;\n  >\n  > Replace `<connection-string>` with the connection string for your\n  > Atlas cluster or local Atlas deployment.\n  >\n  > <Tab tabid=\"cloud\">\n  >   Atlas Cluster\n  >\n  >   Your connection string should use the following format:\n  >\n  >   ```\n  >   mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  >   ```\n  >\n  >   To learn more, see [Driver](connect-via-driver).\n  > </Tab>\n  >\n  > Local or Self-Managed\n  >\n  > Your connection string should use the\n  > following format:\n  >\n  > ```\n  > mongodb://localhost:<port-number>/?directConnection=true\n  > ```\n  >\n  > To learn more, see [Connection Strings](manual/reference/connection-string).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "pip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai pypdf",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "python",
+          "content": "import os\n\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-key>\"\nos.environ[\"VOYAGE_API_KEY\"] = \"<voyage-key>\"\nMONGODB_URI = \"<connection-string>\"",
+          "tokenEstimate": 40
+        },
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "text",
+          "content": "mongodb://localhost:<port-number>/?directConnection=true",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Instantiate the vector store.",
+      "headingLevel": 3,
+      "body": "Paste and run the following code in your notebook\nto create a vector store instance\nnamed `vector_store` using the `langchain_db.rag_with_memory`\nnamespace in MongoDB:\n\n```python\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Use the voyage-3-large embedding model\nembedding_model = VoyageAIEmbeddings(model=\"voyage-3-large\")\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = embedding_model,\n   namespace = \"langchain_db.rag_with_memory\"\n)\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Use the voyage-3-large embedding model\nembedding_model = VoyageAIEmbeddings(model=\"voyage-3-large\")\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = embedding_model,\n   namespace = \"langchain_db.rag_with_memory\"\n)",
+          "tokenEstimate": 93
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Add data to the vector store.",
+      "headingLevel": 3,
+      "body": "Paste and run the following code in your notebook\nto ingest a sample PDF that contains a recent [MongoDB earnings report](https://investors.mongodb.com/node/12881/pdf) into the vector store.\n\nThis code uses a [text splitter](https://python.langchain.com/docs/how_to/#text-splitters/)\nto chunk the PDF data into smaller parent documents. It specifies the *chunk size*\n(number of characters) and *chunk overlap* (number of overlapping characters\nbetween consecutive chunks) for each document.\n\n```python\nfrom langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\n\n# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Add data to the vector store\nvector_store.add_documents(docs)\n```\n\n> **Tip:** After running this code, if you're using Atlas, you can verify your vector embeddings\n> by navigating to the `langchain_db.rag_with_memory` namespace\n> [in the Atlas UI](atlas-ui-view-collections).",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\n\n# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Add data to the vector store\nvector_store.add_documents(docs)",
+          "tokenEstimate": 102
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Create the MongoDB Vector Search index.",
+      "headingLevel": 3,
+      "body": "Run the following code to create the MongoDB Vector Search index for\nthe vector store to enable vector search over your data:\n\n```python\n# Use LangChain helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The dimensions of the vector embeddings to be indexed\n)\n```\n\n> **Tip:** [create\\_vector\\_search\\_index API reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)\n\nThe index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "# Use LangChain helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The dimensions of the vector embeddings to be indexed\n)",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "Implement RAG with Memory",
+      "headingLevel": 2,
+      "body": "This section demonstrates how to implement RAG (Retrieval-Augmented Generation) with\nconversation memory by using the LangChain MongoDB integration.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Define a function to get chat message history.",
+      "headingLevel": 3,
+      "body": "To maintain conversation history across multiple interactions,\nuse the `MongoDBChatMessageHistory` class. It allows you\nto store chat messages in a MongoDB database and extend them to\nyour RAG (Retrieval-Augmented Generation) chain to handle conversation context.\n\nPaste and run the following code in your notebook to create a\nfunction named `get_session_history` that returns a\n`MongoDBChatMessageHistory` instance. This instance\nretrieves the chat history for a specific session.\n\n```python\nfrom langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory\nfrom langchain_core.runnables.history import RunnableWithMessageHistory\nfrom langchain_core.prompts import MessagesPlaceholder\n\ndef get_session_history(session_id: str) -> MongoDBChatMessageHistory:\n    return MongoDBChatMessageHistory(\n        connection_string=MONGODB_URI,\n        session_id=session_id,\n        database_name=\"langchain_db\",\n        collection_name=\"rag_with_memory\"\n    )\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory\nfrom langchain_core.runnables.history import RunnableWithMessageHistory\nfrom langchain_core.prompts import MessagesPlaceholder\n\ndef get_session_history(session_id: str) -> MongoDBChatMessageHistory:\n    return MongoDBChatMessageHistory(\n        connection_string=MONGODB_URI,\n        session_id=session_id,\n        database_name=\"langchain_db\",\n        collection_name=\"rag_with_memory\"\n    )",
+          "tokenEstimate": 92
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Create a RAG chain that handles chat message history.",
+      "headingLevel": 3,
+      "body": "Paste and run the following code snippets to create the RAG chain:\n\n- Specify the LLM to use.\n\n  ```python\n  from langchain_openai import ChatOpenAI\n\n  # Define the model to use for chat completion\n  llm = ChatOpenAI(model = \"gpt-4o\")\n  ```\n\n- Define a prompt that summarizes the chat history for the retriever.\n\n  ```python\n  from langchain_core.prompts import ChatPromptTemplate\n  from langchain_core.output_parsers import StrOutputParser\n\n  # Create a prompt to generate standalone questions from follow-up questions\n  standalone_system_prompt = \"\"\"\n  Given a chat history and a follow-up question, rephrase the follow-up question to be a standalone question.\n  Do NOT answer the question, just reformulate it if needed, otherwise return it as is.\n  Only return the final standalone question.\n  \"\"\"\n\n  standalone_question_prompt = ChatPromptTemplate.from_messages(\n      [\n          (\"system\", standalone_system_prompt),\n          MessagesPlaceholder(variable_name=\"history\"),\n          (\"human\", \"{question}\"),\n      ]\n  )\n  # Parse output as a string\n  parse_output = StrOutputParser()\n\n  question_chain = standalone_question_prompt | llm | parse_output\n  ```\n\n- Build a retriever chain that processes the chat history and retrieves documents.\n\n  ```python\n  from langchain_core.runnables import RunnablePassthrough\n\n  # Create a retriever\n  retriever = vector_store.as_retriever(search_type=\"similarity\", search_kwargs={ \"k\": 5 })\n\n  # Create a retriever chain that processes the question with history and retrieves documents\n  retriever_chain = RunnablePassthrough.assign(context=question_chain | retriever | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])))\n  ```\n\n- Define a prompt to generate an answer based on the chat history and retrieved context.\n\n  ```python\n  # Create a prompt template that includes the retrieved context and chat history\n  rag_system_prompt = \"\"\"Answer the question based only on the following context:\n  {context}\n  \"\"\"\n\n  rag_prompt = ChatPromptTemplate.from_messages(\n      [\n          (\"system\", rag_system_prompt),\n          MessagesPlaceholder(variable_name=\"history\"),\n          (\"human\", \"{question}\"),\n      ]\n  )\n  ```\n\n- Implement RAG with memory.\n\n  Combine the components you defined into a complete RAG chain:\n\n  ```python\n  # Build the RAG chain\n  rag_chain = (\n      retriever_chain\n      | rag_prompt\n      | llm\n      | parse_output\n  )\n\n  # Wrap the chain with message history\n  rag_with_memory = RunnableWithMessageHistory(\n      rag_chain,\n      get_session_history,\n      input_messages_key=\"question\",\n      history_messages_key=\"history\",\n  )\n  ```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_openai import ChatOpenAI\n\n# Define the model to use for chat completion\nllm = ChatOpenAI(model = \"gpt-4o\")",
+          "tokenEstimate": 35
+        },
+        {
+          "language": "python",
+          "content": "from langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.output_parsers import StrOutputParser\n\n# Create a prompt to generate standalone questions from follow-up questions\nstandalone_system_prompt = \"\"\"\nGiven a chat history and a follow-up question, rephrase the follow-up question to be a standalone question.\nDo NOT answer the question, just reformulate it if needed, otherwise return it as is.\nOnly return the final standalone question.\n\"\"\"\n\nstandalone_question_prompt = ChatPromptTemplate.from_messages(\n    [\n        (\"system\", standalone_system_prompt),\n        MessagesPlaceholder(variable_name=\"history\"),\n        (\"human\", \"{question}\"),\n    ]\n)\n# Parse output as a string\nparse_output = StrOutputParser()\n\nquestion_chain = standalone_question_prompt | llm | parse_output",
+          "tokenEstimate": 157
+        },
+        {
+          "language": "python",
+          "content": "from langchain_core.runnables import RunnablePassthrough\n\n# Create a retriever\nretriever = vector_store.as_retriever(search_type=\"similarity\", search_kwargs={ \"k\": 5 })\n\n# Create a retriever chain that processes the question with history and retrieves documents\nretriever_chain = RunnablePassthrough.assign(context=question_chain | retriever | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])))",
+          "tokenEstimate": 94
+        },
+        {
+          "language": "python",
+          "content": "# Create a prompt template that includes the retrieved context and chat history\nrag_system_prompt = \"\"\"Answer the question based only on the following context:\n{context}\n\"\"\"\n\nrag_prompt = ChatPromptTemplate.from_messages(\n    [\n        (\"system\", rag_system_prompt),\n        MessagesPlaceholder(variable_name=\"history\"),\n        (\"human\", \"{question}\"),\n    ]\n)",
+          "tokenEstimate": 71
+        },
+        {
+          "language": "python",
+          "content": "# Build the RAG chain\nrag_chain = (\n    retriever_chain\n    | rag_prompt\n    | llm\n    | parse_output\n)\n\n# Wrap the chain with message history\nrag_with_memory = RunnableWithMessageHistory(\n    rag_chain,\n    get_session_history,\n    input_messages_key=\"question\",\n    history_messages_key=\"history\",\n)",
+          "tokenEstimate": 73
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Test your RAG implementation.",
+      "headingLevel": 3,
+      "body": "Invoke the chain to answer questions.\nThis chain maintains the conversation context\nand returns relevant answers that consider the\nprevious interactions. Your responses might vary.\n\n**Input:**\n\n```python\n# First question\nresponse_1 = rag_with_memory.invoke(\n    {\"question\": \"What was MongoDB's latest acquisition?\"},\n    {\"configurable\": {\"session_id\": \"user_1\"}}\n)\nprint(response_1)\n```\n\n**Output:**\n\n```\nMongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models for next-generation AI applications.\n```\n\n**Input:**\n\n```python\n# Follow-up question that references the previous question\nresponse_2 = rag_with_memory.invoke(\n    {\"question\": \"Why did they do it?\"},\n    {\"configurable\": {\"session_id\": \"user_1\"}}\n)\nprint(response_2)\n```\n\n**Output:**\n\n```\nMongoDB acquired Voyage AI to enable organizations to easily build trustworthy AI applications by integrating advanced embedding and reranking models into their technology. This acquisition aligns with MongoDB's goal of helping businesses innovate at \"AI speed\" using its flexible document model and seamless scalability.\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "# First question\nresponse_1 = rag_with_memory.invoke(\n    {\"question\": \"What was MongoDB's latest acquisition?\"},\n    {\"configurable\": {\"session_id\": \"user_1\"}}\n)\nprint(response_1)",
+          "tokenEstimate": 46
+        },
+        {
+          "language": "text",
+          "content": "MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models for next-generation AI applications.",
+          "tokenEstimate": 27
+        },
+        {
+          "language": "python",
+          "content": "# Follow-up question that references the previous question\nresponse_2 = rag_with_memory.invoke(\n    {\"question\": \"Why did they do it?\"},\n    {\"configurable\": {\"session_id\": \"user_1\"}}\n)\nprint(response_2)",
+          "tokenEstimate": 51
+        },
+        {
+          "language": "text",
+          "content": "MongoDB acquired Voyage AI to enable organizations to easily build trustworthy AI applications by integrating advanced embedding and reranking models into their technology. This acquisition aligns with MongoDB's goal of helping businesses innovate at \"AI speed\" using its flexible document model and seamless scalability.",
+          "tokenEstimate": 52
+        }
+      ]
+    },
+    {
+      "heading": "Add Semantic Caching",
+      "headingLevel": 2,
+      "body": "This section adds semantic caching on top of your RAG (Retrieval-Augmented Generation) chain.\nSemantic caching is a form of caching that\nretrieves cached prompts based on the semantic similarity\nbetween queries.\n\n> **Note:** You can use semantic caching independently of conversation memory,\n> but you use both features together for this tutorial.\n\nFor a video tutorial of this feature,\nsee [Learn by Watching](langchain-semantic-cache-video).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Configure the semantic cache.",
+      "headingLevel": 3,
+      "body": "Run the following code to configure the semantic cache\nby using the `MongoDBAtlasSemanticCache` class:\n\n```python\nfrom langchain_mongodb.cache import MongoDBAtlasSemanticCache\nfrom langchain_core.globals import set_llm_cache\n\n# Configure the semantic cache\nset_llm_cache(MongoDBAtlasSemanticCache(\n    connection_string = MONGODB_URI,\n    database_name = \"langchain_db\",\n    collection_name = \"semantic_cache\",\n    embedding = embedding_model,\n    index_name = \"vector_index\",\n    similarity_threshold = 0.5  # Adjust based on your requirements\n))\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_mongodb.cache import MongoDBAtlasSemanticCache\nfrom langchain_core.globals import set_llm_cache\n\n# Configure the semantic cache\nset_llm_cache(MongoDBAtlasSemanticCache(\n    connection_string = MONGODB_URI,\n    database_name = \"langchain_db\",\n    collection_name = \"semantic_cache\",\n    embedding = embedding_model,\n    index_name = \"vector_index\",\n    similarity_threshold = 0.5  # Adjust based on your requirements\n))",
+          "tokenEstimate": 97
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Test the semantic cache with your RAG chain.",
+      "headingLevel": 3,
+      "body": "The semantic cache automatically caches your prompts.\nRun the following sample queries, where you should see a significant\nreduction in response time for the second query. Your\nresponses and response times might vary.\n\n> **Tip:** You can view your cached prompts in the `semantic_cache` collection.\n> The semantic cache caches only the input to the LLM. When using it in retrieval chains,\n> note that documents retrieved can change between runs, resulting in cache misses for\n> semantically similar queries.\n\n**Input:**\n\n```python\n%%time\n\n# First query (not cached)\nrag_with_memory.invoke(\n  {\"question\": \"What was MongoDB's latest acquisition?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)\n```\n\n**Output:**\n\n```\nCPU times: user 54.7 ms, sys: 34.2 ms, total: 88.9 ms\nWall time: 7.42 s\n\n\"MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation AI applications.\"\n```\n\n**Input:**\n\n```python\n%%time\n\n# Second query (cached)\nrag_with_memory.invoke(\n  {\"question\": \"What company did MongoDB acquire recently?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)\n```\n\n**Output:**\n\n```text\nCPU times: user 79.7 ms, sys: 24 ms, total: 104 ms\nWall time: 3.87 s\n\n'MongoDB recently acquired Voyage AI.'\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "%%time\n\n# First query (not cached)\nrag_with_memory.invoke(\n  {\"question\": \"What was MongoDB's latest acquisition?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)",
+          "tokenEstimate": 43
+        },
+        {
+          "language": "text",
+          "content": "CPU times: user 54.7 ms, sys: 34.2 ms, total: 88.9 ms\nWall time: 7.42 s\n\n\"MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation AI applications.\"",
+          "tokenEstimate": 64
+        },
+        {
+          "language": "python",
+          "content": "%%time\n\n# Second query (cached)\nrag_with_memory.invoke(\n  {\"question\": \"What company did MongoDB acquire recently?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)",
+          "tokenEstimate": 42
+        },
+        {
+          "language": "text",
+          "content": "CPU times: user 79.7 ms, sys: 24 ms, total: 104 ms\nWall time: 3.87 s\n\n'MongoDB recently acquired Voyage AI.'",
+          "tokenEstimate": 39
+        }
+      ]
+    },
+    {
+      "heading": "Learn by Watching",
+      "headingLevel": 2,
+      "body": "Follow along with this video tutorial to learn more about\nsemantic caching with LangChain and MongoDB.*Duration: 30 Minutes*[https://www.youtube.com/watch?v=kAgSPzlgnDM](https://www.youtube.com/watch?v=kAgSPzlgnDM)",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "path": "atlas/langchain4j",
+  "product": "atlas",
+  "title": "Step 6: Perform queries on your data.",
+  "sections": [
+    {
+      "heading": "Background",
+      "headingLevel": 2,
+      "body": "LangChain4j is a framework that simplifies the creation of LLM (Large Language Model)\napplications in Java. LangChain4j combines concepts and functionality\nfrom LangChain, Haystack, LlamaIndex, and other sources. You can use\nthis framework for a variety of use cases, including semantic search and\nRAG (Retrieval-Augmented Generation).\n\nBy integrating MongoDB Vector Search with LangChain4j, you can use\nMongoDB as a vector database and use MongoDB Vector Search to\nimplement RAG (Retrieval-Augmented Generation) by using semantically similar documents\nto answer queries. To learn more about RAG (Retrieval-Augmented Generation),\nsee [Retrieval-Augmented Generation (RAG) with MongoDB](ai-key-concepts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) Key. You must have an account with\n  tokens available for API requests. To learn more about registering a\n  Voyage AI account, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n* [Java Development Kit (JDK)](https://www.oracle.com/java/technologies/downloads/) version 8 or later.\n\n* An environment to set up and run a Java application. We recommend\n  that you use an integrated development environment (IDE) such as\n  [IntelliJ IDEA](https://www.jetbrains.com/idea/) or [Eclipse IDE](https://eclipseide.org/) to configure Maven or Gradle to build and run\n  your project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set Up the Environment",
+      "headingLevel": 2,
+      "body": "You must first set up the environment for this tutorial, which includes\nadding the necessary dependencies and setting environment variables.\n\n- Open your IDE and create a new Java project and set the\n  following configurations:\n\n  - Name: LangChain4jSampleApp\n\n  - Language: Java\n\n  - Build system: Maven\n\n  - JDK: Any version greater than `8`\n\n  You might see an option to include sample code. Selecting this\n  option might help you test that your environment works and\n  locate the application file that you edit in the following steps.\n\n* Add the following dependencies to the `dependencies` array\n  in your project's `pom.xml` file. These dependencies add\n  LangChain4j, Voyage AI API for LangChain4j, and MongoDB Java\n  Sync Driver libraries to your application:\n\n  ```xml\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j-mongodb-atlas</artifactId>\n      <version>1.1.0</version>\n  </dependency>\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j-voyage-ai</artifactId>\n      <version>1.1.0-beta7</version>\n  </dependency>\n  ```\n\n* Next, add a `dependencyManagement` entry below your\n  dependency list for the LangChain4j Bill of Materials (BOM):\n\n  ```xml\n  <dependencyManagement>\n      <dependencies>\n          <dependency>\n              <groupId>dev.langchain4j</groupId>\n              <artifactId>langchain4j-bom</artifactId>\n              <version>1.1.0</version>\n              <type>pom</type>\n              <scope>import</scope>\n          </dependency>\n      </dependencies>\n  </dependencyManagement>\n  ```\n\n  To learn more about the LangChain4j BOM, see the [Get Started](https://docs.langchain4j.dev/get-started) page in the\n  LangChain4j documentation.\n\n  After you finish editing the `pom.xml` file, reload your\n  project to make sure your dependencies are installed.\n\nLocate the main application file `Main.java` in your project.\nReplace any existing imports with the following list of imports:\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport dev.langchain4j.data.document.Metadata;\nimport dev.langchain4j.data.embedding.Embedding;\nimport dev.langchain4j.data.segment.TextSegment;\nimport dev.langchain4j.model.embedding.EmbeddingModel;\nimport dev.langchain4j.model.voyageai.VoyageAiEmbeddingModel;\nimport dev.langchain4j.store.embedding.EmbeddingMatch;\nimport dev.langchain4j.store.embedding.EmbeddingSearchRequest;\nimport dev.langchain4j.store.embedding.EmbeddingSearchResult;\nimport dev.langchain4j.store.embedding.filter.comparison.*;\nimport dev.langchain4j.store.embedding.mongodb.IndexMapping;\nimport dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;\nimport org.bson.Document;\n\nimport java.io.*;\nimport java.util.*;\n```\n\nLater in this tutorial, you use these classes and methods to\ncreate vector embeddings and query data.\n\nDepending on your IDE, there might be multiple ways to set\nenvironment variables that your application can retrieve. To\nset environment variables in IntelliJ, you must create a run\nconfiguration for your application. To learn more, see the\n[Operating system](https://www.jetbrains.com/help/idea/run-debug-configuration-java-application.html#operating-system)\nsection of the Run/debug configuration: Application page in the\nIntelliJ documentation.\n\nSet the following environment variables:\n\n- `MONGODB_URI`: Set to your MongoDB connection string.\n\n- `VOYAGE_AI_KEY`: Set to your Voyage AI API key.\n\n> **Note:** Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>\n> ```\n>\n> To learn more about retrieving your connection string, see the\n> [a connection string that specifies the MONGODB-AWS authentication mechanism](manual/reference/connection-string) guide.\n\nRetrieve your environment variables by adding the following code\ninside the main method in your application's `Main.java` file:\n\n```java\nString embeddingApiKey = System.getenv(\"VOYAGE_AI_KEY\");\nString uri = System.getenv(\"MONGODB_URI\");\n```",
+      "codeBlocks": [
+        {
+          "language": "xml",
+          "content": "<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-mongodb-atlas</artifactId>\n    <version>1.1.0</version>\n</dependency>\n<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-voyage-ai</artifactId>\n    <version>1.1.0-beta7</version>\n</dependency>",
+          "tokenEstimate": 97
+        },
+        {
+          "language": "xml",
+          "content": "<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>dev.langchain4j</groupId>\n            <artifactId>langchain4j-bom</artifactId>\n            <version>1.1.0</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>",
+          "tokenEstimate": 79
+        },
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport dev.langchain4j.data.document.Metadata;\nimport dev.langchain4j.data.embedding.Embedding;\nimport dev.langchain4j.data.segment.TextSegment;\nimport dev.langchain4j.model.embedding.EmbeddingModel;\nimport dev.langchain4j.model.voyageai.VoyageAiEmbeddingModel;\nimport dev.langchain4j.store.embedding.EmbeddingMatch;\nimport dev.langchain4j.store.embedding.EmbeddingSearchRequest;\nimport dev.langchain4j.store.embedding.EmbeddingSearchResult;\nimport dev.langchain4j.store.embedding.filter.comparison.*;\nimport dev.langchain4j.store.embedding.mongodb.IndexMapping;\nimport dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;\nimport org.bson.Document;\n\nimport java.io.*;\nimport java.util.*;",
+          "tokenEstimate": 169
+        },
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>",
+          "tokenEstimate": 25
+        },
+        {
+          "language": "java",
+          "content": "String embeddingApiKey = System.getenv(\"VOYAGE_AI_KEY\");\nString uri = System.getenv(\"MONGODB_URI\");",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "Instantiate the Embedding Model",
+      "headingLevel": 2,
+      "body": "In this step, you instantiate an [embedding model](<embedding model>) that uses\nVoyage AI to convert text in sample data into vector embeddings.\n\nAdd the following code to your `Main.java` file to instantiate the\nembedding model by using your Voyage AI API key and selecting\n`voyage-3-large` as the model:\n\n```java\nEmbeddingModel embeddingModel = VoyageAiEmbeddingModel.builder()\n        .apiKey(embeddingApiKey)\n        .modelName(\"voyage-3-large\")\n        .build();\n```\n\nTo learn more about the `voyage-3-large` model, see the [blog post about\nvoyage-3 & voyage-3-lite](https://blog.voyageai.com/2024/09/18/voyage-3/) on the Voyage AI\nwebsite.",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "EmbeddingModel embeddingModel = VoyageAiEmbeddingModel.builder()\n        .apiKey(embeddingApiKey)\n        .modelName(\"voyage-3-large\")\n        .build();",
+          "tokenEstimate": 34
+        }
+      ]
+    },
+    {
+      "heading": "Use MongoDB as an Embedding Store",
+      "headingLevel": 2,
+      "body": "In this section, you instantiate MongoDB as a vector database, also\ncalled a [vector or embedding store](https://docs.langchain4j.dev/tutorials/embedding-stores). When you\ninstantiate the embedding store, LangChain4j automatically creates a MongoDB Vector Search\nindex on your data.\n\n> **Note:**&#x20;\n>\n> Required Access\n>\n> To create a MongoDB Vector Search index, you must have [Project Data Access Admin](<Project Data Access Admin>) or higher access to the MongoDB project.\n\nThis code performs the following actions:\n\n- Creates a `MongoClient` instance that is connected to your Atlas\n  deployment.\n\n- Sets the number of dimensions in the vector search index definition\n  to the embedding dimension of the AI model. The resulting vector search\n  index has the following definition:\n\n  ```json\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"embedding\",\n        \"numDimensions\": 1024,\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n  ```\n\n- Configures your MongoDB collection by specifying\n  the following parameters:\n\n  - `langchain4j_test.vector_store` as the MongoDB collection to store the documents.\n\n  - `vector_index` as the index to use for querying the embedding store.\n\nBecause the `createIndex` boolean is set to `true`, instantiating\nthe embedding store automatically creates the vector search index. The code\nincludes a delay to allow for successful index creation.\n\nAdd the following code into your `Main.java` file:\n\n```java\nMongoClient mongoClient = MongoClients.create(uri);\n\nSystem.out.println(\"Instantiating the embedding store...\");\n\n// Set to false if the vector index already exists\nBoolean createIndex = true;\n\nIndexMapping indexMapping = IndexMapping.builder()\n        .dimension(embeddingModel.dimension())\n        .metadataFieldNames(new HashSet<>())\n        .build();\n\nMongoDbEmbeddingStore embeddingStore = MongoDbEmbeddingStore.builder()\n        .databaseName(\"search\")\n        .collectionName(\"langchaintest\")\n        .createIndex(createIndex)\n        .indexName(\"vector_index\")\n        .indexMapping(indexMapping)\n        .fromClient(mongoClient)\n        .build();\n\nif (createIndex) {\n    // Creating a vector search index can take up to a minute,\n    // so this delay allows the index to become queryable\n    try {\n        Thread.sleep(15000);\n    } catch (InterruptedException e) {\n        throw new RuntimeException(e);\n    }\n}\n```\n\nTo learn more about the classes and methods used in the preceding code,\nsee the [dev.langchain4j.store.embedding.mongodb package](https://docs.langchain4j.dev/apidocs/dev/langchain4j/store/embedding/mongodb/package-summary.html)\nAPI documentation.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"embedding\",\n      \"numDimensions\": 1024,\n      \"similarity\": \"cosine\"\n    }\n  ]\n}",
+          "tokenEstimate": 45
+        },
+        {
+          "language": "java",
+          "content": "MongoClient mongoClient = MongoClients.create(uri);\n\nSystem.out.println(\"Instantiating the embedding store...\");\n\n// Set to false if the vector index already exists\nBoolean createIndex = true;\n\nIndexMapping indexMapping = IndexMapping.builder()\n        .dimension(embeddingModel.dimension())\n        .metadataFieldNames(new HashSet<>())\n        .build();\n\nMongoDbEmbeddingStore embeddingStore = MongoDbEmbeddingStore.builder()\n        .databaseName(\"search\")\n        .collectionName(\"langchaintest\")\n        .createIndex(createIndex)\n        .indexName(\"vector_index\")\n        .indexMapping(indexMapping)\n        .fromClient(mongoClient)\n        .build();\n\nif (createIndex) {\n    // Creating a vector search index can take up to a minute,\n    // so this delay allows the index to become queryable\n    try {\n        Thread.sleep(15000);\n    } catch (InterruptedException e) {\n        throw new RuntimeException(e);\n    }\n}",
+          "tokenEstimate": 193
+        }
+      ]
+    },
+    {
+      "heading": "Store Custom Data",
+      "headingLevel": 2,
+      "body": "In this section, you create sample documents, use the embedding model\nto convert the text to embeddings, and persist the data to MongoDB.\n\nThis code performs the following actions:\n\n- Creates a list of sample documents that includes `text` and\n  `metadata` fields.\n\n- Converts the content of the `text` field to embeddings and persists\n  the data to MongoDB. The code includes a delay to accommodate the time\n  needed for the vector conversion.\n\nAdd the following code into your `Main.java` file:\n\n```java\nArrayList<Document> docs = new ArrayList<>();\n\ndocs.add(new Document()\n        .append(\"text\", \"In Zadie Smith's new novel, the true story of a heated nineteenth-century criminal trial connects to the unrest of current times.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"A\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"D\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"C\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"B\"))));\n\nSystem.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : docs) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            doc.get(\"metadata\", Metadata.class)\n    );\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\n// Delay for persisting data\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "ArrayList<Document> docs = new ArrayList<>();\n\ndocs.add(new Document()\n        .append(\"text\", \"In Zadie Smith's new novel, the true story of a heated nineteenth-century criminal trial connects to the unrest of current times.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"A\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"D\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"C\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"B\"))));\n\nSystem.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : docs) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            doc.get(\"metadata\", Metadata.class)\n    );\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\n// Delay for persisting data\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}",
+          "tokenEstimate": 326
+        }
+      ]
+    },
+    {
+      "heading": "Run Vector Search Queries",
+      "headingLevel": 2,
+      "body": "This section demonstrates how to run queries on your vectorized data.\n\nThis code performs a semantic search query for the phrase\n`\"Where do penguins live?\"` and returns the three\nmost relevant results. It also prints a score that captures how well\neach result matches the query.\n\nAdd the following code to your `Main.java` file:\n\n**Input:**\n\n```java\nString query = \"Where do penguins live?\";\nEmbedding queryEmbedding = embeddingModel.embed(query).content();\n\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .maxResults(3)\n        .build();\n\nSystem.out.println(\"Performing the query...\");\n\nEmbeddingSearchResult<TextSegment> searchResult = embeddingStore.search(searchRequest);\nList<EmbeddingMatch<TextSegment>> matches = searchResult.matches();\n\nfor (EmbeddingMatch<TextSegment> embeddingMatch : matches) {\n    System.out.println(\"Response: \" + embeddingMatch.embedded().text());\n    System.out.println(\"Author: \" + embeddingMatch.embedded().metadata().getString(\"author\"));\n    System.out.println(\"Score: \" + embeddingMatch.score());\n}\n```\n\n**Output:**\n\n```\nResponse: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.829620897769928\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7459062337875366\nResponse: Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\nAuthor: D\nScore: 0.6908764839172363\n```\n\nTo perform a search with metadata filtering, you can use classes\nfrom the `dev.langchain4j.store.embedding.filter.comparison`\npackage. These classes allow you to create filters that compare\nmetadata values to specified values to narrow the results returned\nby the search.\n\nThis example filters for documents in which the value of the\n`author` field is either `\"B\"` or `\"C\"`. Then, it performs a\nsemantic search query for the phrase `\"Where do penguins live?\"`.\n\nReplace the code that instantiates an `EmbeddingSearchRequest`\ninstance in the preceding step with the following code:\n\n**Input:**\n\n```java\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .filter(new IsIn(\"author\", List.of(\"B\", \"C\")))\n        .maxResults(3)\n        .build();\n```\n\n**Output:**\n\n```\nResponse: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.8520907163619995\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7666836977005005\n```\n\nTo learn more about metadata pre-filtering, see\n[lexical prefilters](vectorSearch-agg-pipeline-filter).\n\n> **See Also:** For more information, refer to\n> the [API reference](https://docs.langchain4j.dev/apidocs/index.html).",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "String query = \"Where do penguins live?\";\nEmbedding queryEmbedding = embeddingModel.embed(query).content();\n\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .maxResults(3)\n        .build();\n\nSystem.out.println(\"Performing the query...\");\n\nEmbeddingSearchResult<TextSegment> searchResult = embeddingStore.search(searchRequest);\nList<EmbeddingMatch<TextSegment>> matches = searchResult.matches();\n\nfor (EmbeddingMatch<TextSegment> embeddingMatch : matches) {\n    System.out.println(\"Response: \" + embeddingMatch.embedded().text());\n    System.out.println(\"Author: \" + embeddingMatch.embedded().metadata().getString(\"author\"));\n    System.out.println(\"Score: \" + embeddingMatch.score());\n}",
+          "tokenEstimate": 159
+        },
+        {
+          "language": "text",
+          "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.829620897769928\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7459062337875366\nResponse: Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\nAuthor: D\nScore: 0.6908764839172363",
+          "tokenEstimate": 130
+        },
+        {
+          "language": "java",
+          "content": "EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .filter(new IsIn(\"author\", List.of(\"B\", \"C\")))\n        .maxResults(3)\n        .build();",
+          "tokenEstimate": 50
+        },
+        {
+          "language": "text",
+          "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.8520907163619995\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7666836977005005",
+          "tokenEstimate": 91
+        }
+      ]
+    },
+    {
+      "heading": "Use Your Data to Answer Questions",
+      "headingLevel": 2,
+      "body": "This section demonstrates a RAG (Retrieval-Augmented Generation) implementation that uses\nthe LangChain4j framework and MongoDB Vector Search. Now that you've used MongoDB Vector Search\nto retrieve semantically similar documents, use the following\ncode examples to prompt the LLM to answer questions by using\ninformation from documents stored in MongoDB.\n\n- Add the following dependencies to the `dependencies` array\n  in your project's `pom.xml` file, but do not remove any of\n  the [dependencies you already added](langchain4j-add-dependencies-step). These dependencies add\n  the LangChain4j AI services and OpenAI API for LangChain4j\n  libraries to your application:\n\n  ```xml\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j-open-ai</artifactId>\n      <version>1.1.0</version>\n  </dependency>\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j</artifactId>\n      <version>1.1.0</version>\n  </dependency>\n  ```\n\n  After you finish editing the `pom.xml` file, reload your\n  project to make sure your dependencies are installed.\n\n- Add the following imports to your imports list in your\n  `Main.java` file:\n\n  ```java\n  import com.fasterxml.jackson.core.type.TypeReference;\n  import com.fasterxml.jackson.databind.ObjectMapper;\n  import dev.langchain4j.service.AiServices;\n  import dev.langchain4j.model.chat.ChatLanguageModel;\n  import dev.langchain4j.model.openai.OpenAiChatModel;\n  import dev.langchain4j.rag.content.retriever.ContentRetriever;\n  import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;\n  ```\n\n- Set the `OPENAI_KEY` environment variable to your **OpenAI\n  API key**. You use this key to create a chat model that\n  generates a response to your query.\n\nIn this step, you ingest data from an external source into\nAtlas. Download the [rainforest-docs.json](https://github.com/mongodb/docs-code-examples/blob/main/sample-data/atlas/ai-integrations/rainforest-docs.json)\nsample data file from the `docs-code-examples` GitHub\nrepository. The documents in this file contain information about\nplants, animals, and weather in the rainforest.\n\nUpload this file to the `resources` directory in your project,\nwhich is at the same level as the `java` directory that contains\nyour application files.\n\nYou must process the data into a usable format that you can create\nembeddings from and persist to Atlas. This code defines the\n`loadJsonDocuments()` method that performs the following actions:\n\n- Retrieves the sample data from your `resources` directory by\n  using the `ClassLoader` class\n\n- Parses the JSON documents to a `List` of MongoDB `Document`\n  instances by using the `ObjectMapper` class\n\nAdd the following code to your `Main.java` file **outside** of\nyour main method:\n\n```java\nprivate static List<Document> loadJsonDocuments(String resourcePath) throws IOException {\n    // Loads file from resources directory using the ClassLoader\n    InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(resourcePath);\n\n    if (inputStream == null) {\n        throw new FileNotFoundException(\"Resource not found: \" + resourcePath);\n    }\n\n    // Parses JSON file to List of MongoDB Documents\n    ObjectMapper objectMapper = new ObjectMapper();\n    List<Document> documents = objectMapper.readValue(inputStream, new TypeReference<>() {});\n\n    return documents;\n}\n```\n\nThen, add the following code in the main method body to call the\n`loadJsonDocuments()` method and load your documents:\n\n```java\nSystem.out.println(\"Loading documents from file...\");\n\nString resourcePath = \"rainforest-docs.json\";\nList<Document> documents = loadJsonDocuments(resourcePath);\n```\n\nIn this step, you create vector embeddings from your sample\ndocuments and persist them to Atlas.\n\nThis code converts the content of the `text` fields in the\nsample documents to embeddings and persists the data to Atlas.\nThe code includes a delay to accommodate the time needed for the\nvector conversion.\n\nAdd the following code into your `Main.java` file:\n\n```java\nSystem.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : documents) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            new Metadata(doc.get(\"metadata\", Map.class)));\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}\n```\n\nIn this step, you instantiate a chat model from OpenAI so you can\nanswer questions based on your data. You also specify a content\nretriever that surfaces relevant documents to inform the response\ncrafted by the chat model.\n\nThis code performs the following actions:\n\n- Instantiates the chat model by using your OpenAI API key\n\n- Creates the content retriever with the following specifications:\n\n  - Retrieves at most `3` relevant documents\n\n  - Retrieves documents that have a relevance score of at least\n    `0.75`\n\nAdd the following code to your `Main.java` file in the main\nmethod body:\n\n```java\nString chatApiKey = System.getenv(\"OPENAI_KEY\");\n\nChatLanguageModel chatModel = OpenAiChatModel.builder()\n        .apiKey(chatApiKey)\n        .modelName(\"gpt-4\")\n        .build();\n\nContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()\n        .embeddingStore(embeddingStore)\n        .embeddingModel(embeddingModel)\n        .maxResults(3)\n        .minScore(0.75)\n        .build();\n```\n\n> **Tip:**&#x20;\n>\n> Metadata Filtering\n>\n> You can implement metadata filtering in your `ContentRetriever`\n> by using the `filter()` builder method and passing an instance of\n> a `Filter`. See the [metadata filtering example](langchain4j-metadata-filtering)\n> in the preceding step to learn how to construct a `Filter`.\n\nCreate a simple `Assistant` interface that implements the AI\nServices API in your application. Create an interface file called\n`Assistant.java` at the same level as your `Main.java` file.\n\nDefine the `Assistant` interface:\n\n```java\npackage org.example;\n\npublic interface Assistant {\n    String answer(String question);\n}\n\n```\n\nIn your `Main.java` file, instantiate the `Assistant`:\n\n```java\nAssistant assistant = AiServices.builder(Assistant.class)\n        .chatLanguageModel(chatModel)\n        .contentRetriever(contentRetriever)\n        .build();\n```\n\nFinally, perform a query on your sample data. Add the following\ncode to your `Main.java` file to run a query and\nprint the output:\n\n**Input:**\n\n```java\nString ragQuery = \"What types of insects live in the rainforest?\";\nString output = assistant.answer(ragQuery);\n\nSystem.out.println(\"Response:\\n\" + output);\n```\n\n**Output:**\n\n```\nResponse:\nIn the rainforest, there are numerous species of insects\nsuch as beetles, butterflies, moths, wasps, bees, flies, and\nants. Of the many insects that live in the rainforest, ants\nare particularly important as they play a crucial role in\nnutrient recycling and aeration of the soil. Moreover, many\nof these insects are involved in the processes of\npollination and decomposition. The adaptations these insects\nhave developed enable their survival in the rainforest's\nspecific conditions, characterized by heavy rainfall.\n```",
+      "codeBlocks": [
+        {
+          "language": "xml",
+          "content": "<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-open-ai</artifactId>\n    <version>1.1.0</version>\n</dependency>\n<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j</artifactId>\n    <version>1.1.0</version>\n</dependency>",
+          "tokenEstimate": 89
+        },
+        {
+          "language": "java",
+          "content": "import com.fasterxml.jackson.core.type.TypeReference;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport dev.langchain4j.service.AiServices;\nimport dev.langchain4j.model.chat.ChatLanguageModel;\nimport dev.langchain4j.model.openai.OpenAiChatModel;\nimport dev.langchain4j.rag.content.retriever.ContentRetriever;\nimport dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;",
+          "tokenEstimate": 90
+        },
+        {
+          "language": "java",
+          "content": "private static List<Document> loadJsonDocuments(String resourcePath) throws IOException {\n    // Loads file from resources directory using the ClassLoader\n    InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(resourcePath);\n\n    if (inputStream == null) {\n        throw new FileNotFoundException(\"Resource not found: \" + resourcePath);\n    }\n\n    // Parses JSON file to List of MongoDB Documents\n    ObjectMapper objectMapper = new ObjectMapper();\n    List<Document> documents = objectMapper.readValue(inputStream, new TypeReference<>() {});\n\n    return documents;\n}",
+          "tokenEstimate": 105
+        },
+        {
+          "language": "java",
+          "content": "System.out.println(\"Loading documents from file...\");\n\nString resourcePath = \"rainforest-docs.json\";\nList<Document> documents = loadJsonDocuments(resourcePath);",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "java",
+          "content": "System.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : documents) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            new Metadata(doc.get(\"metadata\", Map.class)));\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}",
+          "tokenEstimate": 88
+        },
+        {
+          "language": "java",
+          "content": "String chatApiKey = System.getenv(\"OPENAI_KEY\");\n\nChatLanguageModel chatModel = OpenAiChatModel.builder()\n        .apiKey(chatApiKey)\n        .modelName(\"gpt-4\")\n        .build();\n\nContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()\n        .embeddingStore(embeddingStore)\n        .embeddingModel(embeddingModel)\n        .maxResults(3)\n        .minScore(0.75)\n        .build();",
+          "tokenEstimate": 96
+        },
+        {
+          "language": "java",
+          "content": "package org.example;\n\npublic interface Assistant {\n    String answer(String question);\n}\n",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "java",
+          "content": "Assistant assistant = AiServices.builder(Assistant.class)\n        .chatLanguageModel(chatModel)\n        .contentRetriever(contentRetriever)\n        .build();",
+          "tokenEstimate": 34
+        },
+        {
+          "language": "java",
+          "content": "String ragQuery = \"What types of insects live in the rainforest?\";\nString output = assistant.answer(ragQuery);\n\nSystem.out.println(\"Response:\\n\" + output);",
+          "tokenEstimate": 35
+        },
+        {
+          "language": "text",
+          "content": "Response:\nIn the rainforest, there are numerous species of insects\nsuch as beetles, butterflies, moths, wasps, bees, flies, and\nants. Of the many insects that live in the rainforest, ants\nare particularly important as they play a crucial role in\nnutrient recycling and aeration of the soil. Moreover, many\nof these insects are involved in the processes of\npollination and decomposition. The adaptations these insects\nhave developed enable their survival in the rainforest's\nspecific conditions, characterized by heavy rainfall.",
+          "tokenEstimate": 112
+        }
+      ]
+    },
+    {
+      "heading": "Next Steps",
+      "headingLevel": 2,
+      "body": "MongoDB also provides the following developer resources:\n\n- [How to Make a RAG Application With LangChain4j](https://dev.to/mongodb/how-to-make-a-rag-application-with-langchain4j-1mad)\n  tutorial on the DEV Community website\n\n- [MongoDB Developer GitHub Repository](https://github.com//mongodb-developer)\n\n> **See Also:**&#x20;\n>\n> - [LangChain4j Documentation](https://docs.langchain4j.dev/)\n>\n> - [LangChain4j MongoDB Atlas Documentation](https://docs.langchain4j.dev/integrations/embedding-stores/mongodb-atlas/)\n>\n> - [LangChain4j API Reference](https://docs.langchain4j.dev/apidocs/index.html)",
+      "codeBlocks": []
+    }
+  ]
+}

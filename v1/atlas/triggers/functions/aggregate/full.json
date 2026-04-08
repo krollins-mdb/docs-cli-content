@@ -1,0 +1,155 @@
+{
+  "path": "atlas/triggers/functions/aggregate",
+  "product": "atlas",
+  "title": "Aggregation Pipeline Operator Availability",
+  "sections": [
+    {
+      "heading": "Data Model",
+      "headingLevel": 2,
+      "body": "The examples on this page use a collection named `store.purchases`\nthat contains information about historical item sales in an online\nstore. Each document contains a list of the purchased `items`,\nincluding the item `name` and the purchased `quantity`, as well as a\nunique ID value for the customer that purchased the items.\n\n```json&#xA;&#x20;:caption:&#x20;The&#x20;JSON&#x20;schema&#x20;for&#x20;store.purchases\n{\n  \"title\": \"Purchase\",\n  \"required\": [\"_id\", \"customerId\", \"items\"],\n  \"properties\": {\n    \"_id\": { \"bsonType\": \"objectId\" },\n    \"customerId\": { \"bsonType\": \"objectId\" },\n    \"items\": {\n      \"bsonType\": \"array\",\n      \"items\": {\n        \"bsonType\": \"object\",\n        \"required\": [\"name\", \"quantity\"],\n        \"properties\": {\n          \"name\": { \"bsonType\": \"string\" },\n          \"quantity\": { \"bsonType\": \"int\" }\n        }\n      }\n    }\n  }\n}\n```\n\nTo use a code snippet in a [Atlas Function](atlas-functions), you\nmust first instantiate a MongoDB collection handle:\n\n```javascript\nexports = function() {\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const itemsCollection = mongodb.db(\"store\").collection(\"items\");\n  const purchasesCollection = mongodb.db(\"store\").collection(\"purchases\");\n  // ... paste snippet here ...\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json\n :caption: The JSON schema for store.purchases",
+          "content": "{\n  \"title\": \"Purchase\",\n  \"required\": [\"_id\", \"customerId\", \"items\"],\n  \"properties\": {\n    \"_id\": { \"bsonType\": \"objectId\" },\n    \"customerId\": { \"bsonType\": \"objectId\" },\n    \"items\": {\n      \"bsonType\": \"array\",\n      \"items\": {\n        \"bsonType\": \"object\",\n        \"required\": [\"name\", \"quantity\"],\n        \"properties\": {\n          \"name\": { \"bsonType\": \"string\" },\n          \"quantity\": { \"bsonType\": \"int\" }\n        }\n      }\n    }\n  }\n}",
+          "tokenEstimate": 129
+        },
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const itemsCollection = mongodb.db(\"store\").collection(\"items\");\n  const purchasesCollection = mongodb.db(\"store\").collection(\"purchases\");\n  // ... paste snippet here ...\n}",
+          "tokenEstimate": 54
+        }
+      ]
+    },
+    {
+      "heading": "Run an Aggregation Pipeline",
+      "headingLevel": 3,
+      "body": "You can execute an aggregation pipeline using the\n[collection.aggregate()](collection.aggregate) method.\n\nThe following [Atlas Function](atlas-functions) snippet groups all documents\nin the `purchases` collection by their `customerId` value and\naggregates a count of the number of items each customer purchases as\nwell as the total number of purchases that they made. After grouping the\ndocuments the pipeline adds a new field that calculates the average\nnumber of items each customer purchases at a time,\n`averageNumItemsPurchased`, to each customer's document:\n\n```javascript\nconst pipeline = [\n  { \"$group\": {\n      \"_id\": \"$customerId\",\n      \"numPurchases\": { \"$sum\": 1 },\n      \"numItemsPurchased\": { \"$sum\": { \"$size\": \"$items\" } }\n  } },\n  { \"$addFields\": {\n      \"averageNumItemsPurchased\": {\n        \"$divide\": [\"$numItemsPurchased\", \"$numPurchases\"]\n      }\n  } }\n]\n\nreturn purchasesCollection.aggregate(pipeline).toArray()\n  .then(customers => {\n    console.log(`Successfully grouped purchases for ${customers.length} customers.`)\n    for(const customer of customers) {\n      console.log(`customer: ${customer._id}`)\n      console.log(`num purchases: ${customer.numPurchases}`)\n      console.log(`total items purchased: ${customer.numItemsPurchased}`)\n      console.log(`average items per purchase: ${customer.averageNumItemsPurchased}`)\n    }\n    return customers\n  })\n  .catch(err => console.error(`Failed to group purchases by customer: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const pipeline = [\n  { \"$group\": {\n      \"_id\": \"$customerId\",\n      \"numPurchases\": { \"$sum\": 1 },\n      \"numItemsPurchased\": { \"$sum\": { \"$size\": \"$items\" } }\n  } },\n  { \"$addFields\": {\n      \"averageNumItemsPurchased\": {\n        \"$divide\": [\"$numItemsPurchased\", \"$numPurchases\"]\n      }\n  } }\n]\n\nreturn purchasesCollection.aggregate(pipeline).toArray()\n  .then(customers => {\n    console.log(`Successfully grouped purchases for ${customers.length} customers.`)\n    for(const customer of customers) {\n      console.log(`customer: ${customer._id}`)\n      console.log(`num purchases: ${customer.numPurchases}`)\n      console.log(`total items purchased: ${customer.numItemsPurchased}`)\n      console.log(`average items per purchase: ${customer.averageNumItemsPurchased}`)\n    }\n    return customers\n  })\n  .catch(err => console.error(`Failed to group purchases by customer: ${err}`))",
+          "tokenEstimate": 213
+        }
+      ]
+    },
+    {
+      "heading": "Find Data with Atlas Search",
+      "headingLevel": 2,
+      "body": "You can run [MongoDB Search Overview](fts-top-ref) queries on a collection\nwith [collection.aggregate()](collection.aggregate) and the `$search` aggregation\nstage.\n\n> **Important:** Atlas Functions perform `$search` operations as a system user and\n> enforce field-level rules on the returned search results. This means that a\n> user may search on a field for which they do not have read access. In this\n> case, the search is based on the specified field but no returned documents\n> include the field.\n\n**Input:**\n\n```javascript\nexports = async function searchMoviesAboutBaseball() {\n  // 1. Get a reference to the collection you want to search.\n  const movies = context.services\n    .get(\"mongodb-atlas\")\n    .db(\"sample_mflix\")\n    .collection(\"movies\");\n  // 2. Run an aggregation with $search as the first stage.\n  const baseballMovies = await movies\n    .aggregate([\n      {\n        $search: {\n          text: {\n            query: \"baseball\",\n            path: \"plot\",\n          },\n        },\n      },\n      {\n        $limit: 5,\n      },\n      {\n        $project: {\n          _id: 0,\n          title: 1,\n          plot: 1,\n        },\n      },\n    ])\n    .toArray();\n  return baseballMovies;\n};\n```\n\n**Output:**\n\n```json\n{\n  \"plot\" : \"A trio of guys try and make up for missed\n  opportunities in childhood by forming a three-player\n  baseball team to compete against standard children\n  baseball squads.\",\n  \"title\" : \"The Benchwarmers\"\n}\n{\n  \"plot\" : \"A young boy is bequeathed the ownership of a\n  professional baseball team.\",\n  \"title\" : \"Little Big League\"\n}\n{\n  \"plot\" : \"A trained chimpanzee plays third base for a\n  minor-league baseball team.\",\n  \"title\" : \"Ed\"\n}\n{\n  \"plot\" : \"The story of the life and career of the famed\n  baseball player, Lou Gehrig.\",\n  \"title\" : \"The Pride of the Yankees\"\n}\n{\n  \"plot\" : \"Babe Ruth becomes a baseball legend but is\n  unheroic to those who know him.\",\n  \"title\" : \"The Babe\"\n}\n```\n\n> **Note:**&#x20;\n>\n> $$SEARCH_META Variable Availability\n>\n> The [$$SEARCH\\_META](atlas/atlas-search/query-syntax)\n> aggregation variable is only available for Functions that [system functions](atlas-system-functions) or if the first role on the searched collection has its\n> `apply_when` and `read` expressions set to `true`.\n>\n> If neither of these two scenarios apply, `$$SEARCH_META` is undefined and\n> the aggregation will fail.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function searchMoviesAboutBaseball() {\n  // 1. Get a reference to the collection you want to search.\n  const movies = context.services\n    .get(\"mongodb-atlas\")\n    .db(\"sample_mflix\")\n    .collection(\"movies\");\n  // 2. Run an aggregation with $search as the first stage.\n  const baseballMovies = await movies\n    .aggregate([\n      {\n        $search: {\n          text: {\n            query: \"baseball\",\n            path: \"plot\",\n          },\n        },\n      },\n      {\n        $limit: 5,\n      },\n      {\n        $project: {\n          _id: 0,\n          title: 1,\n          plot: 1,\n        },\n      },\n    ])\n    .toArray();\n  return baseballMovies;\n};",
+          "tokenEstimate": 167
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"plot\" : \"A trio of guys try and make up for missed\n  opportunities in childhood by forming a three-player\n  baseball team to compete against standard children\n  baseball squads.\",\n  \"title\" : \"The Benchwarmers\"\n}\n{\n  \"plot\" : \"A young boy is bequeathed the ownership of a\n  professional baseball team.\",\n  \"title\" : \"Little Big League\"\n}\n{\n  \"plot\" : \"A trained chimpanzee plays third base for a\n  minor-league baseball team.\",\n  \"title\" : \"Ed\"\n}\n{\n  \"plot\" : \"The story of the life and career of the famed\n  baseball player, Lou Gehrig.\",\n  \"title\" : \"The Pride of the Yankees\"\n}\n{\n  \"plot\" : \"Babe Ruth becomes a baseball legend but is\n  unheroic to those who know him.\",\n  \"title\" : \"The Babe\"\n}",
+          "tokenEstimate": 196
+        }
+      ]
+    },
+    {
+      "heading": "Aggregation Stages",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Filter Documents",
+      "headingLevel": 2,
+      "body": "You can use the [$match](manual/reference/operator/aggregation/match) stage\nto filter incoming documents using standard MongoDB [query syntax](manual/tutorial/query-documents).\n\n```javascript\n{\n  \"$match\": {\n    \"<Field Name>\": <Query Expression>,\n    ...\n  }\n}\n```\n\n> **Example:** The following `$match` stage filters incoming documents to include\n> only those where the `graduation_year` field has a value between\n> `2019` and `2024`, inclusive.\n>\n> ```javascript\n> {\n>   \"$match\": {\n>     \"graduation_year\": {\n>       \"$gte\": 2019,\n>       \"$lte\": 2024\n>     },\n>   }\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"$match\": {\n    \"<Field Name>\": <Query Expression>,\n    ...\n  }\n}",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"$match\": {\n    \"graduation_year\": {\n      \"$gte\": 2019,\n      \"$lte\": 2024\n    },\n  }\n}",
+          "tokenEstimate": 34
+        }
+      ]
+    },
+    {
+      "heading": "Group Documents",
+      "headingLevel": 2,
+      "body": "You can use the [$group](manual/reference/operator/aggregation/group) stage to aggregate summary\ndata for groups of one or more documents. MongoDB groups documents based\non the `_id` expression.\n\n> **Note:** You can reference a specific document field by prefixing the field\n> name with a `$`.\n\n```javascript\n{\n  \"$group\": {\n    \"_id\": <Group By Expression>,\n    \"<Field Name>\": <Aggregation Expression>,\n    ...\n  }\n}\n```\n\n> **Example:** The following `$group` stage groups documents by the value of their\n> `customerId` field and calculates the number of purchase documents\n> that each `customerId` appears in.\n>\n> ```javascript\n> {\n>   \"$group\": {\n>     \"_id\": \"$customerId\",\n>     \"numPurchases\": { \"$sum\": 1 }\n>   }\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"$group\": {\n    \"_id\": <Group By Expression>,\n    \"<Field Name>\": <Aggregation Expression>,\n    ...\n  }\n}",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"$group\": {\n    \"_id\": \"$customerId\",\n    \"numPurchases\": { \"$sum\": 1 }\n  }\n}",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Project Document Fields",
+      "headingLevel": 2,
+      "body": "You can use the [$project](manual/reference/operator/aggregation/project) stage to include or omit\nspecific fields from documents or to calculate new fields using\n[aggregation operators](manual/reference/mql/expressions).\nTo include a field, set its value to `1`. To omit a field, set its\nvalue to `0`.\n\n> **Note:** You can't simultaneously omit and include fields other than `_id`.\n> If you explicitly include a field other than `_id`, any fields you\n> did not explicitly include are automatically omitted (and\n> vice-versa).\n\n```javascript\n{\n  \"$project\": {\n    \"<Field Name>\": <0 | 1 | Expression>,\n    ...\n  }\n}\n```\n\n> **Example:** The following `$project` stage omits the `_id` field, includes\n> the `customerId` field, and creates a new field named `numItems`\n> where the value is the number of documents in the `items` array:\n>\n> ```javascript\n> {\n>   \"$project\": {\n>     \"_id\": 0,\n>     \"customerId\": 1,\n>     \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n>   }\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"$project\": {\n    \"<Field Name>\": <0 | 1 | Expression>,\n    ...\n  }\n}",
+          "tokenEstimate": 25
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"$project\": {\n    \"_id\": 0,\n    \"customerId\": 1,\n    \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n  }\n}",
+          "tokenEstimate": 41
+        }
+      ]
+    },
+    {
+      "heading": "Add Fields to Documents",
+      "headingLevel": 2,
+      "body": "You can use the [$addFields](manual/reference/operator/aggregation/addFields) stage to add new fields\nwith calculated values using [aggregation operators](manual/reference/mql/expressions).\n\n> **Note:** `$addFields` is similar to [$project](manual/reference/operator/aggregation/project) but does not allow you to\n> include or omit fields.\n\n> **Example:** The following `$addFields` stages creates a new field named\n> `numItems` where the value is the number of documents in the\n> `items` array:\n>\n> ```javascript\n> {\n>   \"$addFields\": {\n>     \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n>   }\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"$addFields\": {\n    \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n  }\n}",
+          "tokenEstimate": 28
+        }
+      ]
+    },
+    {
+      "heading": "Unwind Array Values",
+      "headingLevel": 2,
+      "body": "You can use the [$unwind](manual/reference/operator/aggregation/unwind) stage to aggregate\nindividual elements of array fields. When you unwind an array field,\nMongoDB copies each document once for each element of the array field\nbut replaces the array value with the array element in each copy.\n\n```javascript\n{\n  $unwind: {\n    path: <Array Field Path>,\n    includeArrayIndex: <string>,\n    preserveNullAndEmptyArrays: <boolean>\n  }\n}\n```\n\n> **Example:** The following `$unwind` stage creates a new document for each\n> element of the `items` array in each document. It also adds a field\n> called `itemIndex` to each new document that specifies the\n> element's position index in the original array:\n>\n> ```javascript\n> {\n>   \"$unwind\": {\n>     \"path\": \"$items\",\n>     \"includeArrayIndex\": \"itemIndex\"\n>   }\n> }\n> ```\n>\n> Consider the following document from the `purchases` collection:\n>\n> ```javascript\n> {\n>   _id: 123,\n>   customerId: 24601,\n>   items: [\n>     { name: \"Baseball\", quantity: 5 },\n>     { name: \"Baseball Mitt\", quantity: 1 },\n>     { name: \"Baseball Bat\", quantity: 1 },\n>   ]\n> }\n> ```\n>\n> If we apply the example `$unwind` stage to this document, the stage\n> outputs the following three documents:\n>\n> ```javascript\n> {\n>   _id: 123,\n>   customerId: 24601,\n>   itemIndex: 0,\n>   items: { name: \"Baseball\", quantity: 5 }\n> }, {\n>   _id: 123,\n>   customerId: 24601,\n>   itemIndex: 1,\n>   items: { name: \"Baseball Mitt\", quantity: 1 }\n> }, {\n>   _id: 123,\n>   customerId: 24601,\n>   itemIndex: 2,\n>   items: { name: \"Baseball Bat\", quantity: 1 }\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  $unwind: {\n    path: <Array Field Path>,\n    includeArrayIndex: <string>,\n    preserveNullAndEmptyArrays: <boolean>\n  }\n}",
+          "tokenEstimate": 36
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"$unwind\": {\n    \"path\": \"$items\",\n    \"includeArrayIndex\": \"itemIndex\"\n  }\n}",
+          "tokenEstimate": 27
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  _id: 123,\n  customerId: 24601,\n  items: [\n    { name: \"Baseball\", quantity: 5 },\n    { name: \"Baseball Mitt\", quantity: 1 },\n    { name: \"Baseball Bat\", quantity: 1 },\n  ]\n}",
+          "tokenEstimate": 63
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 0,\n  items: { name: \"Baseball\", quantity: 5 }\n}, {\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 1,\n  items: { name: \"Baseball Mitt\", quantity: 1 }\n}, {\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 2,\n  items: { name: \"Baseball Bat\", quantity: 1 }\n}",
+          "tokenEstimate": 116
+        }
+      ]
+    },
+    {
+      "heading": "Aggregation Framework Limitations",
+      "headingLevel": 3,
+      "body": "Atlas Functions support aggregation on the both the database and collection\nlevel using the following commands:\n\n- [db.aggregate()](manual/reference/method/db.aggregate)\n\n- [db.collection.aggregate()](manual/reference/method/db.collection.aggregate)\n\nAll [aggregation pipeline stages](manual/reference/operator/aggregation-pipeline)\nstages are available to the *system user* except for `$indexStats`.\n\nAtlas Functions support all [aggregation pipeline operators](manual/reference/operator/aggregation) when you run an aggregation pipeline\nin the [system functions](atlas-system-functions) context.",
+      "codeBlocks": []
+    }
+  ]
+}

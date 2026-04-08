@@ -1,0 +1,12 @@
+{
+  "heading": "Multiple Types of Fields from Documents",
+  "headingLevel": 3,
+  "body": "> **Example:** You want to write 154 MiB of data as compressed JSON (Javascript Object Notation) files\n> to an Azure (Microsoft Azure) Blob Storage container named `my-container`.\n>\n> Consider the following $out syntax:\n>\n> ```json\n> {\n>   \"$out\": {\n>     \"azure\": {\n>       \"serviceURL\": \"http://mystorageaccount.blob.core.windows.net/\",\n>       \"container\": \"my-container\",\n>       \"region\": \"eastus2\",\n>       \"filename\": {\n>         \"$concat\": [\n>           \"big-box-store/\",\n>           {\n>             \"$toString\": \"$storeNumber\"\n>           }, \"/\",\n>           {\n>             \"$toString\": \"$saleDate\"\n>           }, \"/\",\n>           \"$partId\", \"/\"\n>         ]\n>       },\n>       \"format\": {\n>         \"name\": \"json.gz\",\n>         \"maxFileSize\": \"200MiB\"\n>       }\n>     }\n>   }\n> }\n> ```\n>\n> $out writes 154 MiB of data to compressed JSON (Javascript Object Notation) files, where\n> each file contains all documents with the same\n> `storeNumber`, `saleDate`, and `partId` values.  To\n> name each file, $out concatenates:\n>\n> - A constant string value of `big-box-store/`,\n>\n> - A string value of a unique store number in the\n>   `storeNumber` field,\n>\n> - A forward slash (`/`),\n>\n> - A string value of the date from the `saleDate` field,\n>\n> - A forward slash (`/`),\n>\n> - A string value of part ID from the `partId` field, and\n>\n> - A forward slash (`/`).**Gcp:**GCP**Create a Filename**The following examples show $out syntaxes for dynamically\ncreating a filename from a constant string or from the fields of\nthe same or different data types in the documents that reach the\n$out stage.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"$out\": {\n    \"azure\": {\n      \"serviceURL\": \"http://mystorageaccount.blob.core.windows.net/\",\n      \"container\": \"my-container\",\n      \"region\": \"eastus2\",\n      \"filename\": {\n        \"$concat\": [\n          \"big-box-store/\",\n          {\n            \"$toString\": \"$storeNumber\"\n          }, \"/\",\n          {\n            \"$toString\": \"$saleDate\"\n          }, \"/\",\n          \"$partId\", \"/\"\n        ]\n      },\n      \"format\": {\n        \"name\": \"json.gz\",\n        \"maxFileSize\": \"200MiB\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 129
+    }
+  ]
+}

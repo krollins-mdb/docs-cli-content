@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `message`\nfield in the `minutes` collection using a custom analyzer named  `whitespaceExample`. It uses the `whitespace` tokenizer to\ncreate tokens (searchable terms) from any whitespaces in the\n`message` field.**Atlas UI:**Atlas UI<Tab tabid=\"visual-editor\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Tokenizer if it's collapsed.\n\n  - Select whitespace from the dropdown.\n\n  - Click Add to add the custom analyzer to your index.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on the\n    message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select whitespace\n    from the Index Analyzer and Search Analyzer\n    dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following example:```json\n{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"whitespaceExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"whitespaceExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"whitespaceExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"whitespaceExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n})\n\n```The following query searches the `message` field in\nthe `minutes` collection for the term `SIGN-IN`.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Find:\n\n  **Input:**\n\n  ```json\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"sign-in\",\n        \"path\": \"message\"\n      }\n    }\n  }\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 0.6722691059112549 _id:  \"3\"\n     message: \"try to sign-in\"\n     page_updated_by: Object\n       last_name: \"LEWINSKY\"\n       first_name: \"Brièle\"\n       email: \"lewinsky@example.com\"\n       phone: \"(123).456.9870\"\n     text: Object\n       en_US: \"<body>We'll head out to the conference room by noon.</body>\"\n  ```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"sign-in\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])\n```**Output:**```js\n[ { _id: 3, message: 'try to sign-in' } ]\n```MongoDB Search returns the document with `_id: 3` in the results because MongoDB Search\ncreated a token with the value `sign-in` using the `whitespace`\ntokenizer for the documents, which matches the search term. If you\nindex the `message` field using the `standard` tokenizer, MongoDB Search\nreturns documents with `_id: 1`, `_id: 2` and `_id: 3` for the\nsearch term `sign-in`.The following table shows the tokens that the `whitespace`\ntokenizer and by comparison, the `standard` tokenizer, create for\nthe document with `_id: 3`:| Tokenizer  | Token Outputs     |\n| ---------- | ----------------- |\n| standard   | try, to, sign, in |\n| whitespace | try, to, sign-in  |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"whitespaceExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"whitespaceExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"whitespaceExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"whitespaceExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n})\n",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"text\": {\n      \"query\": \"sign-in\",\n      \"path\": \"message\"\n    }\n  }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.6722691059112549 _id:  \"3\"\n   message: \"try to sign-in\"\n   page_updated_by: Object\n     last_name: \"LEWINSKY\"\n     first_name: \"Brièle\"\n     email: \"lewinsky@example.com\"\n     phone: \"(123).456.9870\"\n   text: Object\n     en_US: \"<body>We'll head out to the conference room by noon.</body>\"",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"sign-in\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "js",
+      "content": "[ { _id: 3, message: 'try to sign-in' } ]",
+      "tokenEstimate": 18
+    }
+  ]
+}

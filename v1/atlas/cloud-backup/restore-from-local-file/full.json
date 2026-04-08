@@ -1,0 +1,42 @@
+{
+  "path": "atlas/cloud-backup/restore-from-local-file",
+  "product": "atlas",
+  "title": "Step 4: Use your preferred archive utility to extract the archive and access the data files.",
+  "sections": [
+    {
+      "heading": "Download Considerations",
+      "headingLevel": 2,
+      "body": "If your manual download of a backup snapshot fails, Atlas keeps\nthe request alive and allows you to restart the backup as long as the\nmost recent download failure occurred no more than one hour ago.\n\nFor Atlas clusters deployed on AWS (Amazon Web Services) or Azure (Microsoft Azure), if you\n[set up a private endpoint for a cluster](cluster-private-endpoint),\nAtlas allows you to download the snapshot over the private\nendpoints in the same region as the snapshot. You might incur charges\nfor downloading the snapshot over the private endpoint. To learn more,\nsee [Private Endpoints](privatelink-billing).\n\nYou can download encrypted snapshots in the same way as\nunencrypted snapshots. We recommend using [role-based access to your encryption key](aws-kms-enable-project) for the project as a security best practice.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Restore Considerations",
+      "headingLevel": 2,
+      "body": "In addition to the [prerequisites](restore-prereq), consider the\nfollowing requirements and limitations when restoring from a\nlocally-downloaded snapshot.\n\n- If the `DefaultRWConcern` value on the source snapshot differs\n  from the `DefaultRWConcern` value on the target\n  cluster, Atlas overrides the value on the source\n  snapshot with the value on the target cluster. If\n  there is no value configured for the `DefaultRWConcern` on the\n  target cluster, Atlas keeps the value of\n  `DefaultRWConcern` from the snapshot without explicit\n  configuration. This may differ from the default value for that\n  MongoDB version.\n\n* This feature is unavailable for Free clusters (formerly known as `M0`).\n\n* The downloaded files consist of the raw files copied from the\n  `data` directory. `mongorestore` is incompatible with these\n  files. To access the data files, use [the following procedure](restore-local-snapshot-procedure) to start a [mongod](manual/reference/program/mongod)\n  instance and point it to the extract directory.\n\n* If you are at or near your cloud provider's [Learn About Private Endpoints in Atlas](private-endpoint-overview), you might not be able to download a\n  snapshot through a private endpoint. In this case, use the public\n  download endpoint that Atlas provides.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To download a backup snapshot, you must have\n[Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>) access\nto the project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "- Click the Snapshots sub-tab.\n\n- In the Actions column, expand the\n  &#x20;Actions menu, and click\n  Download for the snapshot that you want to download.\n\n  Atlas generates a one-time use download link that expires\n  within 1 hour after its creation. For AWS (Amazon Web Services) or Azure (Microsoft Azure),\n  Atlas also generates a one-time-use download link for any\n  [set up a private endpoint for a cluster](cluster-private-endpoint) in the same region as the\n  snapshot.\n\n  The amount of time to create this link increases with the size of\n  the Atlas cluster.\n\nOnce the download is ready, Atlas:\n\n- Emails you an alert that your snapshot download is ready.\n\n- Displays the download link in the Restores & Downloads\n  tab.\n\n> **Note:**&#x20;\n>\n> Available via API\n>\n> As another option, you can request a restore snapshot using the\n> [API](api/doc/atlas-admin-api-v2/operation/operation-creategroupclusterbackuprestorejob). The\n> Atlas Administration API returns the download link in the\n> `deliveryUrl` field for downloading over the public internet\n> and in the `privateDownloadDeliveryUrls` field for downloading\n> over the private endpoint in the same region as the\n> snapshot.\n\nIf the current project IP access list ranges do not cover the\ntarget client IP (Internet Protocol) or CIDR (Classless Inter-Domain Routing) address, click Add or\nModify your IP Addresses to make changes to your Atlas\nproject IP access list.\n\n- Click the Restores & Downloads sub-tab.\n\n- Navigate to the restore snapshot you created.\n\n- Click Download.\n\nAtlas compresses the snapshot into a `.tar.gz` file. This\narchive includes the snapshot and the mongod logs.\n\n- Extract the files in the archive.\n\n  > **Example:** The following command uses the `tar` utility to extract a `tar``archive with ``gzip` compression.\n  >\n  > ```shell\n  > tar -xvzf ~/Downloads/mongodb-snapshots/my-cluster-snapshot.tar.gz\n  > ```\n\n- Access the data files by starting a [mongod](manual/reference/program/mongod) instance\n  on the host and pointing it at the extract directory using the\n  [--dbpath](manual/reference/program/mongod) option. To learn more, see\n  [Start mongod Processes](manual/tutorial/manage-mongodb-processes).\n\n  > **Example:** The following command starts a [mongod](manual/reference/program/mongod) instance using\n  > the extracted data file directory:\n  >\n  > ```shell\n  > mongod --dbpath ~/Downloads/mongodb-snapshots/my-cluster-snapshot/\n  > ```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "tar -xvzf ~/Downloads/mongodb-snapshots/my-cluster-snapshot.tar.gz",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "shell",
+          "content": "mongod --dbpath ~/Downloads/mongodb-snapshots/my-cluster-snapshot/",
+          "tokenEstimate": 17
+        }
+      ]
+    }
+  ]
+}

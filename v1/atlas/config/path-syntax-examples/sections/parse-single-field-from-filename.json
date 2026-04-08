@@ -1,0 +1,12 @@
+{
+  "heading": "Parse Single Field from Filename",
+  "headingLevel": 3,
+  "body": "Consider a federated database instance store `accountingArchive` containing files\nwhere the filename describes an invoice date. For  example, the filename\n`/invoices/1564671291998.json` contains the invoices for the UNIX\ntimestamp `1564671291998`.\n\nThe following [defaultFormat](adf-aws-databases-reference) object generates a\nfield `invoiceDate` by parsing the filename as a UNIX timestamp:\n\n```none\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nData Federation adds the computed field and value to each\ndocument generated from the filename. Documents generated from the\nexample filename includes a field\n`invoiceDate: ISODate(\"2019-08-01T14:54:51Z\")`. Queries on the\n`invoiceDate` field can be targeted to only those files\nthat match the specified value.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 77
+    }
+  ]
+}

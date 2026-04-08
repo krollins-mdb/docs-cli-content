@@ -1,0 +1,213 @@
+{
+  "path": "atlas/triggers/database-triggers",
+  "product": "atlas",
+  "title": "Database Triggers",
+  "summary": {
+    "total": 15,
+    "byLanguage": {
+      "shell": 6,
+      "json": 5,
+      "javascript": 3,
+      "js": 1
+    },
+    "bySection": [
+      {
+        "heading": "Create a Database Trigger",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Change Event Types",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 89
+          }
+        ]
+      },
+      {
+        "heading": "Database Trigger Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 162
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 91
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 250
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Authenticate a MongoDB  User",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Pull Your App's Latest Configuration Files",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Redeploy the Trigger",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Use Match Expressions to Limit Trigger Invocations",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 19
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          }
+        ]
+      },
+      {
+        "heading": "Testing Match Expressions",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 48
+          }
+        ]
+      },
+      {
+        "heading": "Use Project Expressions to Reduce Input Data Size",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 33
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Create a Database Trigger",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Create a Database Trigger",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "section": "Create a Database Trigger",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "json",
+      "section": "Change Event Types",
+      "content": "{\n   _id : <ObjectId>,\n   \"operationType\": <string>,\n   \"fullDocument\": <document>,\n   \"fullDocumentBeforeChange\": <document>,\n   \"ns\": {\n      \"db\" : <string>,\n      \"coll\" : <string>\n   },\n   \"documentKey\": {\n     \"_id\": <ObjectId>\n   },\n   \"updateDescription\": <document>,\n   \"clusterTime\": <Timestamp>\n}",
+      "tokenEstimate": 89
+    },
+    {
+      "language": "json",
+      "section": "Database Trigger Example",
+      "content": "{\n  _id: ObjectId(\"59cf1860a95168b8f685e378\"),\n  customerId: ObjectId(\"59cf17e1a95168b8f685e377\"),\n  orderDate: ISODate(\"2018-06-26T16:20:42.313Z\"),\n  shipDate: ISODate(\"2018-06-27T08:20:23.311Z\"),\n  orderContents: [\n    { qty: 1, name: \"Earl Grey Tea Bags - 100ct\", price: NumberDecimal(\"10.99\") }\n  ],\n  shippingLocation: [\n    { location: \"Memphis\", time: ISODate(\"2018-06-27T18:22:33.243Z\") },\n  ]\n}",
+      "tokenEstimate": 162
+    },
+    {
+      "language": "json",
+      "section": "Database Trigger Example",
+      "content": "{\n  \"type\": \"DATABASE\",\n  \"name\": \"shippingLocationUpdater\",\n  \"function_name\": \"textShippingUpdate\",\n  \"config\": {\n    \"service_name\": \"mongodb-atlas\",\n    \"database\": \"store\",\n    \"collection\": \"orders\",\n    \"operation_types\": [\"UPDATE\"],\n    \"unordered\": false,\n    \"full_document\": true,\n    \"match\": {}\n  },\n  \"disabled\": false\n}",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "javascript",
+      "section": "Database Trigger Example",
+      "content": "exports = async function (changeEvent) {\n  // Destructure out fields from the change stream event object\n  const { updateDescription, fullDocument } = changeEvent;\n\n  // Check if the shippingLocation field was updated\n  const updatedFields = Object.keys(updateDescription.updatedFields);\n  const isNewLocation = updatedFields.some(field =>\n    field.match(/shippingLocation/)\n  );\n\n  // If the location changed, text the customer the updated location.\n  if (isNewLocation) {\n    const { customerId, shippingLocation } = fullDocument;\n    const mongodb = context.services.get(\"mongodb-atlas\");\n    const customers = mongodb.db(\"store\").collection(\"customers\");\n    const { location } = shippingLocation.pop();\n    const customer = await customers.findOne({ _id: customerId });\n\n    const twilio = require('twilio')(\n      // Your Account SID and Auth Token from the Twilio console:\n      context.values.get(\"TwilioAccountSID\"),\n      context.values.get(\"TwilioAuthToken\"),\n    );\n\n    await twilio.messages.create({\n      To: customer.phoneNumber,\n      From: context.values.get(\"ourPhoneNumber\"),\n      Body: `Your order has moved! The new location is ${location}.`\n    })\n  }\n};",
+      "tokenEstimate": 250
+    },
+    {
+      "language": "shell",
+      "section": "Step 1: Authenticate a MongoDB  User",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Pull Your App's Latest Configuration Files",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "section": "Step 4: Redeploy the Trigger",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "section": "Use Match Expressions to Limit Trigger Invocations",
+      "content": "{\n  \"updateDescription.updatedFields.status\": {\n    \"$exists\": true\n  }\n}",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "javascript",
+      "section": "Use Match Expressions to Limit Trigger Invocations",
+      "content": "{\n  \"fullDocument.needsTriggerResponse\": true\n}",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "js",
+      "section": "Testing Match Expressions",
+      "content": "db.getSiblingDB(DB_NAME).COLLECTION_NAME.watch([{$match: YOUR_MATCH_EXPRESSION}])\nwhile (!watchCursor.isClosed()) {\n  if (watchCursor.hasNext()) {\n    print(tojson(watchCursor.next()));\n  }\n}",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "json",
+      "section": "Use Project Expressions to Reduce Input Data Size",
+      "content": "{\n  \"_id\": 0,\n  \"operationType\": 1,\n  \"updateDescription.updatedFields.status\": 1\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "section": "Use Project Expressions to Reduce Input Data Size",
+      "content": "{\n  \"operationType\": \"update\",\n  \"updateDescription\": {\n    \"updatedFields\": {\n      \"status\": \"InProgress\"\n    }\n  }\n}",
+      "tokenEstimate": 33
+    }
+  ]
+}

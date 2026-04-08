@@ -1,0 +1,12 @@
+{
+  "heading": "Working with Date Fields",
+  "headingLevel": 2,
+  "body": "In the Atlas Go SDK, the `*time.Time` type represents date fields for handling time-related data.\nWhen you compare values based on `time.Time` , either never compare pointers directly or do the following:\n\n- Avoid using direct comparison operators (e.g., `myStruct.MyDateField == \"\"` ) to check for equality. Comparing pointers directly will check if they refer to the same memory address rather than comparing the actual date values. Since each `time.Time` instance is allocated in different memory locations, direct comparisons might yield unexpected results.\n\n- Use the `Has` function to check non-nil pointers:\n  The SDK provides a dedicated `HasFieldName` or `GetFieldName` function for each model to check if a `time.Time` pointer is non-nil before accessing its value. Always use this function to ensure that the pointer is valid before you perform any operations.\n\n- Use `time.Time` methods to compare date values:\n  When you have confirmed that the `time.Time pointer` is non-nil, you can safely use `time.Time` methods to compare the actual date values. Commonly used methods for comparison include `Before` , `After` , and `Equal` :\n\n```go\n// Surrounding code omitted for brevity\n\nif !sdkModel.HasSomeDateField() {\n   return;\n}\ndatePtr1 := sdkModel.SomeDateField;\nif datePtr1.Before(*datePtr2) {\n    // datePtr1 is before datePtr2.\n} else if datePtr1.After(*datePtr2) {\n    // datePtr1 is after datePtr2.\n} else {\n    // datePtr1 and datePtr2 are equal.\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "// Surrounding code omitted for brevity\n\nif !sdkModel.HasSomeDateField() {\n   return;\n}\ndatePtr1 := sdkModel.SomeDateField;\nif datePtr1.Before(*datePtr2) {\n    // datePtr1 is before datePtr2.\n} else if datePtr1.After(*datePtr2) {\n    // datePtr1 is after datePtr2.\n} else {\n    // datePtr1 and datePtr2 are equal.\n}",
+      "tokenEstimate": 96
+    }
+  ]
+}

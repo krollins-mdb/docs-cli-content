@@ -1,0 +1,77 @@
+{
+  "heading": "Remediating Duplicate IDs",
+  "headingLevel": 3,
+  "body": "To remediate duplicate `_id` fields, you can:\n\n- Include a [$sort](manual/reference/operator/aggregation/sort) stage in your pipeline to specify the\n  order in which Atlas Data Federation must process the resulting documents.\n\n- Based on the order of documents flowing into the [$merge](manual/reference/operator/aggregation/merge)\n  stage, choose the value for the `whenMatched` and\n  `whenNotMatched` options of the [$merge](manual/reference/operator/aggregation/merge) stage carefully.\n\n  > **Example:** The following examples show how Atlas Data Federation resolves duplicates\n  > during the `$merge` stage when `whenMatched` option is set to\n  > `keepExisting` or `replace`. These examples use the following\n  > documents:\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"FL\"\n  > },\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"NJ\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > **Keepexisting:**\n  >\n  > keepExisting\n  >\n  > Suppose you run the following pipeline on the documents\n  > listed above:\n  >\n  > ```json\n  > db.s3coll.aggregate([\n  >   {\n  >     \"$sort\": {\n  >       \"_id\": 1,\n  >       \"state\": 1,\n  >     }\n  >   },\n  >   {\n  >     \"$merge\": {\n  >       \"into\": {\n  >         \"atlas\": {\n  >           \"clusterName\": \"clustername\",\n  >           \"db\": \"clusterdb\",\n  >           \"coll\": \"clustercoll\"\n  >         }\n  >       },\n  >       \"on\": \"_id\",\n  >       \"whenMatched\": \"keepExisting\",\n  >       \"whenNotMatched\": \"insert\"\n  >     }\n  >   }\n  > ])\n  > ```\n  >\n  > Atlas Data Federation writes the following data to two collections named\n  > `X` and `Y`:\n  >\n  > **X:**\n  >\n  > Collection X\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"FL\"\n  > }\n  > ```\n  >\n  > **Y:**\n  >\n  > Collection Y\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"NJ\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > Atlas Data Federation then merges documents from collection `Y` into\n  > collection `X`. For `whenMatched: keepExisting` option\n  > in the pipeline, Atlas Data Federation keeps the existing document with\n  > `_id: 1` in collection `X`. Therefore, the result of\n  > the pipeline with duplicates contains the following\n  > documents:\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"FL\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > Atlas Data Federation then merges these documents into the target\n  > collection on the specified Atlas cluster.\n  >\n  > **Replace:**\n  >\n  > replace\n  >\n  > Suppose you run the following pipeline on the documents\n  > listed above:\n  >\n  > ```json\n  > db.s3coll.aggregate([\n  >   {\n  >     \"$sort\": {\n  >       \"_id\": 1,\n  >       \"state\": 1,\n  >     }\n  >   },\n  >   {\n  >     \"$merge\": {\n  >       \"into\": {\n  >         \"atlas\": {\n  >           \"clusterName\": \"clustername\",\n  >           \"db\": \"clusterdb\",\n  >           \"coll\": \"clustercoll\"\n  >         }\n  >       },\n  >       \"on\": \"_id\",\n  >       \"whenMatched\": \"replace\",\n  >       \"whenNotMatched\": \"insert\"\n  >     }\n  >   }\n  > ])\n  > ```\n  >\n  > Atlas Data Federation writes the following data to two collections named\n  > `X` and `Y`:\n  >\n  > **X:**\n  >\n  > Collection X\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"FL\"\n  > }\n  > ```\n  >\n  > **Y:**\n  >\n  > Collection Y\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"NJ\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > Atlas Data Federation merges documents from collection `Y` into\n  > collection `X`. For `whenMatched: replace` option in\n  > the pipeline, Atlas Data Federation replaces the document with `_id: 1`\n  > in collection `X` with the document with `_id: 1` in\n  > collection `Y`. Therefore, the result of the pipeline\n  > with duplicates contains the following documents:\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"NJ\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > Atlas Data Federation then merges these documents into the target\n  > collection on the specified Atlas cluster.\n\n- Avoid using the `whenNotMatched: discard` option.\n\n  > **Example:** This example shows how Atlas Data Federation resolves duplicates when\n  > `whenNotMatched` option is set to `discard` using the\n  > following documents:\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"AZ\"\n  > },\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"CA\"\n  > },\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"NJ\"\n  > },\n  > {\n  >   \"_id\" : 3,\n  >   \"state\" : \"NY\"\n  > },\n  > {\n  >   \"_id\" : 4,\n  >   \"state\" : \"TX\"\n  > }\n  > ```\n  >\n  > Suppose you run the following pipeline on the documents listed\n  > above:\n  >\n  > ```json\n  > db.archivecoll.aggregate([\n  >   {\n  >     \"$sort\": {\n  >       \"_id\": 1,\n  >       \"state\": 1,\n  >     }\n  >   },\n  >   {\n  >     \"$merge\": {\n  >       \"into\": {\n  >         \"atlas\": {\n  >           \"clusterName\": \"clustername\",\n  >           \"db\": \"clusterdb\",\n  >           \"coll\": \"clustercoll\"\n  >         }\n  >       },\n  >       \"on\": \"_id\",\n  >       \"whenMatched\": \"replace\",\n  >       \"whenNotMatched\": \"discard\"\n  >     }\n  >   }\n  > ])\n  > ```\n  >\n  > Atlas Data Federation writes the following data to two collections named `X`\n  > and `Y`:\n  >\n  > **X:**\n  >\n  > Collection X\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"AZ\" // gets replaced\n  > }\n  > ```\n  >\n  > **Y:**\n  >\n  > Collection Y\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"CA\"\n  > }\n  > {\n  >   \"_id\" : 2,\n  >   \"state\" : \"NJ\" // gets discarded\n  > }\n  > {\n  >   \"_id\" : 3,\n  >   \"state\" : \"NY\" // gets discarded\n  > }\n  > {\n  >   \"_id\" : 4,\n  >   \"state\" : \"TX\" // gets discarded\n  > }\n  > ```\n  >\n  > Atlas Data Federation merges documents from collection `Y` into collection\n  > `X`. For `whenMatched: replace` option in the pipeline,\n  > Atlas Data Federation replaces the document with `_id: 1` in collection `X`\n  > with the document with `_id: 1` in collection `Y`. For\n  > `whenNotMatched: discard` option in the pipeline, Atlas Data Federation\n  > discards documents in collection `Y` that do not match a\n  > document in collection `X`. Therefore, the result of the\n  > pipeline with duplicates contains only the following document:\n  >\n  > ```json\n  > {\n  >   \"_id\" : 1,\n  >   \"state\" : \"CA\"\n  > }\n  > ```\n  >\n  > Atlas Data Federation then merges this document into the target collection on\n  > the specified Atlas cluster.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n},\n{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "json",
+      "content": "db.s3coll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"keepExisting\",\n      \"whenNotMatched\": \"insert\"\n    }\n  }\n])",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "content": "db.s3coll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"replace\",\n      \"whenNotMatched\": \"insert\"\n    }\n  }\n])",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"AZ\"\n},\n{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 3,\n  \"state\" : \"NY\"\n},\n{\n  \"_id\" : 4,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "json",
+      "content": "db.archivecoll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"replace\",\n      \"whenNotMatched\": \"discard\"\n    }\n  }\n])",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"AZ\" // gets replaced\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n}\n{\n  \"_id\" : 2,\n  \"state\" : \"NJ\" // gets discarded\n}\n{\n  \"_id\" : 3,\n  \"state\" : \"NY\" // gets discarded\n}\n{\n  \"_id\" : 4,\n  \"state\" : \"TX\" // gets discarded\n}",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n}",
+      "tokenEstimate": 18
+    }
+  ]
+}

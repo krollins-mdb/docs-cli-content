@@ -1,0 +1,27 @@
+{
+  "heading": "Run Vector Search Queries",
+  "headingLevel": 2,
+  "body": "This section demonstrates how to run queries on your vectorized data.\n\nThis code performs a semantic search query for the phrase\n`\"Where do penguins live?\"` and returns the three\nmost relevant results. It also prints a score that captures how well\neach result matches the query.\n\nAdd the following code to your `Main.java` file:\n\n**Input:**\n\n```java\nString query = \"Where do penguins live?\";\nEmbedding queryEmbedding = embeddingModel.embed(query).content();\n\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .maxResults(3)\n        .build();\n\nSystem.out.println(\"Performing the query...\");\n\nEmbeddingSearchResult<TextSegment> searchResult = embeddingStore.search(searchRequest);\nList<EmbeddingMatch<TextSegment>> matches = searchResult.matches();\n\nfor (EmbeddingMatch<TextSegment> embeddingMatch : matches) {\n    System.out.println(\"Response: \" + embeddingMatch.embedded().text());\n    System.out.println(\"Author: \" + embeddingMatch.embedded().metadata().getString(\"author\"));\n    System.out.println(\"Score: \" + embeddingMatch.score());\n}\n```\n\n**Output:**\n\n```\nResponse: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.829620897769928\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7459062337875366\nResponse: Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\nAuthor: D\nScore: 0.6908764839172363\n```\n\nTo perform a search with metadata filtering, you can use classes\nfrom the `dev.langchain4j.store.embedding.filter.comparison`\npackage. These classes allow you to create filters that compare\nmetadata values to specified values to narrow the results returned\nby the search.\n\nThis example filters for documents in which the value of the\n`author` field is either `\"B\"` or `\"C\"`. Then, it performs a\nsemantic search query for the phrase `\"Where do penguins live?\"`.\n\nReplace the code that instantiates an `EmbeddingSearchRequest`\ninstance in the preceding step with the following code:\n\n**Input:**\n\n```java\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .filter(new IsIn(\"author\", List.of(\"B\", \"C\")))\n        .maxResults(3)\n        .build();\n```\n\n**Output:**\n\n```\nResponse: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.8520907163619995\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7666836977005005\n```\n\nTo learn more about metadata pre-filtering, see\n[lexical prefilters](vectorSearch-agg-pipeline-filter).\n\n> **See Also:** For more information, refer to\n> the [API reference](https://docs.langchain4j.dev/apidocs/index.html).",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "String query = \"Where do penguins live?\";\nEmbedding queryEmbedding = embeddingModel.embed(query).content();\n\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .maxResults(3)\n        .build();\n\nSystem.out.println(\"Performing the query...\");\n\nEmbeddingSearchResult<TextSegment> searchResult = embeddingStore.search(searchRequest);\nList<EmbeddingMatch<TextSegment>> matches = searchResult.matches();\n\nfor (EmbeddingMatch<TextSegment> embeddingMatch : matches) {\n    System.out.println(\"Response: \" + embeddingMatch.embedded().text());\n    System.out.println(\"Author: \" + embeddingMatch.embedded().metadata().getString(\"author\"));\n    System.out.println(\"Score: \" + embeddingMatch.score());\n}",
+      "tokenEstimate": 159
+    },
+    {
+      "language": "text",
+      "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.829620897769928\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7459062337875366\nResponse: Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\nAuthor: D\nScore: 0.6908764839172363",
+      "tokenEstimate": 130
+    },
+    {
+      "language": "java",
+      "content": "EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .filter(new IsIn(\"author\", List.of(\"B\", \"C\")))\n        .maxResults(3)\n        .build();",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "text",
+      "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.8520907163619995\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7666836977005005",
+      "tokenEstimate": 91
+    }
+  ]
+}

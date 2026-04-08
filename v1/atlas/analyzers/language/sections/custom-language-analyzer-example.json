@@ -1,0 +1,22 @@
+{
+  "heading": "Custom Language Analyzer Example",
+  "headingLevel": 3,
+  "body": "You can also create indexes for unsupported languages by\ncreating a [Custom analyzers](custom-analyzers) with the\n[icuFolding](icufolding-tf-ref) and [stopword](stopword-tf-ref) token filters.\n\nThe following example index definition specifies an index on\nthe `subject.he` field using a [Custom analyzers](custom-analyzers) called `myHebrewAnalyzer` to analyze and create\ntokens for Hebrew text:\n\n```json\n{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"he\": {\n            \"analyzer\": \"myHebrewAnalyzer\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"myHebrewAnalyzer\",\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuFolding\"\n        },\n        {\n          \"tokens\": [\n            \"אן\",\n            \"שלנו\",\n            \"זה\",\n            \"אל\"\n          ],\n          \"type\": \"stopword\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      }\n    }\n  ]\n}\n```\n\nThe following query searches for the string `המכוניות` in the\n`subject.he` field:\n\n**Input:**\n\n```sh\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"המכוניות\",\n        \"path\": \"subject.he\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.he\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ subject: { he: 'עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.' } }\n```\n\nMongoDB Search returns a document with `_id: 1` in the results because the\nquery matched a token that the `myHebrewAnalyzer` analyzer created for\ndocument. The `myHebrewAnalyzer` analyzer creates the following tokens\nfor the `subject.he` field in document with `_id: 1`:\n\n| עדיף     | לצייד   | את     |\n| -------- | ------- | ------ |\n| המכוניות | כדי     | להבין  |\n| את       | הגורמים | לתאונה |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"he\": {\n            \"analyzer\": \"myHebrewAnalyzer\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"myHebrewAnalyzer\",\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuFolding\"\n        },\n        {\n          \"tokens\": [\n            \"אן\",\n            \"שלנו\",\n            \"זה\",\n            \"אל\"\n          ],\n          \"type\": \"stopword\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 186
+    },
+    {
+      "language": "sh",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"המכוניות\",\n        \"path\": \"subject.he\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.he\": 1\n    }\n  }\n])",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "json",
+      "content": "{ subject: { he: 'עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.' } }",
+      "tokenEstimate": 60
+    }
+  ]
+}

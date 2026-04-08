@@ -1,0 +1,22 @@
+{
+  "heading": "Usage",
+  "headingLevel": 2,
+  "body": "To include the score of each document in your search results,\nuse the [$project](manual/reference/operator/aggregation/project) stage in your aggregation pipeline.\n\n- For the [$search](pipe.$search) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `searchScore` value. You can also specify the\n  `searchScoreDetails` value for the\n  `scoreDetails` field [$meta](manual/reference/operator/aggregation/meta)\n  expression for a detailed breakdown of the score.\n\n- For the [$vectorSearch](pipe.$vectorSearch) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `vectorSearchScore` value to return the score of\n  each document in your vector search results.\n\n> **Note:** You can use:\n>\n> - `searchScore` only in [$search](pipe.$search) queries\n>\n> - `vectorSearchScore` only in [$vectorSearch](pipe.$vectorSearch) queries\n>\n> If you use `searchScore` and `vectorSearchScore` in any other\n> query, MongoDB logs a warning starting in MongoDB v8.2.\n\n> **Example:** The following query uses a [$project](manual/reference/operator/aggregation/project) stage to add a\n> field named `score` to the returned documents:\n>\n> **Searchscore:**\n>\n> Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       }\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"searchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> **Scoredetails:**\n>\n> Search Score Details\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       },\n>       \"scoreDetails\": true\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [score details](fts-score-details) the search\n> score details.\n>\n> **Vectorsearchscore:**\n>\n> Vector Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$vectorSearch\": {\n>       <query-syntax>\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"vectorSearchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [vector search score](vectorSearch-agg-pipeline-score).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        <operator-specification>\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"<field-to-include>\": 1,\n      \"<field-to-exclude>\": 0,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        <operator-specification>\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n    \"$project\": {\n      \"<field-to-include>\": 1,\n      \"<field-to-exclude>\": 0,\n      \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n    }\n  }\n])",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$vectorSearch\": {\n      <query-syntax>\n    }\n  },\n  {\n    \"$project\": {\n      \"<field-to-include>\": 1,\n      \"<field-to-exclude>\": 0,\n      \"score\": { \"$meta\": \"vectorSearchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 69
+    }
+  ]
+}

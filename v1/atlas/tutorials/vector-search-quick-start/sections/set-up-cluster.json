@@ -1,0 +1,192 @@
+{
+  "heading": "Set Up Cluster",
+  "headingLevel": 2,
+  "body": "* [Create a free Atlas account or sign in to an existing account](https://account.mongodb.com/account/register).\n\n* If you don't yet have an Atlas cluster, [create a free M0 cluster](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23clusters%2Fedit%3Ffrom%3DctaClusterHeader).\n  To learn more about creating an Atlas cluster, see [Create a Cluster](create-new-cluster).\n\n  IMPORTANT: If you are working with an existing cluster, you must\n  have [Project Data Access Admin](<Project Data Access Admin>) or higher [access](who-can-access-project) to your\n  Atlas project.\n\n  If you create a new cluster, you have the necessary permissions by default.\n\n  You can create only one `M0` Free cluster per [project.](atlas-ui-auth-projects)- If you haven't yet loaded the [sample dataset](vector-search-quickstart-sample-data) for this quick start onto your cluster,\n  [Load Sample Data Into Atlas](load-sample-data) the `sample_mflix` sample database onto your cluster.\n\n  If you already loaded the `sample_mflix` dataset, [check](atlas-ui-collections) that the `sample_mflix` database contains the `embedded_movies`\n  collection. If it doesn't, [drop](atlas-ui-drop-a-db) the `sample_mflix` database and [Load Sample Data Into Atlas](load-sample-data) the `sample_mflix` dataset.\n\n  Loading the sample dataset can take several minutes to complete.\n\n- In the left sidebar, click [Atlas Search](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters%2FatlasSearch).\n  Choose your cluster from the Select data source menu and click Go to Atlas Search.**Input:**```javascript\nMONGODB_ATLAS_LOCAL_PREVIEW=true atlas local setup --loadSampleData true --force\n```**Output:**```javascript\n\"Installing first class plugin atlas-local-plugin\"\n\"Plugin mongodb/atlas-local-cli successfully installed\"\n[1/4] [✅]   Pulling the latest version of the MongoDB image...\n[2/4] [✅]   Creating the deployment...\n[3/4] [✅]   Starting the deployment...\n[4/4] [✅]   Waiting for the deployment to be healthy...\n{\"outcome\":\"setup\",\"deployment_name\":\"local7816\",\"mongodb_version\":\"8.2.5\",\"port\":53211,\"load_sample_data\":true,\"connect_result\":{\"connect_outcome\":\"skipped\"}}\n```To connect, run the following command after replacing `<deployment_name>`\nwith the name of your local Atlas deployment.```shell\natlas local connect --connectWith mongosh <deployment_name>\n```To create a local Atlas deployment, run the following command after\nreplacing `<voyage_api_key>` with the Voyage AI API (Application Programming Interface) key created from\nthe Atlas UI.**Input:**```javascript\nMONGODB_ATLAS_LOCAL_PREVIEW=true MONGODB_ATLAS_LOCAL_VOYAGE_API_KEY=<voyage_api_key> atlas local setup --loadSampleData true --force\n```**Output:**```javascript\n\"Installing first class plugin atlas-local-plugin\"\n\"Plugin mongodb/atlas-local-cli successfully installed\"\n[1/4] [✅]   Pulling the latest version of the MongoDB image...\n[2/4] [✅]   Creating the deployment...\n[3/4] [✅]   Starting the deployment...\n[4/4] [✅]   Waiting for the deployment to be healthy...\n{\"outcome\":\"setup\",\"deployment_name\":\"local7816\",\"mongodb_version\":\"8.2.5\",\"port\":53211,\"load_sample_data\":true,\"connect_result\":{\"connect_outcome\":\"skipped\"}}\n```To connect, run the following command after replacing `<deployment_name>`\nwith the name of your local Atlas deployment.```shell\natlas local connect --connectWith mongosh <deployment_name>\n```To download the `mongot` Docker image and the latest MongoDB Community\nEdition image, run the following command:```shell\ndocker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest\n```> **Note:** You must have a minimum of MongoDB 8.2.0 to use MongoDB Search with a\n> self-managed deployment. For more information, see [MongoDB Search Compatibility](fts-feature-availability).To download the sample data, run the following command:```shell\ncurl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive\n```Create a password file for `mongot` to connect to `mongod`.> **Important:** Do not include trailing new lines in your password file. `mongot`\n> rejects password files that contain trailing newlines.Select your operating system and run the command to create your password file:Linux/MacOS```shell\necho -n \"mongotPassword\" > pwfile\nchmod 400 pwfile\n```> **Note:** The `-n` flag prevents a trailing newline.Windows Command Prompt```shell\necho|set /p=\"mongotPassword\" > pwfile\n```New files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```Windows PowerShell```shell\n[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")\n```New files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```> **Note:**&#x20;\n>\n> - If you change the `mongot` password, you must also update the\n>   password value in the `init-mongo-sh` script.\n>\n> - Most text editors automatically add newlines to files when you\n>   edit files manually.Create the following configuration files in your project folder and paste\nthe provided code for each file:```shell\nservices:\n   mongod:\n      image: mongodb/mongodb-community-server:latest\n      container_name: mongod-community\n      command: >-\n         mongod\n         --config /etc/mongod.conf\n         --replSetMember=mongod.search-community:27017\n      ports:\n         - 27017:27017\n      extra_hosts:\n         - \"host.docker.internal:host-gateway\"\n      volumes:\n         - mongod_data:/data/db\n         - ./mongod.conf:/etc/mongod.conf:ro\n         - ./sampledata.archive:/sampledata.archive\n         - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro\n      networks:\n         - search-community\n\n\n   mongot:\n      image: mongodb/mongodb-community-search:latest\n      entrypoint:\n         - /mongot-community/mongot\n         - --config=/mongot-community/config.default.yml\n         - --internalListAllIndexesForTesting=true\n      container_name: mongot-community-pupr\n      networks:\n         - search-community\n      volumes:\n         - mongot_data:/data/mongot\n         - ./mongot.conf:/mongot-community/config.default.yml\n         - ./pwfile:/mongot-community/pwfile:ro\n      depends_on:\n         - mongod\n      ports:\n         - 27028:27028  # Query server port from config\n         - 9946:9946    # Metrics port from config\n\nvolumes:\n   mongod_data:\n   mongot_data:\n\nnetworks:\n   search-community:\n      name: search-community\n      external: true  # Use an external network if it exists. Comment this line if you want to create a new network.\n```> **Note:** If you specified a custom password in your password file, update the\n> `mongotPassword` in the `init-mongo.sh` file to your custom password.\n>\n> The `mongotUser` in this file is only in use for the `mongod` to\n> authorize `mongot` through the `searchCoordinator` role.```shell\n#!/bin/bash\nset -e\n\necho \"Starting MongoDB initialization...\"\nsleep 2\n\n# Create user using local connection (no port specification needed)\necho \"Creating user...\"\nmongosh --eval \"\nconst adminDb = db.getSiblingDB('admin');\ntry {\n   adminDb.createUser({\n      user: 'mongotUser',\n      pwd: 'mongotPassword',\n      roles: [{ role: 'searchCoordinator', db: 'admin' }]\n   });\n   print('User mongotUser created successfully');\n} catch (error) {\n   if (error.code === 11000) {\n      print('User mongotUser already exists');\n   } else {\n      print('Error creating user: ' + error);\n   }\n}\n\"\n\n# Check for existing data\necho \"Checking for existing sample data...\"\nif mongosh --quiet --eval \"db.getSiblingDB('sample_airbnb').getCollectionNames().includes('listingsAndReviews')\" | grep -q \"true\"; then\necho \"Sample data already exists. Skipping restore.\"\nelse\necho \"Sample data not found. Running mongorestore...\"\nif [ -f \"/sampledata.archive\" ]; then\n   mongorestore --archive=/sampledata.archive\n   echo \"Sample data restored successfully.\"\nelse\n   echo \"Warning: sampledata.archive not found\"\nfi\nfi\n\necho \"MongoDB initialization completed.\"\n```> **Note:** If you deploy `mongot` in a production environment,\n> MongoDB recommends that you enable security and configure TLS. For\n> more information about `mongod` security settings, see\n> [Self-Managed Security](manualcore/self-managed-security).```shell\n# mongod.conf\nstorage:\n   dbPath: /data/db\n\nnet:\n   port: 27017\n   bindIp: 0.0.0.0\n\nsetParameter:\n   searchIndexManagementHostAndPort: mongot.search-community:27028\n   mongotHost: mongot.search-community:27028\n   skipAuthenticationToSearchIndexManagementServer: false\n   useGrpcForSearch: true\n\nreplication:\n   replSetName: rs0\n``````shell\nsyncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO\n```To create the Docker network, run the following command:```shell\ndocker network create search-community\n```Use the following steps to launch both services:* Launch `mongod` and `mongot`:\n\n  ```shell\n  docker compose up -d\n  ```\n\n* Wait for both services to fully initialize.\n\n  To monitor the logs of both services, run the following command:\n\n  ```shell\n  docker compose logs -f\n  ```\n\n  The initialization is complete when the logs return `MongoDB\n  initialization completed`.To download the `mongot` Docker image and the latest MongoDB Community\nEdition image, run the following command:```shell\ndocker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest\n```> **Note:** You must have a minimum of MongoDB 8.2.0 to use MongoDB Search with a\n> self-managed deployment. For more information, see [MongoDB Search Compatibility](fts-feature-availability).To download the sample data, run the following command:```shell\ncurl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive\n```Create a password file for `mongot` to connect to `mongod`.> **Important:** Do not include trailing newlines in your password file. `mongot`\n> rejects password files that contain trailing newlines.Select your operating system and run the command to create your password file:Linux/MacOS```shell\necho -n \"mongotPassword\" > pwfile\nchmod 400 pwfile\n```> **Note:** The `-n` flag prevents a trailing newline.Windows Command Prompt```shell\necho|set /p=\"mongotPassword\" > pwfile\n```New files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```Windows PowerShell```shell\n[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")\n```New files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```> **Note:**&#x20;\n>\n> - If you change the `mongot` password, you must also update the\n>   password value in the `init-mongo-sh` script.\n>\n> - Most text editors automatically add newlines to files when you\n>   edit files manually.Create credentials files for `mongot` to connect to Voyage AI to enable\nMongoDB Vector Search to automatically generate embeddings for text fields in your\ncollection and text strings in your queries.> **Note:** If you create a Voyage AI API key through the [Atlas UI](voyageai/management/api-keys), the key only\n> authenticates requests to `https://ai.mongodb.com/v1/embeddings`.\n>\n> Conversely, API keys created directly through [VoyageAI](https://docs.voyageai.com/docs/api-key-and-installation) only\n> authenticate requests to `https://api.voyageai.com/v1/embeddings`.\n>\n> Requests that include an API key to the opposite endpoint result in an\n> authentication error (`403`).- Run the following command after replacing `<your-voyage-api-key>`\n  with your valid Voyage AI API (Application Programming Interface) key to create two files named\n  `voyage-api-indexing-key` and `voyage-api-query-key`:\n\n  ```shell\n  echo -n \"<your-voyage-api-key>\" > voyage-api-indexing-key\n  echo -n \"<your-voyage-api-key>\" > voyage-api-query-key\n  ```\n\n- Set the permissions on the API (Application Programming Interface) key file to `400`.\n\n  ```shell\n  chmod 400 voyage-api-indexing-key\n  chmod 400 voyage-api-query-key\n  ```> **Note:** The `mongot` process uses these API (Application Programming Interface) keys to generate embeddings.Create the following configuration files in your project folder and paste\nthe provided code for each file:```shell\nservices:\n   mongod:\n      image: mongodb/mongodb-community-server:latest\n      container_name: mongod-community\n      command: >-\n         mongod\n         --config /etc/mongod.conf\n         --replSetMember=mongod.search-community:27017\n      ports:\n         - 27017:27017\n      extra_hosts:\n         - \"host.docker.internal:host-gateway\"\n      volumes:\n         - mongod_data:/data/db\n         - ./mongod.conf:/etc/mongod.conf:ro\n         - ./sampledata.archive:/sampledata.archive\n         - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro\n      networks:\n         - search-community\n\n\n   mongot:\n      image: mongodb/mongodb-community-search:latest\n      entrypoint:\n         - /mongot-community/mongot\n         - --config=/mongot-community/config.default.yml\n         - --internalListAllIndexesForTesting=true\n      container_name: mongot-community-pupr\n      networks:\n         - search-community\n      volumes:\n         - mongot_data:/data/mongot\n         - ./mongot.conf:/mongot-community/config.default.yml\n         - ./pwfile:/mongot-community/pwfile:ro\n         - ./voyage-api-query-key:/mongot-community/voyage-api-query-key:ro # Omit if you don't want Automated Embedding\n         - ./voyage-api-indexing-key:/mongot-community/voyage-api-indexing-key:ro # Omit if you don't want Automated Embedding\n      depends_on:\n         - mongod\n      ports:\n         - 27028:27028  # Query server port from config\n         - 9946:9946    # Metrics port from config\n\nvolumes:\n   mongod_data:\n   mongot_data:\n\nnetworks:\n   search-community:\n      name: search-community\n      external: true  # Use an external network if it exists. Comment this line if you want to create a new network.\n```> **Note:** If you specified a custom password in your password file, update the\n> `mongotPassword` in the `init-mongo.sh` file to your custom password.\n>\n> The `mongotUser` in this file is only in use for the `mongod` to\n> authorize `mongot` through the `searchCoordinator` role.```shell\n#!/bin/bash\nset -e\n\necho \"Starting MongoDB initialization...\"\nsleep 2\n\n# Create user using local connection (no port specification needed)\necho \"Creating user...\"\nmongosh --eval \"\nconst adminDb = db.getSiblingDB('admin');\ntry {\n   adminDb.createUser({\n      user: 'mongotUser',\n      pwd: 'mongotPassword',\n      roles: [{ role: 'searchCoordinator', db: 'admin' }]\n   });\n   print('User mongotUser created successfully');\n} catch (error) {\n   if (error.code === 11000) {\n      print('User mongotUser already exists');\n   } else {\n      print('Error creating user: ' + error);\n   }\n}\n\"\n\n# Check for existing data\necho \"Checking for existing sample data...\"\nif mongosh --quiet --eval \"db.getSiblingDB('sample_airbnb').getCollectionNames().includes('listingsAndReviews')\" | grep -q \"true\"; then\necho \"Sample data already exists. Skipping restore.\"\nelse\necho \"Sample data not found. Running mongorestore...\"\nif [ -f \"/sampledata.archive\" ]; then\n   mongorestore --archive=/sampledata.archive\n   echo \"Sample data restored successfully.\"\nelse\n   echo \"Warning: sampledata.archive not found\"\nfi\nfi\n\necho \"MongoDB initialization completed.\"\n```> **Note:** If you deploy `mongot` in a production environment,\n> MongoDB recommends that you enable security and configure TLS. For\n> more information about `mongod` security settings, see\n> [Self-Managed Security](manualcore/self-managed-security).```shell\n# mongod.conf\nstorage:\n   dbPath: /data/db\n\nnet:\n   port: 27017\n   bindIp: 0.0.0.0\n\nsetParameter:\n   searchIndexManagementHostAndPort: mongot.search-community:27028\n   mongotHost: mongot.search-community:27028\n   skipAuthenticationToSearchIndexManagementServer: false\n   useGrpcForSearch: true\n\nreplication:\n   replSetName: rs0\n```Select one of the two following `mongot.conf` configurations based on\nwhether you created Voyage AI API (Application Programming Interface) keys for Automated Embedding in the\nAtlas UI or directly from Voyage AI.```shell\nsyncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nembedding:\n   queryKeyFile: \"/mongot-community/voyage-api-query-key\"\n   indexingKeyFile: \"/mongot-community/voyage-api-indexing-key\"\n   providerEndpoint: \"https://ai.mongodb.com/v1/embeddings\"\n   isAutoEmbeddingViewWriter: true\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO\n``````shell\nsyncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nembedding:\n   queryKeyFile: \"/mongot-community/voyage-api-query-key\"\n   indexingKeyFile: \"/mongot-community/voyage-api-indexing-key\"\n   providerEndpoint: \"https://api.voyageai.com/v1/embeddings\"\n   isAutoEmbeddingViewWriter: true\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO\n```To create the Docker network, run the following command:```shell\ndocker network create search-community\n```Use the following steps to launch both services:* Launch `mongod` and `mongot`:\n\n  ```shell\n  docker compose up -d\n  ```\n\n* Wait for both services to fully initialize.\n\n  To monitor the logs of both services, run the following command:\n\n  ```shell\n  docker compose logs -f\n  ```\n\n  The initialization is complete when the logs return `MongoDB\n  initialization completed`.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "MONGODB_ATLAS_LOCAL_PREVIEW=true atlas local setup --loadSampleData true --force",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "javascript",
+      "content": "\"Installing first class plugin atlas-local-plugin\"\n\"Plugin mongodb/atlas-local-cli successfully installed\"\n[1/4] [✅]   Pulling the latest version of the MongoDB image...\n[2/4] [✅]   Creating the deployment...\n[3/4] [✅]   Starting the deployment...\n[4/4] [✅]   Waiting for the deployment to be healthy...\n{\"outcome\":\"setup\",\"deployment_name\":\"local7816\",\"mongodb_version\":\"8.2.5\",\"port\":53211,\"load_sample_data\":true,\"connect_result\":{\"connect_outcome\":\"skipped\"}}",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "shell",
+      "content": "atlas local connect --connectWith mongosh <deployment_name>",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "content": "MONGODB_ATLAS_LOCAL_PREVIEW=true MONGODB_ATLAS_LOCAL_VOYAGE_API_KEY=<voyage_api_key> atlas local setup --loadSampleData true --force",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "javascript",
+      "content": "\"Installing first class plugin atlas-local-plugin\"\n\"Plugin mongodb/atlas-local-cli successfully installed\"\n[1/4] [✅]   Pulling the latest version of the MongoDB image...\n[2/4] [✅]   Creating the deployment...\n[3/4] [✅]   Starting the deployment...\n[4/4] [✅]   Waiting for the deployment to be healthy...\n{\"outcome\":\"setup\",\"deployment_name\":\"local7816\",\"mongodb_version\":\"8.2.5\",\"port\":53211,\"load_sample_data\":true,\"connect_result\":{\"connect_outcome\":\"skipped\"}}",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "shell",
+      "content": "atlas local connect --connectWith mongosh <deployment_name>",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "shell",
+      "content": "docker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "curl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "echo -n \"mongotPassword\" > pwfile\nchmod 400 pwfile",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "echo|set /p=\"mongotPassword\" > pwfile",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "services:\n   mongod:\n      image: mongodb/mongodb-community-server:latest\n      container_name: mongod-community\n      command: >-\n         mongod\n         --config /etc/mongod.conf\n         --replSetMember=mongod.search-community:27017\n      ports:\n         - 27017:27017\n      extra_hosts:\n         - \"host.docker.internal:host-gateway\"\n      volumes:\n         - mongod_data:/data/db\n         - ./mongod.conf:/etc/mongod.conf:ro\n         - ./sampledata.archive:/sampledata.archive\n         - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro\n      networks:\n         - search-community\n\n\n   mongot:\n      image: mongodb/mongodb-community-search:latest\n      entrypoint:\n         - /mongot-community/mongot\n         - --config=/mongot-community/config.default.yml\n         - --internalListAllIndexesForTesting=true\n      container_name: mongot-community-pupr\n      networks:\n         - search-community\n      volumes:\n         - mongot_data:/data/mongot\n         - ./mongot.conf:/mongot-community/config.default.yml\n         - ./pwfile:/mongot-community/pwfile:ro\n      depends_on:\n         - mongod\n      ports:\n         - 27028:27028  # Query server port from config\n         - 9946:9946    # Metrics port from config\n\nvolumes:\n   mongod_data:\n   mongot_data:\n\nnetworks:\n   search-community:\n      name: search-community\n      external: true  # Use an external network if it exists. Comment this line if you want to create a new network.",
+      "tokenEstimate": 361
+    },
+    {
+      "language": "shell",
+      "content": "#!/bin/bash\nset -e\n\necho \"Starting MongoDB initialization...\"\nsleep 2\n\n# Create user using local connection (no port specification needed)\necho \"Creating user...\"\nmongosh --eval \"\nconst adminDb = db.getSiblingDB('admin');\ntry {\n   adminDb.createUser({\n      user: 'mongotUser',\n      pwd: 'mongotPassword',\n      roles: [{ role: 'searchCoordinator', db: 'admin' }]\n   });\n   print('User mongotUser created successfully');\n} catch (error) {\n   if (error.code === 11000) {\n      print('User mongotUser already exists');\n   } else {\n      print('Error creating user: ' + error);\n   }\n}\n\"\n\n# Check for existing data\necho \"Checking for existing sample data...\"\nif mongosh --quiet --eval \"db.getSiblingDB('sample_airbnb').getCollectionNames().includes('listingsAndReviews')\" | grep -q \"true\"; then\necho \"Sample data already exists. Skipping restore.\"\nelse\necho \"Sample data not found. Running mongorestore...\"\nif [ -f \"/sampledata.archive\" ]; then\n   mongorestore --archive=/sampledata.archive\n   echo \"Sample data restored successfully.\"\nelse\n   echo \"Warning: sampledata.archive not found\"\nfi\nfi\n\necho \"MongoDB initialization completed.\"",
+      "tokenEstimate": 278
+    },
+    {
+      "language": "shell",
+      "content": "# mongod.conf\nstorage:\n   dbPath: /data/db\n\nnet:\n   port: 27017\n   bindIp: 0.0.0.0\n\nsetParameter:\n   searchIndexManagementHostAndPort: mongot.search-community:27028\n   mongotHost: mongot.search-community:27028\n   skipAuthenticationToSearchIndexManagementServer: false\n   useGrpcForSearch: true\n\nreplication:\n   replSetName: rs0",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "shell",
+      "content": "syncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "shell",
+      "content": "docker network create search-community",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "docker compose up -d",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "docker compose logs -f",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "docker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "curl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "echo -n \"mongotPassword\" > pwfile\nchmod 400 pwfile",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "echo|set /p=\"mongotPassword\" > pwfile",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "echo -n \"<your-voyage-api-key>\" > voyage-api-indexing-key\necho -n \"<your-voyage-api-key>\" > voyage-api-query-key",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "shell",
+      "content": "chmod 400 voyage-api-indexing-key\nchmod 400 voyage-api-query-key",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "shell",
+      "content": "services:\n   mongod:\n      image: mongodb/mongodb-community-server:latest\n      container_name: mongod-community\n      command: >-\n         mongod\n         --config /etc/mongod.conf\n         --replSetMember=mongod.search-community:27017\n      ports:\n         - 27017:27017\n      extra_hosts:\n         - \"host.docker.internal:host-gateway\"\n      volumes:\n         - mongod_data:/data/db\n         - ./mongod.conf:/etc/mongod.conf:ro\n         - ./sampledata.archive:/sampledata.archive\n         - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro\n      networks:\n         - search-community\n\n\n   mongot:\n      image: mongodb/mongodb-community-search:latest\n      entrypoint:\n         - /mongot-community/mongot\n         - --config=/mongot-community/config.default.yml\n         - --internalListAllIndexesForTesting=true\n      container_name: mongot-community-pupr\n      networks:\n         - search-community\n      volumes:\n         - mongot_data:/data/mongot\n         - ./mongot.conf:/mongot-community/config.default.yml\n         - ./pwfile:/mongot-community/pwfile:ro\n         - ./voyage-api-query-key:/mongot-community/voyage-api-query-key:ro # Omit if you don't want Automated Embedding\n         - ./voyage-api-indexing-key:/mongot-community/voyage-api-indexing-key:ro # Omit if you don't want Automated Embedding\n      depends_on:\n         - mongod\n      ports:\n         - 27028:27028  # Query server port from config\n         - 9946:9946    # Metrics port from config\n\nvolumes:\n   mongod_data:\n   mongot_data:\n\nnetworks:\n   search-community:\n      name: search-community\n      external: true  # Use an external network if it exists. Comment this line if you want to create a new network.",
+      "tokenEstimate": 427
+    },
+    {
+      "language": "shell",
+      "content": "#!/bin/bash\nset -e\n\necho \"Starting MongoDB initialization...\"\nsleep 2\n\n# Create user using local connection (no port specification needed)\necho \"Creating user...\"\nmongosh --eval \"\nconst adminDb = db.getSiblingDB('admin');\ntry {\n   adminDb.createUser({\n      user: 'mongotUser',\n      pwd: 'mongotPassword',\n      roles: [{ role: 'searchCoordinator', db: 'admin' }]\n   });\n   print('User mongotUser created successfully');\n} catch (error) {\n   if (error.code === 11000) {\n      print('User mongotUser already exists');\n   } else {\n      print('Error creating user: ' + error);\n   }\n}\n\"\n\n# Check for existing data\necho \"Checking for existing sample data...\"\nif mongosh --quiet --eval \"db.getSiblingDB('sample_airbnb').getCollectionNames().includes('listingsAndReviews')\" | grep -q \"true\"; then\necho \"Sample data already exists. Skipping restore.\"\nelse\necho \"Sample data not found. Running mongorestore...\"\nif [ -f \"/sampledata.archive\" ]; then\n   mongorestore --archive=/sampledata.archive\n   echo \"Sample data restored successfully.\"\nelse\n   echo \"Warning: sampledata.archive not found\"\nfi\nfi\n\necho \"MongoDB initialization completed.\"",
+      "tokenEstimate": 278
+    },
+    {
+      "language": "shell",
+      "content": "# mongod.conf\nstorage:\n   dbPath: /data/db\n\nnet:\n   port: 27017\n   bindIp: 0.0.0.0\n\nsetParameter:\n   searchIndexManagementHostAndPort: mongot.search-community:27028\n   mongotHost: mongot.search-community:27028\n   skipAuthenticationToSearchIndexManagementServer: false\n   useGrpcForSearch: true\n\nreplication:\n   replSetName: rs0",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "shell",
+      "content": "syncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nembedding:\n   queryKeyFile: \"/mongot-community/voyage-api-query-key\"\n   indexingKeyFile: \"/mongot-community/voyage-api-indexing-key\"\n   providerEndpoint: \"https://ai.mongodb.com/v1/embeddings\"\n   isAutoEmbeddingViewWriter: true\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO",
+      "tokenEstimate": 199
+    },
+    {
+      "language": "shell",
+      "content": "syncSource:\n   replicaSet:\n      hostAndPort: \"mongod.search-community:27017\"\n      username: \"mongotUser\"\n      passwordFile: \"/mongot-community/pwfile\"\n      authSource: \"admin\"\n      tls: false\n      readPreference: \"primaryPreferred\"\nstorage:\n   dataPath: \"data/mongot\"\nserver:\n   grpc:\n      address: \"mongot.search-community:27028\"\n      tls:\n         mode: \"disabled\"\nembedding:\n   queryKeyFile: \"/mongot-community/voyage-api-query-key\"\n   indexingKeyFile: \"/mongot-community/voyage-api-indexing-key\"\n   providerEndpoint: \"https://api.voyageai.com/v1/embeddings\"\n   isAutoEmbeddingViewWriter: true\nmetrics:\n   enabled: true\n   address: \"mongot.search-community:9946\"\nhealthCheck:\n   address: \"mongot.search-community:8080\"\nlogging:\n   verbosity: INFO",
+      "tokenEstimate": 202
+    },
+    {
+      "language": "shell",
+      "content": "docker network create search-community",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "docker compose up -d",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "docker compose logs -f",
+      "tokenEstimate": 5
+    }
+  ]
+}

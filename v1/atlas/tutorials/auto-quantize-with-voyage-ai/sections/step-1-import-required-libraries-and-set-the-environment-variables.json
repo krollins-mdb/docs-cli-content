@@ -1,0 +1,17 @@
+{
+  "heading": "Step 1: Import required libraries and set the environment variables.",
+  "headingLevel": 3,
+  "body": "- Create an interactive Python notebook by saving a file with the\n  `.ipynb` extension.\n\n- Install the libraries.\n\n  For this tutorial, you must import the following libraries:\n\n  | pymongo    | MongoDB Python driver to connect to your cluster, create indexes, and run queries.         |\n  | ---------- | ------------------------------------------------------------------------------------------ |\n  | voyageai   | Voyage AI Python client to generate the embeddings for the data.                           |\n  | pandas     | Data manipulation and analysis tool to load the data and prepare it for the vector search. |\n  | datasets   | Hugging Face library that provides access to ready-made datasets.                          |\n  | matplotlib | Plotting and visualizing library to visualize the data.                                    |\n\n  To install the libraries, run the following:\n\n  ```\n  pip install --quiet -U pymongo voyageai pandas datasets matplotlib\n  ```\n\n- Securely get and set environment variables.\n\n  The following `set_env_securely` helper function gets and\n  sets environment variables securely. Copy, paste, and run the\n  following code and when prompted, set secret values such as\n  your Voyage AI API (Application Programming Interface) key and your cluster connection\n  string.\n\n  ```python\n  import getpass\n  import os\n  import voyageai\n\n  # Function to securely get and set environment variables\n  def set_env_securely(var_name, prompt):\n      value = getpass.getpass(prompt)\n      os.environ[var_name] = value\n\n  # Environment Variables\n  set_env_securely(\"VOYAGE_API_KEY\", \"Enter your Voyage API Key: \")\n  set_env_securely(\"MONGO_URI\", \"Enter your MongoDB URI: \")\n  MONGO_URI = os.environ.get(\"MONGO_URI\")\n  if not MONGO_URI:\n      raise ValueError(\"MONGO_URI not set in environment variables.\")\n\n  # Voyage Client\n  voyage_client = voyageai.Client()\n  ```",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "pip install --quiet -U pymongo voyageai pandas datasets matplotlib",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "python",
+      "content": "import getpass\nimport os\nimport voyageai\n\n# Function to securely get and set environment variables\ndef set_env_securely(var_name, prompt):\n    value = getpass.getpass(prompt)\n    os.environ[var_name] = value\n\n# Environment Variables\nset_env_securely(\"VOYAGE_API_KEY\", \"Enter your Voyage API Key: \")\nset_env_securely(\"MONGO_URI\", \"Enter your MongoDB URI: \")\nMONGO_URI = os.environ.get(\"MONGO_URI\")\nif not MONGO_URI:\n    raise ValueError(\"MONGO_URI not set in environment variables.\")\n\n# Voyage Client\nvoyage_client = voyageai.Client()",
+      "tokenEstimate": 131
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Example 1: Single Document with Multiple Fields",
+  "headingLevel": 3,
+  "body": "The following example uses the `moreLikeThis` operator to find\ndocuments that are similar to multiple field values. For this example,\nthe index defition contains [dynamic mappings](static-dynamic-mappings) to dynamically index all [supported types](bson-data-chart) in the collection. Your index\ndefinition for the `sample_mflix.movies` collection should look\nsimilar to the following.\n\n```\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\n> **Example:** The following query searches for movies that are similar to the input\n> movie title \"The Godfather\" and input movie genre \"action\". It\n> includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to `5`\n> results and a [$project](manual/reference/operator/aggregation/project) stage to exclude all fields\n> except `title`, `released`, and `genres`.\n>\n> **Input:**\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>     moreLikeThis: {\n>      like:\n>       {\n>         \"title\": \"The Godfather\",\n>         \"genres\": \"action\"\n>       }\n>     }\n>    }\n>   },\n>   { \"$limit\": 5},\n>   {\n>     $project: {\n>       \"_id\": 0,\n>       \"title\": 1,\n>       \"released\": 1,\n>       \"genres\": 1\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> [\n>  { genres: [ 'Comedy', 'Drama', 'Romance' ], title: 'Godfather' },\n>  {\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather',\n>   released: ISODate(\"1972-03-24T00:00:00.000Z\")\n>  },\n>  {\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather: Part II',\n>   released: ISODate(\"1974-12-20T00:00:00.000Z\")\n>  },\n>  {\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather: Part III',\n>   released: ISODate(\"1990-12-26T00:00:00.000Z\")\n>  },\n>  {\n>   genres: [ 'Action' ],\n>   title: 'The Defender',\n>   released: ISODate(\"1994-07-28T00:00:00.000Z\")\n>  }\n> ]\n> ```\n>\n> MongoDB Search results contain movies similar to the input movie title\n> \"The Godfather\" and input movie genre \"action\".",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n    moreLikeThis: {\n     like:\n      {\n        \"title\": \"The Godfather\",\n        \"genres\": \"action\"\n      }\n    }\n   }\n  },\n  { \"$limit\": 5},\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1\n    }\n  }\n])",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "javascript",
+      "content": "[\n { genres: [ 'Comedy', 'Drama', 'Romance' ], title: 'Godfather' },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather',\n  released: ISODate(\"1972-03-24T00:00:00.000Z\")\n },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part II',\n  released: ISODate(\"1974-12-20T00:00:00.000Z\")\n },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part III',\n  released: ISODate(\"1990-12-26T00:00:00.000Z\")\n },\n {\n  genres: [ 'Action' ],\n  title: 'The Defender',\n  released: ISODate(\"1994-07-28T00:00:00.000Z\")\n }\n]",
+      "tokenEstimate": 203
+    }
+  ]
+}

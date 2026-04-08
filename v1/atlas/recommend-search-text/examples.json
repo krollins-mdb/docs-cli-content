@@ -1,0 +1,66 @@
+{
+  "path": "atlas/recommend-search-text",
+  "product": "atlas",
+  "title": "Update $text Queries with MongoDB Search for Improved Search Performance",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "javascript": 3,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Improve Flexibility of Full-Text Queries with MongoDB Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 272
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 123
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 273
+          }
+        ]
+      },
+      {
+        "heading": "Improve Performance of Queries using MongoDB Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 224
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Improve Flexibility of Full-Text Queries with MongoDB Search",
+      "content": "{\n plot: `It's the story of the murder of a poet, a man, a great film director: Pier Paolo Pasolini. The story begin with the arrest of \"Pelosi\", a young man then accused of the murder of the poet. ...`,\n genres: [ 'Crime', 'Drama' ],\n title: 'Who Killed Pasolini?',\n year: 1995\n},\n{\n plot: 'Friendship and betrayal between two poets during the French Revolution.',\n genres: [ 'Biography', 'Drama' ],\n title: 'Pandaemonium',\n year: 2000\n},\n{\n year: 2003,\n plot: 'Story of the relationship between the poets Ted Hughes and Sylvia Plath.',\n genres: [ 'Biography', 'Drama', 'Romance' ],\n title: 'Sylvia'\n},\n{\n year: 2003,\n plot: 'Story of the relationship between the poets Ted Hughes and Sylvia Plath.',\n genres: [ 'Biography', 'Drama', 'Romance' ],\n title: 'Sylvia'\n},\n{\n plot: 'A love-struck Italian poet is stuck in Iraq at the onset of an American invasion.',\n genres: [ 'Comedy', 'Drama', 'Romance' ],\n title: 'The Tiger and the Snow',\n year: 2005\n}",
+      "tokenEstimate": 272
+    },
+    {
+      "language": "json",
+      "section": "Improve Flexibility of Full-Text Queries with MongoDB Search",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"plot\",\n        \"query\": \"poet\"\n      },\n      \"highlight\": {\n        \"path\": \"plot\"\n      }\n    }\n  },\n  {\n    \"$limit\": 1\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"genres\": 1,\n      \"plot\": 1,\n      \"year\": 1,\n      \"highlights\": { \"$meta\": \"searchHighlights\" }\n    }\n  }\n])",
+      "tokenEstimate": 123
+    },
+    {
+      "language": "javascript",
+      "section": "Improve Flexibility of Full-Text Queries with MongoDB Search",
+      "content": "{\n  plot: `It's the story of the murder of a poet, a man, a great film director: Pier Paolo Pasolini. The story begin with the arrest of \"Pelosi\", a young man then accused of the murder of the poet. ...`,\n  genres: [ 'Crime', 'Drama' ],\n  title: 'Who Killed Pasolini?',\n  year: 1995,\n  highlights: [\n    {\n      score: 1.0902210474014282,\n      path: 'plot',\n      texts: [\n        { value: \"It's the story of the murder of a \", type: 'text' },\n        { value: 'poet', type: 'hit' },\n        {\n          value: ', a man, a great film director: Pier Paolo Pasolini. ',\n          type: 'text'\n        }\n      ]\n    },\n    {\n      score: 1.0202842950820923,\n      path: 'plot',\n      texts: [\n        {\n          value: 'The story begin with the arrest of \"Pelosi\", a young man then accused of the murder of the ',\n          type: 'text'\n        },\n        { value: 'poet', type: 'hit' },\n        { value: '. ...', type: 'text' }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 273
+    },
+    {
+      "language": "javascript",
+      "section": "Improve Performance of Queries using MongoDB Search",
+      "content": "   {\n  year: 2000,\n  plot: 'A film poem inspired by the Peruvian poet Cèsar Vallejo. A story about our need for love, our confusion, greatness and smallness and, most of all, our vulnerability. It is a story with many...',\n  genres: [ 'Comedy', 'Drama' ],\n  title: 'Songs from the Second Floor'\n},\n{\n  plot: 'When his mother, who has sheltered him his entire 40 years, dies, Elling, a sensitive, would-be poet, is sent to live in a state institution. There he meets Kjell Bjarne, a gentle giant and...',\n  genres: [ 'Comedy', 'Drama' ],\n  title: 'Elling',\n  year: 2001\n},\n{\n  plot: 'Heart-broken after several affairs, a woman finds herself torn between a Poet and a TV Host.',\n  genres: [ 'Comedy', 'Romance', 'Drama' ],\n  title: 'Easy',\n  year: 2003\n}",
+      "tokenEstimate": 224
+    }
+  ]
+}

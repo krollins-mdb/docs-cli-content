@@ -1,0 +1,54 @@
+{
+  "path": "atlas/field-types/array-type",
+  "product": "atlas",
+  "title": "How to Index the Elements of an Array",
+  "sections": [
+    {
+      "heading": "How Does MongoDB Search Index Array Elements?",
+      "headingLevel": 2,
+      "body": "MongoDB Search indexes the [supported types](bson-data-chart) inside\nan array by flattening the fields during indexing.\n\n> **Example:** Consider the following documents:\n>\n> ```javascript\n> doc1 = { a: {b: [[<value1>, <value2>], <value3>] }}\n> doc2 = { a: {b: [<value1>, <value2>, <value3>] } }\n> doc3 = { a: [{ b: <value1>}, {b: <value2>}, {b: <value3>}] }\n> ```\n>\n> MongoDB Search flattens the preceding arrays similar to the following during\n> indexing:\n>\n> ```shell\n> LuceneDoc<n> = {\"a.b\":[<value1>,<value2>,<value3>]}\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "doc1 = { a: {b: [[<value1>, <value2>], <value3>] }}\ndoc2 = { a: {b: [<value1>, <value2>, <value3>] } }\ndoc3 = { a: [{ b: <value1>}, {b: <value2>}, {b: <value3>}] }",
+          "tokenEstimate": 78
+        },
+        {
+          "language": "shell",
+          "content": "LuceneDoc<n> = {\"a.b\":[<value1>,<value2>,<value3>]}",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "How Can I Index Objects in Arrays?",
+      "headingLevel": 2,
+      "body": "To query fields inside an array of documents or objects, you must use\nthe [embeddedDocuments](bson-data-types-embedded-documents) type\nto index the field that contains the array of objects.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Define the Index for the Array Elements",
+      "headingLevel": 2,
+      "body": "To define the index for the array elements, choose your preferred\nconfiguration method in the Atlas UI and then select the database\nand collection.**Vib:**Visual Editor* Click **Refine Your Index** to configure your index.\n\n* In the **Field Mappings** section, click **Add\n  Field Mapping** to open the **Add Field Mapping**\n  window.\n\n* Click **Customized Configuration**.\n\n* Select the field of type array to index from the\n  **Field Name** dropdown.\n\n* Click the **Data Type** dropdown and select the\n  data type of the array element that you want to index. To learn\n  more about the configuring the properties for the selected type,\n  refer to the documentation for the selected type.\n\n* Click **Add**.**Jsonib:**JSON EditorThe following is the JSON (Javascript Object Notation) syntax for indexing elements inside an\narray. Replace the default index definition with the following.```json\n{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<array-field-name>\": {\n        \"type\": \"<array-element-data-type>\"\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<array-field-name>\": {\n        \"type\": \"<array-element-data-type>\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Try an Example for Indexing Array Elements",
+      "headingLevel": 2,
+      "body": "The following index definition example uses the sample\\_mflix.movies\ncollection. If you have the [Load Sample Data Into Atlas](sample-data) already\nloaded on your cluster, you can use the Visual Editor or JSON (Javascript Object Notation) Editor\nin the Atlas UI to configure the index. After you select your\npreferred configuration method, select the database and collection,\nand refine your index to add field mappings.The following index definition indexes the `genres` field, which\ncontains an array of string values.**Vib:**Visual Editor* In the **Add Field Mapping** window, select\n  **genres** from the **Field Name**\n  dropdown.\n\n* Click the **Data Type** dropdown and select\n  **String**.\n\n* Keep the default settings for the **String\n  Properties**.\n\n* Click **Add**.**Jsonib:**JSON EditorReplace the default index definition with the following index\ndefinition.```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 31
+        }
+      ]
+    }
+  ]
+}

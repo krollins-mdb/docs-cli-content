@@ -1,0 +1,22 @@
+{
+  "heading": "Filtering Considerations",
+  "headingLevel": 4,
+  "body": "- MongoDB Vector Search supports the short form of [$eq](manual/reference/operator/query/eq). In the short\n  form, you don't need to specify `$eq` in the query.\n\n  For example, consider the following filter with `$eq`:\n\n  ```json\n  \"filter\": { \"_id\": { \"$eq\": ObjectId(\"5a9427648b0beebeb69537a5\") }\n  ```\n\n  This is equivalent to the following filter, which uses the short\n  form of `$eq`:\n\n  ```json\n  \"filter\": { \"_id\": ObjectId(\"5a9427648b0beebeb69537a5\") }\n  ```\n\n- You can use the [$and](manual/reference/operator/aggregation/and) MQL (MongoDB Query Language) operator to specify an\n  array of filters in a single query.\n\n  For example, consider the following pre-filter for documents with a\n  `genres` field equal to `Action` and a `year` field with the\n  value `1999`, `2000`, or `2001`:\n\n  ```json\n  \"filter\": {\n    \"$and\": [\n      { \"genres\": \"Action\" },\n      { \"year\": { \"$in\": [ 1999, 2000, 2001 ] } }\n    ]\n  }\n  ```\n\n- For advanced filtering capabilities such as fuzzy search, phrase\n  matching, location filtering, and other analyzed text, use the\n  [vectorSearch](fts-vectorSearch-ref) operator in a\n  [$search](pipe.$search) stage.\n\nWe recommend dedicated [Search Nodes](configure-search-nodes)\nto isolate vector search query processing. You might see improved query\nperformance on the dedicated Search Nodes. Note that the high-CPU systems\nmight provide more performance improvement. When MongoDB Vector Search runs on search\nnodes, MongoDB Vector Search parallelizes query execution across segments of data.\n\nParallelization of query processing improves the response time in many\ncases, such as queries on large datasets. Using intra-query parallelism\nduring MongoDB Vector Search query processing utilizes more resources, but improves\nlatency for each individual query.\n\n> **Note:** MongoDB Vector Search doesn't guarantee that each query will run concurrently. For\n> example, when too many concurrent queries are queued, MongoDB Vector Search might\n> fall back to single-threaded execution.\n>\n> You might see inconsistent results for the same successive queries.\n> To mitigate this, increase the value of `numCandidates` in your\n> [$vectorSearch](pipe.$vectorSearch) queries.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "\"filter\": { \"_id\": { \"$eq\": ObjectId(\"5a9427648b0beebeb69537a5\") }",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "content": "\"filter\": { \"_id\": ObjectId(\"5a9427648b0beebeb69537a5\") }",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "json",
+      "content": "\"filter\": {\n  \"$and\": [\n    { \"genres\": \"Action\" },\n    { \"year\": { \"$in\": [ 1999, 2000, 2001 ] } }\n  ]\n}",
+      "tokenEstimate": 45
+    }
+  ]
+}

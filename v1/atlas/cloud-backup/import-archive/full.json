@@ -1,0 +1,95 @@
+{
+  "path": "atlas/cloud-backup/import-archive",
+  "product": "atlas",
+  "title": "Step 3",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "Before you begin, you must:**Aws:**AWS* [Install the AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)\n\n* [Configure the AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration)**Azure:**Azure* [Install azcopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10)\n\n* [Authorize azcopy](https://docs.microsoft.com/en-us/azurehttps://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10?tabs=dnf#authorize-azcopy)**Gcp:**GCP- [Install the gcloud CLI](https://cloud.google.com/sdk/docs/install)\n\n- [Configure the gcloud CLI](https://cloud.google.com/sdk/docs/components)* Install the mongoimport and\n  mongorestore tools",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "**Aws:**AWS```shell\naws s3 cp s3://<bucketName>/<prefix> <downloadFolder> --recursive\ngunzip -r <downloadFolder>\n```where:| \\<bucketName>     | Name of the AWS (Amazon Web Services) S3 (Simple Storage Service) bucket.                                                                                                  |\n| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| \\<prefix>         | Path to archived data in the bucket. The path has the following format:/exported\\_snapshots/\\<orgId>/\\<projectId>/\\<clusterName>/\\<initiationDateOfSnapshot>/\\<timestamp>/ |\n| \\<downloadFolder> | Path to the local folder where you want to copy the archived data.                                                                                                         |For example, run a command similar to the following:> **Example:**&#x20;\n>\n> ```shell\n> aws s3 cp\n> s3://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\n> mybucket --recursive\n> gunzip -r mybucket\n> ``````shell\n#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/\n```Here:* `--mode=upsert` enables mongoimport to handle duplicate\n  documents from an archive.\n\n* `--uri` specifies the connection string for the Atlas cluster.```shell\nsh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"\n```where:| \\<downloadFolder>   | Path to the local folder where you copied the archived data. |\n| ------------------- | ------------------------------------------------------------ |\n| \\<connectionString> | Connection string for the Atlas cluster.                     |For example, run a command similar to the following:> **Example:**&#x20;\n>\n> ```shell\n> sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"\n> ```**Azure:**Azure```shell\nazcopy copy \"https://<storageAccountName>.blob.core.windows.net/<containerName>/<prefix>/*\" \"<downloadFolder>\" --recursive\n```where:| \\<storageAccountName> | Name of the Azure (Microsoft Azure) account to which the blob storage container belongs. |\n| --------------------- | ---------------------------------------------------------------------------------------- |\n| \\<containerName>      | Name of the Azure (Microsoft Azure) blob storage container.                              |\n| \\<prefix>             | Path to archived data in the bucket.                                                     |\n| \\<downloadFolder>     | Path to the local folder where you want to copy the archived data.                       |> **Example:**&#x20;\n>\n> ```shell\n> azcopy copy \"https://mystorageaccount.blob.core.windows.net/mycontainer/myTextFile.txt\" \"~/downloads\" --recursive\n> ``````shell\n#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/\n```Here:* `--mode=upsert` enables mongoimport to handle duplicate\n  documents from an archive.\n\n* `--uri` specifies the connection string for the Atlas cluster.```shell\nsh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"\n```where:| \\<downloadFolder>   | Path to the local folder where you copied the archived data. |\n| ------------------- | ------------------------------------------------------------ |\n| \\<connectionString> | Connection string for the Atlas cluster.                     |> **Example:**&#x20;\n>\n> ```shell\n> sh massimport.sh \"~/downloads\" \"mongodb+srv://<myConnString>\"\n> ```**Gcp:**GCP```shell\ngsutil -m cp -r \"gs://<bucketName>/<prefix> <downloadFolder>\" --recursive\ngunzip -r <downloadFolder>\n```where:| \\<bucketName>     | Name of the Google Cloud bucket.                                                                                                                                           |\n| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| \\<prefix>         | Path to archived data in the bucket. The path has the following format:/exported\\_snapshots/\\<orgId>/\\<projectId>/\\<clusterName>/\\<initiationDateOfSnapshot>/\\<timestamp>/ |\n| \\<downloadFolder> | Path to the local folder where you want to copy the archived data.                                                                                                         |> **Example:**&#x20;\n>\n> ```shell\n> gsutil -m cp -r\n> gs://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\n> mybucket --recursive\n> gunzip -r mybucket\n> ``````shell\n#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/\n```Here:* `--mode=upsert` enables mongoimport to handle duplicate\n  documents from an archive.\n\n* `--uri` specifies the connection string for the Atlas cluster.Run the `massimport.sh` utility to import the archived\ndata into the Atlas cluster.```shell\nsh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"\n```where:| \\<downloadFolder>   | Path to the local folder where you copied the archived data. |\n| ------------------- | ------------------------------------------------------------ |\n| \\<connectionString> | Connection string for the Atlas cluster.                     |> **Example:**&#x20;\n>\n> ```shell\n> sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"\n> ```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "aws s3 cp s3://<bucketName>/<prefix> <downloadFolder> --recursive\ngunzip -r <downloadFolder>",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "shell",
+          "content": "aws s3 cp\ns3://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\nmybucket --recursive\ngunzip -r mybucket",
+          "tokenEstimate": 80
+        },
+        {
+          "language": "shell",
+          "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+          "tokenEstimate": 312
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+          "tokenEstimate": 17
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"",
+          "tokenEstimate": 16
+        },
+        {
+          "language": "shell",
+          "content": "azcopy copy \"https://<storageAccountName>.blob.core.windows.net/<containerName>/<prefix>/*\" \"<downloadFolder>\" --recursive",
+          "tokenEstimate": 29
+        },
+        {
+          "language": "shell",
+          "content": "azcopy copy \"https://mystorageaccount.blob.core.windows.net/mycontainer/myTextFile.txt\" \"~/downloads\" --recursive",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "shell",
+          "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+          "tokenEstimate": 312
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+          "tokenEstimate": 17
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh \"~/downloads\" \"mongodb+srv://<myConnString>\"",
+          "tokenEstimate": 17
+        },
+        {
+          "language": "shell",
+          "content": "gsutil -m cp -r \"gs://<bucketName>/<prefix> <downloadFolder>\" --recursive\ngunzip -r <downloadFolder>",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "shell",
+          "content": "gsutil -m cp -r\ngs://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\nmybucket --recursive\ngunzip -r mybucket",
+          "tokenEstimate": 82
+        },
+        {
+          "language": "shell",
+          "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+          "tokenEstimate": 312
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+          "tokenEstimate": 17
+        },
+        {
+          "language": "shell",
+          "content": "sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"",
+          "tokenEstimate": 16
+        }
+      ]
+    }
+  ]
+}

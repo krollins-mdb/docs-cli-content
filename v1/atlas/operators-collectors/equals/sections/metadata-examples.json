@@ -1,0 +1,27 @@
+{
+  "heading": "Metadata Examples",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to retrieve\nthe number of regions in which `verified_users` is true in the\n`users` collection.\n\n**Input:**\n\n```json\ndb.users.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('2') },\n    facet: {\n      regionFacet: {\n        buckets: [\n          { _id: 'East', count: Long('1') },\n          { _id: 'Southwest', count: Long('1') }\n        ]\n      }\n    }\n  }\n]\n```\n\nThe following query uses the `$$SEARCH_META` aggregation variable to\nreturn both the metadata and search results for a search to retrieve the\nnumber of regions in which `verified_users` is true in the `users`\ncollection.\n\n**Input:**\n\n```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  },\n  { \"$limit\": 2 },\n  {\n    \"$facet\": {\n      \"docs\": [\n        { \"$project\":\n          {\n            \"type\": 1,\n            \"description\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  },\n  {\n    \"$set\": {\n      \"meta\": {\n        \"$arrayElemAt\": [\"$meta\", 0]\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    docs: [\n      {\n        _id: ObjectId('5ed698faa1199b471010d70c'),\n        name: 'Jim Hall',\n        region: 'East'\n      },\n      {\n        _id: ObjectId('5ed6990aa1199b471010d70d'),\n        name: 'Ellen Smith',\n        region: 'Southwest'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        regionFacet: {\n          buckets: [\n            { _id: 'East', count: Long('1') },\n            { _id: 'Southwest', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    count: { lowerBound: Long('2') },\n    facet: {\n      regionFacet: {\n        buckets: [\n          { _id: 'East', count: Long('1') },\n          { _id: 'Southwest', count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  },\n  { \"$limit\": 2 },\n  {\n    \"$facet\": {\n      \"docs\": [\n        { \"$project\":\n          {\n            \"type\": 1,\n            \"description\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  },\n  {\n    \"$set\": {\n      \"meta\": {\n        \"$arrayElemAt\": [\"$meta\", 0]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 190
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    docs: [\n      {\n        _id: ObjectId('5ed698faa1199b471010d70c'),\n        name: 'Jim Hall',\n        region: 'East'\n      },\n      {\n        _id: ObjectId('5ed6990aa1199b471010d70d'),\n        name: 'Ellen Smith',\n        region: 'Southwest'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        regionFacet: {\n          buckets: [\n            { _id: 'East', count: Long('1') },\n            { _id: 'Southwest', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]",
+      "tokenEstimate": 157
+    }
+  ]
+}

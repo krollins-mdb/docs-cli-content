@@ -1,0 +1,17 @@
+{
+  "heading": "Simple Analyzer Example",
+  "headingLevel": 4,
+  "body": "The following example uses the `multi` named `simpleAnalyzer`\nin the index definition, which uses the [whitespace analyzer](ref-simple-analyzer).\n\nThe query searches the `description` field for the string `driver`.\n\n```javascript\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"driver\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the following result:\n\n```json\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}\n```\n\nThe [whitespace analyzer](ref-simple-analyzer) indexes `driver's\nside airbag` as `[driver s side airbag`], so it matches on `driver`.\n\nBy contrast, the default [standard analyzer](ref-standard-analyzer)\nindexes `driver's side airbag` as `[driver's side airbag`], so it would\nmatch on `driver's` or `side` but not `driver`.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"driver\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}",
+      "tokenEstimate": 44
+    }
+  ]
+}

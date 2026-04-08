@@ -1,0 +1,127 @@
+{
+  "path": "atlas/pause-terminate-cluster",
+  "product": "atlas",
+  "title": "Step 5: Confirm the termination.",
+  "sections": [
+    {
+      "heading": "Considerations for Paused Clusters",
+      "headingLevel": 2,
+      "body": "- You can't:\n\n  - Change the configuration of a paused cluster.\n\n  - Read data from or write data to a paused cluster.\n\n  - Add or remove Search Nodes to a paused cluster.\n\n- For paused clusters, Atlas:\n\n  - Stops triggering configured alerts.\n\n  - Stops all backups. Your existing snapshots remain until they expire.\n\n  - Stops all [$search](pipe.$search) queries.\n\n    > **Note:** When you pause a cluster, Atlas deletes all data from\n    > the Search Nodes. Atlas creates new search nodes and\n    > automatically rebuilds the MongoDB Search indexes when you resume the\n    > Atlas cluster. While Atlas rebuilds the MongoDB Search indexes,\n    > the [$search](pipe.$search) and [$vectorSearch](pipe.$vectorSearch) pipeline\n    > stages are unavailable. When you resume the cluster, Atlas\n    > only has metrics from the new search nodes as Atlas doesn't\n    > retain any MongoDB Search metrics from before you paused the cluster.\n\n- If you have a [Backup Compliance Policy enabled](backup-compliance-policy), when\n  you resume a cluster, Atlas automatically enables\n  Cloud Backup. If the Backup Compliance Policy has the\n  Require Point in Time Restore to all clusters option\n  set to On, Atlas automatically enables\n  Continuous Cloud Backup and adjusts the restore window according to the\n  Backup Compliance Policy. Atlas automatically modifies the backup to meet the\n  minimum requirements of the Backup Compliance Policy.\n\n  If you deployed Search Nodes separately, Atlas rebuilds the MongoDB Search\n  indexes to restore the data on the Search Nodes that it deleted when you\n  paused the Atlas cluster.\n\n- If a paused cluster doesn't have [Encryption at Rest using Customer Key Management](security-kms-encryption) enabled, you can't toggle the\n  **Require Encryption at Rest using Customer Key Management for all clusters** option to **On** in a Backup Compliance Policy.\n\n- In certain scenarios, pausing a cluster pauses its required maintenance tasks.\n  When you unpause the cluster, these maintenance tasks may start immediately, which\n  could delay cluster availability.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To pause or resume a cluster, you must have\n[Project Cluster Manager](<Project Cluster Manager>) access or higher to the project.\n\nTo terminate a cluster, you must have [Project Owner](<Project Owner>)\nor [Organization Owner](<Organization Owner>) access.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Pause One Cluster",
+      "headingLevel": 2,
+      "body": "> **Note:** If cluster disk space usage exceeds 95%, you can't pause the cluster.\n> To monitor disk space usage, see [performance metrics](monitor-cluster-metrics).\n\nDepending on your cluster tier, Atlas either pauses clusters\nautomatically or when you manually initiate it.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Free Clusters",
+      "headingLevel": 3,
+      "body": "Atlas automatically pauses all inactive Free clusters (formerly known as `M0`) after\n30 days.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Flex Clusters",
+      "headingLevel": 3,
+      "body": "You can't pause Flex clusters. Atlas doesn't\nautomatically pause inactive Flex clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "M10+ Clusters",
+      "headingLevel": 3,
+      "body": "You can pause `M10` or larger clusters:* If they do not use [NVMe storage volumes](nvme-storage).\n\n* For up to 30 days. If you don't resume the cluster within 30\n  days, Atlas resumes the cluster.\n\n  > **Note:** You must allow a recently [resume](resume-cluster)\n  > cluster to run for at least 60 minutes before pausing the\n  > cluster again. This allows the cluster to process all\n  > the maintenance jobs that were queued while it was paused.Atlas only charges paused clusters for storage. Atlas does\nnot charge for any other services or data transfer on paused\nclusters.**Atlascli:**Atlas CLITo pause a running Atlas cluster using the\nAtlas CLI, run the following command:```sh\n\natlas clusters pause <clusterName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters pause](atlas/cli/current/command/atlas-clusters-pause).**Api:**Atlas Administration APITo pause a cluster with the Atlas Administration API, see\n[Modify One Cluster](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster).**Ui:**Atlas UITo pause an Atlas cluster using the Atlas UI:* For the cluster you want to pause, click .\n\n* Click Pause Cluster.\n\n* Click Pause Cluster to confirm your choice.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas clusters pause <clusterName> [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Free Clusters",
+      "headingLevel": 3,
+      "body": "Atlas automatically stops collecting monitoring information\nfor a Free cluster after a few days of inactivity.\n\nIf there is no activity for 30 days, then Atlas automatically\npauses the cluster completely, disallowing any connections to it\nuntil you resume the cluster. Atlas sends an email seven days\nbefore pausing the cluster. Atlas sends another email after\npausing the cluster.\n\nYou can [resume](resume-cluster) the cluster at any time\n*unless* the paused cluster was running on an old\nversion that Atlas can't restore to the current version. You\nshould export a copy of your data if you don't plan to use your\nFree cluster for an extended period of time. To learn more, see\n[Restore Data From Paused Free Cluster](restore-free-tier-cluster).\n\nYou can't initiate a pause for Free clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Local Deployments",
+      "headingLevel": 3,
+      "body": "To pause the specified Atlas deployment using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas deployments pause <deploymentName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas deployments pause](atlas/cli/current/command/atlas-deployments-pause).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas deployments pause <deploymentName> [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Resume One Cluster",
+      "headingLevel": 2,
+      "body": "> **Important:**&#x20;\n>\n> Feature unavailable in Flex Clusters\n>\n> Flex clusters don't support this feature at this time. To learn more,\n> see [Atlas Flex Limitations](flex-cluster-limitations).\n\n> **Note:**&#x20;\n>\n> If you have a [Backup Compliance Policy enabled](backup-compliance-policy), when\n> you resume a cluster, Atlas automatically enables\n> Cloud Backup. If the Backup Compliance Policy has the\n> Require Point in Time Restore to all clusters option\n> set to On, Atlas automatically enables\n> Continuous Cloud Backup and adjusts the restore window according to the\n> Backup Compliance Policy. Atlas automatically modifies the backup to meet the\n> minimum requirements of the Backup Compliance Policy.\n>\n> If you deployed Search Nodes separately, Atlas rebuilds the MongoDB Search\n> indexes to restore the data on the Search Nodes that it deleted when you\n> paused the Atlas cluster.\n\nTo resume collection of monitoring information for an Atlas Free cluster\npaused for monitoring, connect to that cluster using a\nMongoDB Driver, [mongosh](mongodb-shell), or\nData Explorer.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Resume a Cloud Deployment",
+      "headingLevel": 3,
+      "body": "To resume an Atlas `M10+` cluster that you paused previously:**Atlascli:**Atlas CLITo start a paused Atlas cluster using the\nAtlas CLI, run the following command:```sh\n\natlas clusters start <clusterName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters start](atlas/cli/current/command/atlas-clusters-start).**Ui:**Atlas UIFor the cluster you want to pause, either:- Click , then click Resume Cluster, or\n\n- Click Resume.> **Note:** If you don't resume an `M10+` cluster within 30 days, Atlas\n> resumes the cluster.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas clusters start <clusterName> [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Resume a Local Deployment with the Atlas CLI",
+      "headingLevel": 3,
+      "body": "To start an Atlas deployment using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas deployments start <deploymentName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas deployments start](atlas/cli/current/command/atlas-deployments-start).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas deployments start <deploymentName> [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Terminate One Deployment",
+      "headingLevel": 2,
+      "body": "Use the following resources to terminate a deployment.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Terminate a Cloud Deployment",
+      "headingLevel": 3,
+      "body": "To terminate an Atlas cloud cluster:**Atlascli:**Atlas CLI> **Note:** If you enabled **Termination Protection** on your\n> cluster, you must first disable it.To delete one cluster in the specified project using the\nAtlas CLI, run the following command:```sh\n\natlas clusters delete <clusterName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters delete](atlas/cli/current/command/atlas-clusters-delete).**Ui:**Atlas UI* Click  next to the cluster you want to disable\n  Termination Protection for.\n\n* Click Edit Config from the drop-down menu.\n\n* Click Additional Settings.\n\n* Toggle Termination Protection to Off.\n\n* Click Review Changes.\n\n* Click Apply Changes.If you have a [Backup Compliance Policy enabled](backup-compliance-policy) and\nyou terminate a cluster, Atlas automatically maintains all\nexisting snapshots after the termination according to the backup\npolicy. Atlas retains the [oplog](manual/reference/glossary) for\n[restoring a point in time with continuous cloud backup](recover-pit-continuous-cloud-backup) in a static state until\nAtlas can no longer use them for continuous cloud backup.Otherwise, if you are terminating a cluster with Cloud Backup\nenabled, you must toggle Keep existing snapshots after\ntermination to On to retain any existing snapshots\nafter termination. This option instructs Atlas to keep the\nexisting snapshots and [oplog](manual/reference/glossary) for the cluster according to\nyour cluster's\n[base snapshot schedule](cloud-provider-retention-policy). If you\nhave Cloud Backup disabled, this option is unavailable.* Enter the cluster name.\n\n* Click Terminate.Atlas terminates the cluster after completing any in-progress\ndeployment changes. Atlas also terminates all Search Nodes\nconfigured for the cluster.Atlas bills for the hours that the cluster was active. To learn\nmore about Atlas billing, see Manage Billing.> **Warning:** Terminating a cluster also deletes any backup snapshots for that\n> cluster. See [base snapshot schedule](cloud-provider-retention-policy). If you\n> terminate a cluster with associated [custom tags](configure-resource-tags) that don't apply to any other\n> cluster, Atlas deletes the tags. You can't\n> restore these deleted tags.**M10+:**M10+> **Note:**&#x20;\n>\n> Public IP Address Retention\n>\n> When you terminate a cluster with a lifetime of 12 hours or\n> more, Atlas reserves the cluster's public IP (Internet Protocol)\n> address, bound to its original cluster name.\n>\n> The following time frames apply from the moment you\n> terminate the cluster:\n>\n> | Cluster Lifetime   | IP Address Retention                           |\n> | ------------------ | ---------------------------------------------- |\n> | Less than 12 hours | Not retained                                   |\n> | 12 to 35 hours     | 12 to 35 hours (equal to the cluster lifetime) |\n> | 36 hours or more   | 36 hours                                       |\n>\n> If, in the applicable time frame, you create a new cluster\n> with the same name, Atlas reassigns the reserved public\n> IP (Internet Protocol) address to that cluster.\n>\n> cluster IP (Internet Protocol) addresses don't change when you or Atlas\n> pause or resume clusters.**M0:**Free Cluster",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas clusters delete <clusterName> [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Terminate a Local Deployment with the Atlas CLI",
+      "headingLevel": 3,
+      "body": "To delete the specified Atlas deployment using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas deployments delete [deploymentName] [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas deployments delete](atlas/cli/current/command/atlas-deployments-delete).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas deployments delete [deploymentName] [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    }
+  ]
+}

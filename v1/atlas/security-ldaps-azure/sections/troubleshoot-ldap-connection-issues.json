@@ -1,0 +1,17 @@
+{
+  "heading": "Troubleshoot LDAP Connection Issues",
+  "headingLevel": 2,
+  "body": "> **Note:** In OneLogin, the bind user must be a member of the `Microsoft Entra ID DC Administrators` group\n> to perform LDAP searches. [Make sure that your bind user has these privileges](#add-the-bind-user-to-the-aad-dc-administrators-group)\n> before running `ldapsearch`.\n\nUse `ldapsearch` to determine if the query template you\nconfigured Atlas to use returns user DNs the way you expect. The\nquery template may not be returning the correct user DNs if LDAP (Lightweight Directory Access Protocol)\nauthentication works but LDAP (Lightweight Directory Access Protocol) authorization doesn't.\n\nUse the following `ldapsearch` template:\n\n```sh\nldapsearch -H 'ldaps://ldap.<managed-domain>.com' -b 'DC=<managed>,DC=<domain>,DC=com' -s sub -D 'CN=<bind-user-dn>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com))'\n```\n\n> **Note:** For OneLogin, the attributes in distinguished names must be\n> upper case.\n\nIf your `<managed-domain>` consists of one or more subdomains,\nyou must add a `DC` (domainComponent) attribute to the\ndistinguished name for each.\n\n> **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n> components are:\n>\n> `DC=aadds,DC=example,DC=com`\n\nFor example, if your `bind-user-dn` is\n`CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com`,\nyour `<managed-domain>` is `aadds.example.com`, and your\n`group-name` is `Atlas read only`, use the following command:\n\n```sh\nldapsearch -H 'ldaps://ldap.aadds.example.com' -b 'DC=aadds,DC=example,DC=com' -s sub -D 'CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com))'\n```\n\n> **Note:** Other query templates may also work.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://ldap.<managed-domain>.com' -b 'DC=<managed>,DC=<domain>,DC=com' -s sub -D 'CN=<bind-user-dn>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com))'",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://ldap.aadds.example.com' -b 'DC=aadds,DC=example,DC=com' -s sub -D 'CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com))'",
+      "tokenEstimate": 97
+    }
+  ]
+}

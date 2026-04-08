@@ -1,0 +1,12 @@
+{
+  "heading": "Built-In Custom Write Concerns",
+  "headingLevel": 2,
+  "body": "Atlas provides built-in custom write concerns for multi-region\nclusters. Write concern describes the level of acknowledgment requested\nfrom MongoDB for write operations to a cluster.\n\nAtlas's built-in custom write concerns can help improve\ndata consistency by ensuring your operations are propagated to a set\nnumber of regions to succeed.\n\nTo use a custom write concern, specify the\nwrite concern in the [write concern document](manual/reference/write-concern) of your operation.\n\nAtlas provides the following custom write concerns for multi-region\nclusters:\n\n| Write Concern | Tags             | Description                                                                                                  |\n| ------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |\n| twoRegions    | \\{ region: 2 }   | Write operations must be acknowledged by at least two regions in your cluster.                               |\n| threeRegions  | \\{ region: 3 }   | Write operations must be acknowledged by at least three regions in your cluster.                             |\n| twoProviders  | \\{ provider: 2 } | Write operations must be acknowledged by at least two regions in your cluster with distinct cloud providers. |\n\n> **Example:** Consider a multi-region cluster across three regions:\n> **us-east-1**, **us-east-2**, and **us-west-1**. You want to have\n> write operations propagate to all three regions in your cluster\n> before Atlas accepts them.\n>\n> The following operation inserts a document and requires that the\n> operation be propagated to all three regions due to the\n> `{ w: \"threeRegions\" }` write concern object:\n>\n> ```javascript\n> db.employees.insertOne(\n>   { name: \"Bob Smith\", company: \"MongoDB\" },\n>   { writeConcern: { w: \"threeRegions\", j: true } }\n> )\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.employees.insertOne(\n  { name: \"Bob Smith\", company: \"MongoDB\" },\n  { writeConcern: { w: \"threeRegions\", j: true } }\n)",
+      "tokenEstimate": 39
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "path": "atlas/move-cluster",
+  "product": "atlas",
+  "title": "Step 3: Click .",
+  "sections": [
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Support by Cluster Tier",
+      "headingLevel": 3,
+      "body": "Atlas supports changing a cluster's region and cloud provider:\n\n- Anytime on a Flex cluster as long as the new region is [supported for Flex clusters](flex-limits-config).\n\n- Anytime on an `M10+` cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Preferred and Electable Nodes",
+      "headingLevel": 3,
+      "body": "Each node in the preferred and electable regions can:\n\n- Participate in [replica set elections](manual/core/replica-set-elections)\n\n- Become the [primary](manual/reference/glossary) if the majority of replica set nodes\n  are available.\n\nElectable nodes in the cluster must total 3, 5, or 7.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Migration, Downtime and Performance Impact",
+      "headingLevel": 3,
+      "body": "Depending on the amount of data to migrate, migrations can take a\nsignificant amount of time. To maximize availability for a replica set,\nAtlas migrates one member at a time, starting with the secondary\nmembers first and then the primary.\n\nMigration can affect performance if your primary is already reaching\noperational capacity: each newly migrated replica set member must\nperform an [initial sync](manual/reference/glossary) from the primary, adding to the\noperational load. Migrations can also affect performance if\n[read preferences](manual/core/read-preference) are set to read from\nsecondaries: the replica set is down one secondary during the migration.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "VPC/VNet Peering (AWS and Azure)",
+      "headingLevel": 3,
+      "body": "If you move a cluster out of a region that has a\n[VPC/VNet peering](vpc-peering) connection, the moved\ncluster can no longer use that peering connection to communicate with\nservers in the peered network. Any other clusters with nodes\nremaining in the original region can continue to use the peering\nconnection.\n\nYou can create multiple peering connections for each region, including\na new peering connection with the region that you moved a\ncluster to.\n\n> **Note:** Cluster nodes removed from a region can't inherit access rules\n> from security groups (AWS) or allowed CIDR blocks configured for the\n> peering connection. You must [configure IP Access List entries](add-to-access-list) to allow the moved cluster to communicate with servers\n> residing in the peered network. Cluster nodes remaining in the\n> region are unaffected.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Billing",
+      "headingLevel": 3,
+      "body": "If you change your cluster's [highest priority region](deploy-across-multiple-regions) or if MongoDB migrates oplog data to\na different region, you will be billed for storage in both the old and\nnew regions for the days following the region change. You must disable\ncontinuous cloud backup and reenable it to prevent billing in both the regions.\n\n> **Note:** If you disable continuous cloud backup, Atlas will delete the\n> continuous cloud backup history.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Move a Single-Region Cluster",
+      "headingLevel": 2,
+      "body": "Use the following procedure to move nodes to a single-region\ncluster.\n\nClick Edit Config and select the cluster that you\nwant to move from the drop-down menu.\n\nAlternatively, if you are already viewing the specific cluster,\nclick Configuration.\n\nFor Free clusters:\n\n- You must also select a higher cluster tier. Atlas supports\n  moving Free clusters only when you increase the\n  cluster tier.\n\n- The available regions are a subset of the total supported regions for any\n  given cloud service provider.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Move a Multi-Region Cluster",
+      "headingLevel": 2,
+      "body": "Use the following procedure to move nodes to one or more regions in an\n`M10` or larger multi-region cluster:\n\nClick Edit Config and select the cluster that you\nwant to move from the drop-down menu.\n\nAlternatively, if you are already viewing the specific cluster,\nclick Configuration.\n\nFor a given region, click the currently selected\nRegion and pick a new region from the drop-down list.\nIf you modify the Preferred region, the Atlas\ncluster calls for one or more elections to select a new\n[primary](manual/reference/glossary) in the selected region. See\nTest Primary Failover for\ninstructions on testing your application response to a replica set\nelection before changing the Preferred cluster.\n\nTo change the number of nodes Atlas deploys to a given\nregion, increase or decrease the Number of Nodes\nvalue. The total number of nodes across the Preferred\nregion and all Electable regions must be an odd\nnumber.",
+      "codeBlocks": []
+    }
+  ]
+}

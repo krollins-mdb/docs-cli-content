@@ -1,0 +1,17 @@
+{
+  "heading": "Multiple Phrases Example",
+  "headingLevel": 3,
+  "body": "The following MongoDB Search example performs a basic search of the\n`title` field for the query strings `the man` and `the\nmoon`. There is no `slop` in the query and so the `slop`\nvalue defaults to `0`, which means the position of the words\nmust exactly match the query string to be included in the\nresults. The query also includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 10.\n\n- [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except\n  `title` and add a field named `score`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": [\"the man\", \"the moon\"]\n      }\n    }\n  },\n  { $limit: 10 },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  { title: 'The Man in the Moon', score: 4.4830474853515625 },\n  { title: 'Shoot the Moon', score: 3.252699851989746 },\n  { title: 'Kick the Moon', score: 3.252699851989746 },\n  { title: 'The Man', score: 2.8923356533050537 },\n  { title: 'The Moon and Sixpence', score: 2.8528637886047363 },\n  { title: 'The Moon Is Blue', score: 2.8528637886047363 },\n  { title: 'Racing with the Moon', score: 2.8528637886047363 },\n  { title: 'Mountains of the Moon', score: 2.8528637886047363 },\n  { title: 'Man on the Moon', score: 2.8528637886047363 },\n  { title: 'Castaway on the Moon', score: 2.8528637886047363 }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": [\"the man\", \"the moon\"]\n      }\n    }\n  },\n  { $limit: 10 },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "shell",
+      "content": "[\n  { title: 'The Man in the Moon', score: 4.4830474853515625 },\n  { title: 'Shoot the Moon', score: 3.252699851989746 },\n  { title: 'Kick the Moon', score: 3.252699851989746 },\n  { title: 'The Man', score: 2.8923356533050537 },\n  { title: 'The Moon and Sixpence', score: 2.8528637886047363 },\n  { title: 'The Moon Is Blue', score: 2.8528637886047363 },\n  { title: 'Racing with the Moon', score: 2.8528637886047363 },\n  { title: 'Mountains of the Moon', score: 2.8528637886047363 },\n  { title: 'Man on the Moon', score: 2.8528637886047363 },\n  { title: 'Castaway on the Moon', score: 2.8528637886047363 }\n]",
+      "tokenEstimate": 222
+    }
+  ]
+}

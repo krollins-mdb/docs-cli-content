@@ -1,0 +1,333 @@
+{
+  "path": "atlas/triggers/functions/context",
+  "product": "atlas",
+  "title": "Context",
+  "sections": [
+    {
+      "heading": "Get App Metadata (context.app)",
+      "headingLevel": 2,
+      "body": "The `context.app` object contains metadata about the App that\ncontains the Function.\n\n```typescript\n{\n  \"id\": string,\n  \"clientAppId\": string,\n  \"name\": string,\n  \"projectId\": string,\n  \"deployment\": {\n    \"model\": string,\n    \"providerRegion\": string,\n  },\n  \"lastDeployed\": string,\n  \"hostingUri\": string,\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "{\n  \"id\": string,\n  \"clientAppId\": string,\n  \"name\": string,\n  \"projectId\": string,\n  \"deployment\": {\n    \"model\": string,\n    \"providerRegion\": string,\n  },\n  \"lastDeployed\": string,\n  \"hostingUri\": string,\n}",
+          "tokenEstimate": 64
+        }
+      ]
+    },
+    {
+      "heading": "context.app.id",
+      "headingLevel": 3,
+      "body": "The unique internal ID of the App that contains the Function.\n\n```json\n\"60c8e59866b0c33d14ee634a\"\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"60c8e59866b0c33d14ee634a\"",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "context.app.clientAppId",
+      "headingLevel": 3,
+      "body": "The unique Client App ID for the App that contains the Function.\n\n```json\n\"myapp-abcde\"\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"myapp-abcde\"",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "context.app.name",
+      "headingLevel": 3,
+      "body": "The name of the App that contains the Function.\n\n```json\n\"myapp\"\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"myapp\"",
+          "tokenEstimate": 4
+        }
+      ]
+    },
+    {
+      "heading": "context.app.projectId",
+      "headingLevel": 3,
+      "body": "The ID of the Atlas Project that contains the App.\n\n```json\n\"5e1ec444970199272441a214\"\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"5e1ec444970199272441a214\"",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "context.app.deployment",
+      "headingLevel": 3,
+      "body": "An object that describes the App's deployment model and region.\n\n```json\n{\n   \"model\": \"LOCAL\",\n   \"providerRegion\": \"aws-us-east-1\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n   \"model\": \"LOCAL\",\n   \"providerRegion\": \"aws-us-east-1\"\n}",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "context.app.lastDeployed",
+      "headingLevel": 3,
+      "body": "The date and time that the App was last deployed, formatted as\nan ISODate string.\n\n```javascript\n\"2022-10-31T12:00:00.000Z\"\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "\"2022-10-31T12:00:00.000Z\"",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "context.app.hostingUri",
+      "headingLevel": 3,
+      "body": "If static hosting is enabled, this value is\nthe base URL for hosted assets. (Static Hosting is deprecated.\n[Learn more](atlas/app-services/migrate-hosting-graphql).)\n\n```json\n\"myapp-abcde.mongodbstitch.com\"\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"myapp-abcde.mongodbstitch.com\"",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Call a Function (context.functions)",
+      "headingLevel": 2,
+      "body": "You can call any [Atlas Function](atlas-functions) in your application\nthrough the `context.functions` interface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.functions.execute()",
+      "headingLevel": 3,
+      "body": "Calls a specific Function and returns the result.\n\n```javascript\ncontext.functions.execute(functionName, ...args)\n```\n\n| Parameter    | Type   | Description                                                                                                                 |\n| ------------ | ------ | --------------------------------------------------------------------------------------------------------------------------- |\n| functionName | string | The name of the Function.                                                                                                   |\n| args...      | mixed  | A variadic list of arguments to pass to the Function. Each Function parameter maps to a separate, comma-separated argument. |\n\n```javascript\n// difference: subtracts b from a using the sum function\nexports = function(a, b) {\n      return context.functions.execute(\"sum\", a, -1 * b);\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "context.functions.execute(functionName, ...args)",
+          "tokenEstimate": 9
+        },
+        {
+          "language": "javascript",
+          "content": "// difference: subtracts b from a using the sum function\nexports = function(a, b) {\n      return context.functions.execute(\"sum\", a, -1 * b);\n};",
+          "tokenEstimate": 37
+        }
+      ]
+    },
+    {
+      "heading": "Check the App Environment (context.environment)",
+      "headingLevel": 2,
+      "body": "You can access information about your App's current environment configuration\nand access environment-specific values through the `context.environment`\ninterface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.environment.tag",
+      "headingLevel": 3,
+      "body": "The name of the app's current environment as a string.\n\nPossible values:\n\n- `\"\"`\n\n- `\"development\"`\n\n- `\"testing\"`\n\n- `\"qa\"`\n\n- `\"production\"`\n\n```javascript\nexports = async function() {\n   switch(context.environment.tag) {\n      case \"\": {\n      return \"There is no current environment\"\n      }\n      case \"development\": {\n      return \"The current environment is development\"\n      }\n      case \"testing\": {\n      return \"The current environment is testing\"\n      }\n      case \"qa\": {\n      return \"The current environment is qa\"\n      }\n      case \"production\": {\n      return \"The current environment is production\"\n      }\n   }\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   switch(context.environment.tag) {\n      case \"\": {\n      return \"There is no current environment\"\n      }\n      case \"development\": {\n      return \"The current environment is development\"\n      }\n      case \"testing\": {\n      return \"The current environment is testing\"\n      }\n      case \"qa\": {\n      return \"The current environment is qa\"\n      }\n      case \"production\": {\n      return \"The current environment is production\"\n      }\n   }\n};",
+          "tokenEstimate": 100
+        }
+      ]
+    },
+    {
+      "heading": "context.environment.values",
+      "headingLevel": 3,
+      "body": "An object where each field maps the name of an environment value to its value in\nthe current environment.\n\n```javascript\nexports = async function() {\n   const baseUrl = context.environment.values.baseUrl\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const baseUrl = context.environment.values.baseUrl\n};",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "Connect to a MongoDB Data Source or Third-Party Service (context.services)",
+      "headingLevel": 2,
+      "body": "You can access a client for a linked MongoDB Atlas cluster or\nfederated data source through the `context.services` interface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.services.get()",
+      "headingLevel": 3,
+      "body": "Gets a service client for the specified service or `undefined` if\nno such service exists.\n\n```javascript\ncontext.services.get(serviceName)\n```\n\n| Parameter   | Type   | Description                                                                                                                                                                                                                      |\n| ----------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| serviceName | string | The name of the linked cluster, federated database instance, or service.Linked data sources created by your app use one of the following default names:Cluster: mongodb-atlasfederated database instance: mongodb-datafederation |\n\n```javascript\nexports = async function() {\n   // Get the cluster's data source client\n   const mdb = context.services.get(\"mongodb-atlas\");\n   // Reference a specific database/collection\n   const db = mdb.db(\"myApp\");\n   const collection = db.collection(\"myCollection\");\n   // Run a MongoDB query\n   return await collection.find({\n      name: \"Rupert\",\n      age: { $lt: 50 },\n   })\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "context.services.get(serviceName)",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   // Get the cluster's data source client\n   const mdb = context.services.get(\"mongodb-atlas\");\n   // Reference a specific database/collection\n   const db = mdb.db(\"myApp\");\n   const collection = db.collection(\"myCollection\");\n   // Run a MongoDB query\n   return await collection.find({\n      name: \"Rupert\",\n      age: { $lt: 50 },\n   })\n};",
+          "tokenEstimate": 90
+        }
+      ]
+    },
+    {
+      "heading": "Get Request Metadata (context.request)",
+      "headingLevel": 2,
+      "body": "You can access information about the incoming request with the\n[context.request](atlas-context-request) interface.\n\n> **Tip:** The `context.request` interface does not include request body\n> payloads.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.request",
+      "headingLevel": 3,
+      "body": "An object that contains information about the HTTP request that\ncaused the Function to execute.\n\n```javascript\n{\n   \"remoteIPAddress\": <string>,\n   \"requestHeaders\": <object>,\n   \"webhookUrl\": <string>,\n   \"httpMethod\": <string>,\n   \"rawQueryString\": <string>,\n   \"httpReferrer\": <string>,\n   \"httpUserAgent\": <string>,\n   \"service\": <string>,\n   \"action\": <string>\n}\n```\n\n| Field           | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                         |\n| --------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| remoteIPAddress | string | The IP address of the client that issued the Function request.                                                                                                                                                                                                                                                                                                                                      |\n| requestHeaders  | object | An object where each field maps to a type of HTTP Header that was included in the request that caused the Function to execute. The value of each field is an array of strings where each string maps to a header of the specified type that was included in the request.                                                                                                                            |\n| webhookUrl      | string | Optional. In HTTPS endpoint Functions, the route of the endpoint.                                                                                                                                                                                                                                                                                                                                   |\n| httpMethod      | string | Optional. In HTTPS endpoint Functions, the HTTP method of the request that called the endpoint.                                                                                                                                                                                                                                                                                                     |\n| rawQueryString  | string | The query string attached to the incoming HTTP request. All query parameters appear in the same order as they were specified.Important! For security reasons, Atlas automatically removes any query string key/value pair where the key is secret. For example, if an incoming request has the query string ?secret=hello\\&someParam=42 then the rawQueryString for that request is \"someParam=42\". |\n| httpReferrer    | string | Optional. The URL of the page from which the request was sent.This value is derived from the HTTP Referer header. If the request did not include a Referer header then this is undefined.                                                                                                                                                                                                           |\n| httpUserAgent   | string | Optional. Characteristic information that identifies the source of the request, such as the software vendor, operating system, or application type.This value is derived from the HTTP User-Agent header. If the request did not include a User-Agent header then this is undefined.                                                                                                                |\n\nThe following `context.request` document reflects a Function call\nissued from `https://myapp.example.com/` by a user browsing with\nChrome 73 on macOS High Sierra:\n\n**Input:**\n\n```javascript\nexports = function() {\n   return context.request\n}\n```\n\n**Output:**\n\n```json\n{\n   \"remoteIPAddress\": \"54.173.82.137\",\n   \"httpReferrer\": \"https://myapp.example.com/\",\n   \"httpUserAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36\",\n   \"rawQueryString\": \"?someParam=foo&anotherParam=42\",\n   \"requestHeaders\": {\n      \"Content-Type\": [\"application/json\"],\n      \"Cookie\": [\n      \"someCookie=someValue\",\n      \"anotherCookie=anotherValue\"\n      ]\n   }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   \"remoteIPAddress\": <string>,\n   \"requestHeaders\": <object>,\n   \"webhookUrl\": <string>,\n   \"httpMethod\": <string>,\n   \"rawQueryString\": <string>,\n   \"httpReferrer\": <string>,\n   \"httpUserAgent\": <string>,\n   \"service\": <string>,\n   \"action\": <string>\n}",
+          "tokenEstimate": 75
+        },
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n   return context.request\n}",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"remoteIPAddress\": \"54.173.82.137\",\n   \"httpReferrer\": \"https://myapp.example.com/\",\n   \"httpUserAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36\",\n   \"rawQueryString\": \"?someParam=foo&anotherParam=42\",\n   \"requestHeaders\": {\n      \"Content-Type\": [\"application/json\"],\n      \"Cookie\": [\n      \"someCookie=someValue\",\n      \"anotherCookie=anotherValue\"\n      ]\n   }\n}",
+          "tokenEstimate": 140
+        }
+      ]
+    },
+    {
+      "heading": "Get User Data (context.user)",
+      "headingLevel": 2,
+      "body": "You can access information about the application or system user that\ncalled a Function with the `context.user` interface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.user",
+      "headingLevel": 3,
+      "body": "The user object of the authenticated user that\ncalled the Function.\n\n```javascript\n{\n      \"id\": <string>,\n      \"type\": <string>,\n      \"data\": <document>,\n      \"identities\": <array>\n}\n```\n\n| Field        | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| id           | string   | A string representation of the ObjectId that uniquely identifies the user.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| type         | string   | The type of the user. The following types are possible:TypeDescription\"normal\"The user is an application user logged in through an authentication provider other than the API Key provider.\"server\"The user is a server process logged in with any type of App Services API Key.\"system\"The user is the system user that bypasses all rules.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |\n| data         | document | A document that contains metadata that describes the user. This field combines the data for all identities associated with the user, so the exact field names and values depend on which authentication providers the user has authenticated with.In system functions, the user.data object is empty. Use context.runningAsSystem() to test if the function is running as a system user.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| custom\\_data | document | A document from your application's custom user data collection that specifies the user's ID. You can use the custom user data collection to store arbitrary data about your application's users. If you set the name field, App Services populates the username metadata field with the return value of name. App Services automatically fetches a new copy of the data whenever a user refreshes their access token, such as when they log in. The underlying data is a regular MongoDB document, so you can use standard CRUD operations through the MongoDB Atlas service to define and modify the user's custom data.Custom user data is limited to 16MB, the maximum size of a MongoDB document. To avoid hitting this limit, consider storing small and relatively static user data in each custom user data document, such as the user's preferred language or the URL of their avatar image. For data that is large, unbounded, or frequently updated, consider only storing a reference to the data in the custom user document or storing the data with a reference to the user's ID rather than in the custom user document. |\n| identities   | array    | A list of authentication provider identities associated with the user. When a user first logs in with a specific provider, App Services associates the user with an identity object that contains a unique identifier and additional metadata about the user from the provider. For subsequent logins, App Services refreshes the existing identity data but does not create a new identity. Identity objects have the following form:\\{ \"id\": \"\\<Unique ID>\", \"provider\\_type\": \"\\<Provider Name>\", \"data\": \\{ \"\\<Metadata Field>\": \\<Value>, ... } }Field NameDescriptionidA provider-generated string that uniquely identifies this identity.provider\\_typeThe type of authentication provider associated with this identity.dataAdditional metadata from the authentication provider that describes the user. The exact field names and values will vary depending on which authentication providers the user has logged in with.                                                                                                                                                                                                   |",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n      \"id\": <string>,\n      \"type\": <string>,\n      \"data\": <document>,\n      \"identities\": <array>\n}",
+          "tokenEstimate": 31
+        }
+      ]
+    },
+    {
+      "heading": "context.runningAsSystem()",
+      "headingLevel": 3,
+      "body": "Evaluates to a boolean that is `true` if the Function is running as\na system user.\n\n```javascript\nexports = function() {\n   const isSystemUser = context.runningAsSystem()\n   if(isSystemUser) {\n      // Do some work with the system user.\n   } else {\n      // Fail.\n   }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n   const isSystemUser = context.runningAsSystem()\n   if(isSystemUser) {\n      // Do some work with the system user.\n   } else {\n      // Fail.\n   }\n}",
+          "tokenEstimate": 44
+        }
+      ]
+    },
+    {
+      "heading": "Reference a Value (context.values)",
+      "headingLevel": 2,
+      "body": "You can access your app's static [Create a new Value](atlas-define-value) in a\nFunction with the `context.values` interface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.values.get(valueName)",
+      "headingLevel": 3,
+      "body": "Gets the data associated with the provided Value name or\n`undefined` if no such value exists. This data is either a plain\ntext JSON value or a [Secret](atlas-app-secret) exposed through a\nvalue.\n\n| Parameter | Type   | Description            |\n| --------- | ------ | ---------------------- |\n| valueName | string | The name of the Value. |\n\n```javascript\nexports = function() {\n   // Get a global value (or `undefined` if no Value has the specified name)\n   const theme = context.values.get(\"theme\");\n   console.log(theme.colors)     // Output: { red: \"#ee1111\", blue: \"#1111ee\" }\n   console.log(theme.colors.red) // Output: \"#ee1111\"\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n   // Get a global value (or `undefined` if no Value has the specified name)\n   const theme = context.values.get(\"theme\");\n   console.log(theme.colors)     // Output: { red: \"#ee1111\", blue: \"#1111ee\" }\n   console.log(theme.colors.red) // Output: \"#ee1111\"\n};",
+          "tokenEstimate": 76
+        }
+      ]
+    },
+    {
+      "heading": "Send an HTTP Request (context.http)",
+      "headingLevel": 2,
+      "body": "You can send HTTPS requests through a built-in client with the\n`context.http` interface.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "context.http.get()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET) request to the\nspecified URL. See [http.get()](atlas/app-services/services/http-actions/http.get) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.get({ url: \"https://www.example.com/users\" })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.get({ url: \"https://www.example.com/users\" })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};",
+          "tokenEstimate": 52
+        }
+      ]
+    },
+    {
+      "heading": "context.http.post()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP POST](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) request to the\nspecified URL. See [http.post()](atlas/app-services/services/http-actions/http.post) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.post({\n      url: \"https://www.example.com/messages\",\n      body: { msg: \"This is in the body of a POST request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.post({\n      url: \"https://www.example.com/messages\",\n      body: { msg: \"This is in the body of a POST request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};",
+          "tokenEstimate": 80
+        }
+      ]
+    },
+    {
+      "heading": "context.http.put()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP PUT](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT) request to the\nspecified URL. See [http.put()](atlas/app-services/services/http-actions/http.put) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.put({\n      url: \"https://www.example.com/messages\",\n      body: { msg: \"This is in the body of a PUT request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.put({\n      url: \"https://www.example.com/messages\",\n      body: { msg: \"This is in the body of a PUT request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};",
+          "tokenEstimate": 80
+        }
+      ]
+    },
+    {
+      "heading": "context.http.patch()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP PATCH](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH) request to the\nspecified URL. See [http.patch()](atlas/app-services/services/http-actions/http.patch) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.patch({\n      url: \"https://www.example.com/diff.txt\",\n      body: { msg: \"This is in the body of a PATCH request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.patch({\n      url: \"https://www.example.com/diff.txt\",\n      body: { msg: \"This is in the body of a PATCH request!\" },\n      encodeBodyAsJSON: true\n   })\n   // The response body is a BSON.Binary object. Parse it and return.\n   return EJSON.parse(response.body.text());\n};",
+          "tokenEstimate": 82
+        }
+      ]
+    },
+    {
+      "heading": "context.http.delete()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP DELETE](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE) request to the\nspecified URL. See [http.delete()](atlas/app-services/services/http-actions/http.delete) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.delete({ url: \"https://www.example.com/user/8675309\" })\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.delete({ url: \"https://www.example.com/user/8675309\" })\n};",
+          "tokenEstimate": 31
+        }
+      ]
+    },
+    {
+      "heading": "context.http.head()",
+      "headingLevel": 3,
+      "body": "Sends an [HTTP HEAD](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD) request to the\nspecified URL. See [http.head()](atlas/app-services/services/http-actions/http.head) for detailed reference\ninformation, including parameter definitions and return types.\n\n```javascript\nexports = async function() {\n   const response = await context.http.head({ url: \"https://www.example.com/users\" })\n   // The response body is a BSON.Binary object. Parse it and return.\n   EJSON.parse(response.body.text());\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function() {\n   const response = await context.http.head({ url: \"https://www.example.com/users\" })\n   // The response body is a BSON.Binary object. Parse it and return.\n   EJSON.parse(response.body.text());\n};",
+          "tokenEstimate": 51
+        }
+      ]
+    }
+  ]
+}

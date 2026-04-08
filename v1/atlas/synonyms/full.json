@@ -1,0 +1,1349 @@
+{
+  "path": "atlas/synonyms",
+  "product": "atlas",
+  "title": "Learn More",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "`synonyms` has the following syntax in an index definition:\n\n```json\n{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n",
+          "tokenEstimate": 56
+        }
+      ]
+    },
+    {
+      "heading": "Options",
+      "headingLevel": 2,
+      "body": "`synonyms` takes the following fields in an index definition:\n\n| Field             | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Necessity |\n| ----------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| analyzer          | string   | Name of the analyzer to use with this synonym mapping.You can use a synonym mapping to query only fields analyzed with the same analyzer.To use synonyms with stop words, you must either index the field using the Standard Analyzer or add the synonym entry without the stop word.You can use any MongoDB Search analyzer except the following:Language analyzers:lucene.kuromojilucene.cjkCustom analyzer tokenizers and token filters:nGram TokenizeredgeGram TokenizerdaitchMokotoffSoundex Token FilternGram Token FilteredgeGram Token Filtershingle Token FilterwordDelimiterGraph Token Filter | Required  |\n| name              | string   | Name of the synonym mapping. Name must be unique in the index definition. Value can't be an empty string.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Required  |\n| source            | document | Source collection for synonyms. The source option takes the collection field.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Required  |\n| source.collection | string   | Name of the MongoDB collection that is in the same database as the MongoDB Search index. Documents in this collection must be in the format described in the Synonyms Source Collection Documents.                                                                                                                                                                                                                                                                                                                                                                                                       | Required  |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Synonyms Source Collection Documents",
+      "headingLevel": 2,
+      "body": "Each document in the collection specified as the source for the\nsynonyms describe how one or more words map to one or more synonyms of\nthose words.\n\n> **Note:** On free tier clusters, the synonyms collection can't exceed 10,000 documents.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Format of Synonyms Source Collection Documents",
+      "headingLevel": 3,
+      "body": "You must configure each document with the following fields:\n\n| Field       | Type             | Description                                                                                                                                                                                                                                                                                                                                                                               | Necessity   |\n| ----------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |\n| input       | array of strings | Required for mappingType: explicit mappings.For explicit mappings, synonyms values are synonyms of each input token. Value can't be an empty or all-whitespace string. You can specify the same input value in multiple documents.                                                                                                                                                        | Conditional |\n| mappingType | string           | Type of mapping. Value can be one of the following:equivalent - describes a set of tokens that are equivalent to one another. For an example of this mappingType, see Example.explicit - matches input tokens and replaces them with all alternative synonyms tokens. For an example of this mappingType, see Example.                                                                    | Required    |\n| synonyms    | array of strings | Words that are synonyms of one another if mappingType is equivalent or synonyms of input tokens if mappingType is explicit. synonyms must have at least one value.To use synonyms with stop words, you must either add the synonym entry without the stop word or index the field using the Standard Analyzer.For an example of each mappingType see Source Collection Document Examples. | Required    |\n\nThe documents in the collection can contain other fields. The\ndocuments in the collection are additive, and mappings are\ndeduplicated. MongoDB Search synonyms are stored as a separate Atlas\ncollection, which counts against the same storage quota as any other\ncollection in Atlas. MongoDB Search might use more compute resources to\napply synonyms from larger synonyms source collections.\n\n> **Warning:** Don't include invalid synonym documents in the synonym source\n> collection. MongoDB Search doesn't create indexes if the indexes use synonym\n> mappings that reference collections with invalid documents. Only\n> include synonym documents that are properly formatted in your\n> synonym source collection.\n>\n> MongoDB doesn't recommend adding synonym documents to synonym source\n> collections in a production environment without first validating\n> that they are properly formatted and behave as expected in a test\n> environment.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Changes to Synonyms Source Collection Documents",
+      "headingLevel": 3,
+      "body": "If you make changes to your synonyms source collection:\n\n- You don't need to reindex because MongoDB Search watches for changes and\n  automatically updates its internal synonym map.\n\n- The time it takes MongoDB Search to update the synonym mappings increases with\n  the synonym source collection size. Note that the changes to synonym\n  documents are reflected in your MongoDB Search query results eventually.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Collection Document Examples",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Source Collection Document Examples",
+      "headingLevel": 3,
+      "body": "Atlas provides the documents for the following MongoDB Search mapping type\nexamples in a collection named `sample_synonyms`. You can load these\ndocuments on your cluster in the same database as your collection. To\nload these documents on your cluster, when you\n[create a MongoDB Search index](ref-create-index) for your collection, do the following:\n\n- When you select the **Configuration Method**, select the\n  **Visual Editor**.\n\n- When you **Add synonym mapping** to your index, select\n  **Load sample collection** from the **Synonym source\n  collection** dropdown.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "equivalent mappingType",
+      "headingLevel": 4,
+      "body": "In the following example source collection document, the `mappingType` is set to `equivalent` so that the tokens\n`car`, `vehicle`, and `automobile` are configured to be synonyms of one another.\n\n```json\n{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"car\", \"vehicle\", \"automobile\"]\n}\n```\n\nFor a [text](text-ref) query for `car`, `vehicle`, or\n`automobile` applying a synonym mapping that includes such a\ndocument, MongoDB Search returns documents that contain the term `car`,\n`vehicle`, or `automobile`.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"car\", \"vehicle\", \"automobile\"]\n}",
+          "tokenEstimate": 26
+        }
+      ]
+    },
+    {
+      "heading": "explicit mappingType",
+      "headingLevel": 4,
+      "body": "In the following example source collection document, `mappingType` is set to `explicit`\nso that the tokens `beer`, `brew`, and `pint` are configured to be synonyms of\nthe `input` token `beer`.\n\n```json\n{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"beer\"],\n  \"synonyms\": [\"beer\", \"brew\", \"pint\"]\n}\n```\n\nFor a [text](text-ref) query for `beer` applying a synonym mapping\nthat includes such a document, MongoDB Search returns documents that contain\nthe terms \"beer\", \"brew\", or \"pint\" because the `input` token\n`beer` is explicitly mapped to all these `synonyms` tokens.\nHowever, for a query for `pint`, MongoDB Search does not find documents\nthat contain `beer` because `pint` is not explicitly mapped to\n`beer`.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"beer\"],\n  \"synonyms\": [\"beer\", \"brew\", \"pint\"]\n}",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Synonym Source Collection Example",
+      "headingLevel": 3,
+      "body": "The following collection named `synonymous_terms` is an example synonym\nsource collection that can be used with the `movies` collection in the\n`sample_mflix` database.\n\nThe `sample_mflix.synonymous_terms` collection contains the following\ndocuments:\n\n```json\n{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"car\", \"vehicle\", \"automobile\"]\n}\n```\n\n```json\n{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"race\"],\n  \"synonyms\": [\"contest\", \"rally\"]\n}\n```\n\n```json\n{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"dress\", \"apparel\", \"attire\"]\n}\n```\n\n```json\n{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"boat\"],\n  \"synonyms\": [\"vessel\", \"sail\"]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"car\", \"vehicle\", \"automobile\"]\n}",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"race\"],\n  \"synonyms\": [\"contest\", \"rally\"]\n}",
+          "tokenEstimate": 29
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"equivalent\",\n  \"synonyms\": [\"dress\", \"apparel\", \"attire\"]\n}",
+          "tokenEstimate": 27
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappingType\": \"explicit\",\n  \"input\": [\"boat\"],\n  \"synonyms\": [\"vessel\", \"sail\"]\n}",
+          "tokenEstimate": 30
+        }
+      ]
+    },
+    {
+      "heading": "Index Definition Examples",
+      "headingLevel": 2,
+      "body": "<SelectedContent>\n  The following examples for the `sample_mflix.movies` collection create\n  index definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\n  synonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\n  section to enable synonym mappings.\n\n  # Use Static Mappings\n\n  This example performs the following actions:\n\n  - Configures an index with a single text field and a single\n    synonym mapping definition that uses the mapping configured in\n    the `synonymous_terms` collection.\n\n  - Analyzes the `plot` field with the `lucene.english`\n    analyzer.\n\n  - Enables synonyms from the `synonymous_terms` collection for queries\n    on fields analyzed with the `lucene.english` analyzer.\n\n  You can use the Atlas Administration API to configure the index.\n  Replace the following values in the sample `curl` command:\n\n  - Replace \\{`ACCESS-TOKEN`} with your Service Account access token.\n    To learn how to generate an access token, see [Make an API (Application Programming Interface) Request](example-api-request).\n\n  - Replace \\{`groupId`} with the project ID of the project where\n    you want to create the MongoDB Search index.\n\n  - Replace \\{`clusterName`} with the name of the cluster where\n    you want to create the MongoDB Search index.\n\n  ```shell\n  curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n      --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n      --header \"Content-Type: application/json\" \\\n      -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n      -d '{ \"collectionName\": \"movies\",\n          \"database\": \"sample_mflix\",\n          \"name\": \"default\",\n          \"type\": \"search\",\n          \"definition\": {\n              \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                  \"plot\": {\n                    \"type\": \"string\",\n                    \"analyzer\": \"lucene.english\"\n                  }\n                }\n              },\n              \"synonyms\": [\n                {\n                  \"analyzer\": \"lucene.english\",\n                  \"name\": \"my_synonyms\",\n                  \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                  }\n                }\n              ]\n          }\n      }'\n  ```\n\n  # Use Dynamic Mappings\n\n  This example performs the following actions:\n\n  - Configures an index for all document fields and a\n    single synonym mapping definition that uses the mapping\n    configured in the `synonymous_terms` collection.\n\n  - Uses the default analyzer, `lucene.standard`, to analyze all\n    the fields.\n\n  - Enables synonyms from the `synonymous_terms` collection for queries on\n    fields analyzed with the `lucene.standard` analyzer.\n\n  You can use the Atlas Administration API to configure the index.\n  Replace the following values in the sample `curl` command:\n\n  - Replace \\{`ACCESS-TOKEN`} with your Service Account access token.\n    To learn how to generate an access token, see [Make an API (Application Programming Interface) Request](example-api-request).\n\n  - Replace \\{`groupId`} with the project ID of the project where\n    you want to create the MongoDB Search index.\n\n  - Replace \\{`clusterName`} with the name of the cluster where\n    you want to create the MongoDB Search index.\n\n  ```shell\n  curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n      --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n      --header \"Content-Type: application/json\" \\\n      -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n      -d '{ \"collectionName\": \"movies\",\n          \"database\": \"sample_mflix\",\n          \"name\": \"default\",\n          \"type\": \"search\",\n          \"definition\": {\n              \"mappings\": {\n                \"dynamic\": true\n              },\n              \"synonyms\": [\n                {\n                  \"analyzer\": \"lucene.standard\",\n                  \"name\": \"my_synonyms\",\n                  \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                  }\n                }\n              ]\n          }\n      }'\n  ```\n\n  # Learn More\n\n  To learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\n  create a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\n  To see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\n  To see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n</SelectedContent>\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"movies\",\n        \"database\": \"sample_mflix\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": {\n              \"dynamic\": false,\n              \"fields\": {\n                \"plot\": {\n                  \"type\": \"string\",\n                  \"analyzer\": \"lucene.english\"\n                }\n              }\n            },\n            \"synonyms\": [\n              {\n                \"analyzer\": \"lucene.english\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                  \"collection\": \"synonymous_terms\"\n                }\n              }\n            ]\n        }\n    }'",
+          "tokenEstimate": 212
+        },
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"movies\",\n        \"database\": \"sample_mflix\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": {\n              \"dynamic\": true\n            },\n            \"synonyms\": [\n              {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                  \"collection\": \"synonymous_terms\"\n                }\n              }\n            ]\n        }\n    }'",
+          "tokenEstimate": 179
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Create a  configuration file and specify the  field.",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n",
+          "tokenEstimate": 120
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Connect to the Atlas CLI",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your cluster from the\nAtlas CLI. To learn more, see\n[Connect from the Atlas CLI](atlas/cli/current/connect-atlas-cli).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create a  index.",
+      "headingLevel": 2,
+      "body": "Run the [atlas clusters search indexes create](atlas/cli/current/command/atlas-clusters-search-indexes-create)\ncommand in your terminal, replacing `<clusterName>` with the\nname of the cluster, and `<path-to-file>` with the\npath to the `static-index.json` file:\n\n```shell\natlas clusters search indexes create <clusterName> --file <path-to-file>\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "atlas clusters search indexes create <clusterName> --file <path-to-file>",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Create a  configuration file and specify the  field.",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n",
+          "tokenEstimate": 87
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Connect to the Atlas CLI",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your cluster from the\nAtlas CLI. To learn more, see\n[Connect from the Atlas CLI](atlas/cli/current/connect-atlas-cli).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create a  index.",
+      "headingLevel": 2,
+      "body": "Run the [atlas clusters search indexes create](atlas/cli/current/command/atlas-clusters-search-indexes-create)\ncommand in your terminal, replacing `<clusterName>` with the\nname of the cluster, and `<path-to-file>` with the\npath to the `dynamic-index.json` file:\n\n```shell\natlas clusters search indexes create <clusterName> --file <path-to-file>\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "atlas clusters search indexes create <clusterName> --file <path-to-file>",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to your cluster using .",
+      "headingLevel": 2,
+      "body": "Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Specify the database and collection.",
+      "headingLevel": 2,
+      "body": "On the Database screen, click the `sample_mflix` database, then\nclick the name of the `movies` collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create the  index.",
+      "headingLevel": 2,
+      "body": "- Click the Indexes tab, then select Search Indexes.\n\n- Click Create Atlas Search Index to open the index creation dialog box.\n\n- Specify a name for the index.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n- Specify the JSON (Javascript Object Notation) MongoDB Search index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n        \"plot\": {\n          \"type\": \"string\",\n          \"analyzer\": \"lucene.english\"\n        }\n      }\n    },\n    \"synonyms\": [\n      {\n        \"analyzer\": \"lucene.english\",\n        \"name\": \"my_synonyms\",\n        \"source\": {\n          \"collection\": \"synonymous_terms\"\n        }\n      }\n    ]\n  }\n  ```\n\n- Click Create Search Index.\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 96
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to your cluster using .",
+      "headingLevel": 2,
+      "body": "Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Specify the database and collection.",
+      "headingLevel": 2,
+      "body": "On the Database screen, click the `sample_mflix` database, then\nclick the name of the `movies` collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create the  index.",
+      "headingLevel": 2,
+      "body": "- Click the Indexes tab, then select Search Indexes.\n\n- Click Create Atlas Search Index to open the index creation dialog box.\n\n- Specify a name for the index.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n- Specify the JSON (Javascript Object Notation) MongoDB Search index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true\n    },\n    \"synonyms\": [\n      {\n        \"analyzer\": \"lucene.standard\",\n        \"name\": \"my_synonyms\",\n        \"source\": {\n          \"collection\": \"synonymous_terms\"\n        }\n      }\n    ]\n  }\n  ```\n\n- Click Create Search Index.\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 63
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to the deployment by using .",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your Atlas cloud-hosted\ndeployment or local deployment from [mongosh](mongodb-shell). For detailed\ninstructions on how to connect, see\n[Connect to a Deployment](mongodb-shell/connect).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Switch to the database that contains the collection for which you want to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\n use sample_mflix\n```\n\n**Output:**\n\n```shell\nswitched to db sample_mflix\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": " use sample_mflix",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "shell",
+          "content": "switched to db sample_mflix",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Run the  method to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```javascript\ndb.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": false,\n        \"fields\": {\n            \"plot\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.english\"\n            }\n        }\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.english\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)\n```\n\n**Output:**\n\n```\ndefault\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": false,\n        \"fields\": {\n            \"plot\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.english\"\n            }\n        }\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.english\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)",
+          "tokenEstimate": 108
+        },
+        {
+          "language": "text",
+          "content": "default",
+          "tokenEstimate": 1
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to the deployment by using .",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your Atlas cloud-hosted\ndeployment or local deployment from [mongosh](mongodb-shell). For detailed\ninstructions on how to connect, see\n[Connect to a Deployment](mongodb-shell/connect).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Switch to the database that contains the collection for which you want to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\n use sample_mflix\n```\n\n**Output:**\n\n```shell\nswitched to db sample_mflix\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": " use sample_mflix",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "shell",
+          "content": "switched to db sample_mflix",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Run the  method to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**```javascript\ndb.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": true\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.standard\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)\n```**Output:**```\ndefault\n```To learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).To see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.To see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.The following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.This example performs the following actions:* Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n* Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n* Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.You can use the Visual Editor or the JSON (Javascript Object Notation) Editor in the Atlas UI\nto configure the following index. To configure this index, after you\nselect your configuration method, select the `movies` collection in\nthe `sample_mflix` database.Visual Editor* Click Refine Your Index.\n\n* In the Field Mappings section, click Add\n  Field.\n\n* Click Customized Configuration.\n\n* Configure the following settings in the Add\n  Field Mapping window:\n\n  | Field Name   | Enable Dynamic Mapping | Data Type Configuration                                                                                                           |\n  | ------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |\n  | Select plot. | Toggle to disable.     | Click Add Data Type.Select String from the dropdown.Select lucene.english under lucene.language from the Index Analyzer dropdown. |\n\n* Click Add.\n\n* In the Synonyms Mappings section, click\n  Add Synonym Mapping.\n\n* Configure the following settings in the Add Synonym\n  Mapping window:\n\n  | Synonym mapping name | Synonym source collection | Analyzer                                                   |\n  | -------------------- | ------------------------- | ---------------------------------------------------------- |\n  | Enter my\\_synonyms   | Select synonymous\\_terms. | Select lucene.english under lucene.language from dropdown. |\n\n* Click Add.JSON EditorReplace the default index with the following index.```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n```This example performs the following actions:* Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n* Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n* Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.You can use the Visual Editor or the JSON (Javascript Object Notation) Editor in the Atlas UI\nto configure the following index. To configure this index, after you\nselect your configuration method, select the `movies` collection in\nthe `sample_mflix` database.Visual Editor* Click Refine Your Index.\n\n* In the Synonyms Mappings section, click\n  Add Synonym Mapping.\n\n* Configure the following settings in the Add Synonym\n  Mapping window:\n\n  | Synonym mapping name | Synonym source collection | Analyzer                                                               |\n  | -------------------- | ------------------------- | ---------------------------------------------------------------------- |\n  | Enter my\\_synonyms   | Select synonymous\\_terms. | Select lucene.standard from the dropdown if it isn't already selected. |\n\n* Click Add.JSON Editor```json\n{\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n```To learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).To see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.To see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.The following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.This example performs the following actions:* Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n* Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n* Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": true\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.standard\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)",
+          "tokenEstimate": 75
+        },
+        {
+          "language": "text",
+          "content": "default",
+          "tokenEstimate": 1
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 96
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 63
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C application, see the\n[Get Started](languages/c/c-driver/current/get-started)\ntutorial in the MongoDB C Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.c` file in your application directory,\nand copy and paste the following code into the file.\n\n```c\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for the plot field with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": false,\n                        \"fields\": {\n                            \"plot\": {\n                                \"type\": \"string\",\n                                \"analyzer\": \"lucene.english\"\n                            }\n                        }\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.english\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "c",
+          "content": "#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for the plot field with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": false,\n                        \"fields\": {\n                            \"plot\": {\n                                \"type\": \"string\",\n                                \"analyzer\": \"lucene.english\"\n                            }\n                        }\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.english\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}",
+          "tokenEstimate": 418
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "In your terminal, run the following commands to build and run this\napplication:\n\n**Input:**\n\n```shell\ncmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out\n```\n\n**Output:**\n\n```\nIndex created!\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "cmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "text",
+          "content": "Index created!",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C application, see the\n[Get Started](languages/c/c-driver/current/get-started)\ntutorial in the MongoDB C Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.c` file in your application directory,\nand copy and paste the following code into the file.\n\n```c\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for a dynamic index with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.standard\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "c",
+          "content": "#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for a dynamic index with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.standard\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}",
+          "tokenEstimate": 385
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "In your terminal, run the following commands to build and run this\napplication:\n\n**Input:**\n\n```shell\ncmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out\n```\n\n**Output:**\n\n```\nIndex created!\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "cmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "text",
+          "content": "Index created!",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C++ application, see the\n[Get Started](languages/cpp/cpp-driver/current/get-started)\ntutorial in the MongoDB C++ Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `CreateStaticIndex.cpp` file in your project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.english\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", false),\n            kvp(\"fields\", make_document(\n                kvp(\"plot\", make_document(\n                    kvp(\"type\", \"string\"),\n                    kvp(\"analyzer\", \"lucene.english\")\n                ))\n            ))\n        )),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "cpp",
+          "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.english\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", false),\n            kvp(\"fields\", make_document(\n                kvp(\"plot\", make_document(\n                    kvp(\"type\", \"string\"),\n                    kvp(\"analyzer\", \"lucene.english\")\n                ))\n            ))\n        )),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}",
+          "tokenEstimate": 401
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nc++ --std=c++17 CreateStaticIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "c++ --std=c++17 CreateStaticIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C++ application, see the\n[Get Started](languages/cpp/cpp-driver/current/get-started)\ntutorial in the MongoDB C++ Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `CreateDynamicIndex.cpp` file in your project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Define the synonym mapping for the lucene.standard analyzer\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.standard\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    // Create the MongoDB Search index definition\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true))\n        ),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "cpp",
+          "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Define the synonym mapping for the lucene.standard analyzer\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.standard\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    // Create the MongoDB Search index definition\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true))\n        ),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}",
+          "tokenEstimate": 367
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nc++ --std=c++17 CreateDynamicIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "c++ --std=c++17 CreateDynamicIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Go application, see the\n[Get Started](go/get-started)\ntutorial in the MongoDB Go Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+          "tokenEstimate": 391
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\ngo run create_static_index.go\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "go run create_static_index.go",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Go application, see the\n[Get Started](go/get-started)\ntutorial in the MongoDB Go Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": true,\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.standard\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": true,\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.standard\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+          "tokenEstimate": 348
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\ngo run create_dynamic_index.go\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "go run create_dynamic_index.go",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Java application, see the\n[Get Started](java/sync/current/get-started)\ntutorial in the MongoDB Java Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "In your project's base package directory, create a\n`CreateStaticIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateStaticIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.english analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.english\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition for the plot field with synonyms\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", false)\n                            .append(\"fields\",\n                                    new Document(\"plot\",\n                                            new Document(\"type\", \"string\")\n                                                    .append(\"analyzer\", \"lucene.english\")\n                                    )\n                            )\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateStaticIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.english analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.english\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition for the plot field with synonyms\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", false)\n                            .append(\"fields\",\n                                    new Document(\"plot\",\n                                            new Document(\"type\", \"string\")\n                                                    .append(\"analyzer\", \"lucene.english\")\n                                    )\n                            )\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}",
+          "tokenEstimate": 318
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Compile and run the file to create the index.",
+      "headingLevel": 2,
+      "body": "Compile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateStaticIndex.java\njava CreateStaticIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "javac CreateStaticIndex.java\njava CreateStaticIndex",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Java application, see the\n[Get Started](java/sync/current/get-started)\ntutorial in the MongoDB Java Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "In your project's base package directory, create a\n`CreateDynamicIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateDynamicIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.standard analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.standard\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateDynamicIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.standard analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.standard\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}",
+          "tokenEstimate": 272
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Compile and run the file to create the index.",
+      "headingLevel": 2,
+      "body": "Compile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateDynamicIndex.java\njava CreateDynamicIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "javac CreateDynamicIndex.java\njava CreateDynamicIndex",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Node.js application, see the\n[Get Started](node/get-started)\ntutorial in the MongoDB Node.js Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.js` file in your project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"plot\": {\n                        \"type\": \"string\",\n                        \"analyzer\": \"lucene.english\"\n                    }\n                }\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.english\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"plot\": {\n                        \"type\": \"string\",\n                        \"analyzer\": \"lucene.english\"\n                    }\n                }\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.english\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+          "tokenEstimate": 240
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nnode create-static-index.js\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "node create-static-index.js",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Node.js application, see the\n[Get Started](node/get-started)\ntutorial in the MongoDB Node.js Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.js` file in your project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition with dynamic mapping and synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.standard\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition with dynamic mapping and synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.standard\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+          "tokenEstimate": 206
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nnode create-dynamic-index.js\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "node create-dynamic-index.js",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Python application, see the\n[Get Started](python/pymongo-driver/current/get-started)\ntutorial in the MongoDB Python Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition for the plot field with synonyms\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"plot\": {\n                    \"type\": \"string\",\n                    \"analyzer\": \"lucene.english\"\n                }\n            }\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.english\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition for the plot field with synonyms\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"plot\": {\n                    \"type\": \"string\",\n                    \"analyzer\": \"lucene.english\"\n                }\n            }\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.english\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+          "tokenEstimate": 198
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\npython create-static-index.py\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "python create-static-index.py",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Python application, see the\n[Get Started](python/pymongo-driver/current/get-started)\ntutorial in the MongoDB Python Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+          "tokenEstimate": 159
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\npython create-dynamic-index.py\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "python create-dynamic-index.py",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Create a  configuration file and specify the  field.",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n",
+          "tokenEstimate": 120
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Connect to the Atlas CLI",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your local deployment from the\nAtlas CLI. To learn more, see\n[Connect from the Atlas CLI](atlas/cli/current/connect-atlas-cli).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create a  index.",
+      "headingLevel": 2,
+      "body": "Run the [atlas deployments search indexes create](atlas/cli/current/command/atlas-deployments-search-indexes-create)\ncommand in your terminal, replacing `<path-to-file>` with the\npath to the `static-index.json` file:\n\n```shell\natlas deployments search indexes create --file <path-to-file>\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "atlas deployments search indexes create --file <path-to-file>",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Create a  configuration file and specify the  field.",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}\n",
+          "tokenEstimate": 87
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Connect to the Atlas CLI",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your local deployment from the\nAtlas CLI. To learn more, see\n[Connect from the Atlas CLI](atlas/cli/current/connect-atlas-cli).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create a  index.",
+      "headingLevel": 2,
+      "body": "Run the [atlas deployments search indexes create](atlas/cli/current/command/atlas-deployments-search-indexes-create)\ncommand in your terminal, replacing `<path-to-file>` with the\npath to the `dynamic-index.json` file:\n\n```shell\natlas deployments search indexes create --file <path-to-file>\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "atlas deployments search indexes create --file <path-to-file>",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to your cluster using .",
+      "headingLevel": 2,
+      "body": "Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Specify the database and collection.",
+      "headingLevel": 2,
+      "body": "On the Database screen, click the `sample_mflix` database, then\nclick the name of the `movies` collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create the  index.",
+      "headingLevel": 2,
+      "body": "- Click the Indexes tab, then select Search Indexes.\n\n- Click Create Atlas Search Index to open the index creation dialog box.\n\n- Specify a name for the index.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n- Specify the JSON (Javascript Object Notation) MongoDB Search index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n        \"plot\": {\n          \"type\": \"string\",\n          \"analyzer\": \"lucene.english\"\n        }\n      }\n    },\n    \"synonyms\": [\n      {\n        \"analyzer\": \"lucene.english\",\n        \"name\": \"my_synonyms\",\n        \"source\": {\n          \"collection\": \"synonymous_terms\"\n        }\n      }\n    ]\n  }\n  ```\n\n- Click Create Search Index.\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.english\"\n      }\n    }\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.english\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 96
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to your cluster using .",
+      "headingLevel": 2,
+      "body": "Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Specify the database and collection.",
+      "headingLevel": 2,
+      "body": "On the Database screen, click the `sample_mflix` database, then\nclick the name of the `movies` collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Create the  index.",
+      "headingLevel": 2,
+      "body": "- Click the Indexes tab, then select Search Indexes.\n\n- Click Create Atlas Search Index to open the index creation dialog box.\n\n- Specify a name for the index.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n- Specify the JSON (Javascript Object Notation) MongoDB Search index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true\n    },\n    \"synonyms\": [\n      {\n        \"analyzer\": \"lucene.standard\",\n        \"name\": \"my_synonyms\",\n        \"source\": {\n          \"collection\": \"synonymous_terms\"\n        }\n      }\n    ]\n  }\n  ```\n\n- Click Create Search Index.\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"synonyms\": [\n    {\n      \"analyzer\": \"lucene.standard\",\n      \"name\": \"my_synonyms\",\n      \"source\": {\n        \"collection\": \"synonymous_terms\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 63
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to the deployment by using .",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your Atlas cloud-hosted\ndeployment or local deployment from [mongosh](mongodb-shell). For detailed\ninstructions on how to connect, see\n[Connect to a Deployment](mongodb-shell/connect).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Switch to the database that contains the collection for which you want to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\n use sample_mflix\n```\n\n**Output:**\n\n```shell\nswitched to db sample_mflix\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": " use sample_mflix",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "shell",
+          "content": "switched to db sample_mflix",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Run the  method to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```javascript\ndb.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": false,\n        \"fields\": {\n            \"plot\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.english\"\n            }\n        }\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.english\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)\n```\n\n**Output:**\n\n```\ndefault\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": false,\n        \"fields\": {\n            \"plot\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.english\"\n            }\n        }\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.english\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)",
+          "tokenEstimate": 108
+        },
+        {
+          "language": "text",
+          "content": "default",
+          "tokenEstimate": 1
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Connect to the deployment by using .",
+      "headingLevel": 2,
+      "body": "In your terminal, connect to your Atlas cloud-hosted\ndeployment or local deployment from [mongosh](mongodb-shell). For detailed\ninstructions on how to connect, see\n[Connect to a Deployment](mongodb-shell/connect).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Switch to the database that contains the collection for which you want to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\n use sample_mflix\n```\n\n**Output:**\n\n```shell\nswitched to db sample_mflix\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": " use sample_mflix",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "shell",
+          "content": "switched to db sample_mflix",
+          "tokenEstimate": 7
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Run the  method to create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```javascript\ndb.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": true\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.standard\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)\n```\n\n**Output:**\n\n```\ndefault\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.movies.createSearchIndex(\n    \"default\",\n    {\n    \"mappings\": { \n        \"dynamic\": true\n    },\n    \"synonyms\": [\n        {\n            \"analyzer\": \"lucene.standard\",\n            \"name\": \"my_synonyms\",\n            \"source\": {\n                \"collection\": \"synonymous_terms\"\n            }\n        }\n    ]}\n)",
+          "tokenEstimate": 75
+        },
+        {
+          "language": "text",
+          "content": "default",
+          "tokenEstimate": 1
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C application, see the\n[Get Started](languages/c/c-driver/current/get-started)\ntutorial in the MongoDB C Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.c` file in your application directory,\nand copy and paste the following code into the file.\n\n```c\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for the plot field with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": false,\n                        \"fields\": {\n                            \"plot\": {\n                                \"type\": \"string\",\n                                \"analyzer\": \"lucene.english\"\n                            }\n                        }\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.english\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "c",
+          "content": "#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for the plot field with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": false,\n                        \"fields\": {\n                            \"plot\": {\n                                \"type\": \"string\",\n                                \"analyzer\": \"lucene.english\"\n                            }\n                        }\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.english\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}",
+          "tokenEstimate": 418
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "In your terminal, run the following commands to build and run this\napplication:\n\n**Input:**\n\n```shell\ncmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out\n```\n\n**Output:**\n\n```\nIndex created!\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "cmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "text",
+          "content": "Index created!",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C application, see the\n[Get Started](languages/c/c-driver/current/get-started)\ntutorial in the MongoDB C Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.c` file in your application directory,\nand copy and paste the following code into the file.\n\n```c\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for a dynamic index with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.standard\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "c",
+          "content": "#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_mflix\", \"movies\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition for a dynamic index with synonyms. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"default\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    },\n                    \"synonyms\": [\n                        {\n                            \"analyzer\": \"lucene.standard\",\n                            \"name\": \"my_synonyms\",\n                            \"source\": {\n                                \"collection\": \"synonymous_terms\"\n                            }\n                        }\n                    ]\n                }\n            }]\n        }),\n        \"movies\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}",
+          "tokenEstimate": 385
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "In your terminal, run the following commands to build and run this\napplication:\n\n**Input:**\n\n```shell\ncmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out\n```\n\n**Output:**\n\n```\nIndex created!\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "cmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "text",
+          "content": "Index created!",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C++ application, see the\n[Get Started](languages/cpp/cpp-driver/current/get-started)\ntutorial in the MongoDB C++ Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `CreateStaticIndex.cpp` file in your project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.english\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", false),\n            kvp(\"fields\", make_document(\n                kvp(\"plot\", make_document(\n                    kvp(\"type\", \"string\"),\n                    kvp(\"analyzer\", \"lucene.english\")\n                ))\n            ))\n        )),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "cpp",
+          "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.english\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", false),\n            kvp(\"fields\", make_document(\n                kvp(\"plot\", make_document(\n                    kvp(\"type\", \"string\"),\n                    kvp(\"analyzer\", \"lucene.english\")\n                ))\n            ))\n        )),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}",
+          "tokenEstimate": 401
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nc++ --std=c++17 CreateStaticIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "c++ --std=c++17 CreateStaticIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your C++ application, see the\n[Get Started](languages/cpp/cpp-driver/current/get-started)\ntutorial in the MongoDB C++ Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `CreateDynamicIndex.cpp` file in your project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Define the synonym mapping for the lucene.standard analyzer\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.standard\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    // Create the MongoDB Search index definition\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true))\n        ),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "cpp",
+          "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n\n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"movies\"];\n    auto siv = collection.search_indexes();\n\n    // Define the synonym mapping for the lucene.standard analyzer\n    auto name = \"default\";\n    auto synonyms = bsoncxx::builder::basic::make_array(\n        make_document(\n            kvp(\"analyzer\", \"lucene.standard\"),\n            kvp(\"name\", \"my_synonyms\"),\n            kvp(\"source\", make_document(\n                kvp(\"collection\", \"synonymous_terms\")\n            ))\n        )\n    );\n\n    // Create the MongoDB Search index definition\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true))\n        ),\n        kvp(\"synonyms\", synonyms)\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n\n}",
+          "tokenEstimate": 367
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nc++ --std=c++17 CreateDynamicIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "c++ --std=c++17 CreateDynamicIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Go application, see the\n[Get Started](go/get-started)\ntutorial in the MongoDB Go Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+          "tokenEstimate": 391
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\ngo run create_static_index.go\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "go run create_static_index.go",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Go application, see the\n[Get Started](go/get-started)\ntutorial in the MongoDB Go Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": true,\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.standard\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": true,\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.standard\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+          "tokenEstimate": 348
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\ngo run create_dynamic_index.go\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "go run create_dynamic_index.go",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Java application, see the\n[Get Started](java/sync/current/get-started)\ntutorial in the MongoDB Java Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "In your project's base package directory, create a\n`CreateStaticIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateStaticIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.english analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.english\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition for the plot field with synonyms\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", false)\n                            .append(\"fields\",\n                                    new Document(\"plot\",\n                                            new Document(\"type\", \"string\")\n                                                    .append(\"analyzer\", \"lucene.english\")\n                                    )\n                            )\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateStaticIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.english analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.english\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition for the plot field with synonyms\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", false)\n                            .append(\"fields\",\n                                    new Document(\"plot\",\n                                            new Document(\"type\", \"string\")\n                                                    .append(\"analyzer\", \"lucene.english\")\n                                    )\n                            )\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}",
+          "tokenEstimate": 318
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Compile and run the file to create the index.",
+      "headingLevel": 2,
+      "body": "Compile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateStaticIndex.java\njava CreateStaticIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "javac CreateStaticIndex.java\njava CreateStaticIndex",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Java application, see the\n[Get Started](java/sync/current/get-started)\ntutorial in the MongoDB Java Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "In your project's base package directory, create a\n`CreateDynamicIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateDynamicIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.standard analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.standard\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.*;\nimport org.bson.Document;\n\nimport java.util.List;\n\npublic class CreateDynamicIndex {\n    public static void main(String[] args) {\n        // Replace the placeholder with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            String indexName = \"default\";\n\n            // Define the synonym mapping for the lucene.standard analyzer\n            List<Document> synonymsList = List.of(\n                    new Document(\"analyzer\", \"lucene.standard\")\n                            .append(\"name\", \"my_synonyms\")\n                            .append(\"source\", new Document(\"collection\", \"synonymous_terms\"))\n            );\n\n            // Create the MongoDB Search index definition\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            ).append(\"synonyms\", synonymsList);\n\n            // Create the index by using the Java Sync Driver\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}",
+          "tokenEstimate": 272
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Compile and run the file to create the index.",
+      "headingLevel": 2,
+      "body": "Compile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateDynamicIndex.java\njava CreateDynamicIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "javac CreateDynamicIndex.java\njava CreateDynamicIndex",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Node.js application, see the\n[Get Started](node/get-started)\ntutorial in the MongoDB Node.js Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.js` file in your project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"plot\": {\n                        \"type\": \"string\",\n                        \"analyzer\": \"lucene.english\"\n                    }\n                }\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.english\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the plot field with synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"plot\": {\n                        \"type\": \"string\",\n                        \"analyzer\": \"lucene.english\"\n                    }\n                }\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.english\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+          "tokenEstimate": 240
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nnode create-static-index.js\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "node create-static-index.js",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Node.js application, see the\n[Get Started](node/get-started)\ntutorial in the MongoDB Node.js Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.js` file in your project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition with dynamic mapping and synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.standard\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition with dynamic mapping and synonyms\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"synonyms\": [\n                {\n                    \"analyzer\": \"lucene.standard\",\n                    \"name\": \"my_synonyms\",\n                    \"source\": {\n                        \"collection\": \"synonymous_terms\"\n                    }\n                }\n            ]\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+          "tokenEstimate": 206
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\nnode create-dynamic-index.js\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.\n\nThe following examples for the `sample_mflix.movies` collection create\nindex definitions that use [dynamic mappings](static-dynamic-mappings). These examples use the `synonymous_terms`\nsynonym source collection described in the [Synonym Source Collection Example](sample-synonyms-coll)\nsection to enable synonym mappings.\n\nThis example performs the following actions:\n\n- Configures an index with a single text field and a single\n  synonym mapping definition that uses the mapping configured in\n  the `synonymous_terms` collection.\n\n- Analyzes the `plot` field with the `lucene.english`\n  analyzer.\n\n- Enables synonyms from the `synonymous_terms` collection for queries\n  on fields analyzed with the `lucene.english` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "node create-dynamic-index.js",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Python application, see the\n[Get Started](python/pymongo-driver/current/get-started)\ntutorial in the MongoDB Python Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-static-index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition for the plot field with synonyms\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"plot\": {\n                    \"type\": \"string\",\n                    \"analyzer\": \"lucene.english\"\n                }\n            }\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.english\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition for the plot field with synonyms\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"plot\": {\n                    \"type\": \"string\",\n                    \"analyzer\": \"lucene.english\"\n                }\n            }\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.english\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+          "tokenEstimate": 198
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\npython create-static-index.py\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThis example performs the following actions:\n\n- Configures an index for all document fields and a\n  single synonym mapping definition that uses the mapping\n  configured in the `synonymous_terms` collection.\n\n- Uses the default analyzer, `lucene.standard`, to analyze all\n  the fields.\n\n- Enables synonyms from the `synonymous_terms` collection for queries on\n  fields analyzed with the `lucene.standard` analyzer.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "python create-static-index.py",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Set up your application.",
+      "headingLevel": 2,
+      "body": "To learn how to install the driver and configure your Python application, see the\n[Get Started](python/pymongo-driver/current/get-started)\ntutorial in the MongoDB Python Driver documentation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Define the index.",
+      "headingLevel": 2,
+      "body": "Create a `create-dynamic-index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+          "tokenEstimate": 159
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create the index.",
+      "headingLevel": 2,
+      "body": "**Input:**\n\n```shell\npython create-dynamic-index.py\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nTo learn how to add a collection that configures words as synonyms to your cluster, and use this collection to\ncreate a MongoDB Search index and run MongoDB Search queries using synonyms, see [How to Use Synonyms with MongoDB Search](synonyms-tutorial).\n\nTo see examples of `text` queries that use synonyms, see [Synonyms Examples](text-ref-synonyms-eg) in the [text](text-ref) reference page.\n\nTo see an example `phrase` queries that uses synonyms, see [Synonyms Example](fts-phrase-synonyms-example) in the [Phrase](phrase-ref) reference page.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "python create-dynamic-index.py",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "New index name: default",
+          "tokenEstimate": 5
+        }
+      ]
+    }
+  ]
+}

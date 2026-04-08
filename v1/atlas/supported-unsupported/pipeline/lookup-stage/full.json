@@ -1,0 +1,76 @@
+{
+  "path": "atlas/supported-unsupported/pipeline/lookup-stage",
+  "product": "atlas",
+  "title": "$lookup Stage (Atlas Data Federation)",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "The `$lookup`\n[syntax](manual/reference/operator/aggregation/lookup) is\ndescribed in the MongoDB server manual.In Data Federation, the `from`  field in `$lookup` has the\nfollowing alternate syntax. This allows you to specify an object that\ncontains an optional database name and a required collection name:**Equalitymatch:**Equality Match```json\n{\n  $lookup: {\n    localField: \"<fieldName>\",\n    from: <collection-to-join>|{db: <db>, coll: <collection-to-join>},\n    foreignField: \"<fieldName>\",\n    as: \"<output-array-field>\",\n  }\n}\n```**Joincondition:**Conditions and Sub-Queries```json\n{\n  $lookup: {\n    from: <collection to join>|{db: <db>, coll: <collection-to-join>},\n    let: { <var_1>: <expression>, …, <var_n>: <expression> },\n    pipeline: [ <pipeline to execute on the collection to join> ],\n    as: <output array field>\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  $lookup: {\n    localField: \"<fieldName>\",\n    from: <collection-to-join>|{db: <db>, coll: <collection-to-join>},\n    foreignField: \"<fieldName>\",\n    as: \"<output-array-field>\",\n  }\n}",
+          "tokenEstimate": 55
+        },
+        {
+          "language": "json",
+          "content": "{\n  $lookup: {\n    from: <collection to join>|{db: <db>, coll: <collection-to-join>},\n    let: { <var_1>: <expression>, …, <var_n>: <expression> },\n    pipeline: [ <pipeline to execute on the collection to join> ],\n    as: <output array field>\n  }\n}",
+          "tokenEstimate": 77
+        }
+      ]
+    },
+    {
+      "heading": "from Field Object",
+      "headingLevel": 2,
+      "body": "| Field | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Necessity   |\n| ----- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |\n| db    | string | The database name.If you specify a database name, Data Federation reads data from the collection in the specified database. If you specify a database name that differs from the database upon which the command is operating, all nested $lookup stages must also specify this database name.If you don't specify a database name within a $lookup stage, collections in the stage inherit the database name specified in the closest parent $lookup stage if it exists, or the name of the database upon which the command is operating. | Conditional |\n| coll  | string | The collection name.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Required    |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "Suppose there are three databases named `sourceDB1`, `sourceDB2`, and\n`sourceDB3` with the following collections:**SourceDB1:**sourceDB1```json\ndb.orders.insertMany([\n  { \"_id\" : 1, \"item\" : \"almonds\", \"price\" : 12, \"quantity\" : 2 },\n  { \"_id\" : 2, \"item\" : \"pecans\", \"price\" : 20, \"quantity\" : 1 },\n  { \"_id\" : 3  }\n])\n```**SourceDB2:**sourceDB2```json\ndb.catalog.insertMany([\n  { \"_id\" : 1, \"sku\" : \"almonds\", \"description\": \"product 1\" },\n  { \"_id\" : 2, \"sku\" : \"bread\", \"description\": \"product 2\" },\n  { \"_id\" : 3, \"sku\" : \"cashews\", \"description\": \"product 3\" },\n  { \"_id\" : 4, \"sku\" : \"pecans\", \"description\": \"product 4\" },\n  { \"_id\" : 5, \"sku\": null, \"description\": \"Incomplete\" },\n  { \"_id\" : 6 }\n])\n```**SourceDB3:**sourceDB3```json\ndb.warehouses.insertMany([\n  { \"_id\" : 1, \"stock_item\" : \"almonds\", \"warehouse\": \"A\", \"instock\" : 120 },\n  { \"_id\" : 2, \"stock_item\" : \"pecans\", \"warehouse\": \"A\", \"instock\" : 70 },\n  { \"_id\" : 3, \"stock_item\" : \"cashews\", \"warehouse\": \"B\", \"instock\" : 60 },\n  { \"_id\" : 4, \"stock_item\" : \"bread\", \"warehouse\": \"B\", \"instock\" : 80 },\n  { \"_id\" : 5, \"stock_item\" : \"cookies\", \"warehouse\": \"A\", \"instock\" : 80 }\n])\n```The following examples use the [$lookup](manual/reference/operator/aggregation/lookup) aggregation stage\nto join documents from one collection with the documents from the collection\nin the other databases.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.orders.insertMany([\n  { \"_id\" : 1, \"item\" : \"almonds\", \"price\" : 12, \"quantity\" : 2 },\n  { \"_id\" : 2, \"item\" : \"pecans\", \"price\" : 20, \"quantity\" : 1 },\n  { \"_id\" : 3  }\n])",
+          "tokenEstimate": 78
+        },
+        {
+          "language": "json",
+          "content": "db.catalog.insertMany([\n  { \"_id\" : 1, \"sku\" : \"almonds\", \"description\": \"product 1\" },\n  { \"_id\" : 2, \"sku\" : \"bread\", \"description\": \"product 2\" },\n  { \"_id\" : 3, \"sku\" : \"cashews\", \"description\": \"product 3\" },\n  { \"_id\" : 4, \"sku\" : \"pecans\", \"description\": \"product 4\" },\n  { \"_id\" : 5, \"sku\": null, \"description\": \"Incomplete\" },\n  { \"_id\" : 6 }\n])",
+          "tokenEstimate": 139
+        },
+        {
+          "language": "json",
+          "content": "db.warehouses.insertMany([\n  { \"_id\" : 1, \"stock_item\" : \"almonds\", \"warehouse\": \"A\", \"instock\" : 120 },\n  { \"_id\" : 2, \"stock_item\" : \"pecans\", \"warehouse\": \"A\", \"instock\" : 70 },\n  { \"_id\" : 3, \"stock_item\" : \"cashews\", \"warehouse\": \"B\", \"instock\" : 60 },\n  { \"_id\" : 4, \"stock_item\" : \"bread\", \"warehouse\": \"B\", \"instock\" : 80 },\n  { \"_id\" : 5, \"stock_item\" : \"cookies\", \"warehouse\": \"A\", \"instock\" : 80 }\n])",
+          "tokenEstimate": 166
+        }
+      ]
+    },
+    {
+      "heading": "Basic Example",
+      "headingLevel": 3,
+      "body": "The following aggregation operation on the `sourceDB1.orders` collection joins the documents from the `orders` collection with the documents\nfrom the `sourceDB2.catalog` collection using the `item` field from the `orders` collection and the `sku` field from the `catalog` collection:\n\n```json\ndb.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  {\n    $lookup: {\n      from: { db: \"sourceDB2\", coll: \"catalog\" },\n      localField: \"item\",\n      foreignField: \"sku\",\n      as: \"inventory_docs\"\n    }\n  }\n)\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  {\n    $lookup: {\n      from: { db: \"sourceDB2\", coll: \"catalog\" },\n      localField: \"item\",\n      foreignField: \"sku\",\n      as: \"inventory_docs\"\n    }\n  }\n)",
+          "tokenEstimate": 62
+        }
+      ]
+    },
+    {
+      "heading": "Nested Example",
+      "headingLevel": 3,
+      "body": "The following aggregation operation on the `sourceDB1.orders` collection joins the documents from the `orders` collection with the documents from the `sourceDB2.catalog` collection and the documents from the `sourceDB3.warehouses` collection using the `item` field from the `orders` collection, the `sku` field from the `catalog` collection, and the `stock_item` and `instock` fields from the `warehouses` collection:\n\n```json\ndb.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  [\n    {\n      $lookup: {\n        from: db: \"sourceDB2\", coll: \"catalog\",\n        let: { \"order_sku\": \"$item\" },\n        pipeline: [\n          {\n            $match: {\n              $expr: {\n                $eq: [\"$sku\", \"$$order_sku\"]\n              }\n            }\n          },\n          {\n            $lookup: {\n              from: db: \"sourceDB3\", coll: \"warehouses\",\n              pipeline: [\n                {\n                  $match: {\n                    $expr:{\n                      $eq : [\"$stock_item\", \"$$order_sku\"]\n                    }\n                  }\n                },\n                {\n                  $project : { \"instock\": 1, \"_id\": 0}\n                }\n              ],\n              as: \"wh\"\n            }\n          },\n          { \"$unwind\": \"$wh\" },\n          {\n            $project : { \"description\": 1, \"instock\": \"$wh.instock\", \"_id\": 0}\n          }\n        ],\n        as: \"inventory\"\n      },\n    },\n  ]\n)\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  [\n    {\n      $lookup: {\n        from: db: \"sourceDB2\", coll: \"catalog\",\n        let: { \"order_sku\": \"$item\" },\n        pipeline: [\n          {\n            $match: {\n              $expr: {\n                $eq: [\"$sku\", \"$$order_sku\"]\n              }\n            }\n          },\n          {\n            $lookup: {\n              from: db: \"sourceDB3\", coll: \"warehouses\",\n              pipeline: [\n                {\n                  $match: {\n                    $expr:{\n                      $eq : [\"$stock_item\", \"$$order_sku\"]\n                    }\n                  }\n                },\n                {\n                  $project : { \"instock\": 1, \"_id\": 0}\n                }\n              ],\n              as: \"wh\"\n            }\n          },\n          { \"$unwind\": \"$wh\" },\n          {\n            $project : { \"description\": 1, \"instock\": \"$wh.instock\", \"_id\": 0}\n          }\n        ],\n        as: \"inventory\"\n      },\n    },\n  ]\n)",
+          "tokenEstimate": 230
+        }
+      ]
+    }
+  ]
+}

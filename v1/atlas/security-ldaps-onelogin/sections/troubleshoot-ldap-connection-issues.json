@@ -1,0 +1,17 @@
+{
+  "heading": "Troubleshoot LDAP Connection Issues",
+  "headingLevel": 2,
+  "body": "> **Note:** [add the host](configure-onelogin-ldap) from which you're\n> running `ldapsearch` to your IP access list before you\n> troubleshoot OneLogin connection issues.\n\nUse `ldapsearch` to determine if the query template you\nconfigured Atlas to use returns user DNs the way you expect. The\nquery template may not be returning the correct user DNs if LDAP (Lightweight Directory Access Protocol)\nauthentication works but LDAP (Lightweight Directory Access Protocol) authorization doesn't.\n\nUse the following `ldapsearch` template:\n\n```sh\nldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D '<bind_user_dn>' -w '<bind_user_pwd>' -b 'dc=<onelogin_instance_id>,dc=onelogin,dc=com' -s sub\n```\n\nFor example, if your `bind-user-dn` is\n`cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com`\nand your `<onelogin-instance-id>` is `mdb-example`, use the\nfollowing command:\n\n```sh\nldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D 'cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com' -w '<REDACTED>' -b 'dc=mdb-example,dc=onelogin,dc=com' -s sub\n```\n\n> **Note:** Other query templates may also work.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D '<bind_user_dn>' -w '<bind_user_pwd>' -b 'dc=<onelogin_instance_id>,dc=onelogin,dc=com' -s sub",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D 'cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com' -w '<REDACTED>' -b 'dc=mdb-example,dc=onelogin,dc=com' -s sub",
+      "tokenEstimate": 72
+    }
+  ]
+}

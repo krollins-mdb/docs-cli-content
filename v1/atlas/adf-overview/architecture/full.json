@@ -1,0 +1,25 @@
+{
+  "path": "atlas/adf-overview/architecture",
+  "product": "atlas",
+  "title": "Atlas Data Federation Architecture",
+  "sections": [
+    {
+      "heading": "Data Plane",
+      "headingLevel": 2,
+      "body": "The **Data Plane** in the preceding diagram is where your data\nresides.  You can configure Atlas Data Federation to access data in a variety of\nstorage services. Specifically, you can configure Atlas Data Federation to access\ndata in your AWS (Amazon Web Services) S3 (Simple Storage Service) buckets, Azure Blob Storage containers, Google Cloud Storage\nbuckets, Atlas clusters, Atlas Online Archives, and\nHTTP (HyperText Transport Protocol) and HTTPS (Secure HyperText Transport Protocol) URL (Uniform Resource Locator)s. To learn more about configuring Atlas Data Federation\nto access your data stores, see [Storage Configuration](config-adf).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Compute Plane",
+      "headingLevel": 2,
+      "body": "Atlas Data Federation preserves data locality and maximizes local computation, where\npossible, to minimize data transfer and optimize performance. The\n**Compute Plane** in the preceding diagram shows where Atlas Data Federation processes\nall requests. Atlas Data Federation uses an elastic pool of agents in the region\nnearest to your data store to process the data for your queries.\nTo learn more about supported regions, see\n[region](atlas-data-federation-regions).\n\nAtlas Data Federation doesn't persist underlying data but does temporarily persist\ncursor data in the frontend region of the connection. Any necessary\nmetadata for query execution is stored in the global backend. Using\na frontend region that is the same as your data region can help comply\nwith data sovereignty regulations.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Control Plane",
+      "headingLevel": 2,
+      "body": "The **Control Plane** in the preceding diagram handles key functions\nsuch as  TLS termination, managing cursors, and temporarily storing\ncursor data during query execution. It also coordinates with the\ncompute plane, which processes user queries and aggregates final\nresults.\n\nWhen you execute a query, it is first processed by the Control Plane,\nwhich determines the most efficient execution strategy. This\nplanned query is then distributed to the Compute Plane,\nwhich executes the query logic directly against your data stores and returns\nthe results back to the Control Plane. If your only data source is a single Atlas\ncluster, the Control Plane issues the query directly to the cluster,\nbypassing the Compute Plane and simplifying the operation.\nTo learn more, see [UI](query-fdi).\n\nYou can then set up role-based access control for your federated database instances. You\ncan control how your client connects to your federated database instance, either through a\nglobal connection option or by pinning it to a specific region. To learn\nmore, see [Configure Connection for Your Federated Database Instance](config-connection).",
+      "codeBlocks": []
+    }
+  ]
+}

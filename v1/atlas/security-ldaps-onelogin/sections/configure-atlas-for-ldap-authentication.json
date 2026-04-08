@@ -1,0 +1,22 @@
+{
+  "heading": "Configure Atlas for LDAP Authentication",
+  "headingLevel": 3,
+  "body": "The following procedure enables Atlas to authenticate database\nusers from OneLogin LDAP (Lightweight Directory Access Protocol):\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nAdd a User to DN mapping similar to the following example to allow\nclients to provide their email addresses instead of full DNs when they\nconnect to Atlas databases:\n\n```sh\n[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"cn={0},ou=users,dc=<onelogin_instance_id>,dc=onelogin,dc=com\"\n   }\n]\n```\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.\n\n> **Note:** [Skip this step](configure-onelogin-authz) if you want to\n> enable LDAP authorization.\n\nAdd users managed in the OneLogin LDAP (Lightweight Directory Access Protocol) to Atlas.\n\n- Click  Add New Database User.\n\n- Click LDAP User.\n\n- Perform one of the following:\n\n  - If you have not entered a User to DN Mapping, enter\n    the full DN of the LDAP (Lightweight Directory Access Protocol) user. Follow this template:\n\n    ```sh\n    cn=<user-name>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com\n    ```\n\n    For example, if your `<user-name>` is `jane@example.com` and\n    your `<onelogin-instance-id>` is `mdb-example`, your bind user's\n    DN is:\n\n    ```sh\n    cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com\n    ```\n\n  - If you entered a User to DN Mapping,\n    enter the username or email address that your mapping requires.\n\n- Select the database access level to grant to the user.\n\n- Click Add User.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"cn={0},ou=users,dc=<onelogin_instance_id>,dc=onelogin,dc=com\"\n   }\n]",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "sh",
+      "content": "cn=<user-name>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "sh",
+      "content": "cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com",
+      "tokenEstimate": 23
+    }
+  ]
+}

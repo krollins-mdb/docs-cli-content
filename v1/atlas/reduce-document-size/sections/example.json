@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 2,
+  "body": "Consider a movie catalog website that displays a list of the 50\nmost recently released movie titles and their poster images on the home\npage. From the home page, a user can click on a movie to see\nadditional details.\n\nThe website stores information about movies in a `movies` collection.\nEach movie document contains all of the information available for that\nmovie:\n\n```javascript\n// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>,\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}\n```\n\n> **Note:** Whenever possible, you should host images outside of your MongoDB\n> deployment and reference them with URLs. If you store images in\n> your database, you are much more likely to reach the document size\n> limit.\n\nIn this example, the most frequent query the website performs is to\nfind the 50 most recent movies' `title` and `poster`. Instead of\nquerying for all movie information, consider breaking up the `movie`\ncollection into two separate collections, `movies` and\n`movie_metadata`. The collections are linked with the `_id` of\n`movie` documents:\n\n```javascript\n// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>\n}\n```\n\n```javascript\n// movie_metadata collection\n\n{\n    \"_id\": <object_id>,\n    \"movie_id\": 123, // reference to a movies document\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}\n```\n\nThis way, when the website queries for the 50 most recent movies\nand their posters, it only loads information that it needs. If a user\nclicks on a movie, the site performs another query to find the\n`movie_metadata` document associated with that movie. This new schema\nis more performant than the original because the most frequent query\nreturns much smaller documents.\n\nConsider your use case, especially the operations you most frequently\nperform, and design a schema that efficiently uses your working set.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>,\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "javascript",
+      "content": "// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>\n}",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "javascript",
+      "content": "// movie_metadata collection\n\n{\n    \"_id\": <object_id>,\n    \"movie_id\": 123, // reference to a movies document\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}",
+      "tokenEstimate": 111
+    }
+  ]
+}

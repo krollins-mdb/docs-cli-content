@@ -1,0 +1,107 @@
+{
+  "path": "atlas/sp-agg-convert",
+  "product": "atlas",
+  "title": "$convert Expression (Stream Processing)",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "The `$convert` expression converts binary data types. This can be\nused to convert binary data in Kafka headers.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "The [$convert](manual/reference/operator/aggregation/convert) aggregation operator\nconverts between data types except for the binary data types offered in the Atlas Stream Processing\nversion of the `$convert` expression.\n\nThe `$convert` expression takes a document with the following fields:\n\n| Field     | Value                                  | Necessity | Description                                                                                                                                                                                                                                                                                                                                                                 |\n| --------- | -------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| input     | binData, int, long, double, and string | Required  | Binary data that would be converted to an int, long, double, or string type, or an int, long, double, or string type data that would be converted to binary data.                                                                                                                                                                                                           |\n| to        | binData, int, long, double, and string | Required  | Specifies the data type to which input is converted. You can specify to int, long, double, string, or binData.                                                                                                                                                                                                                                                              |\n| byteOrder | little, big                            | Optional  | Specifies big- or little-endian byte ordering of binData input and output. If unspecified, the default is little-endian byte ordering.byteOrder option specifies how to interpret input or output binData, but doesn't control the internal byte order of numeric types. Unless you have a specific use case for little-endian byte ordering, use big-endian byte ordering. |\n| format    | base64, base64url, hex, uuid, utf8     | Required  | Specifies a top-level format argument of string input and output.The $toString helper method doesn't interpret binData as utf-8 data by default. It defaults to base64. You must use the $convert expression for utf-8 conversions.                                                                                                                                         |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "If the value of `$convert.to` is `int`, the `binData` `input` value\nmust be `1`, `2`, or `4`. If the value of `$convert.to` is `long`,\nthe `binData` `input` value must be `1`, `2`, `4`, or `8`. If the\n`input` is of an unexpected length an error is generated. You can control this\nbehavior by configuring `$convert.onError`.\n\nWhen converting to `binData`, an `int` becomes a 4-byte `binData`, a `long`\nbecomes an 8-byte `binData`, and a `double` becomes an 8-byte `binData`. When\nconverting from `binData` to `double`, an 8-byte input is interpreted as IEEE\n754 double-precision floating point, and a 4-byte input is interpreted as IEEE 754\nsingle-precision floating point. Since MQL (MongoDB Query Language) only\nsupports double-precision floating point, it performs lossless conversion from the\nsingle-precision floating point value to double-precision.\n\nConverting `binData` to numeric types:\n\n| $convert.to               | int                             | long                            | double                                                       |\n| ------------------------- | ------------------------------- | ------------------------------- | ------------------------------------------------------------ |\n| Allowed widths (in bytes) | 1, 2, 4                         | 1, 2, 4, 8                      | 4, 8                                                         |\n| binData is interpreted as | two's complement signed integer | two's complement signed integer | IEEE 754 single-precision or double-precision floating point |\n\nConverting numeric types to `binData`:\n\n| Input                   | int | long | double |\n| ----------------------- | --- | ---- | ------ |\n| Output width (in bytes) | 4   | 8    | 8      |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "In the following examples, we describe `binData` using binary notation such as:\n\n`BinData(0b00000000 00000010)`\n\nThe leftmost byte (00000000) corresponds to the lowest memory address, or the 0-th\nindex of the byte array. Similarly, we use hex notation such as:\n\n`BinData(0x0100 000A)`\n\nThe leftmost byte (01) corresponds to the lowest memory address, or the 0th index of\nthe byte array.\n\nThe following documents are example `$convert` expressions that convert values across\n`BinData`, `int`, `long`, and `double` notations:\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000000 00000010),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 2\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 256\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “little” }\n}\n```\n\nResult: 1\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 65536\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “long”,\n    byteOrder: “big” }\n}\n```\n\nResult: 281474976710656\n\n```json\n{\n  $convert: {\n    input: BinData(0xFFFE7960),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: -100000\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: Error– binData length can only be 1,2, or 4 bytes when to == “int”.\n\n```json\n{\n  $convert: {\n    input: BinData(0xC04C CCCD),\n    to: “double”,\n    byteOrder: “big” }\n}\n```\n\nResult: -3.2000000476837158203125\n\n```json\n{\n  $convert: {\n    input: BinData(0x0000),\n    to: “double”,\n    byteOrder: “big” }\n}\n```\n\nResult: Error– binData length can only be 4 or 8 bytes when to == “double”.\n\n```json\n{\n  $convert: {\n    input: true,\n    to: “binData” }\n}\n```\n\nResult: BinData(0x01)  // subtype 0\n\n```json\n{\n  $convert: {\n    input: false,\n    to: “binData” }\n}\n```\n\nResult: BinData(0x00) // subtype 0\n\n```json\n{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “big” }\n}\n```\n\nResult: BinData(0x0000 0000 0000 002A) // subtype 0\n\n```json\n{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nResult: BinData(0x2A00 0000 0000 0000) // subtype 0\n\n```json\n{\n  $convert: {\n    input: { $toInt: “$myNumericField” },\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nAssuming myNumericField is an Int(42), Long(42), or Double(42.0)...\n\nResult: BinData(0x2A00 0000)\n\n```json\n{\n  $convert: {\n    input: “$myIntOrLongField”,\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nIf the input is Int(42):\n\nResult: BinData(0x2A00 0000)\n\nIf the input is Long(42):\n\nBinData(0x2A00 0000 0000 0000)",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0b00000000 00000010),\n    to: “int”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 38
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 38
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “little” }\n}",
+          "tokenEstimate": 38
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0x0001 0000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 36
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “long”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 42
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0xFFFE7960),\n    to: “int”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 34
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 42
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0xC04C CCCD),\n    to: “double”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 35
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: BinData(0x0000),\n    to: “double”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: true,\n    to: “binData” }\n}",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: false,\n    to: “binData” }\n}",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “big” }\n}",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “little” }\n}",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: { $toInt: “$myNumericField” },\n    to: “binData”,\n    byteOrder: “little” }\n}",
+          "tokenEstimate": 37
+        },
+        {
+          "language": "json",
+          "content": "{\n  $convert: {\n    input: “$myIntOrLongField”,\n    to: “binData”,\n    byteOrder: “little” }\n}",
+          "tokenEstimate": 35
+        }
+      ]
+    }
+  ]
+}

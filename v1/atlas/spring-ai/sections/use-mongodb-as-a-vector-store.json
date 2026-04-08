@@ -1,0 +1,27 @@
+{
+  "heading": "Use MongoDB as a Vector Store",
+  "headingLevel": 2,
+  "body": "This section demonstrates how to configure MongoDB as a vector\ndatabase, also known as a vector store, so that you can store the vector\nembeddings of your custom data.\n\nLocate the\n`src/main/java/com/example/demo/DemoApplication.java`\nfile in your project. At the same level as this file, create a\ndirectory called `config`, then create a file in this directory called\n`Config.java` to set up your Spring App configuration.\n\nThe following steps demonstrate how to create the `Bean` objects\nneeded to prepare the vector store.\n\nPaste the following code into the `Config.java` file to\nimport the necessary classes:\n\n```java\nimport org.springframework.ai.embedding.EmbeddingModel;\nimport org.springframework.ai.openai.OpenAiEmbeddingModel;\nimport org.springframework.ai.openai.api.OpenAiApi;\nimport org.springframework.ai.vectorstore.MongoDBAtlasVectorStore;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.SpringBootConfiguration;\nimport org.springframework.boot.autoconfigure.EnableAutoConfiguration;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.mongodb.core.MongoTemplate;\n```\n\nPaste the following code into the `Config.java` file to\nreference the values that you set in your application properties file:\n\n```java\n@Configuration\n@SpringBootConfiguration\n@EnableAutoConfiguration\npublic class Config {\n\n    @Value(\"${spring.ai.openai.api-key}\")\n    private String openAiKey;\n\n    @Value(\"${spring.data.mongodb.database}\")\n    private String databaseName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.collection-name:vector_store}\")\n    private String collectionName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.indexName:vector_index}\")\n    private String indexName;\n\n    @Value(\"${spring.data.mongodb.uri}\")\n    private String mongoUri;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.initialize-schema}\")\n    private Boolean initSchema;\n\n    // Add beans here...\n\n}\n```\n\nNext, paste the following code to generate the `OpenAiEmbeddingModel` instance\nthat uses the OpenAI API to create vector embeddings:\n\n```java\n@Bean\npublic EmbeddingModel embeddingModel() {\n    return new OpenAiEmbeddingModel(new OpenAiApi(openAiKey));\n}\n```\n\nFinally, paste the following code to create bean that returns a\n`VectorStore` instance. The `VectorStore` instance uses the\n`MongoTemplate` that corresponds to your deployment and the\n`OpenAiEmbeddingModel` created in the preceding step.\n\n```java\n@Bean\npublic VectorStore mongodbVectorStore(MongoTemplate mongoTemplate, EmbeddingModel embeddingModel) {\n    return new MongoDBAtlasVectorStore(mongoTemplate, embeddingModel,\n            MongoDBAtlasVectorStore.MongoDBVectorStoreConfig.builder().build(), initSchema);\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import org.springframework.ai.embedding.EmbeddingModel;\nimport org.springframework.ai.openai.OpenAiEmbeddingModel;\nimport org.springframework.ai.openai.api.OpenAiApi;\nimport org.springframework.ai.vectorstore.MongoDBAtlasVectorStore;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.SpringBootConfiguration;\nimport org.springframework.boot.autoconfigure.EnableAutoConfiguration;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.mongodb.core.MongoTemplate;",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "java",
+      "content": "@Configuration\n@SpringBootConfiguration\n@EnableAutoConfiguration\npublic class Config {\n\n    @Value(\"${spring.ai.openai.api-key}\")\n    private String openAiKey;\n\n    @Value(\"${spring.data.mongodb.database}\")\n    private String databaseName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.collection-name:vector_store}\")\n    private String collectionName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.indexName:vector_index}\")\n    private String indexName;\n\n    @Value(\"${spring.data.mongodb.uri}\")\n    private String mongoUri;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.initialize-schema}\")\n    private Boolean initSchema;\n\n    // Add beans here...\n\n}",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "java",
+      "content": "@Bean\npublic EmbeddingModel embeddingModel() {\n    return new OpenAiEmbeddingModel(new OpenAiApi(openAiKey));\n}",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "java",
+      "content": "@Bean\npublic VectorStore mongodbVectorStore(MongoTemplate mongoTemplate, EmbeddingModel embeddingModel) {\n    return new MongoDBAtlasVectorStore(mongoTemplate, embeddingModel,\n            MongoDBAtlasVectorStore.MongoDBVectorStoreConfig.builder().build(), initSchema);\n}",
+      "tokenEstimate": 53
+    }
+  ]
+}

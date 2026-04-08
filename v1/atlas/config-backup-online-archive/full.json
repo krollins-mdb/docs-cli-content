@@ -1,0 +1,25 @@
+{
+  "path": "atlas/config-backup-online-archive",
+  "product": "atlas",
+  "title": "Back Up and Restore Archived Data",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "You must have [Online Archive](config-online-archive) on\nyour Atlas cluster to use [Continuous Cloud Backup](pit-restore).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "Your Atlas cluster [Cloud Backup](backup-cloud-provider) only captures\ndata that is active in your cluster at the time of the backup. However, archived data has\nthe same redundancy guarantees that the S3 (Simple Storage Service) vendor provides.\n\nThe order in which you execute archive and backup operations has a direct impact on what data\nyou restore to your cluster. Consider the following scenarios:\n\n- **Scenario 1: You archived data before backing up.**\n\n  Part of your data lives in your cluster and the remaining part lives in your\n  Online Archive. If your cluster goes down, you restore data to the last state\n  preserved in your backup strategy. Your Online Archive remains unchanged.\n\n- **Scenario 2: You backed up data before archiving.**\n\n  You took a snapshot of the entirety of your data before archiving part of it. If your\n  cluster goes down and you restore to a snapshot older than the moment you archived data,\n  you may restore older data that already lives in your Online Archive.\n\nIf you use [Continuous Cloud Backup](pit-restore), you can replay the [oplog](manual/reference/glossary) to restore your cluster to a point in time that matches\nthe last time documents on the cluster were archived and avoid any data loss or redundancy.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "If you have configured [Continuous Cloud Backup](pit-restore) and [Online Archive](config-online-archive) on your Atlas cluster, take the following steps to restore your\ncluster:\n\n- [Pause and Resume Archiving](pause-resume-online-archive) Online Archive.\n\n- [Restore from Continuous Cloud Backup](restore-from-continuous) your cluster from the [Continuous Cloud Backup](pit-restore).\n\n- [Pause and Resume Archiving](pause-resume-online-archive) Online Archive.",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "heading": "Index Definition",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `title` field in the\n`movies` collection with the\n[keyword analyzer](ref-keyword-analyzer):\n\n```javascript\n{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"analyzer\": \"lucene.keyword\",\n        \"type\": \"string\"\n      },\n      \"genres\": {\n        \"type\": \"token\"\n      }\n    }\n  }\n}\n```\n\nThe following example searches all `title` fields for movie titles\nthat end with the word `Seattle`. The `(.*)` regular expression\nmatches any number of characters.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n        \"regex\": {\n          \"path\": \"title\",\n          \"query\": \"(.*) Seattle\"\n        }\n    }\n  },\n  {\n    $project: {\n        \"_id\": 0,\n        \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{ \"title\" : \"Sleepless in Seattle\" }\n{ \"title\" : \"Battle in Seattle\" }\n```\n\nThe following example uses the regular expression `[0-9]{2} (.){4}s`\nto find movie titles which begin with a 2-digit number followed by a\nspace, and end with a 5-letter word ending in `s`.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n        \"regex\": {\n          \"path\": \"title\",\n          \"query\": \"[0-9]{2} (.){4}s\"\n        }\n    }\n  },\n  {\n    $project: {\n        \"_id\": 0,\n        \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{ \"title\" : \"20 Dates\" }\n{ \"title\" : \"25 Watts\" }\n{ \"title\" : \"21 Grams\" }\n{ \"title\" : \"13 Lakes\" }\n{ \"title\" : \"18 Meals\" }\n{ \"title\" : \"17 Girls\" }\n{ \"title\" : \"16 Acres\" }\n{ \"title\" : \"26 Years\" }\n{ \"title\" : \"99 Homes\" }\n{ \"title\" : \"45 Years\" }\n```\n\nThe following example uses the regular expression `.*` to find movie\ntitles that contain the term `summer` anywhere in the `title` and\nreturns the number of movies that match the criteria in each genre.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"regex\": {\n            \"path\": \"title\",\n            \"query\": \".*summer.*\"\n          }\n        },\n        \"facets\": {\n          \"genresFacet\": {\n            \"type\": \"string\",\n            \"path\": \"genres\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('6') },\n    facet: {\n      genresFacet: {\n        buckets: [\n          { _id: 'Comedy', count: Long('5') },\n          { _id: 'Fantasy', count: Long('3') },\n          { _id: 'Romance', count: Long('3') },\n          { _id: 'Drama', count: Long('2') },\n          { _id: 'Horror', count: Long('1') },\n          { _id: 'Mystery', count: Long('1') }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"analyzer\": \"lucene.keyword\",\n        \"type\": \"string\"\n      },\n      \"genres\": {\n        \"type\": \"token\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n        \"regex\": {\n          \"path\": \"title\",\n          \"query\": \"(.*) Seattle\"\n        }\n    }\n  },\n  {\n    $project: {\n        \"_id\": 0,\n        \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"title\" : \"Sleepless in Seattle\" }\n{ \"title\" : \"Battle in Seattle\" }",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n        \"regex\": {\n          \"path\": \"title\",\n          \"query\": \"[0-9]{2} (.){4}s\"\n        }\n    }\n  },\n  {\n    $project: {\n        \"_id\": 0,\n        \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"title\" : \"20 Dates\" }\n{ \"title\" : \"25 Watts\" }\n{ \"title\" : \"21 Grams\" }\n{ \"title\" : \"13 Lakes\" }\n{ \"title\" : \"18 Meals\" }\n{ \"title\" : \"17 Girls\" }\n{ \"title\" : \"16 Acres\" }\n{ \"title\" : \"26 Years\" }\n{ \"title\" : \"99 Homes\" }\n{ \"title\" : \"45 Years\" }",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"regex\": {\n            \"path\": \"title\",\n            \"query\": \".*summer.*\"\n          }\n        },\n        \"facets\": {\n          \"genresFacet\": {\n            \"type\": \"string\",\n            \"path\": \"genres\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    count: { lowerBound: Long('6') },\n    facet: {\n      genresFacet: {\n        buckets: [\n          { _id: 'Comedy', count: Long('5') },\n          { _id: 'Fantasy', count: Long('3') },\n          { _id: 'Romance', count: Long('3') },\n          { _id: 'Drama', count: Long('2') },\n          { _id: 'Horror', count: Long('1') },\n          { _id: 'Mystery', count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 134
+    }
+  ]
+}

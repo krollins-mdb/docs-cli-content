@@ -1,0 +1,12 @@
+{
+  "heading": "AWS (Amazon Web Services) IAM Authentication",
+  "headingLevel": 3,
+  "body": "```csharp\nstring username = Environment.GetEnvironmentVariable(\"AWS_ACCESS_KEY_ID\");\nstring password = Environment.GetEnvironmentVariable(\"AWS_SECRET_ACCESS_KEY\");\nstring awsSessionToken = Environment.GetEnvironmentVariable(\"AWS_SESSION_TOKEN\");\n\nvar awsCredentials =\n    new MongoCredential(\"MONGODB-AWS\", new MongoExternalIdentity(username), new PasswordEvidence(password))\n    .WithMechanismProperty(\"AWS_SESSION_TOKEN\", awsSessionToken);\n\nvar mongoUrl = MongoUrl.Create($\"<MONGODB_URI>\");\n\nvar mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);\nmongoClientSettings.Credential = awsCredentials;\nmongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n\nreturn new MongoClient(mongoClientSettings);\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "string username = Environment.GetEnvironmentVariable(\"AWS_ACCESS_KEY_ID\");\nstring password = Environment.GetEnvironmentVariable(\"AWS_SECRET_ACCESS_KEY\");\nstring awsSessionToken = Environment.GetEnvironmentVariable(\"AWS_SESSION_TOKEN\");\n\nvar awsCredentials =\n    new MongoCredential(\"MONGODB-AWS\", new MongoExternalIdentity(username), new PasswordEvidence(password))\n    .WithMechanismProperty(\"AWS_SESSION_TOKEN\", awsSessionToken);\n\nvar mongoUrl = MongoUrl.Create($\"<MONGODB_URI>\");\n\nvar mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);\nmongoClientSettings.Credential = awsCredentials;\nmongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n\nreturn new MongoClient(mongoClientSettings);",
+      "tokenEstimate": 142
+    }
+  ]
+}

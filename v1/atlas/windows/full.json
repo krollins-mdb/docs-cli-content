@@ -1,0 +1,25 @@
+{
+  "path": "atlas/windows",
+  "product": "atlas",
+  "title": "Stream Processor Windows",
+  "sections": [
+    {
+      "heading": "Tumbling Windows",
+      "headingLevel": 2,
+      "body": "**Tumbling windows** are windows defined entirely by the time\nintervals they capture. These time intervals don't overlap.\n\n> **Example:** You define a tumbling window with an interval of 3 seconds.\n> When you start your stream processor:\n>\n> - A window opens for 3 seconds.\n>\n> - The first window captures all documents that the stream generates\n>   within those 3 seconds.\n>\n> - After 3 seconds elapse, the window closes and applies your\n>   aggregation logic to all the documents in that window.\n>\n>   If you configure `allowedLateness`, Atlas Stream Processing writes\n>   late-arriving messages to the [Dead Letter Queue](atlas-sp-dlq) after the window\n>   closes.\n>\n> - A new window opens as soon as the first one closes and captures\n>   documents from the stream for the next 3 seconds.\n\nTumbling windows ensure comprehensive capture of data streams without\nrepeated processing of individual documents.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Hopping Windows",
+      "headingLevel": 2,
+      "body": "**Hopping windows** are windows defined by the time interval they\ncapture and the interval between opening each window, called the\n**hop**. Since duration is decoupled from frequency, you can configure\nhopping windows to overlap them or to space them apart.\n\nTo define a hopping window with overlap, set a hop smaller than the\ninterval.\n\n> **Example:** You define a hopping window with an interval of 20 seconds and a hop\n> of 5 seconds. When you start your stream processor:\n>\n> - A window opens for 20 seconds.\n>\n> - The first window captures all documents that the stream generates\n>   within those 20 seconds.\n>\n> - 5 seconds later, another window opens and captures all documents\n>   within the next 20 seconds. Because the first window is still\n>   open, all documents that the stream generates for the next 15\n>   seconds are captured by both windows.\n>\n> - 20 seconds after the first window opens, it closes and applies\n>   your aggregation logic to all the documents in that window.\n>\n> - 5 seconds later, the second window closes and applies your\n>   aggregation logic to all the documents in that window, *including*\n>   those that were already subject to aggregation logic in the first\n>   window.\n>\n> If you configure `allowedLateness`, Atlas Stream Processing writes\n> late-arriving messages to the [Dead Letter Queue](atlas-sp-dlq) after the window\n> closes.\n\nTo define a hopping window with spacing, set a hop larger than the\ninterval.\n\n> **Example:** You define a hopping window with an interval of 3 seconds and a hop\n> of 5 seconds. When you start a stream processor:\n>\n> - A window opens for 3 seconds.\n>\n> - The first window captures all documents for the next 3 seconds.\n>\n> - After 3 seconds elapse, the window closes and applies your\n>   aggregation logic to all the documents in that window.\n>\n> - The next window opens after a further 2 seconds elapse.\n>\n> - Atlas Stream Processing does not process any documents that the stream\n>   generates during those 2 seconds.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Session Windows",
+      "headingLevel": 2,
+      "body": "**Session windows** are windows that allow you to run a pipeline on each\n\"session\" of activity in an input stream. Two documents are in the same\nsession if they have the same partition, and the difference of their\ntimestamps is less than the session gap.\n\nWhen a window is closed, its results are released to the next stage.\n\n> **Example:** You define a partition of `$userId`, a gap of 5 minutes,\n> and an allowed lateness of 5 seconds.\n> When you start your stream processor:\n>\n> - A window opens when the first document reaches the [$sessionWindow](pipe.$sessionWindow).\n>\n> - Any documents that reach the stage that contain the same `userId`\n>   value (including an absence of this field) within five minutes and\n>   five seconds of the most recent matching document arriving at the\n>   processor are added to same session window.\n>\n> - The window remains open until no documents are added to it for\n>   the gap of five minutes plus the allowed lateness of five seconds.",
+      "codeBlocks": []
+    }
+  ]
+}

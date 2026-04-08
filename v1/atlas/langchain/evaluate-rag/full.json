@@ -1,0 +1,239 @@
+{
+  "path": "atlas/langchain/evaluate-rag",
+  "product": "atlas",
+  "title": "Evaluate Your RAG Application",
+  "sections": [
+    {
+      "heading": "Background",
+      "headingLevel": 2,
+      "body": "This tutorial uses the [RAGAS](https://docs.ragas.io/) open-source\nevaluation framework to measure RAG (Retrieval-Augmented Generation) performance with the following metrics:\n\n- **Retrieval metrics**: Context precision and context recall measure\n  how well your retriever finds relevant information.\n\n- **Generation metrics**: Faithfulness and answer relevance measure\n  how well your LLM (Large Language Model) generates accurate, relevant responses.\n\n- **Overall metrics**: Answer similarity and answer correctness\n  compare generated answers to ground truth.\n\nTo learn more about these metrics, see\n[RAGAS Metrics](https://docs.ragas.io/en/stable/concepts/metrics/index.html)\nin the RAGAS documentation.\n\nThis tutorial uses the [ragas-wikiqa](https://huggingface.co/datasets/explodinggradients/ragas-wikiqa) dataset\nfrom Hugging Face, which contains approximately 230 general knowledge\nquestions with ground truth answers.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To complete this tutorial, you must have the following:\n\n- A MongoDB Atlas cluster running MongoDB version 6.0.11 or later.\n  Ensure that your IP address is in your project's\n  [access list](atlas/security/ip-access-list).\n\n- An [OpenAI API Key](https://platform.openai.com/api-keys) to use\n  OpenAI's embedding and chat completion models.\n\n- A terminal configured with the following:\n\n  - Python 3.10 or later.\n\n  - An environment to run interactive Python notebooks, such as\n    [VS Code](https://code.visualstudio.com/docs/datascience/jupyter-notebooks)\n    or [Jupyter Notebook](https://jupyter.org/install).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set Up the Environment",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Install the required libraries",
+      "headingLevel": 3,
+      "body": "Run the following command to install the required libraries:\n\n```bash\npip install -qU datasets ragas langchain langchain-mongodb langchain-openai \\\npymongo pandas tqdm matplotlib seaborn nest_asyncio\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "pip install -qU datasets ragas langchain langchain-mongodb langchain-openai \\\npymongo pandas tqdm matplotlib seaborn nest_asyncio",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Set up your credentials",
+      "headingLevel": 3,
+      "body": "Run the following code in your notebook to set up your MongoDB\nconnection string and OpenAI API key:\n\n```python\nimport getpass\nimport os\nfrom openai import OpenAI\n\nMONGODB_URI = getpass.getpass(\"Enter your MongoDB connection string:\")\nos.environ[\"OPENAI_API_KEY\"] = getpass.getpass(\"Enter your OpenAI API Key:\")\nopenai_client = OpenAI()\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "import getpass\nimport os\nfrom openai import OpenAI\n\nMONGODB_URI = getpass.getpass(\"Enter your MongoDB connection string:\")\nos.environ[\"OPENAI_API_KEY\"] = getpass.getpass(\"Enter your OpenAI API Key:\")\nopenai_client = OpenAI()",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Download the Evaluation Dataset",
+      "headingLevel": 2,
+      "body": "Download the [ragas-wikiqa](https://huggingface.co/datasets/explodinggradients/ragas-wikiqa)\ndataset from Hugging Face and convert it to a pandas dataframe:\n\n```python\nfrom datasets import load_dataset\nimport pandas as pd\n\ndata = load_dataset(\"explodinggradients/ragas-wikiqa\", split=\"train\")\ndf = pd.DataFrame(data)\n```\n\nThe dataset contains the following columns:\n\n- `question`: User questions\n\n- `correct_answer`: Ground truth answers\n\n- `context`: List of reference texts to answer the questions",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from datasets import load_dataset\nimport pandas as pd\n\ndata = load_dataset(\"explodinggradients/ragas-wikiqa\", split=\"train\")\ndf = pd.DataFrame(data)",
+          "tokenEstimate": 37
+        }
+      ]
+    },
+    {
+      "heading": "Create Document Chunks",
+      "headingLevel": 2,
+      "body": "Split the reference texts into smaller chunks before embedding:\n\n```python\nfrom langchain.text_splitter import RecursiveCharacterTextSplitter\n\n# Split text by tokens using the tiktoken tokenizer\ntext_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(\n    encoding_name=\"cl100k_base\", keep_separator=False, chunk_size=200, chunk_overlap=30\n)\n\ndef split_texts(texts):\n    chunked_texts = []\n    for text in texts:\n        chunks = text_splitter.create_documents([text])\n        chunked_texts.extend([chunk.page_content for chunk in chunks])\n    return chunked_texts\n\n# Split the context field into chunks\ndf[\"chunks\"] = df[\"context\"].apply(lambda x: split_texts(x))\n# Aggregate list of all chunks\nall_chunks = df[\"chunks\"].tolist()\ndocs = [item for chunk in all_chunks for item in chunk]\n```\n\n> **Tip:** Experiment with different chunking strategies when evaluating retrieval.\n> This tutorial focuses on evaluating embedding models.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain.text_splitter import RecursiveCharacterTextSplitter\n\n# Split text by tokens using the tiktoken tokenizer\ntext_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(\n    encoding_name=\"cl100k_base\", keep_separator=False, chunk_size=200, chunk_overlap=30\n)\n\ndef split_texts(texts):\n    chunked_texts = []\n    for text in texts:\n        chunks = text_splitter.create_documents([text])\n        chunked_texts.extend([chunk.page_content for chunk in chunks])\n    return chunked_texts\n\n# Split the context field into chunks\ndf[\"chunks\"] = df[\"context\"].apply(lambda x: split_texts(x))\n# Aggregate list of all chunks\nall_chunks = df[\"chunks\"].tolist()\ndocs = [item for chunk in all_chunks for item in chunk]",
+          "tokenEstimate": 167
+        }
+      ]
+    },
+    {
+      "heading": "Create Embeddings and Ingest into MongoDB Charts",
+      "headingLevel": 2,
+      "body": "Embed the chunked documents and ingest them into Atlas. Create\nseparate collections for each embedding model you want to compare:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Define an embedding function",
+      "headingLevel": 3,
+      "body": "Create a function to generate embeddings using the OpenAI API:\n\n```python\nfrom typing import List\n\ndef get_embeddings(docs: List[str], model: str) -> List[List[float]]:\n    \"\"\"Generate embeddings using the OpenAI API.\"\"\"\n    docs = [doc.replace(\"\\n\", \" \") for doc in docs]\n    response = openai_client.embeddings.create(input=docs, model=model)\n    return [r.embedding for r in response.data]\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from typing import List\n\ndef get_embeddings(docs: List[str], model: str) -> List[List[float]]:\n    \"\"\"Generate embeddings using the OpenAI API.\"\"\"\n    docs = [doc.replace(\"\\n\", \" \") for doc in docs]\n    response = openai_client.embeddings.create(input=docs, model=model)\n    return [r.embedding for r in response.data]",
+          "tokenEstimate": 75
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Ingest embeddings into",
+      "headingLevel": 3,
+      "body": "Embed and ingest the chunked documents into Atlas collections:\n\n```python\nfrom pymongo import MongoClient\nfrom tqdm.auto import tqdm\n\nclient = MongoClient(MONGODB_URI)\nDB_NAME = \"ragas_evals\"\ndb = client[DB_NAME]\nbatch_size = 128\n\nEVAL_EMBEDDING_MODELS = [\"text-embedding-ada-002\", \"text-embedding-3-small\"]\n\nfor model in EVAL_EMBEDDING_MODELS:\n    embedded_docs = []\n    print(f\"Getting embeddings for the {model} model\")\n    for i in tqdm(range(0, len(docs), batch_size)):\n        end = min(len(docs), i + batch_size)\n        batch = docs[i:end]\n        batch_embeddings = get_embeddings(batch, model)\n        batch_embedded_docs = [\n            {\"text\": batch[i], \"embedding\": batch_embeddings[i]}\n            for i in range(len(batch))\n        ]\n        embedded_docs.extend(batch_embedded_docs)\n\n    collection = db[model]\n    collection.delete_many({})\n    collection.insert_many(embedded_docs)\n    print(f\"Finished inserting embeddings for the {model} model\")\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from pymongo import MongoClient\nfrom tqdm.auto import tqdm\n\nclient = MongoClient(MONGODB_URI)\nDB_NAME = \"ragas_evals\"\ndb = client[DB_NAME]\nbatch_size = 128\n\nEVAL_EMBEDDING_MODELS = [\"text-embedding-ada-002\", \"text-embedding-3-small\"]\n\nfor model in EVAL_EMBEDDING_MODELS:\n    embedded_docs = []\n    print(f\"Getting embeddings for the {model} model\")\n    for i in tqdm(range(0, len(docs), batch_size)):\n        end = min(len(docs), i + batch_size)\n        batch = docs[i:end]\n        batch_embeddings = get_embeddings(batch, model)\n        batch_embedded_docs = [\n            {\"text\": batch[i], \"embedding\": batch_embeddings[i]}\n            for i in range(len(batch))\n        ]\n        embedded_docs.extend(batch_embedded_docs)\n\n    collection = db[model]\n    collection.delete_many({})\n    collection.insert_many(embedded_docs)\n    print(f\"Finished inserting embeddings for the {model} model\")",
+          "tokenEstimate": 212
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Create vector search indexes",
+      "headingLevel": 3,
+      "body": "Create a MongoDB Vector Search index for each collection. Use the following\nindex definition with the index name `vector_index`:\n\n```json\n{\n  \"fields\": [\n    {\n      \"numDimensions\": 1536,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}\n```\n\nTo learn how to create the index, see [Create a MongoDB Vector Search Index](avs-create-index).\n\n> **Tip:** Both `text-embedding-ada-002` and `text-embedding-3-small`\n> have 1536 dimensions, so the same index definition works for\n> both collections.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1536,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Compare Embedding Models",
+      "headingLevel": 2,
+      "body": "To ensure you retrieve the right context for the LLM (Large Language Model), compare\ndifferent embedding models. This tutorial compares\n`text-embedding-ada-002` and `text-embedding-3-small`.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a retriever function",
+      "headingLevel": 3,
+      "body": "Create a function to get a vector store retriever using\nLangChain and MongoDB Atlas:\n\n```python\nfrom langchain_openai import OpenAIEmbeddings\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_core.vectorstores import VectorStoreRetriever\n\ndef get_retriever(model: str, k: int) -> VectorStoreRetriever:\n    \"\"\"\n    Get a vector store retriever for a given embedding model.\n\n    Args:\n        model (str): Embedding model to use\n        k (int): Number of results to retrieve\n\n    Returns:\n        VectorStoreRetriever: A vector store retriever object\n    \"\"\"\n    embeddings = OpenAIEmbeddings(model=model)\n\n    vector_store = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=MONGODB_URI,\n        namespace=f\"{DB_NAME}.{model}\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        text_key=\"text\",\n    )\n\n    retriever = vector_store.as_retriever(\n        search_type=\"similarity\", search_kwargs={\"k\": k}\n    )\n    return retriever\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_openai import OpenAIEmbeddings\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_core.vectorstores import VectorStoreRetriever\n\ndef get_retriever(model: str, k: int) -> VectorStoreRetriever:\n    \"\"\"\n    Get a vector store retriever for a given embedding model.\n\n    Args:\n        model (str): Embedding model to use\n        k (int): Number of results to retrieve\n\n    Returns:\n        VectorStoreRetriever: A vector store retriever object\n    \"\"\"\n    embeddings = OpenAIEmbeddings(model=model)\n\n    vector_store = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=MONGODB_URI,\n        namespace=f\"{DB_NAME}.{model}\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        text_key=\"text\",\n    )\n\n    retriever = vector_store.as_retriever(\n        search_type=\"similarity\", search_kwargs={\"k\": k}\n    )\n    return retriever",
+          "tokenEstimate": 204
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Prepare the evaluation data",
+      "headingLevel": 3,
+      "body": "Extract the questions and ground truth answers from your dataset:\n\n```python\nQUESTIONS = df[\"question\"].to_list()\nGROUND_TRUTH = df[\"correct_answer\"].tolist()\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "QUESTIONS = df[\"question\"].to_list()\nGROUND_TRUTH = df[\"correct_answer\"].tolist()",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Evaluate the retriever",
+      "headingLevel": 3,
+      "body": "Use the `context_precision` and `context_recall` metrics\nfrom the RAGAS library to evaluate each embedding model:\n\n```python\nfrom datasets import Dataset\nfrom ragas import evaluate, RunConfig\nfrom ragas.metrics import context_precision, context_recall\nimport nest_asyncio\n\n# Allow nested use of asyncio (used by RAGAS)\nnest_asyncio.apply()\n\nfor model in EVAL_EMBEDDING_MODELS:\n    data = {\"question\": [], \"ground_truth\": [], \"contexts\": []}\n    data[\"question\"] = QUESTIONS\n    data[\"ground_truth\"] = GROUND_TRUTH\n\n    retriever = get_retriever(model, 2)\n    # Get relevant documents for the evaluation dataset\n    for i in tqdm(range(0, len(QUESTIONS))):\n        data[\"contexts\"].append(\n            [doc.page_content for doc in retriever.invoke(QUESTIONS[i])]\n        )\n    # RAGAS expects a Dataset object\n    dataset = Dataset.from_dict(data)\n    # RAGAS runtime settings to avoid hitting OpenAI rate limits\n    run_config = RunConfig(max_workers=4, max_wait=180)\n    result = evaluate(\n        dataset=dataset,\n        metrics=[context_precision, context_recall],\n        run_config=run_config,\n        raise_exceptions=False,\n    )\n    print(f\"Result for the {model} model: {result}\")\n```\n\nThe evaluation results for the embedding models on the sample\ndataset are as follows:\n\n| Model                  | Context precision | Context recall |\n| ---------------------- | ----------------- | -------------- |\n| text-embedding-ada-002 | 0.9310            | 0.8561         |\n| text-embedding-3-small | 0.9116            | 0.8826         |\n\nBased on these results, `text-embedding-ada-002` ranks the most\nrelevant results higher, but `text-embedding-3-small` retrieves\ncontexts that are more aligned with the ground truth answers.\nFor this tutorial, use `text-embedding-3-small` as the\nembedding model.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from datasets import Dataset\nfrom ragas import evaluate, RunConfig\nfrom ragas.metrics import context_precision, context_recall\nimport nest_asyncio\n\n# Allow nested use of asyncio (used by RAGAS)\nnest_asyncio.apply()\n\nfor model in EVAL_EMBEDDING_MODELS:\n    data = {\"question\": [], \"ground_truth\": [], \"contexts\": []}\n    data[\"question\"] = QUESTIONS\n    data[\"ground_truth\"] = GROUND_TRUTH\n\n    retriever = get_retriever(model, 2)\n    # Get relevant documents for the evaluation dataset\n    for i in tqdm(range(0, len(QUESTIONS))):\n        data[\"contexts\"].append(\n            [doc.page_content for doc in retriever.invoke(QUESTIONS[i])]\n        )\n    # RAGAS expects a Dataset object\n    dataset = Dataset.from_dict(data)\n    # RAGAS runtime settings to avoid hitting OpenAI rate limits\n    run_config = RunConfig(max_workers=4, max_wait=180)\n    result = evaluate(\n        dataset=dataset,\n        metrics=[context_precision, context_recall],\n        run_config=run_config,\n        raise_exceptions=False,\n    )\n    print(f\"Result for the {model} model: {result}\")",
+          "tokenEstimate": 256
+        }
+      ]
+    },
+    {
+      "heading": "Compare Completion Models",
+      "headingLevel": 2,
+      "body": "Now that you have selected the best embedding model, compare\ncompletion models for the generation component of your RAG (Retrieval-Augmented Generation) application.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a RAG chain",
+      "headingLevel": 3,
+      "body": "Create a function that builds a RAG (Retrieval-Augmented Generation) chain using LangChain:\n\n```python\nfrom langchain_openai import ChatOpenAI\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.runnables import RunnablePassthrough\nfrom langchain_core.runnables.base import RunnableSequence\nfrom langchain_core.output_parsers import StrOutputParser\n\ndef get_rag_chain(retriever: VectorStoreRetriever, model: str) -> RunnableSequence:\n    \"\"\"\n    Create a basic RAG chain.\n\n    Args:\n        retriever (VectorStoreRetriever): Vector store retriever object\n        model (str): Chat completion model to use\n\n    Returns:\n        RunnableSequence: A RAG chain\n    \"\"\"\n    # Generate context using the retriever, and pass the user question through\n    retrieve = {\n        \"context\": retriever\n        | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])),\n        \"question\": RunnablePassthrough(),\n    }\n    template = \"\"\"Answer the question based only on the following context: \\\n    {context}\n\n    Question: {question}\n    \"\"\"\n    # Define the chat prompt\n    prompt = ChatPromptTemplate.from_template(template)\n    # Define the model for chat completion\n    llm = ChatOpenAI(temperature=0, model=model)\n    # Parse output as a string\n    parse_output = StrOutputParser()\n\n    # RAG chain\n    rag_chain = retrieve | prompt | llm | parse_output\n    return rag_chain\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from langchain_openai import ChatOpenAI\nfrom langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.runnables import RunnablePassthrough\nfrom langchain_core.runnables.base import RunnableSequence\nfrom langchain_core.output_parsers import StrOutputParser\n\ndef get_rag_chain(retriever: VectorStoreRetriever, model: str) -> RunnableSequence:\n    \"\"\"\n    Create a basic RAG chain.\n\n    Args:\n        retriever (VectorStoreRetriever): Vector store retriever object\n        model (str): Chat completion model to use\n\n    Returns:\n        RunnableSequence: A RAG chain\n    \"\"\"\n    # Generate context using the retriever, and pass the user question through\n    retrieve = {\n        \"context\": retriever\n        | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])),\n        \"question\": RunnablePassthrough(),\n    }\n    template = \"\"\"Answer the question based only on the following context: \\\n    {context}\n\n    Question: {question}\n    \"\"\"\n    # Define the chat prompt\n    prompt = ChatPromptTemplate.from_template(template)\n    # Define the model for chat completion\n    llm = ChatOpenAI(temperature=0, model=model)\n    # Parse output as a string\n    parse_output = StrOutputParser()\n\n    # RAG chain\n    rag_chain = retrieve | prompt | llm | parse_output\n    return rag_chain",
+          "tokenEstimate": 299
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Evaluate the completion models",
+      "headingLevel": 3,
+      "body": "Use the `faithfulness` and `answer_relevancy` metrics to\nevaluate different completion models:\n\n```python\nfrom ragas.metrics import faithfulness, answer_relevancy\n\nfor model in [\"gpt-3.5-turbo-1106\", \"gpt-3.5-turbo\"]:\n    data = {\"question\": [], \"ground_truth\": [], \"contexts\": [], \"answer\": []}\n    data[\"question\"] = QUESTIONS\n    data[\"ground_truth\"] = GROUND_TRUTH\n    # Use the best embedding model from the retriever evaluation\n    retriever = get_retriever(\"text-embedding-3-small\", 2)\n    rag_chain = get_rag_chain(retriever, model)\n    for i in tqdm(range(0, len(QUESTIONS))):\n        question = QUESTIONS[i]\n        data[\"answer\"].append(rag_chain.invoke(question))\n        data[\"contexts\"].append(\n            [doc.page_content for doc in retriever.invoke(question)]\n        )\n    # RAGAS expects a Dataset object\n    dataset = Dataset.from_dict(data)\n    # RAGAS runtime settings to avoid hitting OpenAI rate limits\n    run_config = RunConfig(max_workers=4, max_wait=180)\n    result = evaluate(\n        dataset=dataset,\n        metrics=[faithfulness, answer_relevancy],\n        run_config=run_config,\n        raise_exceptions=False,\n    )\n    print(f\"Result for the {model} model: {result}\")\n```\n\nThe evaluation results for the completion models on the sample\ndataset are as follows:\n\n| Model              | Faithfulness | Answer relevance |\n| ------------------ | ------------ | ---------------- |\n| gpt-3.5-turbo      | 0.9714       | 0.9087           |\n| gpt-3.5-turbo-1106 | 0.9671       | 0.9105           |\n\nBased on these results, the latest `gpt-3.5-turbo` produces\nmore factually consistent results, while the older version\nproduces answers that are more pertinent to the given prompt.\nFor this tutorial, use `gpt-3.5-turbo` as the completion model.\n\n> **Tip:** If you don't want to choose between metrics, consider creating\n> consolidated metrics using a weighted summation, or\n> [customize the prompts](https://docs.ragas.io/en/stable/howtos/customizations/metrics/modifying-prompts-metrics/)\n> used for evaluation.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from ragas.metrics import faithfulness, answer_relevancy\n\nfor model in [\"gpt-3.5-turbo-1106\", \"gpt-3.5-turbo\"]:\n    data = {\"question\": [], \"ground_truth\": [], \"contexts\": [], \"answer\": []}\n    data[\"question\"] = QUESTIONS\n    data[\"ground_truth\"] = GROUND_TRUTH\n    # Use the best embedding model from the retriever evaluation\n    retriever = get_retriever(\"text-embedding-3-small\", 2)\n    rag_chain = get_rag_chain(retriever, model)\n    for i in tqdm(range(0, len(QUESTIONS))):\n        question = QUESTIONS[i]\n        data[\"answer\"].append(rag_chain.invoke(question))\n        data[\"contexts\"].append(\n            [doc.page_content for doc in retriever.invoke(question)]\n        )\n    # RAGAS expects a Dataset object\n    dataset = Dataset.from_dict(data)\n    # RAGAS runtime settings to avoid hitting OpenAI rate limits\n    run_config = RunConfig(max_workers=4, max_wait=180)\n    result = evaluate(\n        dataset=dataset,\n        metrics=[faithfulness, answer_relevancy],\n        run_config=run_config,\n        raise_exceptions=False,\n    )\n    print(f\"Result for the {model} model: {result}\")",
+          "tokenEstimate": 283
+        }
+      ]
+    },
+    {
+      "heading": "Measure Overall Performance",
+      "headingLevel": 2,
+      "body": "Evaluate the overall performance of your RAG (Retrieval-Augmented Generation) application using\nthe best-performing models:\n\n```python\nfrom ragas.metrics import answer_similarity, answer_correctness\n\ndata = {\"question\": [], \"ground_truth\": [], \"answer\": []}\ndata[\"question\"] = QUESTIONS\ndata[\"ground_truth\"] = GROUND_TRUTH\n# Use the best embedding model from the retriever evaluation\nretriever = get_retriever(\"text-embedding-3-small\", 2)\n# Use the best completion model from the generator evaluation\nrag_chain = get_rag_chain(retriever, \"gpt-3.5-turbo\")\nfor question in tqdm(QUESTIONS):\n    data[\"answer\"].append(rag_chain.invoke(question))\n\ndataset = Dataset.from_dict(data)\nrun_config = RunConfig(max_workers=4, max_wait=180)\nresult = evaluate(\n    dataset=dataset,\n    metrics=[answer_similarity, answer_correctness],\n    run_config=run_config,\n    raise_exceptions=False,\n)\nprint(f\"Overall metrics: {result}\")\n```\n\nThis evaluation shows that the RAG (Retrieval-Augmented Generation) chain produces an answer\nsimilarity of **0.8873** and an answer correctness of **0.5922**\non the sample dataset.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from ragas.metrics import answer_similarity, answer_correctness\n\ndata = {\"question\": [], \"ground_truth\": [], \"answer\": []}\ndata[\"question\"] = QUESTIONS\ndata[\"ground_truth\"] = GROUND_TRUTH\n# Use the best embedding model from the retriever evaluation\nretriever = get_retriever(\"text-embedding-3-small\", 2)\n# Use the best completion model from the generator evaluation\nrag_chain = get_rag_chain(retriever, \"gpt-3.5-turbo\")\nfor question in tqdm(QUESTIONS):\n    data[\"answer\"].append(rag_chain.invoke(question))\n\ndataset = Dataset.from_dict(data)\nrun_config = RunConfig(max_workers=4, max_wait=180)\nresult = evaluate(\n    dataset=dataset,\n    metrics=[answer_similarity, answer_correctness],\n    run_config=run_config,\n    raise_exceptions=False,\n)\nprint(f\"Overall metrics: {result}\")",
+          "tokenEstimate": 194
+        }
+      ]
+    },
+    {
+      "heading": "Analyze Results",
+      "headingLevel": 3,
+      "body": "To investigate the results further, convert them to a pandas\ndataframe and filter for low-scoring answers:\n\n```python\nresult_df = result.to_pandas()\nresult_df[result_df[\"answer_correctness\"] < 0.7]\n```\n\nFor a visual analysis, create a heatmap of questions versus metrics:\n\n```python\nimport seaborn as sns\nimport matplotlib.pyplot as plt\n\nplt.figure(figsize=(10, 8))\nsns.heatmap(\n    result_df[1:10].set_index(\"question\")[[\"answer_similarity\", \"answer_correctness\"]],\n    annot=True,\n    cmap=\"flare\",\n)\nplt.show()\n```\n\nThe preceding code outputs the following heatmap:\n\n![Heatmap visualizing the performance of a RAG application](</ai-integrations/images/Heatmap visualizing RAG (Retrieval-Augmented Generation) application performance>)\n\nUpon investigating low-scoring results, you might find:\n\n- Some ground-truth answers in the evaluation dataset are incorrect.\n  Although the LLM (Large Language Model)-generated answer is correct, it doesn't match\n  the ground truth, resulting in a low score.\n\n- Some ground-truth answers are full sentences, whereas the\n  LLM (Large Language Model)-generated answer is a single word or number.\n\nThese findings emphasize the importance of spot-checking LLM (Large Language Model)\nevaluations and curating accurate evaluation datasets.",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "result_df = result.to_pandas()\nresult_df[result_df[\"answer_correctness\"] < 0.7]",
+          "tokenEstimate": 23
+        },
+        {
+          "language": "python",
+          "content": "import seaborn as sns\nimport matplotlib.pyplot as plt\n\nplt.figure(figsize=(10, 8))\nsns.heatmap(\n    result_df[1:10].set_index(\"question\")[[\"answer_similarity\", \"answer_correctness\"]],\n    annot=True,\n    cmap=\"flare\",\n)\nplt.show()",
+          "tokenEstimate": 59
+        }
+      ]
+    },
+    {
+      "heading": "Track Performance Over Time",
+      "headingLevel": 2,
+      "body": "Evaluation should not be a one-time event. Each time you change a\ncomponent in your system, evaluate the changes to assess how they\nimpact performance. Once your application is in production, monitor\nperformance in real time and detect changes.\n\nUse [Charts](charts) to monitor the performance\nof your LLM (Large Language Model) application. Write evaluation results and any feedback\nmetrics you want to track to an Atlas collection:\n\n```python\nfrom datetime import datetime\n\nresult[\"timestamp\"] = datetime.now()\ncollection = db[\"metrics\"]\ncollection.insert_one(result)\n```\n\nThis code adds a `timestamp` field to the evaluation result and\nwrites it to a `metrics` collection in the `ragas_evals` database.\nThe document in Atlas looks like this:\n\n```json\n{\n  \"answer_similarity\": 0.8873,\n  \"answer_correctness\": 0.5922,\n  \"timestamp\": \"2024-04-07T23:27:30.655+00:00\"\n}\n```\n\nCreate a dashboard in MongoDB Charts to visualize your metrics over time.\nTo learn how to create charts and dashboards, see\n[Build Charts](charts/build-charts).",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "from datetime import datetime\n\nresult[\"timestamp\"] = datetime.now()\ncollection = db[\"metrics\"]\ncollection.insert_one(result)",
+          "tokenEstimate": 24
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"answer_similarity\": 0.8873,\n  \"answer_correctness\": 0.5922,\n  \"timestamp\": \"2024-04-07T23:27:30.655+00:00\"\n}",
+          "tokenEstimate": 49
+        }
+      ]
+    },
+    {
+      "heading": "Summary",
+      "headingLevel": 2,
+      "body": "In this tutorial, you learned how to evaluate a RAG (Retrieval-Augmented Generation) application\nusing the RAGAS framework and MongoDB Atlas. You compared embedding\nmodels for retrieval, completion models for generation, and measured\nthe overall performance of your application. You also learned how to\ntrack performance over time using MongoDB Charts.\n\nTo learn more about building RAG (Retrieval-Augmented Generation) applications with MongoDB,\nsee the following resources:\n\n- [Tutorial](langchain-get-started)\n\n- [Building a RAG System With Google's Gemma, Hugging Face, and MongoDB](https://www.mongodb.com/developer/products/atlas/gemma-mongodb-huggingface-rag/)\n\n- [Building a RAG System Using Claude Opus and MongoDB](https://www.mongodb.com/developer/products/atlas/rag_with_claude_opus_mongodb/)",
+      "codeBlocks": []
+    }
+  ]
+}

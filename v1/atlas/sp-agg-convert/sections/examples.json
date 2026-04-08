@@ -1,0 +1,82 @@
+{
+  "heading": "Examples",
+  "headingLevel": 2,
+  "body": "In the following examples, we describe `binData` using binary notation such as:\n\n`BinData(0b00000000 00000010)`\n\nThe leftmost byte (00000000) corresponds to the lowest memory address, or the 0-th\nindex of the byte array. Similarly, we use hex notation such as:\n\n`BinData(0x0100 000A)`\n\nThe leftmost byte (01) corresponds to the lowest memory address, or the 0th index of\nthe byte array.\n\nThe following documents are example `$convert` expressions that convert values across\n`BinData`, `int`, `long`, and `double` notations:\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000000 00000010),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 2\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 256\n\n```json\n{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “little” }\n}\n```\n\nResult: 1\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: 65536\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “long”,\n    byteOrder: “big” }\n}\n```\n\nResult: 281474976710656\n\n```json\n{\n  $convert: {\n    input: BinData(0xFFFE7960),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: -100000\n\n```json\n{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “int”,\n    byteOrder: “big” }\n}\n```\n\nResult: Error– binData length can only be 1,2, or 4 bytes when to == “int”.\n\n```json\n{\n  $convert: {\n    input: BinData(0xC04C CCCD),\n    to: “double”,\n    byteOrder: “big” }\n}\n```\n\nResult: -3.2000000476837158203125\n\n```json\n{\n  $convert: {\n    input: BinData(0x0000),\n    to: “double”,\n    byteOrder: “big” }\n}\n```\n\nResult: Error– binData length can only be 4 or 8 bytes when to == “double”.\n\n```json\n{\n  $convert: {\n    input: true,\n    to: “binData” }\n}\n```\n\nResult: BinData(0x01)  // subtype 0\n\n```json\n{\n  $convert: {\n    input: false,\n    to: “binData” }\n}\n```\n\nResult: BinData(0x00) // subtype 0\n\n```json\n{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “big” }\n}\n```\n\nResult: BinData(0x0000 0000 0000 002A) // subtype 0\n\n```json\n{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nResult: BinData(0x2A00 0000 0000 0000) // subtype 0\n\n```json\n{\n  $convert: {\n    input: { $toInt: “$myNumericField” },\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nAssuming myNumericField is an Int(42), Long(42), or Double(42.0)...\n\nResult: BinData(0x2A00 0000)\n\n```json\n{\n  $convert: {\n    input: “$myIntOrLongField”,\n    to: “binData”,\n    byteOrder: “little” }\n}\n```\n\nIf the input is Int(42):\n\nResult: BinData(0x2A00 0000)\n\nIf the input is Long(42):\n\nBinData(0x2A00 0000 0000 0000)",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0b00000000 00000010),\n    to: “int”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0b00000001 00000000),\n    to: “int”,\n    byteOrder: “little” }\n}",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0x0001 0000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “long”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0xFFFE7960),\n    to: “int”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0x0001 0000 0000 0000),\n    to: “int”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0xC04C CCCD),\n    to: “double”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: BinData(0x0000),\n    to: “double”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: true,\n    to: “binData” }\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: false,\n    to: “binData” }\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “big” }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: NumberLong(42),\n    to: “binData”,\n    byteOrder: “little” }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: { $toInt: “$myNumericField” },\n    to: “binData”,\n    byteOrder: “little” }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "json",
+      "content": "{\n  $convert: {\n    input: “$myIntOrLongField”,\n    to: “binData”,\n    byteOrder: “little” }\n}",
+      "tokenEstimate": 35
+    }
+  ]
+}

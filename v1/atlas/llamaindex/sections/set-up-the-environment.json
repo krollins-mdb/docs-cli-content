@@ -1,0 +1,37 @@
+{
+  "heading": "Set Up the Environment",
+  "headingLevel": 3,
+  "body": "Set up the environment for this tutorial.\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension. This notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.\n\nTo set up your notebook environment:\n\nRun the following command:\n\n```python\npip install --quiet --upgrade llama-index llama-index-vector-stores-mongodb llama-index-llms-openai llama-index-embeddings-voyageai pymongo\n```\n\nThen, run the following code to import the required packages:\n\n```python\nimport os, pymongo, pprint\nfrom pymongo.operations import SearchIndexModel\nfrom llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext\nfrom llama_index.core.settings import Settings\nfrom llama_index.core.retrievers import VectorIndexRetriever\nfrom llama_index.core.vector_stores import MetadataFilter, MetadataFilters, ExactMatchFilter, FilterOperator\nfrom llama_index.core.query_engine import RetrieverQueryEngine\nfrom llama_index.embeddings.voyageai import VoyageEmbedding\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.vector_stores.mongodb import MongoDBAtlasVectorSearch\n```\n\nRun the following code, replacing the placeholders with\nthe following values:\n\n- Your OpenAI API Key.\n\n- Your Voyage AI API Key.\n\n- Your MongoDB cluster's SRV (DNS Service Record) [connection string](manual/reference/connection-string).\n\n```python\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nos.environ[\"VOYAGEAI_API_KEY\"] = \"<voyageai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\n```\n\n> **Note:** Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> <Tab tabid=\"cloud\">\n>   Atlas Cluster\n>\n>   Your connection string should use the following format:\n>\n>   ```\n>   mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n>   ```\n>\n>   To learn more, see [Driver](connect-via-driver).\n> </Tab>\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).\n\nRun the following code to configure settings that are specific\nto LlamaIndex. These settings specify the following:\n\n- `voyage-3-large` as the embedding model used by your application\n  to generate vector embeddings from your data.\n\n- OpenAI as the LLM used by your application to answer questions on your data.\n\n- [Chunk size and overlap](https://docs.llamaindex.ai/en/stable/optimizing/basic_strategies/basic_strategies/#chunk-sizes)\n  to customize how LlamaIndex partitions your data for storage.\n\n```python\nfrom llama_index.embeddings.voyageai import VoyageEmbedding\n\nembed_model= VoyageEmbedding(\n  voyage_api_key = os.environ[\"VOYAGEAI_API_KEY\"],\n  model_name = \"voyage-3-large\",\n)\n\nSettings.llm = OpenAI()\n       Settings.embed_model = embed_model\nSettings.chunk_size = 100\nSettings.chunk_overlap = 10\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "pip install --quiet --upgrade llama-index llama-index-vector-stores-mongodb llama-index-llms-openai llama-index-embeddings-voyageai pymongo",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "python",
+      "content": "import os, pymongo, pprint\nfrom pymongo.operations import SearchIndexModel\nfrom llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext\nfrom llama_index.core.settings import Settings\nfrom llama_index.core.retrievers import VectorIndexRetriever\nfrom llama_index.core.vector_stores import MetadataFilter, MetadataFilters, ExactMatchFilter, FilterOperator\nfrom llama_index.core.query_engine import RetrieverQueryEngine\nfrom llama_index.embeddings.voyageai import VoyageEmbedding\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.vector_stores.mongodb import MongoDBAtlasVectorSearch",
+      "tokenEstimate": 124
+    },
+    {
+      "language": "python",
+      "content": "os.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nos.environ[\"VOYAGEAI_API_KEY\"] = \"<voyageai-api-key>\"\nMONGODB_URI = \"<connection-string>\"",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "content": "from llama_index.embeddings.voyageai import VoyageEmbedding\n\nembed_model= VoyageEmbedding(\n  voyage_api_key = os.environ[\"VOYAGEAI_API_KEY\"],\n  model_name = \"voyage-3-large\",\n)\n\nSettings.llm = OpenAI()\n       Settings.embed_model = embed_model\nSettings.chunk_size = 100\nSettings.chunk_overlap = 10",
+      "tokenEstimate": 76
+    }
+  ]
+}

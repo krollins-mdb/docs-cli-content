@@ -1,0 +1,12 @@
+{
+  "heading": "Scoring Behavior",
+  "headingLevel": 2,
+  "body": "MongoDB Search `score` is a measure of the proximity of the MongoDB Search results to\n`origin`. The `score` is scaled between `0` and `1` with `1`\nbeing an exact match and `0` being a distant match. Score is equal to\n`0.5` when the distance of the MongoDB Search result from `origin` is equal\nto the distance away from origin as calculated using `pivot`.\n\nThe `near` operator uses the following distance decay function to\ncalculate document score:\n\n```text\n              pivot\nscore = ------------------\n         pivot + distance\n```\n\nwhere each term is defined as follows:\n\n| Factor   | Description                                                                                                                                                                                                                                                                                                                        |\n| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| pivot    | Value specified as a reference point to make the score equal to 0.5 if the distance between fieldValue and origin is equal to it. This defines how quickly the score decays as the distance between fieldValue and origin grows. For a given distance between fieldValue and origin, if pivot decreases, the score also decreases. |\n| distance | Absolute distance between fieldValue and origin. MongoDB Search computes this value using the following formula:abs(fieldValue - origin)where:fieldValue is the value of the field that you are querying in the document.origin is the number, date, or geographic point to search near.                                           |\n\nYou can modify the default score using  `score` option in your query.\nTo learn more about the options, [Modifying](scoring-options).",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "              pivot\nscore = ------------------\n         pivot + distance",
+      "tokenEstimate": 11
+    }
+  ]
+}

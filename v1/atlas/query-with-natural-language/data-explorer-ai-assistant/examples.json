@@ -1,0 +1,100 @@
+{
+  "path": "atlas/query-with-natural-language/data-explorer-ai-assistant",
+  "product": "atlas",
+  "title": "Intelligent Assistant in Data Explorer",
+  "summary": {
+    "total": 7,
+    "byLanguage": {
+      "text": 7
+    },
+    "bySection": [
+      {
+        "heading": "Step 6: View Results",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 68
+          }
+        ]
+      },
+      {
+        "heading": "Explain Plan",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 8
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 423
+          }
+        ]
+      },
+      {
+        "heading": "User questions",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 371
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 185
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "text",
+      "section": "Step 6: View Results",
+      "content": "Here are the databases found on your MongoDB deployment:\n\n- sample_mflix (Size: 183,685,120 bytes)\n- admin (Size: 364,544 bytes)\n- local (Size: 21,907,722,240 bytes)\n\nIf you want details about collections in any of these databases,\njust let me know!",
+      "tokenEstimate": 68
+    },
+    {
+      "language": "text",
+      "section": "Explain Plan",
+      "content": "Interpret this explain plan for me.",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "text",
+      "section": "Explain Plan",
+      "content": "## Summary\n- **Query Logic:** This pipeline counts the number of Italian restaurants in Manhattan by first filtering documents and then aggregating the count.\n- **Performance:** Fair\n- **Recommendations:** Create a compound index on `{ borough: 1, cuisine: 1 }` to optimize document retrieval.\n\n## Details\n\n### Query Logic\n1. `$match`: Filters documents where `borough` is \"Manhattan\" and `cuisine` is \"Italian\".\n2. `$count`: Counts the number of documents matching the filter and outputs the total.\n\n### Performance Analysis\n- The winning plan uses an index scan on the `cuisine` field (`cuisine_1`) and applies an in-memory filter for `borough` (\"Manhattan\").\n- Both `totalKeysExamined` and `totalDocsExamined` are high (43,207), which implies that every document with `cuisine: \"Italian\"` is examined and then filtered by `borough`.\n- No compound index exists, meaning MongoDB cannot efficiently combine both filter criteria in a single index lookup.\n- The pipeline does properly filter before counting, but index usage is only partial, causing increased resource usage.\n\n### Recommendations\n- Create a compound index on `{ borough: 1, cuisine: 1 }` to allow MongoDB to retrieve documents matching both criteria directly from the index, minimizing documents examined.\n- This optimization will reduce execution time and system load without changing the output of your aggregation pipeline.\n\nBelow is the recommended Aggregation Pipeline. This optimized Aggregation Pipeline will leverage the compound index to scan fewer documents, as both filter criteria are present in the index.\n\n```json\n[\n  { \"$match\": { \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" } },\n  { \"$count\": \"totalItalianRestaurants\" }\n]\n```\n\n### Follow-Up Questions\n1. How do I create a compound index in MongoDB Compass or via a shell command?\n2. What other fields should I consider adding to my indexes for restaurant lookups?\n3. How can I further optimize aggregations when working with larger datasets?",
+      "tokenEstimate": 423
+    },
+    {
+      "language": "text",
+      "section": "User questions",
+      "content": "How is MongoDB data modeling different from data modeling with a relational\ndatabase?",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "text",
+      "section": "User questions",
+      "content": "MongoDB data modeling differs from relational database (RDBMS) data\nmodeling in some important ways:\n\n1. Document-Oriented vs. Table-Oriented\n\n  - MongoDB stores data as flexible, hierarchical JSON-like documents.\n  - Relational databases use tables with fixed schemas and columns.\n\n2. Schema Flexibility\n\n  - In MongoDB, collections can contain documents with different structures. Schema enforcement is optional.\n  - RDBMS tables have a strict schema that enforces data types and relationships.\n\n3. Embedding vs. Normalization\n\n  - MongoDB encourages embedding related data inside documents when appropriate (denormalization). Example: An order document may include an array of items directly inside it.\n  - Relational databases emphasize normalization—splitting data across tables connected by foreign keys.\n\n4. Relationships\n\n  - MongoDB does support references between documents (similar to foreign keys), but joins are less central and not as efficient as in RDBMS.\n  - RDBMSs use normalized data and JOIN operations to relate tables efficiently.\n\n5. Performance & Scaling\n\n  - MongoDB’s data model enables horizontal scaling (sharding), making it well-suited for large, distributed datasets.\n  - RDBMS scaling typically relies on vertical scaling or complex clustering; JOINs can become expensive as data grows.\n\n6. Use Cases and Design Philosophy\n\n  - MongoDB models are often designed to optimize common query patterns, reducing the need for joins and complex queries.\n  - RDBMS models are designed for transactional consistency and for representing organized, well-structured relationships.\n\nIn summary, MongoDB encourages a more flexible, application-driven\napproach to modeling, while relational databases rely on rigid schemas\nand normalized relationships. Compass provides tools to visually explore\nyour document structures and relationships, which can be especially\nhelpful as your model evolves.",
+      "tokenEstimate": 371
+    },
+    {
+      "language": "text",
+      "section": "User questions",
+      "content": "How can I combine multiple conditions in a single $search query?",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "text",
+      "section": "User questions",
+      "content": "To combine multiple conditions in a single $search query in MongoDB Atlas\nSearch (including Compass), you should use the compound operator. The\ncompound operator allows you to specify multiple criteria using must,\nmustNot, filter, and should clauses.\n\nExample: Combine Multiple Conditions\n\nSuppose you want to:\n\n- Match documents where the plot field contains \"baseball\"\n- Exclude documents where the genres field contains \"Comedy\" or \"Romance\"\n\nYour $search stage would look like this:\n\n{\n  \"$search\": {\n    \"compound\": {\n      \"must\": [\n        {\n          \"text\": {\n            \"query\": \"baseball\",\n            \"path\": \"plot\"\n           }\n        }\n      ],\n      \"mustNot\": [\n        {\n          \"text\": {\n            \"query\": [\"Comedy\", \"Romance\"],\n            \"path\": \"genres\"\n          }\n        }\n      ]\n   }\n  }\n}",
+      "tokenEstimate": 185
+    }
+  ]
+}

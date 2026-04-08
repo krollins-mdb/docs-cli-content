@@ -1,0 +1,76 @@
+{
+  "path": "atlas/connect-to-database-deployment",
+  "product": "atlas",
+  "title": "Step 4: Click .",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To access a cluster, you must connect from an IP address on the\nAtlas project's IP access list. If you need to add an IP address to\nthe IP access list, you can do so in the Connect dialog box.\nYou can also add the IP address from the\n[configure IP Access List entries](add-to-access-list).\n\nTo access a cluster, you must create a\n[database user](manual/core/security-users) with access to the\ndesired databases on your Atlas cluster. Database users are\nseparate from Atlas users. Database users have access to MongoDB\ndatabases, while Atlas users have access to the Atlas\napplication itself.\n\nYou can create a database user to access your Atlas cluster in\nthe Connect dialog box. You can also add the database user from\nthe [Configure Database Users](mongodb-users).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Open Ports 27015 to 27017 to Access Atlas Databases",
+      "headingLevel": 3,
+      "body": "Make sure your application can reach your MongoDB Atlas\nenvironment. To add the inbound network access from your application environment to Atlas, do one of the following:\n\n- Add the public IP addresses to your IP access list\n\n- Use [VPC/VNet peering](vpc-peering) to add private IP\n  addresses.\n\n- Add [private endpoint connections](private-endpoint).\n\n> **See Also:** [IP Access List](security-ip-access-list)\n\nIf your firewall blocks outbound network connections, you must also\nopen outbound access from your application environment to Atlas.\nYou must configure your firewall to allow your applications to make\noutbound connections to ports 27015 to 27017 to TCP (Transmission Control Protocol) traffic on\nthe hostnames or IP addresses of your cluster.\nThis grants your applications access to databases stored on Atlas.\n\nTo obtain the current list of cluster IP addresses, use the\n[Return All IP Addresses for One Project endpoint](api/doc/atlas-admin-api-v2/operation/operation-getgroupipaddresses)\nof the Atlas Administration API.\n\n```\ncurl --header \"Authorization: Bearer <access-token>\" \\\n     --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n     --request GET \\\n     \"https://cloud.mongodb.com/api/atlas/v2/groups/{GROUP-ID}/ipAddresses\"\n```\n\n> **See Also:** [create a new API Key](create-project-api-key)\n\n> **Note:** By default, MongoDB Atlas clusters do not need to be able to\n> initiate connections to your application environments. If you wish\n> to enable Atlas clusters with\n> [LDAP authentication and authorization](ldaps-authentication-authorization),\n> you must allow network access from Atlas clusters directly to\n> your secure LDAP (Lightweight Directory Access Protocol). You can allow access to your LDAP (Lightweight Directory Access Protocol) by using\n> public or private IPs as long as a public DNS (Domain Name System) hostname points to\n> an IP that the Atlas clusters can access.\n\nIf you are not using [VPC/VNet peering](vpc-peering) and plan\nto connect to Atlas using public IP addresses, see the following\npages for additional information:\n\n- [Can I specify my own VPC for my MongoDB Atlas project?](faq-atlas-side-hostnames)\n\n- [Do Atlas cluster's public IPs ever change?](faq-public-ip-changes)",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "curl --header \"Authorization: Bearer <access-token>\" \\\n     --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n     --request GET \\\n     \"https://cloud.mongodb.com/api/atlas/v2/groups/{GROUP-ID}/ipAddresses\"",
+          "tokenEstimate": 59
+        }
+      ]
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "Atlas does not guarantee that host names remain consistent with\nrespect to node types during topology changes.\n\n> **Example:** If you have a cluster named `foo123` containing an analytics\n> node `foo123-shard-00-03-a1b2c.mongodb.net:27017`, Atlas does\n> not guarantee that specific host name will continue to refer to an\n> analytics node after a topology change, such as\n> scaling a cluster to modify its\n> number of nodes or regions.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connect to Your Cloud Cluster",
+      "headingLevel": 2,
+      "body": "To get your deployment's connection string, you can\nuse the Atlas CLI or Atlas UI:<SelectedContent>\n  You can use the Atlas CLI to get your deployment's standard connection string.\n\n  To return the SRV connection strings for your Atlas cluster using the\n  Atlas CLI, run the following command:\n\n  ```sh\n\n  atlas clusters connectionStrings describe <clusterName> [options]\n\n  ```\n\n  To learn more about the command syntax and parameters, see the\n  Atlas CLI documentation for [atlas clusters connectionStrings describe](atlas/cli/current/command/atlas-clusters-connectionStrings-describe).\n\n  For example, if the Atlas CLI returns the following connection string:\n\n  ```\n  mongodb+srv://mycluster.abcd1.mongodb.net\n  ```\n\n  You can connect to your deployment using [mongosh](mongodb-shell) by including the connection string\n  in the [mongosh](mongodb-shell) command:\n\n  ```\n  mongosh \"mongodb+srv://mycluster.abcd1.mongodb.net/myFirstDatabase\" --apiVersion 1 --username <username>\n  ```\n\n  > **Note:** To successfully connect to Atlas, you must add your username and database name\n  > to the connection string. In some cases, such as when you're using [mongosh](mongodb-shell)\n  > from the terminal, Atlas prompts you to enter the password for the database user.\n\n  ### Connect to a Local Deployment with the Atlas CLI\n\n  To connect to an Atlas deployment using the\n  Atlas CLI, run the following command:\n\n  ```sh\n\n  atlas deployments connect [deploymentName] [options]\n\n  ```\n\n  To learn more about the command syntax and parameters, see the\n  Atlas CLI documentation for [atlas deployments connect](atlas/cli/current/command/atlas-deployments-connect).\n</SelectedContent>Click Connect for the cluster to\nwhich you want to connect.Standard ConnectionAdd a Connection IP Address> **Important:** Skip this step if Atlas indicates in the\n> Setup connection security step that you have\n> already configured an IP access list entry in your cluster.\n> To manage the IP access list, see\n> [IP Access List](access-list).Atlas allows standard client connections to the cluster\nfrom entries in the [IP Access List](access-list). The project IP access list differs from the\n[API whitelist](enable-api-access-list), which\nrestricts *API* access to specific IP or CIDR (Classless Inter-Domain Routing) addresses.If the IP access list is empty, Atlas prompts you to add an\nIP address to the project's IP access list. You can either:* Click Add Your Current IP Address to allow\n  access from your current IP address.\n\n* Click Add an IP Address to add a single IP\n  address or a CIDR (Classless Inter-Domain Routing)-notated range of addresses.Provide an optional description for the newly added IP address\nor CIDR (Classless Inter-Domain Routing) range. Click Add IP Address to add the\naddress to the IP access list.Private IP for PeeringAdd a Connection IP Address> **Important:** Skip this step if Atlas indicates in the\n> Setup connection security step that you have\n> already configured an IP access list entry in your cluster.\n> To manage the IP access list, see [IP Access List](access-list).Atlas allows standard client connections to the cluster\nfrom entries in the [IP Access List](access-list). The project IP access list differs from the\n[API whitelist](enable-api-access-list), which\nrestricts *API* access to specific IP or CIDR (Classless Inter-Domain Routing) addresses.If the IP access list is empty, Atlas prompts you to add an\nIP address to the project's IP access list. Click\nAdd a Different IP Address to add a single IP\naddress or a CIDR (Classless Inter-Domain Routing)-notated range of addresses.Provide an optional description for the newly added IP address\nor CIDR (Classless Inter-Domain Routing) range. Click Add IP Address to add the\naddress to the IP access list.Private Endpoint Connection- Under Choose Connection Type, select\n  Private Endpoint.\n\n- If you see the Private Link Type options,\n  select one of the following options:\n\n  - Optimized SRV Connection for\n    load-balanced connections.\n\n  - Legacy SRV Connection for\n    non-load-balanced connections.\n\n  To learn more, see [How can I optimize connection performance for sharded clusters using private endpoints?](optimized-connection-strings).\n\n- Under Choose Private Endpoint, select the\n  endpoint you want to use.> **Important:** **Skip this step** if Atlas indicates in the\n> Setup connection security step that you have at least\n> one database user configured in your project. To manage existing\n> database users, see [Configure Database Users](mongodb-users).To access the cluster, you need a MongoDB user with access to the\ndesired database or databases on the cluster in your project. If your\nproject has no MongoDB users, Atlas prompts you to create a new\nuser with the [built-in role](manual/reference/built-in-roles) role.* Enter the new user's Username.\n\n* Enter a Password for this new user or click\n  Autogenerate Secure Password.\n\n* Click Create Database User to save the user.Use this user to connect to your cluster in the following step.Once you have added an IP address to your IP access list and added a\ndatabase user, click Choose Your Connection Method.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas clusters connectionStrings describe <clusterName> [options]\n",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "text",
+          "content": "mongodb+srv://mycluster.abcd1.mongodb.net",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "text",
+          "content": "mongosh \"mongodb+srv://mycluster.abcd1.mongodb.net/myFirstDatabase\" --apiVersion 1 --username <username>",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "sh",
+          "content": "\natlas deployments connect [deploymentName] [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Connect to Your Cloud Cluster Using Other Methods",
+      "headingLevel": 2,
+      "body": "In order to connect to your cluster, you must get your\ndeployment's [a connection string that specifies the MONGODB-AWS authentication mechanism](manual/reference/connection-string).\nOnce you have the connection string, you can connect to your deployment\nby using the following connection methods:\n\n- [Driver](connect-via-driver)\n\n- [Compass](atlas-connect-via-compass)\n\n- [MongoDB Shell](connect-mongo-shell)\n\n- [Connect to a Cluster via VS Code](mongodb-for-vscode)\n\n- [Connect to a Cluster via the BI Connector](bi-connection)\n\n> **Note:** To connect using mongodump or mongorestore,\n> use the [Command Line Tools](command-line-tools) option in the\n> **Cluster** sidebar. This\n> creates an auto-generated template for connecting to your Atlas\n> cluster with your preferred tool.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Troubleshooting",
+      "headingLevel": 2,
+      "body": "If you are experiencing issues connecting to your cluster, see\nTroubleshoot Connection Issues.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- [Atlas UI](atlas-ui)\n\n- [Test Failover](test-failover)\n\n- [Manage Connections with AWS Lambda](atlas-lambda-connections)\n\n- [Connection Limits and Cluster Tier](connection-limits)",
+      "codeBlocks": []
+    }
+  ]
+}

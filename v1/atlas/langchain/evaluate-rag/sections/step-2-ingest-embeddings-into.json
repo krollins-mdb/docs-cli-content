@@ -1,0 +1,12 @@
+{
+  "heading": "Step 2: Ingest embeddings into",
+  "headingLevel": 3,
+  "body": "Embed and ingest the chunked documents into Atlas collections:\n\n```python\nfrom pymongo import MongoClient\nfrom tqdm.auto import tqdm\n\nclient = MongoClient(MONGODB_URI)\nDB_NAME = \"ragas_evals\"\ndb = client[DB_NAME]\nbatch_size = 128\n\nEVAL_EMBEDDING_MODELS = [\"text-embedding-ada-002\", \"text-embedding-3-small\"]\n\nfor model in EVAL_EMBEDDING_MODELS:\n    embedded_docs = []\n    print(f\"Getting embeddings for the {model} model\")\n    for i in tqdm(range(0, len(docs), batch_size)):\n        end = min(len(docs), i + batch_size)\n        batch = docs[i:end]\n        batch_embeddings = get_embeddings(batch, model)\n        batch_embedded_docs = [\n            {\"text\": batch[i], \"embedding\": batch_embeddings[i]}\n            for i in range(len(batch))\n        ]\n        embedded_docs.extend(batch_embedded_docs)\n\n    collection = db[model]\n    collection.delete_many({})\n    collection.insert_many(embedded_docs)\n    print(f\"Finished inserting embeddings for the {model} model\")\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom tqdm.auto import tqdm\n\nclient = MongoClient(MONGODB_URI)\nDB_NAME = \"ragas_evals\"\ndb = client[DB_NAME]\nbatch_size = 128\n\nEVAL_EMBEDDING_MODELS = [\"text-embedding-ada-002\", \"text-embedding-3-small\"]\n\nfor model in EVAL_EMBEDDING_MODELS:\n    embedded_docs = []\n    print(f\"Getting embeddings for the {model} model\")\n    for i in tqdm(range(0, len(docs), batch_size)):\n        end = min(len(docs), i + batch_size)\n        batch = docs[i:end]\n        batch_embeddings = get_embeddings(batch, model)\n        batch_embedded_docs = [\n            {\"text\": batch[i], \"embedding\": batch_embeddings[i]}\n            for i in range(len(batch))\n        ]\n        embedded_docs.extend(batch_embedded_docs)\n\n    collection = db[model]\n    collection.delete_many({})\n    collection.insert_many(embedded_docs)\n    print(f\"Finished inserting embeddings for the {model} model\")",
+      "tokenEstimate": 212
+    }
+  ]
+}

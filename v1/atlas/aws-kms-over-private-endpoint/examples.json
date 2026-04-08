@@ -1,0 +1,178 @@
+{
+  "path": "atlas/aws-kms-over-private-endpoint",
+  "product": "atlas",
+  "title": "Step 1: Disable private networking.",
+  "summary": {
+    "total": 13,
+    "byLanguage": {
+      "json": 3,
+      "none": 1,
+      "shell": 8,
+      "text": 1
+    },
+    "bySection": [
+      {
+        "heading": "Enable Role-Based Access for Your Encryption Key for a Project",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 109
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 92
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 125
+          }
+        ]
+      },
+      {
+        "heading": "Enable and Set up Private Endpoint Connections for a Project",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 186
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 105
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 84
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 103
+          }
+        ]
+      },
+      {
+        "heading": "Create New Endpoints for a Project",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 105
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 84
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 103
+          }
+        ]
+      },
+      {
+        "heading": "Reject or Remove Private Endpoint Connection",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 117
+          }
+        ]
+      },
+      {
+        "heading": "View Private Endpoints and their Statuses",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 83
+          }
+        ]
+      },
+      {
+        "heading": "Disable Private Endpoint Connections for a Project",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 99
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:Encrypt\",\n        \"kms:DescribeKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:us-east-1:123456789012:key/12x345y6-7z89-0a12-3456-xyz123456789\"\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "json",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "{\n  \"Version\": \"2020-03-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"<atlasAWSAccountArn>\"\n      },\n      \"Action\": \"sts:AssumeRole\",\n      \"Condition\": {\n        \"StringEquals\": {\n          \"sts:ExternalId\": \"<atlasAssumedRoleExternalId>\"\n        }\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "none",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --header \"Accept: application/json\" \\\n  --header \"Content-Type: application/json\" \\\n  --include \\\n  --request PATCH \\\n  \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{groupId}/encryptionAtRest?pretty=true&envelope=true\" \\\n  --data '\n   {\n       \"awsKms\": {\n           \"enabled\": true,\n           \"roleId\": \"<roleId>\",\n           \"customerMasterKeyID\": \"<master-key-id>\",\n           \"region\": \"<aws-region>\"\n       }\n   }'",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "shell",
+      "section": "Enable and Set up Private Endpoint Connections for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n--header \"Content-Type: application/vnd.atlas.2024-11-13+json\" \\\n--include \\\n--request PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/\" \\\n--data '\n  {\n    \"awsKms\": {\n      \"accessKeyID\": \"019dd98d94b4bb778e7552e4\",\n      \"customerMasterKeyID\": \"string\",\n      \"enabled\": true,\n      \"region\": \"US_EAST_1\",\n      \"roleId\": \"32b6e34b3d91647abb20e7b8\",\n      \"secretAccessKey\": \"string\",\n      \"requirePrivateNetworking\": true\n    }\n  }'",
+      "tokenEstimate": 186
+    },
+    {
+      "language": "shell",
+      "section": "Enable and Set up Private Endpoint Connections for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n--header \"Content-Type: application/vnd.atlas.2024-11-13+json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/privateEndpoints\" \\\n--data '\n  {\n    \"regionName\": \"US_EAST_1\"\n  }'",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "shell",
+      "section": "Enable and Set up Private Endpoint Connections for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n--header \"Content-Type: application/vnd.atlas.2024-11-13+json\" \\\n--include \\\n--request GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/privateEndpoints\"",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "shell",
+      "section": "Enable and Set up Private Endpoint Connections for a Project",
+      "content": "{\n  \"links\": [\n    {\n      \"href\": \"https://cloud.mongodb.com/api/atlas\",\n      \"rel\": \"self\"\n    }\n  ],\n  \"results\": [\n    {\n      \"cloudProvider\": \"AWS\",\n      \"id\": \"24-hexadecimal-digit-string\",\n      \"privateEndpointConnectionName\": \"string\",\n      \"regionName\": \"US_EAST_1\",\n      \"status\": \"INITIATING\",\n    }\n  ],\n  \"totalCount\": 1\n}",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "shell",
+      "section": "Create New Endpoints for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n--header \"Content-Type: application/vnd.atlas.2024-11-13+json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/privateEndpoints\" \\\n--data '\n  {\n    \"regionName\": \"US_EAST_1\"\n  }'",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "shell",
+      "section": "Create New Endpoints for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-11-13+json\" \\\n--header \"Content-Type: application/vnd.atlas.2024-11-13+json\" \\\n--include \\\n--request GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/privateEndpoints\"",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "shell",
+      "section": "Create New Endpoints for a Project",
+      "content": "{\n  \"links\": [\n    {\n      \"href\": \"https://cloud.mongodb.com/api/atlas\",\n      \"rel\": \"self\"\n    }\n  ],\n  \"results\": [\n    {\n      \"cloudProvider\": \"AWS\",\n      \"id\": \"24-hexadecimal-digit-string\",\n      \"privateEndpointConnectionName\": \"string\",\n      \"regionName\": \"US_EAST_1\",\n      \"status\": \"INITIATING\",\n    }\n  ],\n  \"totalCount\": 1\n}",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "json",
+      "section": "Reject or Remove Private Endpoint Connection",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\\ or a different version of the Atlas Admin       API\n--header \"Content-Type: application/json\" \\\n--include \\\n--request DELETE \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/      privateEndpoints/{endpointId}\" \\\n--data '\n  {\n    \"cloudProvider\": \"AWS\",\n    \"regions\": [\n      \"string\"\n    ]\n  }'",
+      "tokenEstimate": 117
+    },
+    {
+      "language": "text",
+      "section": "View Private Endpoints and their Statuses",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2024-10-23+json\" \\\\ or a different version of the Atlas Admin API\n--header \"Content-Type: application/json\" \\\n--include \\\n--request GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AWS/privateEndpoints/\"",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "section": "Disable Private Endpoint Connections for a Project",
+      "content": "{\n  \"awsKms\": {\n    \"accessKeyID\": \"019dd98d94b4bb778e7552e4\",\n    \"customerMasterKeyID\": \"string\",\n    \"enabled\": true,\n    \"region\": \"US_EAST_1\",\n    \"roleId\": \"32b6e34b3d91647abb20e7b8\",\n    \"secretAccessKey\": \"string\"\n    \"requirePrivateNetworking\": false\n  }\n}",
+      "tokenEstimate": 99
+    }
+  ]
+}

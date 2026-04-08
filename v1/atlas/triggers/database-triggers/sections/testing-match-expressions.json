@@ -1,0 +1,12 @@
+{
+  "heading": "Testing Match Expressions",
+  "headingLevel": 4,
+  "body": "The following procedure shows one way to test whether your match expression\nworks as expected:\n\n- Download [the MongoDB Shell (mongosh)](mongodb-shell) and use it to\n  [MongoDB Shell](connect-mongo-shell).\n\n- Replacing `DB_NAME` with your database name, `COLLECTION_NAME` with your\n  collection name, and `YOUR_MATCH_EXPRESSION` with the match expression you\n  want to test, paste the following into mongosh to open a change stream on an\n  existing collection:\n\n  ```js\n  db.getSiblingDB(DB_NAME).COLLECTION_NAME.watch([{$match: YOUR_MATCH_EXPRESSION}])\n  while (!watchCursor.isClosed()) {\n    if (watchCursor.hasNext()) {\n      print(tojson(watchCursor.next()));\n    }\n  }\n  ```\n\n- In another terminal window, use `mongosh` to make changes to some test\n  documents in the collection.\n\n- Observe what the change stream filters in and out.",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "db.getSiblingDB(DB_NAME).COLLECTION_NAME.watch([{$match: YOUR_MATCH_EXPRESSION}])\nwhile (!watchCursor.isClosed()) {\n  if (watchCursor.hasNext()) {\n    print(tojson(watchCursor.next()));\n  }\n}",
+      "tokenEstimate": 48
+    }
+  ]
+}

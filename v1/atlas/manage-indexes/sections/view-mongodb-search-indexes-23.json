@@ -1,0 +1,17 @@
+{
+  "heading": "View MongoDB Search Indexes",
+  "headingLevel": 2,
+  "body": "To use the [Java Driver](java/sync/current) to retrieve your\nMongoDB Search indexes on a collection:\n\nThe following sample application retrieves all MongoDB Search indexes on\na given collection.\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoCursor;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\npublic class ViewIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database-name>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection-name>\");\n            // retrieve indexes\n            try (MongoCursor<Document> resultsCursor = collection.listSearchIndexes().iterator()) {\n                while (resultsCursor.hasNext()) {\n                    System.out.println(resultsCursor.next());\n                }\n            }\n        }\n    }\n}\n```\n\n- `<connection-string>`: Your Atlas connection string. To\n  learn more, see [Driver](connect-via-driver).\n\n- `<database-name>` and  `<collection-name>`: - The name of\n  the database and collection for which you want to retrieve the\n  index.\n\n```shell\njavac ViewIndex.java\njava ViewIndex\n```\n\n> **See Also:** [MongoDB Search Indexes](java/sync/current/indexes)",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoCursor;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\npublic class ViewIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database-name>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection-name>\");\n            // retrieve indexes\n            try (MongoCursor<Document> resultsCursor = collection.listSearchIndexes().iterator()) {\n                while (resultsCursor.hasNext()) {\n                    System.out.println(resultsCursor.next());\n                }\n            }\n        }\n    }\n}",
+      "tokenEstimate": 166
+    },
+    {
+      "language": "shell",
+      "content": "javac ViewIndex.java\njava ViewIndex",
+      "tokenEstimate": 9
+    }
+  ]
+}

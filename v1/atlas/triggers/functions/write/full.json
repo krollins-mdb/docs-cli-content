@@ -1,0 +1,311 @@
+{
+  "path": "atlas/triggers/functions/write",
+  "product": "atlas",
+  "title": "Snippet Setup",
+  "sections": [
+    {
+      "heading": "Insert",
+      "headingLevel": 2,
+      "body": "Insert operations take one or more documents and add them to a MongoDB collection.\n\nThey return documents that describe the results of the operation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Insert a Single Document (insertOne())",
+      "headingLevel": 3,
+      "body": "You can insert a single document using the\n[collection.insertOne()](collection.insertOne) method.\n\nThe following [Atlas Function](atlas-functions) snippet inserts a single item\ndocument into the `items` collection:\n\n```javascript\nconst newItem = {\n  \"name\": \"Plastic Bricks\",\n  \"quantity\": 10,\n  \"category\": \"toys\",\n  \"reviews\": [{ \"username\": \"legolover\", \"comment\": \"These are awesome!\" }]\n};\n\nitemsCollection.insertOne(newItem)\n  .then(result => console.log(`Successfully inserted item with _id: ${result.insertedId}`))\n  .catch(err => console.error(`Failed to insert item: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const newItem = {\n  \"name\": \"Plastic Bricks\",\n  \"quantity\": 10,\n  \"category\": \"toys\",\n  \"reviews\": [{ \"username\": \"legolover\", \"comment\": \"These are awesome!\" }]\n};\n\nitemsCollection.insertOne(newItem)\n  .then(result => console.log(`Successfully inserted item with _id: ${result.insertedId}`))\n  .catch(err => console.error(`Failed to insert item: ${err}`))",
+          "tokenEstimate": 98
+        }
+      ]
+    },
+    {
+      "heading": "Insert One or More Documents (insertMany())",
+      "headingLevel": 3,
+      "body": "You can insert multiple documents at the same time using the\n[collection.insertMany()](collection.insertMany) method.\n\nThe following [Atlas Function](atlas-functions) snippet inserts multiple item\ndocuments into the `items` collection:\n\n```javascript\nconst doc1 = { \"name\": \"basketball\", \"category\": \"sports\", \"quantity\": 20, \"reviews\": [] };\nconst doc2 = { \"name\": \"football\",   \"category\": \"sports\", \"quantity\": 30, \"reviews\": [] };\n\nreturn itemsCollection.insertMany([doc1, doc2])\n  .then(result => {\n    console.log(`Successfully inserted ${result.insertedIds.length} items!`);\n    return result\n  })\n  .catch(err => console.error(`Failed to insert documents: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const doc1 = { \"name\": \"basketball\", \"category\": \"sports\", \"quantity\": 20, \"reviews\": [] };\nconst doc2 = { \"name\": \"football\",   \"category\": \"sports\", \"quantity\": 30, \"reviews\": [] };\n\nreturn itemsCollection.insertMany([doc1, doc2])\n  .then(result => {\n    console.log(`Successfully inserted ${result.insertedIds.length} items!`);\n    return result\n  })\n  .catch(err => console.error(`Failed to insert documents: ${err}`))",
+          "tokenEstimate": 115
+        }
+      ]
+    },
+    {
+      "heading": "Update",
+      "headingLevel": 2,
+      "body": "Update operations find existing documents in a MongoDB collection and\nmodify their data. You use standard MongoDB query syntax to specify\nwhich documents to update and [update operators](manual/reference/mql/update) to describe the changes to apply to\nmatching documents.\n\nWhile running update operations, Atlas Functions temporarily add a\nreserved field, `_id__baas_transaction`, to documents. Once a document is\nsuccessfully updated, Atlas Functions remove this field.\n\nIf you want to use another tool to modify data in a collection, ensure that\nyou [$unset](manual/reference/operator/update/unset) this field prior to\nmaking changes.\n\nFor example, if you are using the [mongosh](mongodb-shell) shell to\nupdate documents in the products collection, your command\nmight resemble the following code:\n\n```sh\ndb.products.update(\n  { sku: \"unknown\" },\n  { $unset: { _id__baas_transaction: \"\" } }\n)\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "db.products.update(\n  { sku: \"unknown\" },\n  { $unset: { _id__baas_transaction: \"\" } }\n)",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Update a Single Document (updateOne())",
+      "headingLevel": 3,
+      "body": "You can update a single document using the\n[collection.updateOne()](collection.updateOne) method.\n\nThe following [Atlas Function](atlas-functions) snippet updates the `name`\nof a single document in the `items` collection from `lego` to\n`blocks` and adds a `price` of `20.99`:\n\n```javascript\nconst query = { \"name\": \"lego\" };\nconst update = {\n  \"$set\": {\n    \"name\": \"blocks\",\n    \"price\": 20.99,\n    \"category\": \"toys\"\n  }\n};\nconst options = { \"upsert\": false };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount } = result;\n    if(matchedCount && modifiedCount) {\n      console.log(`Successfully updated the item.`)\n    }\n  })\n  .catch(err => console.error(`Failed to update the item: ${err}`))\n```\n\nAlternatively, you can update a single document using\n[collection.findOneAndUpdate()](collection.findOneAndUpdate) or\n[collection.findOneAndReplace()](collection.findOneAndReplace). Both methods allow you to\nfind, modify, and return the updated document in a single operation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = { \"name\": \"lego\" };\nconst update = {\n  \"$set\": {\n    \"name\": \"blocks\",\n    \"price\": 20.99,\n    \"category\": \"toys\"\n  }\n};\nconst options = { \"upsert\": false };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount } = result;\n    if(matchedCount && modifiedCount) {\n      console.log(`Successfully updated the item.`)\n    }\n  })\n  .catch(err => console.error(`Failed to update the item: ${err}`))",
+          "tokenEstimate": 128
+        }
+      ]
+    },
+    {
+      "heading": "Update One or More Documents (updateMany())",
+      "headingLevel": 3,
+      "body": "You can update multiple documents in a collection using the\n[collection.updateMany()](collection.updateMany) method.\n\nThe following [Atlas Function](atlas-functions) snippet updates all documents\nin the `items` collection by multiplying their `quantity` values by\n`10`:\n\n```javascript\nconst query = {};\nconst update = { \"$mul\": { \"quantity\": 10 } };\nconst options = { \"upsert\": false }\n\nreturn itemsCollection.updateMany(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount } = result;\n    console.log(`Successfully matched ${matchedCount} and modified ${modifiedCount} items.`)\n    return result\n  })\n  .catch(err => console.error(`Failed to update items: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = {};\nconst update = { \"$mul\": { \"quantity\": 10 } };\nconst options = { \"upsert\": false }\n\nreturn itemsCollection.updateMany(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount } = result;\n    console.log(`Successfully matched ${matchedCount} and modified ${modifiedCount} items.`)\n    return result\n  })\n  .catch(err => console.error(`Failed to update items: ${err}`))",
+          "tokenEstimate": 100
+        }
+      ]
+    },
+    {
+      "heading": "Upsert Documents",
+      "headingLevel": 3,
+      "body": "If an update operation does not match any document in the collection,\nyou can automatically insert a single new document into the collection\nthat matches the update query by setting the `upsert` option to\n`true`.\n\nThe following [Atlas Function](atlas-functions) snippet updates a document in\nthe `items` collection that has a `name` of `board game` by\nincrementing its `quantity` by `5`. The `upsert` option is\nenabled, so if no document has a `name` value of `\"board game\"` then\nMongoDB inserts a new document with the `name` field set to `\"board\ngame\"` and the `quantity` value set to `5`:\n\n```javascript\nconst query = { \"name\": \"board games\" };\nconst update = { \"$inc\": { \"quantity\": 5 } };\nconst options = { \"upsert\": true };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount, upsertedId } = result;\n    if(upsertedId) {\n      console.log(`Document not found. Inserted a new document with _id: ${upsertedId}`)\n    } else {\n      console.log(`Successfully increased ${query.name} quantity by ${update.$inc.quantity}`)\n    }\n  })\n  .catch(err => console.error(`Failed to upsert document: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = { \"name\": \"board games\" };\nconst update = { \"$inc\": { \"quantity\": 5 } };\nconst options = { \"upsert\": true };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount, upsertedId } = result;\n    if(upsertedId) {\n      console.log(`Document not found. Inserted a new document with _id: ${upsertedId}`)\n    } else {\n      console.log(`Successfully increased ${query.name} quantity by ${update.$inc.quantity}`)\n    }\n  })\n  .catch(err => console.error(`Failed to upsert document: ${err}`))",
+          "tokenEstimate": 145
+        }
+      ]
+    },
+    {
+      "heading": "Field Update Operators",
+      "headingLevel": 3,
+      "body": "Field operators let you modify the fields and values of a document.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set the Value of a Field",
+      "headingLevel": 4,
+      "body": "You can use the [$set](manual/reference/operator/update/set)\noperator to set the value of a single field without affecting other\nfields in a document.\n\n```javascript\n{ \"$set\": { \"<Field Name>\": <Value>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$set\": { \"<Field Name>\": <Value>, ... } }",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "Rename a Field",
+      "headingLevel": 4,
+      "body": "You can use the [$rename](manual/reference/operator/update/rename)\noperator to change the name of a single field in a document.\n\n```javascript\n{ \"$rename\": { \"<Current Field Name>\": <New Field Name>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$rename\": { \"<Current Field Name>\": <New Field Name>, ... } }",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Increment a Value",
+      "headingLevel": 4,
+      "body": "You can use the [$inc](manual/reference/operator/update/inc)\noperator to add a specified number to the current value of a field. The\nnumber can be positive or negative.\n\n```javascript\n{ \"$inc\": { \"<Field Name>\": <Increment Number>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$inc\": { \"<Field Name>\": <Increment Number>, ... } }",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Multiply a Value",
+      "headingLevel": 4,
+      "body": "You can use the [$mul](manual/reference/operator/update/mul)\noperator to multiply a specified number with the current value of a\nfield. The number can be positive or negative.\n\n```javascript\n{ \"$mul\": { \"<Field Name>\": <Multiple Number>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$mul\": { \"<Field Name>\": <Multiple Number>, ... } }",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Array Update Operators",
+      "headingLevel": 3,
+      "body": "Array operators let you work with values inside of arrays.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Push an Element Into an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$push](manual/reference/operator/update/push)\noperator to add a value to the end of an array field.\n\n```javascript\n{ \"$push\": { \"<Array Field Name>\": <New Array Element>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$push\": { \"<Array Field Name>\": <New Array Element>, ... } }",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Pop the Last Element out of an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$pop](manual/reference/operator/update/pop) operator\nto remove either the first or last element of an array field. Specify\n`-1` to remove the first element and `1` to remove the last element.\n\n```javascript\n{ \"$pop\": { \"<Array Field Name>\": <-1 | 1>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$pop\": { \"<Array Field Name>\": <-1 | 1>, ... } }",
+          "tokenEstimate": 20
+        }
+      ]
+    },
+    {
+      "heading": "Add a Unique Element to an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$addToSet](manual/reference/operator/update/addToSet) operator to add a value to an\narray field if that value is not already included in the array. If the\nvalue is already present, `$addToSet` does nothing.\n\n```javascript\n{ \"$addToSet\": { \"<Array Field Name>\": <Potentially Unique Value>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$addToSet\": { \"<Array Field Name>\": <Potentially Unique Value>, ... } }",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Remove Elements from an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$pull](manual/reference/operator/update/pull)\noperator to remove all instances of any values that match a specified\ncondition from an array field.\n\n```javascript\n{ \"$pull\": { \"<Array Field Name>\": <Value | Expression>, ... } }\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"$pull\": { \"<Array Field Name>\": <Value | Expression>, ... } }",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Update All Elements in an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$\\[\\] (All Positional Update)](manual/reference/operator/update/positional-all) operator to update all elements in\nan array field:\n\n> **Example:** Consider a `students` collection that describes individual students in a\n> class. The documents each include a `grades` field that contains an array\n> of numbers:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 85, 82, 80 ] }\n> { \"_id\" : 2, \"grades\" : [ 88, 90, 92 ] }\n> { \"_id\" : 3, \"grades\" : [ 85, 100, 90 ] }\n> ```\n>\n> The following update operation adds 10 to all values in the `grades` array\n> of every student:\n>\n> ```javascript\n> await students.updateMany(\n>    {},\n>    { $inc: { \"grades.$[]\": 10 } },\n> )\n> ```\n>\n> After the update, every grade value has increased by 10:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 95, 92, 90 ] }\n> { \"_id\" : 2, \"grades\" : [ 98, 100, 102 ] }\n> { \"_id\" : 3, \"grades\" : [ 95, 110, 100 ] }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \"_id\" : 1, \"grades\" : [ 85, 82, 80 ] }\n{ \"_id\" : 2, \"grades\" : [ 88, 90, 92 ] }\n{ \"_id\" : 3, \"grades\" : [ 85, 100, 90 ] }",
+          "tokenEstimate": 69
+        },
+        {
+          "language": "javascript",
+          "content": "await students.updateMany(\n   {},\n   { $inc: { \"grades.$[]\": 10 } },\n)",
+          "tokenEstimate": 23
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\" : 1, \"grades\" : [ 95, 92, 90 ] }\n{ \"_id\" : 2, \"grades\" : [ 98, 100, 102 ] }\n{ \"_id\" : 3, \"grades\" : [ 95, 110, 100 ] }",
+          "tokenEstimate": 69
+        }
+      ]
+    },
+    {
+      "heading": "Update Specific Elements in an Array",
+      "headingLevel": 4,
+      "body": "You can use the [$\\[element\\] (Filtered Positional Update)](manual/reference/operator/update/positional-filtered) operator to update specific\nelements in an array field based on an array filter:\n\n> **Example:** Consider a `students` collection that describes individual students in a\n> class. The documents each include a `grades` field that contains an array\n> of numbers, some of which are greater than 100:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n> { \"_id\" : 2, \"grades\" : [ 18, 100, 102 ] }\n> { \"_id\" : 3, \"grades\" : [ 15, 110, 100 ] }\n> ```\n>\n> The following update operation sets all grade values greater than 100 to\n> exactly 100:\n>\n> ```javascript\n> await students.updateMany(\n>    { },\n>    {\n>      $set: {\n>        \"grades.$[grade]\" : 100\n>      }\n>    },\n>    {\n>      arrayFilters: [{ \"grade\": { $gt: 100 } }]\n>    }\n> )\n> ```\n>\n> After the update, all grade values greater than 100 are set to exactly 100\n> and all other grades are unaffected:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n> { \"_id\" : 2, \"grades\" : [ 18, 100, 100 ] }\n> { \"_id\" : 3, \"grades\" : [ 15, 100, 100 ] }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n{ \"_id\" : 2, \"grades\" : [ 18, 100, 102 ] }\n{ \"_id\" : 3, \"grades\" : [ 15, 110, 100 ] }",
+          "tokenEstimate": 69
+        },
+        {
+          "language": "javascript",
+          "content": "await students.updateMany(\n   { },\n   {\n     $set: {\n       \"grades.$[grade]\" : 100\n     }\n   },\n   {\n     arrayFilters: [{ \"grade\": { $gt: 100 } }]\n   }\n)",
+          "tokenEstimate": 51
+        },
+        {
+          "language": "json",
+          "content": "{ \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n{ \"_id\" : 2, \"grades\" : [ 18, 100, 100 ] }\n{ \"_id\" : 3, \"grades\" : [ 15, 100, 100 ] }",
+          "tokenEstimate": 69
+        }
+      ]
+    },
+    {
+      "heading": "Delete",
+      "headingLevel": 2,
+      "body": "Delete operations find existing documents in a MongoDB collection and\nremove them. You use standard MongoDB query syntax to specify which\ndocuments to delete.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete a Single Document (deleteOne())",
+      "headingLevel": 3,
+      "body": "You can delete a single document from a collection using the\n[collection.deleteOne()](collection.deleteOne) method.\n\nThe following [Atlas Function](atlas-functions) snippet deletes one document\nin the `items` collection that has a `name` value of `lego`:\n\n```javascript\nconst query = { \"name\": \"lego\" };\n\nitemsCollection.deleteOne(query)\n  .then(result => console.log(`Deleted ${result.deletedCount} item.`))\n  .catch(err => console.error(`Delete failed with error: ${err}`))\n```\n\nAlternatively, you can update a single document using\n[collection.findOneAndDelete()](collection.findOneAndDelete). This method allows you to\nfind, remove, and return the deleted document in a single operation.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = { \"name\": \"lego\" };\n\nitemsCollection.deleteOne(query)\n  .then(result => console.log(`Deleted ${result.deletedCount} item.`))\n  .catch(err => console.error(`Delete failed with error: ${err}`))",
+          "tokenEstimate": 52
+        }
+      ]
+    },
+    {
+      "heading": "Delete One or More Documents (deleteMany())",
+      "headingLevel": 3,
+      "body": "You can delete multiple items from a collection using the\n[collection.deleteMany()](collection.deleteMany) method.\n\nThe following snippet deletes all documents in the `items` collection\nthat do not have any `reviews`:\n\n```javascript\nconst query = { \"reviews\": { \"$size\": 0 } };\n\nitemsCollection.deleteMany(query)\n  .then(result => console.log(`Deleted ${result.deletedCount} item(s).`))\n  .catch(err => console.error(`Delete failed with error: ${err}`))\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const query = { \"reviews\": { \"$size\": 0 } };\n\nitemsCollection.deleteMany(query)\n  .then(result => console.log(`Deleted ${result.deletedCount} item(s).`))\n  .catch(err => console.error(`Delete failed with error: ${err}`))",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Bulk Writes",
+      "headingLevel": 2,
+      "body": "A bulk write combines multiple write operations into a single operation.\nYou can issue a bulk write command using the\n[collection.bulkWrite()](collection.bulkWrite) method.\n\n```javascript\nexports = async function(arg){\n    const doc1 = { \"name\": \"velvet elvis\", \"quantity\": 20, \"reviews\": [] };\n    const doc2 = { \"name\": \"mock turtleneck\",  \"quantity\": 30, \"reviews\": [] };\n\n    var collection = context.services.get(\"mongodb-atlas\")\n        .db(\"store\")\n        .collection(\"purchases\");\n\n    return await collection.bulkWrite(\n        [{ insertOne: doc1}, { insertOne: doc2}],\n        {ordered:true});\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = async function(arg){\n    const doc1 = { \"name\": \"velvet elvis\", \"quantity\": 20, \"reviews\": [] };\n    const doc2 = { \"name\": \"mock turtleneck\",  \"quantity\": 30, \"reviews\": [] };\n\n    var collection = context.services.get(\"mongodb-atlas\")\n        .db(\"store\")\n        .collection(\"purchases\");\n\n    return await collection.bulkWrite(\n        [{ insertOne: doc1}, { insertOne: doc2}],\n        {ordered:true});\n};",
+          "tokenEstimate": 112
+        }
+      ]
+    },
+    {
+      "heading": "Transactions",
+      "headingLevel": 2,
+      "body": "MongoDB supports [multi-document transactions](manual/core/transactions) that let you read and write multiple documents\natomically, even across collections.\n\nTo perform a transaction:\n\n- Obtain and start a client session with `client.startSession()`.\n\n- Call `session.withTransaction()` to define the transaction. The\n  method takes an async callback function and, optionally, a\n  configuration object that defines custom [read and write\n  settings](manual/core/transactions) for\n  the transaction.\n\n  ```javascript\n  session.withTransaction(async () => {\n     // ... Run MongoDB operations in this callback\n  }, {\n      readPreference: \"primary\",\n      readConcern: { level: \"local\" },\n      writeConcern: { w: \"majority\" },\n  })\n  ```\n\n- In the transaction callback function, run the MongoDB queries that\n  you would like to include in the transaction. Be sure to pass the\n  `session` to each query to ensure that it is included in the\n  transaction.\n\n  ```javascript\n  await accounts.updateOne(\n    { name: userSubtractPoints },\n    { $inc: { browniePoints: -1 * pointVolume } },\n    { session }\n  );\n  ```\n\n- If the callback encounters an error, call\n  `session.abortTransaction()` to stop the transaction. An aborted\n  transaction does not modify any data.\n\n  ```javascript\n  try {\n    // ...\n  } catch (err) {\n    await session.abortTransaction();\n  }\n  ```\n\n- When the transaction is complete, call `session.endSession()` to\n  end the session and free resources.\n\n  ```javascript\n  try {\n    // ...\n  } finally {\n    await session.endSession();\n  }\n  ```\n\nThe following example creates two users, \"henry\" and \"michelle\", and\na uses a transaction to move \"browniePoints\" between those users\natomically:\n\n```javascript\nexports = function () {\n    const client = context.services.get(\"mongodb-atlas\");\n  \n    db = client.db(\"exampleDatabase\");\n  \n    accounts = db.collection(\"accounts\");\n    browniePointsTrades = db.collection(\"browniePointsTrades\");\n  \n    // create user accounts with initial balances\n    accounts.insertOne({ name: \"henry\", browniePoints: 42 });\n    accounts.insertOne({ name: \"michelle\", browniePoints: 144 });\n  \n    // trade points between user accounts in a transaction\n    tradeBrowniePoints(\n      client,\n      accounts,\n      browniePointsTrades,\n      \"michelle\",\n      \"henry\",\n      5\n    );\n  \n    return \"Successfully traded brownie points.\";\n  };\n  \n  async function tradeBrowniePoints(\n    client,\n    accounts,\n    browniePointsTrades,\n    userAddPoints,\n    userSubtractPoints,\n    pointVolume\n  ) {\n    // Step 1: Start a Client Session\n    const session = client.startSession();\n  \n    // Step 2: Optional. Define options to use for the transaction\n    const transactionOptions = {\n      readPreference: \"primary\",\n      readConcern: { level: \"local\" },\n      writeConcern: { w: \"majority\" },\n    };\n  \n    // Step 3: Use withTransaction to start a transaction, execute the callback, and commit (or abort on error)\n    // Note: The callback for withTransaction MUST be async and/or return a Promise.\n    try {\n      await session.withTransaction(async () => {\n        // Step 4: Execute the queries you would like to include in one atomic transaction\n        // Important:: You must pass the session to the operations\n        await accounts.updateOne(\n          { name: userSubtractPoints },\n          { $inc: { browniePoints: -1 * pointVolume } },\n          { session }\n        );\n        await accounts.updateOne(\n          { name: userAddPoints },\n          { $inc: { browniePoints: pointVolume } },\n          { session }\n        );\n        await browniePointsTrades.insertOne(\n          {\n            userAddPoints: userAddPoints,\n            userSubtractPoints: userSubtractPoints,\n            pointVolume: pointVolume,\n          },\n          { session }\n        );\n      }, transactionOptions);\n    } catch (err) {\n      // Step 5: Handle errors with a transaction abort\n      await session.abortTransaction();\n    } finally {\n      // Step 6: End the session when you complete the transaction\n      await session.endSession();\n    }\n  }\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "session.withTransaction(async () => {\n   // ... Run MongoDB operations in this callback\n}, {\n    readPreference: \"primary\",\n    readConcern: { level: \"local\" },\n    writeConcern: { w: \"majority\" },\n})",
+          "tokenEstimate": 50
+        },
+        {
+          "language": "javascript",
+          "content": "await accounts.updateOne(\n  { name: userSubtractPoints },\n  { $inc: { browniePoints: -1 * pointVolume } },\n  { session }\n);",
+          "tokenEstimate": 36
+        },
+        {
+          "language": "javascript",
+          "content": "try {\n  // ...\n} catch (err) {\n  await session.abortTransaction();\n}",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "javascript",
+          "content": "try {\n  // ...\n} finally {\n  await session.endSession();\n}",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "javascript",
+          "content": "exports = function () {\n    const client = context.services.get(\"mongodb-atlas\");\n  \n    db = client.db(\"exampleDatabase\");\n  \n    accounts = db.collection(\"accounts\");\n    browniePointsTrades = db.collection(\"browniePointsTrades\");\n  \n    // create user accounts with initial balances\n    accounts.insertOne({ name: \"henry\", browniePoints: 42 });\n    accounts.insertOne({ name: \"michelle\", browniePoints: 144 });\n  \n    // trade points between user accounts in a transaction\n    tradeBrowniePoints(\n      client,\n      accounts,\n      browniePointsTrades,\n      \"michelle\",\n      \"henry\",\n      5\n    );\n  \n    return \"Successfully traded brownie points.\";\n  };\n  \n  async function tradeBrowniePoints(\n    client,\n    accounts,\n    browniePointsTrades,\n    userAddPoints,\n    userSubtractPoints,\n    pointVolume\n  ) {\n    // Step 1: Start a Client Session\n    const session = client.startSession();\n  \n    // Step 2: Optional. Define options to use for the transaction\n    const transactionOptions = {\n      readPreference: \"primary\",\n      readConcern: { level: \"local\" },\n      writeConcern: { w: \"majority\" },\n    };\n  \n    // Step 3: Use withTransaction to start a transaction, execute the callback, and commit (or abort on error)\n    // Note: The callback for withTransaction MUST be async and/or return a Promise.\n    try {\n      await session.withTransaction(async () => {\n        // Step 4: Execute the queries you would like to include in one atomic transaction\n        // Important:: You must pass the session to the operations\n        await accounts.updateOne(\n          { name: userSubtractPoints },\n          { $inc: { browniePoints: -1 * pointVolume } },\n          { session }\n        );\n        await accounts.updateOne(\n          { name: userAddPoints },\n          { $inc: { browniePoints: pointVolume } },\n          { session }\n        );\n        await browniePointsTrades.insertOne(\n          {\n            userAddPoints: userAddPoints,\n            userSubtractPoints: userSubtractPoints,\n            pointVolume: pointVolume,\n          },\n          { session }\n        );\n      }, transactionOptions);\n    } catch (err) {\n      // Step 5: Handle errors with a transaction abort\n      await session.abortTransaction();\n    } finally {\n      // Step 6: End the session when you complete the transaction\n      await session.endSession();\n    }\n  }\n",
+          "tokenEstimate": 541
+        }
+      ]
+    }
+  ]
+}

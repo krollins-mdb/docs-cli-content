@@ -1,0 +1,384 @@
+{
+  "path": "atlas/config/path-syntax-examples",
+  "product": "atlas",
+  "title": "Define Path File Syntax",
+  "summary": {
+    "total": 30,
+    "byLanguage": {
+      "sh": 3,
+      "json": 4,
+      "none": 5,
+      "text": 14,
+      "shell": 4
+    },
+    "bySection": [
+      {
+        "heading": "Overview",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 11
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 51
+          }
+        ]
+      },
+      {
+        "heading": "Parsing Null Values from Filenames",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 64
+          }
+        ]
+      },
+      {
+        "heading": "Parsing Padded Numbers from Filenames",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 10
+          }
+        ]
+      },
+      {
+        "heading": "Unsupported Parsing Functions",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 20
+          }
+        ]
+      },
+      {
+        "heading": "Parse Single Field from Filename",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 77
+          }
+        ]
+      },
+      {
+        "heading": "Parse Multiple Fields from Filename",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 80
+          }
+        ]
+      },
+      {
+        "heading": "Use Regular Expression to Parse Fields from Filename",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 98
+          }
+        ]
+      },
+      {
+        "heading": "Identify Ranges of Queryable Data from Filename",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 87
+          }
+        ]
+      },
+      {
+        "heading": "Identify Nested Fields from Filename",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 19
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 59
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 75
+          }
+        ]
+      },
+      {
+        "heading": "Create Partitions from ObjectIds",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 86
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 76
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 93
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 83
+          }
+        ]
+      },
+      {
+        "heading": "Create Partitions from File Path",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 95
+          }
+        ]
+      },
+      {
+        "heading": "Create Partitions from ISODate",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 71
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 108
+          }
+        ]
+      },
+      {
+        "heading": "Generate Dynamic Collection Names from File Path",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 74
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 81
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Overview",
+      "content": "/users/26/1234.json\n/users/26/5678.json",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "json",
+      "section": "Overview",
+      "content": "{\n  \"name\": \"jane doe\",\n  \"age\": 26,\n  \"userID\": \"1234\"\n}",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "sh",
+      "section": "Overview",
+      "content": "\"path\": \"/users/{age int}/{userID string}\"",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "section": "Overview",
+      "content": "db.users.findOne(                /users\n  {                                /40\n    \"age\": 26 ----------------->   /26\n    \"userID\": \"1234\" ---------->     /1234.json\n  }                                  /5678.json\n)",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "none",
+      "section": "Parsing Null Values from Filenames",
+      "content": "/records/january/1.json\n/records/february/1.json\n/records//1.json\n\nFor the path ``/records/{month string}/*``, Data Federation does not add any\ncomputed fields for the ``month`` attribute to documents generated\nfrom the third record in the above store.",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "text",
+      "section": "Parsing Padded Numbers from Filenames",
+      "content": "|--users\n   |--001.json\n   |--002.json\n   ...",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "sh",
+      "section": "Parsing Padded Numbers from Filenames",
+      "content": "/users/{user_id int:\\\\d{3}}",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "shell",
+      "section": "Unsupported Parsing Functions",
+      "content": "|--food\n   |--icecream\n   |--peanutbutter",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "shell",
+      "section": "Unsupported Parsing Functions",
+      "content": "/food/{first string}{second string}/",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "section": "Unsupported Parsing Functions",
+      "content": "/food/{first string:\\\\D{3}}{second string:\\\\D{5}}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Unsupported Parsing Functions",
+      "content": "/food/{first string:[A-Z]{3}}{second string:[a-z]{5}}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "none",
+      "section": "Parse Single Field from Filename",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "none",
+      "section": "Parse Multiple Fields from Filename",
+      "content": "\"databases\" : [\n  {\n    \"name\": \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "none",
+      "section": "Use Regular Expression to Parse Fields from Filename",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{year int:\\\\d{4}}{month int:\\\\d{2}}{day int:\\\\d{2}}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 98
+    },
+    {
+      "language": "none",
+      "section": "Identify Ranges of Queryable Data from Filename",
+      "content": "\"databases\" : [\n  {\n    \"name: \"accounting\",\n    \"collections\" : [\n      {\n        \"name: \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(invoiceDate) epoch_millis}-{max(invoiceDate) epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "text",
+      "section": "Identify Nested Fields from Filename",
+      "content": "accountingArchive\n|--invoices\n   |--January.json\n   |--February.json\n   ...",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "text",
+      "section": "Identify Nested Fields from Filename",
+      "content": "{\n  \"invoice\": {\n     \"invoiceNumber\" : \"MONGODB12345\",\n     \"year\" : 2019,\n     \"month\": \"January\", //value matches filename\n     \"date\": 02\n  },\n  \"vendor\": \"MONGODB\",\n  ...\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "text",
+      "section": "Identify Nested Fields from Filename",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoice.month string}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ObjectIds",
+      "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011.json\n   |--507f1f77bcf86cd799439012.json\n   |--507f1f77bcf86cd799439013.json\n   |--507f1f77bcf86cd799439014.json\n   |--507f1f77bcf86cd799439015.json",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ObjectIds",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{objid objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ObjectIds",
+      "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011-507f1f77bcf86cd799439020.json\n   |--507f1f77bcf86cd799439021-507f1f77bcf86cd799439030.json\n   |--507f1f77bcf86cd799439031-507f1f77bcf86cd799439040.json",
+      "tokenEstimate": 93
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ObjectIds",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(obj) objectid}-{max(obj) objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from File Path",
+      "content": "invoices\n|--MONGO12345\n   |--2019\n      |--01\n         |--02",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from File Path",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}/{year int}/{month int:\\\\d{2}}/{day int:\\\\d{2}}/*\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ISODate",
+      "content": "accountingArchive\n|--invoices\n   |--01_02_2022_2301.json\n   |--02_02_2022_2301.json\n   |--03_02_2022_2301.json\n   |--04_02_2022_2301.json\n   |--05_02_2022_2301.json",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "text",
+      "section": "Create Partitions from ISODate",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/creationDate isodate('01_02_2006_1504'):\\\\d{2}_\\\\d{2}_\\\\d{4}_\\\\d{4}.json\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 108
+    },
+    {
+      "language": "text",
+      "section": "Generate Dynamic Collection Names from File Path",
+      "content": "invoices\n|--SuperSoftware\n|--UltraSoftware\n|--MegaSoftware",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "json",
+      "section": "Generate Dynamic Collection Names from File Path",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{collectionName()}/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "text",
+      "section": "Generate Dynamic Collection Names from File Path",
+      "content": "/orders/MONGODB/invoices/January.json\n/orders/MONGODB/purchaseOrders/January.json\n/orders/MONGODB/invoices/February.json\n...",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "json",
+      "section": "Generate Dynamic Collection Names from File Path",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/orders/MONGODB/{collectionName()}/{invoiceMonth string}.json/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 81
+    }
+  ]
+}

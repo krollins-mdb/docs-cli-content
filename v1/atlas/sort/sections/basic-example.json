@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 4,
+  "body": "The following query on the `sample_mflix.movies` namespace uses the\n[$search](pipe.$search) stage to do the following:\n\n- Search for movies that have the term `country` in the title.\n\n- Sort the results in ascending order using `sort` option.\n\nThe query uses the [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to `5`\ndocuments. It also uses the [$project](manual/reference/operator/aggregation/project) stage to do the\nfollowing:\n\n- Omit all fields except `title` in the results.\n\n- Add a field named `score`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"country\"\n      },\n      \"sort\": {\n        \"title\": 1\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'A Country Called Home', score: 2.536633253097534 },\n  { title: 'A Month in the Country', score: 2.258953094482422 },\n  { title: 'A Quiet Place in the Country', score: 2.0360684394836426 },\n  { title: 'A Sunday in the Country', score: 2.258953094482422 },\n  { title: 'Another Country', score: 3.3635599613189697 }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"country\"\n      },\n      \"sort\": {\n        \"title\": 1\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 100
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: 'A Country Called Home', score: 2.536633253097534 },\n  { title: 'A Month in the Country', score: 2.258953094482422 },\n  { title: 'A Quiet Place in the Country', score: 2.0360684394836426 },\n  { title: 'A Sunday in the Country', score: 2.258953094482422 },\n  { title: 'Another Country', score: 3.3635599613189697 }\n]",
+      "tokenEstimate": 111
+    }
+  ]
+}

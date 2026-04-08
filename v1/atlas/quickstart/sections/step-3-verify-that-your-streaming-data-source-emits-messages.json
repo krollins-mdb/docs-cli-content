@@ -1,0 +1,22 @@
+{
+  "heading": "Step 3: Verify that your streaming data source emits messages.",
+  "headingLevel": 3,
+  "body": "Your stream processing workspace comes preconfigured with a connection to a sample\ndata source called `sample_stream_solar`. This source\ngenerates a stream of reports from various solar power\ndevices. Each report describes the observed wattage and\ntemperature of a single solar device at a specific point in\ntime, as well as that device's maximum wattage.\n\nThe following document represents a report from this data source:\n\n```json\n{\n  device_id: 'device_8',\n  group_id: 7,\n  timestamp: '2024-08-12T21:41:01.788+00:00',\n  max_watts: 450,\n  event_type: 0,\n  obs: {\n    watts: 252,\n    temp: 17\n  }\n}\n```\n\nTo verify that this source emits messages, create a stream\nprocessor interactively using [mongosh](mongodb-shell):\n\n- Connect to your stream processing workspace.\n\n  Use the connection string associated with your stream processing workspace\n  to connect using [mongosh](mongodb-shell).\n\n  - In the pane for your stream processing workspace, click **Connect**.\n\n  - In the workspace connection dialog, click\n    **Choose a connection method**, then\n    select the **Shell** tab.\n\n  - Copy the connection string displayed in the dialog. It has\n    the following format, where\n    `<atlas-stream-processing-url>` is the URL of your stream processing workspace\n    and `<username>` is the username of a database user with\n    the [atlasAdmin](manual/reference/built-in-roles) role:\n\n    ```sh\n    mongosh \"mongodb://<atlas-stream-processing-url>/\"\n    --tls --authenticationDatabase admin --username <username>\n    --password <password>\n    ```\n\n  - Paste the connection string into your terminal and replace\n    the `<password>` placeholder with the credentials for the\n    user.\n\n    Press Enter to run it and connect to your stream processing workspace.\n\n- In the [mongosh](mongodb-shell) prompt, use the [sp.process()](manual/reference/method/sp.process)\n  method to create the stream processor interactively.\n\n  ```\n  sp.process([{\"$source\": {\n     \"connectionName\": \"sample_stream_solar\"\n  }}])\n  ```\n\n  Verify that data from the `sample_stream_solar`\n  connection displays to the console, and terminate\n  the process.\n\n  Stream processors you create with `sp.process()` don't\n  persist after you terminate them.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  device_id: 'device_8',\n  group_id: 7,\n  timestamp: '2024-08-12T21:41:01.788+00:00',\n  max_watts: 450,\n  event_type: 0,\n  obs: {\n    watts: 252,\n    temp: 17\n  }\n}",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "sh",
+      "content": "mongosh \"mongodb://<atlas-stream-processing-url>/\"\n--tls --authenticationDatabase admin --username <username>\n--password <password>",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "text",
+      "content": "sp.process([{\"$source\": {\n   \"connectionName\": \"sample_stream_solar\"\n}}])",
+      "tokenEstimate": 21
+    }
+  ]
+}

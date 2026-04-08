@@ -1,0 +1,127 @@
+{
+  "path": "atlas/kafka-private-link-connection",
+  "product": "atlas",
+  "title": "GCP Confluent Private Link Connections",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "bash": 2,
+      "text": 4,
+      "sh": 2
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Configure Confluent cluster.",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 157
+          }
+        ]
+      },
+      {
+        "heading": "Step 5: Request a connection to your cloud provider.",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 290
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 237
+          }
+        ]
+      },
+      {
+        "heading": "Step 6: Create the Atlas-side connection.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 230
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Configure Confluent cluster.",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 158
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Request a connection to your cloud provider.",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 215
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 162
+          }
+        ]
+      },
+      {
+        "heading": "Step 5: Create the Atlas-side connection.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 230
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "Step 1: Configure Confluent cluster.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/<project_id>/streams/accountDetails?cloudProvider=azure&regionName=<region>' \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json'\n\n{\n   \"azureSubscriptionId\": \"f1a2b3c4-d5e6-87a8-a9b0-c1d2e3f4a5b6\",\n   \"cidrBlock\": \"192.168.123.0/21\",\n   \"virtualNetworkName\": \"vnet_a1b2c3d4e5f6a7b8c9d0e1f2_xyz987ab\",\n   \"cloudProvider\": \"azure\"\n}",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "text",
+      "section": "Step 5: Request a connection to your cloud provider.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json' \\\n--data '{\n  \"vendor\": \"Confluent\",\n  \"provider\": \"Azure\",\n  \"region\": \"US_EAST_2\",\n  \"dnsDomain\": \"abcxyz12345.eastus2.azure.confluent.cloud\",\n  \"azureResourceIds: [\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-1\",\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-2\",\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-3\"\n  ]\n}'",
+      "tokenEstimate": 290
+    },
+    {
+      "language": "text",
+      "section": "Step 5: Request a connection to your cloud provider.",
+      "content": "{\n  \"_id\": \"65f8a3b4c5d6e7f8a9b0c1d2\",\n  \"azureResourceIds\": [\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-1\",\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-2\",\n    \"/subscriptions/a1b2c3d4-e5f6-7890-abcd-ef1234567890/resourceGroups/d-xyz98/providers/Microsoft.Network/privateLinkServices/d-xyz98-privatelink-3\"\n  ],\n  \"dnsDomain\": \"abcxyz12345.eastus2.azure.confluent.cloud\",\n  \"provider\": \"Azure\",\n  \"region\": \"US_EAST_2\",\n  \"vendor\": \"Confluent\"\n}",
+      "tokenEstimate": 237
+    },
+    {
+      "language": "sh",
+      "section": "Step 6: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"confluent_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.us-east-1.aws.confluent.cloud:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 230
+    },
+    {
+      "language": "bash",
+      "section": "Step 1: Configure Confluent cluster.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/<project_id>/streams/accountDetails?cloudProvider=gcp&regionName=<region>' \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json'\n\n{\n   \"cidrBlock\": \"192.168.123.0/21\",\n   \"gcpProjectId\": \"f1a2b3c4d5e687a8a9b0c1d2e3f4a5b6\",\n   \"vpcNetworkName\": \"nt-a1b2c3d4e5f6a7b8c9d0e1f2-xyz987ab\",\n   \"cloudProvider\": \"gcp\"\n}",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "text",
+      "section": "Step 4: Request a connection to your cloud provider.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json' \\\n--data '{\n  \"dnsDomain\": \"abcxyz12345.us-central1.gcp.confluent.cloud\",\n  \"gcpServiceAttachmentUris: [\n    \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-a\",\n    \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-b\",\n    \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-c\"\n  ]\n  \"provider\": \"gcp\",\n  \"region\": \"us-central1\",\n  \"vendor\": \"CONFLUENT\",\n}'",
+      "tokenEstimate": 215
+    },
+    {
+      "language": "text",
+      "section": "Step 4: Request a connection to your cloud provider.",
+      "content": "{\n   \"_id\": \"65f8a3b4c5d6e7f8a9b0c1d2\",\n   \"dnsDomain\": \"abcxyz12345.us-central1.gcp.confluent.cloud\",\n   \"gcpServiceAttachmentUris: [\n     \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-a\",\n     \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-b\",\n     \"projects/demo-proj/regions/us-central1/serviceAttachments/l-ipsum-service-attachment-us-central1-c\"\n   ]\n   \"provider\": \"gcp\",\n   \"region\": \"us-central1\",\n   \"vendor\": \"CONFLUENT\",\n }",
+      "tokenEstimate": 162
+    },
+    {
+      "language": "sh",
+      "section": "Step 5: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"confluent_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.us-east-1.aws.confluent.cloud:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 230
+    }
+  ]
+}

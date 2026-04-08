@@ -1,0 +1,22 @@
+{
+  "heading": "Boolean Examples",
+  "headingLevel": 4,
+  "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `verified_user` field\nis set to `true`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"verified_user\",\n        \"value\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"name\": 1,\n      \"_id\": 0,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Jim Hall\", \"score\" : 1 }\n{ \"name\" : \"Ellen Smith\", \"score\" : 1 }\n```\n\nThe documents for \"Jim Hall\" and \"Ellen Smith\" each receive a score of `1`\nbecause those documents have the `verified_user` field set to `true`.\n\nThe following example uses the `equals` operator to search the\n`users` collection for documents in which the `account.new_user`\nfield contains the boolean value `true`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account.new_user\",\n        \"value\": true\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Jim Hall\" because that document contains `\"new_user\": true` in the\n`account` object.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"verified_user\",\n        \"value\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"name\": 1,\n      \"_id\": 0,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"name\" : \"Jim Hall\", \"score\" : 1 }\n{ \"name\" : \"Ellen Smith\", \"score\" : 1 }",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "javascript",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account.new_user\",\n        \"value\": true\n      }\n    }\n  }\n])",
+      "tokenEstimate": 38
+    }
+  ]
+}

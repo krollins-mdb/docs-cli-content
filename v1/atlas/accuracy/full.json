@@ -1,0 +1,67 @@
+{
+  "path": "atlas/accuracy",
+  "product": "atlas",
+  "title": "Improve Accuracy",
+  "sections": [
+    {
+      "heading": "How do I improve the accuracy of my search results?",
+      "headingLevel": 2,
+      "body": "To improve the accuracy of your search results, you can use MongoDB Search\nsupport for the following features.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Customize the Score",
+      "headingLevel": 3,
+      "body": "MongoDB Search assigns a score to every document in the result set based on\nrelevance and returns the results in order from highest to the\nlowest score. To learn more, see [relevance scoring](scoring-ref).\n\nWhen you run your MongoDB Search query, you can tune the relevance of the\ndocuments in the results to ensure that the most pertinent documents are\nranked and returned higher in the results.\n\nTo learn more, see [How to Customize the Score of the Documents in the Results](fts-customize-score).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Hybrid Search",
+      "headingLevel": 3,
+      "body": "Hybrid search combines full-text search\nand semantic search to ensure synonymous and contextually similar\nmatches are included in the combined results of both\nsearch methods for the same criteria in the same query.\n\nUse hybrid search for the following scenarios:\n\n- Use MongoDB Search (full-text search) to handle keyword queries and ranking documents based on\n  relevance by measuring how frequently a keyword appears in a document and across the\n  documents in the collection.\n\n- Use MongoDB Vector Search (semantic search) to retrieve semantically similar documents.\n\n- Combine the scores of both search methods to retrieve more\n  accurate and relevant results.\n\nTo learn more, see [How to Perform Hybrid Search](as_hybrid-search).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Synonyms Search",
+      "headingLevel": 3,
+      "body": "Synonyms search ensures that your query results contain relevant results\neven when the exact keywords aren't present in the documents that you\nsearch.\n\nWhen you perform a synonyms search, you use the synonyms mapping\ncollection that you indexed and apply at query-time.\n\nTo learn more, see [Synonym](synonyms-ref).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Explain Your Search",
+      "headingLevel": 3,
+      "body": "MongoDB `explain` provides information about how queries execute and\nwhy certain documents return over others.\n\nUse `explain` in your query for the following reasons:\n\n- Understand how MongoDB Search computes scores for your search queries and the\n  factors that contribute to the relevance of the documents in the\n  results.\n\n- Improve your index and query based on the performance of your search\n  and ranking.\n\nTo learn more, see [explain](explain-ref).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How can I improve the relevancy of my search results?",
+      "headingLevel": 2,
+      "body": "You can tune the relevance in MongoDB Search to ensure that the more pertinent\ndocuments return in your MongoDB Search query results. Consider the following to\noptimize the relevance of your MongoDB Search results.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Assess Your Data",
+      "headingLevel": 3,
+      "body": "To structure and format your data to return optimal results\nfor your search:\n\n- Review the schema of your documents to determine which fields to\n  index. For polymorphic data, MongoDB Search indexes only documents\n  that correspond to the mappings specified in the index definition for\n  that field and ignores documents that contain values that aren't the\n  data type specified in the index definition for that field. To learn\n  more about supported field types and field mappings, see\n  [Define Field Mappings](fts-field-mappings).\n\n- Normalize the data, if needed, to ensure consistency for fields\n  used in filtering and sorting. For example, convert date and time\n  values to a standard format, such as ISO-8601.\n\n- Analyze the frequency of common terms in key fields to determine the\n  analyzer and tokenization strategy to apply. For example, some terms\n  might require special handling like stemming or synonym mapping. To\n  learn more about creating tokens for your data with MongoDB Search analyzers,\n  see [Process Data with Analyzers](analyzers-ref).\n\n- Analyze the volume of data and plan for scale. Large datasets might\n  require strategic indexing and partitioning.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure Your MongoDB Search Index",
+      "headingLevel": 3,
+      "body": "To configure your MongoDB Search index to return optimal results for your\nsearch:\n\n- Select the appropriate analyzer for each field that you want to\n  index. Analyzers combine filters with tokenizers to create indexable\n  terms that correct for differences in punctuation, capitalization,\n  filler words, and more. You can choose built-in analyzers or build\n  custom analyzers. To learn more, see [Process Data with Analyzers](analyzers-ref).\n\n- Create a source synonym collection and define synonym mappings that\n  reference the synonym source collection in your MongoDB Search index. You can use synonyms\n  to expand the scope of your search and to return related\n  terms in the results. To learn more, see [Synonym](synonyms-ref).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Define Your MongoDB Search Query",
+      "headingLevel": 3,
+      "body": "To build your query to return optimal results:\n\n- Select the appropriate aggregation pipeline stage. For example, use\n  [$searchMeta](pipe.$searchMeta) if you want to only retrieve metadata. To\n  learn more, see [query language](query-syntax-ref).\n\n- Choose an operator that is optimal for retrieving the relevant\n  results. For example, consider the [compound](compound-ref) if you want to\n  combine multiple clauses such as `must`, `should`, `mustnot` in\n  you query. To learn more, see [MongoDB Search operators](operators-ref).\n\n- Apply more processes on your search results by using MongoDB Search\n  support for [sorting](sort-ref), [relevance scoring](scoring-ref),\n  [faceted navigation](fts-facet-ref), and more.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To complete the tutorials, you must have:\n\n- An Atlas cluster with MongoDB version 6.0 or higher or a MongoDB\n  self-managed cluster with MongoDB version 8.2 or higher.\n\n- The [Load Sample Data Into Atlas](sample-data) loaded into your\n  cluster.\n\n- [Project Data Access Admin](<Project Data Access Admin>) or higher access to your project to create MongoDB Search indexes.\n\n- [Atlas UI](fts-tutorial-run-query), [mongosh](mongodb-shell), [Compass](https://www.mongodb.com/try/download/compass), or a supported\n  [MongoDB Driver](drivers) to run queries on your cluster.\n\n> **Note:** You can run MongoDB Vector Search queries by using any driver\n> through the $vectorSearch aggregation stage.\n> These tutorials include examples for a selection\n> of clients. Refer to the specific tutorial page for details.\n>\n> You can also complete these tutorials with local deployments that you create\n> with the Atlas CLI or with an on-prem deployment. To learn more, see\n> [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local) and\n> [Self-Managed Deployments](manual/self-managed-deployments).",
+      "codeBlocks": []
+    }
+  ]
+}

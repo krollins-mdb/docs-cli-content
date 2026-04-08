@@ -1,0 +1,37 @@
+{
+  "heading": "Sample Queries",
+  "headingLevel": 3,
+  "body": "**Single:**Single Value Field MatchThe following query uses the `in` operator to search the\n`birthdate` field, which contains a single value, for customers\nwho were born on given dates. The query uses the\n[$project](manual/reference/operator/aggregation/project) stage to:* Omit the `_id` field in the results.\n\n* Include only the `name` and `birthdate` fields in the\n  results.**Input:**```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]\n```MongoDB Search returns two documents that it matches with the dates\nspecified in the query.**Multiple:**Array Value Field MatchThe following query uses the `in` operator to query the\n`accounts` field, which contains an array of numbers, for\ncustomers with account numbers `371138`, `371139`, or\n`371140`. The query uses the [$project](manual/reference/operator/aggregation/project) stage to:* Omit the `_id` field in the results.\n\n* Include only the `name` and `accounts` fields in the results.**Input:**```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]\n```MongoDB Search returns only one document that it matches with the account\nnumber `371138` specified in the query.**Compound:**Compound Query MatchThe following query uses the `text` operator to query for\ncustomers whose first name is `James` in the `name` field.\nThe query specifies preference using the `in` operator for\ncustomers associated with the given objectIds in the `_id`\nfield. The query uses [$limit](manual/reference/operator/aggregation/limit) stage to limit the output\nto 5 results and the [$project](manual/reference/operator/aggregation/project) stage to:* Include only the `_id` and `name` fields in the results.\n\n* Add a field named `score` to the results.**Input:**```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])\n```**Output:**```json\n[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]\n```MongoDB Search returns documents that contain `James Sanchez` and\n`Jennifer Lawrence` in the `name` field. MongoDB Search scores the\ndocument that contains `name: 'James Sanchez'` higher because it\nmatches the `ObjectId` specified in the `should` clause.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])",
+      "tokenEstimate": 134
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]",
+      "tokenEstimate": 76
+    }
+  ]
+}

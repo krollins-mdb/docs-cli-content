@@ -1,0 +1,22 @@
+{
+  "heading": "Returns",
+  "headingLevel": 4,
+  "body": "A boolean that, if `true`, indicates whether or not the\nsignature is valid for the provided message and public key.\n\nWe received a message with a signature in [BSON.Binary](atlas-bson-binary) format and want to verify that the message was\nsigned with the private key that corresponds to the sender's RSA\npublic key:\n\n```none\n-----BEGIN RSA PUBLIC KEY-----\nMIGJAoGBANWwSOx7ao7i/enxEz+rxGrOWhzWV57fjKhi4pnZx6a5S7wmlzsoU7X5\nomld1tI9k2EYt0A2fx/agwhnVH2GAQlGf9Cb9jILhE9MaDnmfMepKXOI1kkxDIRT\nJTuTHn4pvqS2CiOGTyhxlGSiszwUTKWSsrOBKt9rLQ9xYc+wqWZ5AgMBAAE=\n-----END RSA PUBLIC KEY-----\n```\n\nWith this RSA key, we can verify a message signed with the\ncorrespdoning private key using the following function:\n\n**Input:**\n\n```javascript\nexports = function() {\n  const rsaPublicKey = context.values.get(\"rsaPublicKey\");\n  const message = \"MongoDB is great!\"\n  const signature = BSON.Binary.fromBase64(\"SpfXcJwPbypArt+XuYQyuZqU52YCAY/sZj2kiuin2b6/RzyM4Ek3n3spOtqZJqxn1tfQavxIX4V+prbs74/pOaQkCLekl9Hoa1xOzSKcGoRd8U+n1+UBY3d3cyODGMpyr8Tim2HZAeLPE/D3Q36/K+jpgjvrJFXsJoAy5/PV7iEGV1fkzogmZtXWDcUUBBTTNPY4qZTzjNhL4RAFOc7Mfci+ojE/lLsNaumUVU1/Eky4vasmyjqunm+ULCcRmgWtGDMGHaQV4OXC2LMUe9GOqd3Q9ghCe0Vlhn25oTh8cXoGpd1Fr8wolNa//9dUqSM+QYDpZJXGLShX/Oa8mPwJZKDKHtqrS+2vE6S4dDWR7zKDza+DeovOeCih71QyuSYMXSz+WWGgfLzv/syhmUXP/mjqgLmJU6Kwg5htajDoylpzLC0BLGT4zDZEwBrq/AjwRs/EPjYdFgGCt1WCbbVlDyXvvH1ekDrzACzumhiMSZNNa+ZH3JmMJxTCQWDfiTeAfkauaaZHKIj2q2/QE7vuAhNcVPJ2YgpXnvnQHJpEZBc/Y3Q6JLxom6+cGC4P//9d++r2cwzXIkqD+wSGZVSVtpm5CLtWMRSK5FX2dv16bM+LE8ozoRvtMUDTrQ8SSSDGxyuYbvN9b2fYYPcWpCMchqOBXV6eZGoMldaHX3Qy5h8=\")\n  const isValid = utils.crypto.verify(\"rsa\", message, rsaPublicKey, signature, \"pss\");\n  return isValid; // true if the signature matches, else false\n}\n```\n\n**Output:**\n\n```json\ntrue\n```",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "-----BEGIN RSA PUBLIC KEY-----\nMIGJAoGBANWwSOx7ao7i/enxEz+rxGrOWhzWV57fjKhi4pnZx6a5S7wmlzsoU7X5\nomld1tI9k2EYt0A2fx/agwhnVH2GAQlGf9Cb9jILhE9MaDnmfMepKXOI1kkxDIRT\nJTuTHn4pvqS2CiOGTyhxlGSiszwUTKWSsrOBKt9rLQ9xYc+wqWZ5AgMBAAE=\n-----END RSA PUBLIC KEY-----",
+      "tokenEstimate": 151
+    },
+    {
+      "language": "javascript",
+      "content": "exports = function() {\n  const rsaPublicKey = context.values.get(\"rsaPublicKey\");\n  const message = \"MongoDB is great!\"\n  const signature = BSON.Binary.fromBase64(\"SpfXcJwPbypArt+XuYQyuZqU52YCAY/sZj2kiuin2b6/RzyM4Ek3n3spOtqZJqxn1tfQavxIX4V+prbs74/pOaQkCLekl9Hoa1xOzSKcGoRd8U+n1+UBY3d3cyODGMpyr8Tim2HZAeLPE/D3Q36/K+jpgjvrJFXsJoAy5/PV7iEGV1fkzogmZtXWDcUUBBTTNPY4qZTzjNhL4RAFOc7Mfci+ojE/lLsNaumUVU1/Eky4vasmyjqunm+ULCcRmgWtGDMGHaQV4OXC2LMUe9GOqd3Q9ghCe0Vlhn25oTh8cXoGpd1Fr8wolNa//9dUqSM+QYDpZJXGLShX/Oa8mPwJZKDKHtqrS+2vE6S4dDWR7zKDza+DeovOeCih71QyuSYMXSz+WWGgfLzv/syhmUXP/mjqgLmJU6Kwg5htajDoylpzLC0BLGT4zDZEwBrq/AjwRs/EPjYdFgGCt1WCbbVlDyXvvH1ekDrzACzumhiMSZNNa+ZH3JmMJxTCQWDfiTeAfkauaaZHKIj2q2/QE7vuAhNcVPJ2YgpXnvnQHJpEZBc/Y3Q6JLxom6+cGC4P//9d++r2cwzXIkqD+wSGZVSVtpm5CLtWMRSK5FX2dv16bM+LE8ozoRvtMUDTrQ8SSSDGxyuYbvN9b2fYYPcWpCMchqOBXV6eZGoMldaHX3Qy5h8=\")\n  const isValid = utils.crypto.verify(\"rsa\", message, rsaPublicKey, signature, \"pss\");\n  return isValid; // true if the signature matches, else false\n}",
+      "tokenEstimate": 563
+    },
+    {
+      "language": "json",
+      "content": "true",
+      "tokenEstimate": 1
+    }
+  ]
+}

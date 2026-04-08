@@ -1,0 +1,31 @@
+{
+  "path": "atlas/manage-connections-google-cloud",
+  "product": "atlas",
+  "title": "Manage Connections with Google Cloud",
+  "sections": [
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "Use the following best practices to properly manage connections\nbetween Google Cloud functions and Atlas:\n\n- Create your Cloud Function with a globally-scoped database connection\n  rather than a function-scoped database connection.\n\n  Don't define a new client object each time that you invoke your\n  function. Doing so causes the driver to create a new database\n  connection with each function call. This can be expensive and\n  can result in your application exceeding database connection limits.\n  For best performance, follow these guidelines:\n\n  - Create the client object once.\n\n  - Store the object so your function can reuse the client\n    across function invocations.\n\n  The [connection example](google-cloud-function-example) reuses\n  existing database connections to speed up communication with the\n  database and keep connection counts to the database at a reasonable\n  level with respect to application traffic.\n\n  If you have a function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard Atlas cluster, the driver connects to all\n  thirty [mongos](manual/reference/program/mongos) instances by default. You can use the\n  `srvMaxHosts` option in your connection string to set the maximum\n  number of hosts that the driver connects to. To improve driver\n  performance, set `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](node/fundamentals/connection/connection-options).\n\n- Restrict network access to your Atlas cluster.\n\n  Connect to your Atlas cluster over private networking using a\n  [VPC/VNet peering](vpc-peering)\n  between your Atlas cluster and your Google Cloud function, or,\n  alternatively, a [Learn About Private Endpoints in Atlas](private-endpoint-overview),\n  so that you can allow only private IP addresses from your\n  [IP Access List](access-list).\n\n  If you don't use private networking, consider connecting to your\n  Atlas cluster via a [NAT gateway](https://cloud.google.com/nat/docs/overview). Otherwise, you must allow all IP addresses (0.0.0.0/0) to access\n  your Atlas cluster.\n\n  > **Warning:** Adding `0.0.0.0/0` to your [IP Access List](access-list)\n  > allows cluster access from anywhere in the public internet.\n  > Ensure that you're using strong credentials for all database\n  > users when allowing access from anywhere.\n\n  > **Note:** If you add the `0.0.0.0/0` CIDR to a project access list,\n  > Atlas sends an alert email to all users directly\n  > granted a role to the project, or indirectly granted a role through\n  > team membership (if the team is granted a role to the\n  > project).\n\n* Set [maxIdleTimeMS](manual/reference/connection-string)\n  to `60000` to automatically close your connections after 1 minute\n  of idle time. Tuning your `maxIdleTimeMS` can help reduce the\n  occurrence of timeout errors from your serverless functions.\n\n- Configure concurrency. When you create a new Google Cloud function:\n\n  - Select the **2nd gen** environment, which can handle\n    multiple concurrent requests. 2nd gen also reduces the connection load on the server by allowing the function to share a single\n    `MongoClient` with many concurrent invocations.\n\n  - Increase the concurrency setting to minimize cold starts and\n    improve latency.\n\n  > **Note:** If you increase the concurrency setting, you may need to\n  > increase the CPU for best performance. To learn more, see\n  > [Concurrency](https://cloud.google.com/functions/docs/configuring/concurrency#console).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+          "tokenEstimate": 33
+        }
+      ]
+    },
+    {
+      "heading": "Google Cloud Connection Example",
+      "headingLevel": 2,
+      "body": "The following example connects a Node.js Google Cloud function to an\nAtlas deployment. Replace `<YOUR-ATLAS-CONNECTION-STRING>` with\nyour Atlas connection string.\n\n```javascript\nconst { MongoClient } = require('mongodb');\n\nlet client;\nasync function getConnection() {\n    if (!client) {\n      \n        const client = new MongoClient('<YOUR-ATLAS-CONNECTION-STRING>');\n        client.on('connectionCreated', () => {\n            console.log('New connection created successfully.');\n        });\n\n        // Connect to the database in the global scope\n        await client.connect();\n    }\n\n    return client;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const { MongoClient } = require('mongodb');\n\nlet client;\nasync function getConnection() {\n    if (!client) {\n      \n        const client = new MongoClient('<YOUR-ATLAS-CONNECTION-STRING>');\n        client.on('connectionCreated', () => {\n            console.log('New connection created successfully.');\n        });\n\n        // Connect to the database in the global scope\n        await client.connect();\n    }\n\n    return client;\n}",
+          "tokenEstimate": 85
+        }
+      ]
+    }
+  ]
+}

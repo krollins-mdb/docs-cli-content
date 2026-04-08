@@ -1,0 +1,27 @@
+{
+  "heading": "Generate Dynamic Collection Names from File Path",
+  "headingLevel": 3,
+  "body": "Consider a federated database instance store `accountingArchive`  with the\nfollowing directory structure:\n\n```text\ninvoices\n|--SuperSoftware\n|--UltraSoftware\n|--MegaSoftware\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates a dynamic collection name from the file path:\n\n```json\n\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{collectionName()}/\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen applied to the example directory structure, the path\nresults in the following collections:\n\n- SuperSoftware\n\n- UltraSoftware\n\n- MegaSoftware\n\nOr, consider a federated database instance store `accountingArchive`  with the\nfollowing files:\n\n```text\n/orders/MONGODB/invoices/January.json\n/orders/MONGODB/purchaseOrders/January.json\n/orders/MONGODB/invoices/February.json\n...\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates a dynamic collection name from the file path:\n\n```json\n\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/orders/MONGODB/{collectionName()}/{invoiceMonth string}.json/\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen applied to the example filenames, the path\nresults in the following collections:\n\n- `invoices`\n\n- `purchaseOrders`\n\n> **Note:** When you dynamically generate collections from filenames,\n> the number of collections is not accurately reported in the\n> Data Federation view.",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "invoices\n|--SuperSoftware\n|--UltraSoftware\n|--MegaSoftware",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "json",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{collectionName()}/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "text",
+      "content": "/orders/MONGODB/invoices/January.json\n/orders/MONGODB/purchaseOrders/January.json\n/orders/MONGODB/invoices/February.json\n...",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "json",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/orders/MONGODB/{collectionName()}/{invoiceMonth string}.json/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 81
+    }
+  ]
+}

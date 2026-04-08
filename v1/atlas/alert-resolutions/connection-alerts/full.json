@@ -1,0 +1,49 @@
+{
+  "path": "atlas/alert-resolutions/connection-alerts",
+  "product": "atlas",
+  "title": "Fix Connection Issues",
+  "sections": [
+    {
+      "heading": "Alert Conditions",
+      "headingLevel": 2,
+      "body": "You can configure the following alert conditions in the project-level\n[Configure Alert Settings](configure-alerts) page to trigger alerts.\n\n[Connections](<Connections is>) occurs if the number of active\nconnections to the host meets the specified average.\n\n[Connections % of configured limit](<Connections % of configured limit is>) occurs if the number of open\nconnections to the host exceeds the specified percentage.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Common Triggers",
+      "headingLevel": 2,
+      "body": "Exceeding the connection limit for an Atlas cluster may occur for\na number of reasons. Different Atlas tiers have different\n[Connection Limits and Cluster Tier](connection-limits).\n\nFor example, Free clusters (formerly known as `M0`) and Flex clusters are limited to 500 connections.\n`M10` clusters are limited to 1500 connections. Larger cluster tiers have\nhigher connection limits.\n\nDifferent database access applications have different ways of implementing\n[connection pooling](manual/reference/connection-string),\nwhich affects how many open connections your application maintains at any given time.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Fix the Immediate Problem",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Free Clusters and Flex Clusters",
+      "headingLevel": 3,
+      "body": "To resolve a [connection alert](alert-conditions-connections)\ncondition:\n\n- Restart the application which is currently making\n  connections to your Atlas cluster. Restarting the application\n  terminates all existing connections opened by the application\n  and allows the Atlas cluster to resume normal operations.\n\n- Remove all [IP access list](atlas/app-services/security/network) entries within the project.\n  Free and \\{Flex-Clusters} connect through a proxy that enforces the access list\n  on active connections. Clearing your access list entries clears all\n  connections being made by active application servers.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "M10+ Clusters",
+      "headingLevel": 3,
+      "body": "Atlas clusters of size `M10` and greater can utilize the\nTest Primary Failover\noption. The Test Primary Failover procedure steps down the current\n[primary node](manual/core/replica-set-primary) and triggers an\n[election](manual/core/replica-set-elections), which drops all\nconnections to the primary node.\n\n> **Note:** If your application connects exclusively to a secondary node,\n> you may need to perform the Test Failover procedure several times\n> to make sure the applicable secondary node rotates its position\n> within the replica set and drops its connections.\n\nTest Failover is usually the preferable solution, but another\npossible solution is to restart the application currently making\nconnections to your Atlas cluster. Restarting the application\nterminates all existing connections and allows the Atlas cluster\nto resume normal operations.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Implement a Long-Term Solution",
+      "headingLevel": 2,
+      "body": "Connection alerts are generally a symptom of a larger problem.\nEmploying one of the strategies outlined above will fix the immediate\nproblem, but a permanent solution usually requires either:\n\n- Examining your database applications for flawed connection code.\n  Situations in which connections are opened but never closed can allow\n  old connections to pile up and eventually exceed the connection\n  limit. Additionally, you may need to implement some form of\n  [connection pooling](manual/reference/connection-string).\n\n- Upgrading to a larger Atlas [cluster tier](instance-size-costs) which allows a greater number of connections,\n  if your user base is too large for your current cluster tier.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Monitor Your Progress",
+      "headingLevel": 2,
+      "body": "View the **Connections** chart to monitor the total number of\nconnections to the cluster.\n\nMonitor connections to determine whether the current connection\nlimits are sufficient. If necessary, scale the cluster tier.\n\nTo learn more, see\n[performance metrics](monitor-cluster-metrics).",
+      "codeBlocks": []
+    }
+  ]
+}

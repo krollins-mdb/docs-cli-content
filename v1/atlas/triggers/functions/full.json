@@ -1,0 +1,247 @@
+{
+  "path": "atlas/triggers/functions",
+  "product": "atlas",
+  "title": "Atlas Functions",
+  "sections": [
+    {
+      "heading": "When to Use Functions",
+      "headingLevel": 2,
+      "body": "Functions can run arbitrary JavaScript code that you define, which means\nyou can use them for almost anything. Common use cases include\nlow-latency, short-running tasks like data movement, transformations,\nand validation. You can also use them to connect to external services\nand abstract away implementation details from your client applications.\n\n[Atlas Triggers](atlas-triggers) automatically call Functions to handle specific\nevents. For example, whenever a Database Trigger observes a change event it\ncalls its associated Function with the change event as an argument. In the\nTrigger Function, you can then access information from the change event and\nrespond appropriately.\n\n> **Note:** Database and Scheduled Triggers always execute in the context of a\n> system user.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How to Write a Function",
+      "headingLevel": 2,
+      "body": "The code for a Function is essentially a named JavaScript source file,\nwhich means you can define multiple JavaScript functions in a single\nFunction file. The file must export a single JavaScript function to\nserve as the entrypoint for incoming calls. When you call a Function by\nname, you're actually calling the JavaScript function assigned to\n`exports` in the Function's source file.\n\nFor example, here's a simple Function that accepts a `name` argument,\nadds a log message, and returns a greeting for the provided name:\n\n```javascript\nexports = function Hello(name) {\n   console.log(`Said hello to ${name}`);\n   return `Hello, ${name}!`;\n};\n```\n\nYou can use modern JavaScript syntax and import packages to define more\ncomplex functions:\n\n**Input:**\n\n```javascript\n// You can use ES6 arrow functions\nconst uppercase = (str) => {\n   return str.toUpperCase();\n};\n\n// You can use async functions and await Promises\nexports = async function GetWeather() {\n// You can get information about the user called the function\nconst city = context.user.custom_data.city;\n\n// You can import Node.js built-ins and npm packages\nconst { URL } = require(\"url\");\nconst weatherUrl = new URL(\"https://example.com\");\nweatherUrl.pathname = \"/weather\";\nweatherUrl.search = `?location=\"${city}\"`;\n\n// You can send HTTPS requests to external services\nconst weatherResponse = await context.http.get({\n   url: url.toString(),\n   headers: {\n      Accept: [\"application/json\"],\n   },\n});\nconst { current, forecasts } = JSON.parse(weatherResponse.body.text());\n\nreturn [\n   `Right now ${uppercase(city)} is ${current.temperature}°F and ${current.weather}.`,\n   `Here's the forecast for the next 7 days:`,\n   forecasts\n      .map((f) => `${f.day}: ${f.temperature}°F and ${f.weather}`)\n      .join(\"\\n  \"),\n].join(\"\\n\");\n};\n```\n\n**Output:**\n\n```\nRight now NEW YORK CITY is 72°F and sunny.\nHere's the forecast for the next 7 days:\n  Tuesday: 71°F and sunny\n  Wednesday: 72°F and sunny\n  Thursday: 73°F and partly cloudy\n  Friday: 71°F and rainy\n  Saturday: 77°F and sunny\n  Sunday: 76°F and sunny\n  Monday: 74°F and sunny\n```\n\nFunctions automatically serialize returned values to [Extended\nJSON](manual/reference/mongodb-extended-json). This is useful to preserve\ntype information but may not be what your application expects.\n\nFor example, the values in the object returned from the following\nfunction are converted into structured EJSON values:\n\n**Input:**\n\n```javascript\nexports = function() {\n  return {\n    pi: 3.14159,\n    today: new Date(),\n  }\n}\n```\n\n**Output:**\n\n```json\n{\n  \"pi\": {\n    \"$numberDouble\": \"3.14159\"\n  },\n  \"today\": {\n    \"$date\": {\n      \"$numberLong\": \"1652297239913\"\n    }\n  }\n}\n```\n\nTo return a value as standard JSON, call `JSON.stringify()` on the\nvalue and then return the stringified result:\n\n**Input:**\n\n```javascript\nexports = function() {\n  return JSON.stringify({\n    pi: 3.14159,\n    today: new Date(),\n  })\n}\n```\n\n**Output:**\n\n```json\n\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function Hello(name) {\n   console.log(`Said hello to ${name}`);\n   return `Hello, ${name}!`;\n};",
+          "tokenEstimate": 29
+        },
+        {
+          "language": "javascript",
+          "content": "// You can use ES6 arrow functions\nconst uppercase = (str) => {\n   return str.toUpperCase();\n};\n\n// You can use async functions and await Promises\nexports = async function GetWeather() {\n// You can get information about the user called the function\nconst city = context.user.custom_data.city;\n\n// You can import Node.js built-ins and npm packages\nconst { URL } = require(\"url\");\nconst weatherUrl = new URL(\"https://example.com\");\nweatherUrl.pathname = \"/weather\";\nweatherUrl.search = `?location=\"${city}\"`;\n\n// You can send HTTPS requests to external services\nconst weatherResponse = await context.http.get({\n   url: url.toString(),\n   headers: {\n      Accept: [\"application/json\"],\n   },\n});\nconst { current, forecasts } = JSON.parse(weatherResponse.body.text());\n\nreturn [\n   `Right now ${uppercase(city)} is ${current.temperature}°F and ${current.weather}.`,\n   `Here's the forecast for the next 7 days:`,\n   forecasts\n      .map((f) => `${f.day}: ${f.temperature}°F and ${f.weather}`)\n      .join(\"\\n  \"),\n].join(\"\\n\");\n};",
+          "tokenEstimate": 242
+        },
+        {
+          "language": "text",
+          "content": "Right now NEW YORK CITY is 72°F and sunny.\nHere's the forecast for the next 7 days:\n  Tuesday: 71°F and sunny\n  Wednesday: 72°F and sunny\n  Thursday: 73°F and partly cloudy\n  Friday: 71°F and rainy\n  Saturday: 77°F and sunny\n  Sunday: 76°F and sunny\n  Monday: 74°F and sunny",
+          "tokenEstimate": 86
+        },
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n  return {\n    pi: 3.14159,\n    today: new Date(),\n  }\n}",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"pi\": {\n    \"$numberDouble\": \"3.14159\"\n  },\n  \"today\": {\n    \"$date\": {\n      \"$numberLong\": \"1652297239913\"\n    }\n  }\n}",
+          "tokenEstimate": 46
+        },
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n  return JSON.stringify({\n    pi: 3.14159,\n    today: new Date(),\n  })\n}",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "json",
+          "content": "\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"",
+          "tokenEstimate": 28
+        }
+      ]
+    },
+    {
+      "heading": "Define a Function",
+      "headingLevel": 2,
+      "body": "You can create and manage Functions in your application from the Atlas UI or\nby importing the Function configuration and source code using the App Services\nCLI or GitHub deployment.**Ui:**Atlas UIYou can define a new server-side Function from the Atlas UI:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Navigate to the  Page",
+      "headingLevel": 3,
+      "body": "- Click the **Linked App Service: Triggers** link.\n\n- In the sidebar, click **Functions** under the **Build** heading.\n\n- Click **Create a Function**. The **Settings** tab displays by default.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Name the New Function",
+      "headingLevel": 3,
+      "body": "Enter a name for the Function in the **Name** field. This name\nmust be unique from all other Functions in the application.\n\n> **Tip:** You can define Functions inside of nested folders. Function names\n> are slash-separated paths, so a Function named `utils/add` maps\n> to `functions/utils/add.js` in the app's configuration files.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Configure User Authentication",
+      "headingLevel": 3,
+      "body": "Functions in Atlas always execute in the context of a specific\napplication user or as a system user that bypasses rules. To configure the\nFunction's execution user, specify the type of authentication that\nAtlas should use.\n\n> **Note:** Functions for Database and Scheduled Triggers always execute in the\n> context of a system user.\n\n| Authentication Type                     | Description                                                                                                                                                                                                                                                                                       |\n| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Application Authentication (Deprecated) | Deprecated. This type of authentication configures a Function to run in the context of the existing application user that was logged in when the client application called the Function. If the Function was called from another Function then it inherits the execution user from that Function. |\n| System                                  | This type of authentication configures a Function to run as a system user that has full access to MongoDB CRUD and Aggregation APIs and is not affected by any rules, roles, or permissions.                                                                                                      |\n| User ID (Deprecated)                    | Deprecated. This type of authentication configures a Function to always run as a specific application user.                                                                                                                                                                                       |\n| Script                                  | This type of authentication configures a Function to run as a specific application user determined based on the result of a custom Function that you define. The Function must return a specific user's id string or can specify a system user by returning \\{ \"runAsSystem\": true }.             |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Configure Function Logs",
+      "headingLevel": 3,
+      "body": "By default, Atlas includes the arguments that a Function received in\nthe log entry for each execution of the Function.\n\nTo prevent Atlas from logging the arguments,\ndisable **Log Function Arguments**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Specify an Authorization Expression",
+      "headingLevel": 3,
+      "body": "You can dynamically authorize requests based on the contents of each request\nby defining a **Can Evaluate** [expression variables](atlas/app-services/rules/expressions).\nAtlas evaluates the expression whenever the Function is called. If\nyou do not specify an expression, Atlas automatically\nauthorizes all authenticated incoming requests.\n\nThe expression can expand standard [expression variables](atlas/app-services/rules/expressions),\nincluding the [%%request](atlas/app-services/rules/expressions) and [%%user](atlas/app-services/rules/expressions)\nexpansions.\n\n![The Function's Can Evaluate JSON expression input in the UI](/atlas-ui/images/triggers/function-can-evaluate-realm-ui.png)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: Configure the Function's Privacy Level",
+      "headingLevel": 3,
+      "body": "By default, you can call a Function from client applications as well\nas other Functions in the same application. You can prevent client\napplications from seeing or calling a Function by setting\n**Private** to `true`.\n\nYou can still call a private Function from [expression variables](atlas/app-services/rules/expressions) and\nother Functions, including incoming webhooks and Triggers.\n\n![The private Function toggle in the UI](/atlas-ui/images/triggers/private-function-toggle.png)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 7: Write the Function Code",
+      "headingLevel": 3,
+      "body": "After you've created and configured the new Function, you can\nwrite the JavaScript code that runs when you call the Function.\n\nYou can write the code directly in the Atlas UI using the Function editor.\n\n- From the **Create Function** page, click the **Function Editor** tab.\n\n- Add JavaScript code to the Function. At minimum, the code must\n  assign a Function to `exports`, as in the following example:\n\n  ```javascript\n  exports = function() {\n     return \"Hello, world!\";\n  };\n  ```\n\n  > **Note:** You can use most modern (ES6+) JavaScript features in Functions,\n  > including async/await, destructuring, and template literals.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n   return \"Hello, world!\";\n};",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Step 8: Save the Function",
+      "headingLevel": 3,
+      "body": "Click **Save**. After you save the Function, you can begin using it immediately.**Cli:**App Services CLI",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Authenticate a MongoDB  User",
+      "headingLevel": 3,
+      "body": "Use your [API Access Lists endpoint](atlas-admin-api-access) to\nlog in to the App Services CLI:\n\n```shell\nappservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+          "tokenEstimate": 18
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Pull Your App's Latest Configuration Files",
+      "headingLevel": 3,
+      "body": "Run the following command to get a local copy of your configuration files:\n\n```shell\nappservices pull --remote=<App ID>\n```\n\nBy default, the command pulls files into the current working directory. You can\nspecify a directory path with the optional `--local` flag.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "appservices pull --remote=<App ID>",
+          "tokenEstimate": 9
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Write the Function Source Code",
+      "headingLevel": 3,
+      "body": "Atlas Functions run standard ES6+ JavaScript functions that you\nexport from individual files.\n\n- Create a `.js` file in the `functions` directory or a\n  subdirectory.\n\n  The file name must match the Function name. Use\n  slashes in the file name to indicate a subdirectory path.\n\n```shell\ntouch functions/<FunctionName>.js\n```\n\n> **Tip:** You can define Functions inside of nested folders in the\n> `functions` directory. Use slashes in a Function name to\n> indicate its directory path. For example, a Function named\n> `utils/add` maps to `functions/utils/add.js`.\n\n- Write the Function source code in the created file.\n\nFor example, the following Function `hello.js` returns a greeting\nfor the provided name:\n\n```javascript\nexports = async function hello(...args) {\n  // Write your function logic here! You can...\n  // Import dependencies\n  const assert = require(\"assert\")\n  assert(typeof args[0] === \"string\")\n  // Use ES6+ syntax\n  const sayHello = (name = \"world\") => {\n    console.log(`Hello, ${name}.`)\n  }\n  // Return values back to clients or other functions\n  return sayHello(args[0])\n}\n```\n\n> **Note:** You can use most modern (ES6+) JavaScript features in Functions,\n> including async/await, destructuring, and template literals.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "touch functions/<FunctionName>.js",
+          "tokenEstimate": 7
+        },
+        {
+          "language": "javascript",
+          "content": "exports = async function hello(...args) {\n  // Write your function logic here! You can...\n  // Import dependencies\n  const assert = require(\"assert\")\n  assert(typeof args[0] === \"string\")\n  // Use ES6+ syntax\n  const sayHello = (name = \"world\") => {\n    console.log(`Hello, ${name}.`)\n  }\n  // Return values back to clients or other functions\n  return sayHello(args[0])\n}",
+          "tokenEstimate": 97
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Configure the Function",
+      "headingLevel": 3,
+      "body": "In the `functions` directory of your local application, open the\n`config.json` file and add a [configuration object](atlas/app-services/reference/config/functions) for your new Function to the array.\n\nThe object must have the following form:\n\n```json\n{\n  \"name\": \"<Function Name>\",\n  \"private\": <Boolean>,\n  \"can_evaluate\": { <JSON Expression> },\n  \"disable_arg_logs\": <Boolean>,\n  \"run_as_system\": <Boolean>,\n  \"run_as_user_id\": \"<App Services User ID>\",\n  \"run_as_user_id_script_source\": \"<Function Source Code>\"\n}\n```\n\n- Configure the user authentication:\n\n  Functions in Atlas always execute in the context of a specific\n  application user or as a system user that bypasses rules. To configure the\n  Function's execution user, specify the type of authentication that\n  Atlas should use.\n\n  > **Note:** Functions for Database and Scheduled Triggers always execute\n  > in the context of a system user.\n\n  - **System User**: To execute the Function as a system user, use\n    the following configuration:\n\n    ```json\n    {\n       \"run_as_system\": true,\n       \"run_as_user_id\": \"\",\n       \"run_as_user_id_script_source\": \"\"\n    }\n    ```\n\n  - **Script**: To execute the Function as a user returned from another Function, use the following configuration:\n\n    ```json\n    {\n       \"run_as_system\": false,\n       \"run_as_user_id\": \"\",\n       \"run_as_user_id_script_source\": \"<Function Source Code>\"\n    }\n    ```\n\n  - **User (Deprecated)**: To execute a Function as a specific\n    user, use the following configuration:\n\n    ```json\n    {\n       \"run_as_system\": false,\n       \"run_as_user_id\": \"<App Services User Id>\",\n       \"run_as_user_id_script_source\": \"\"\n    }\n    ```\n\n- Configure the Function logs:\n\n  To include the arguments that the Function received in the log\n  entry for each execution of the Function, set `disable_arg_logs`\n  to `false`.\n\n- Specify an Authorization expression:\n\n  You can dynamically authorize requests based on the contents of\n  each request by defining a **Can Evaluate**\n  [expression variables](atlas/app-services/rules/expressions). Atlas evaluates the\n  expression whenever the Function is called. If you do not specify\n  an expression, Atlas automatically authorizes all\n  authenticated incoming requests.\n\n  The expression can expand standard [expression variables](atlas/app-services/rules/expressions), including the [%%request](atlas/app-services/rules/expressions) and\n  [%%user](atlas/app-services/rules/expressions) expansions.\n\n  For example, the following expression only authorizes incoming\n  requests if the sender's IP address is not included in the\n  specified list of addresses:\n\n  ```json\n  {\n     \"%%request.remoteIPAddress\": {\n        \"$nin\": [\n           \"248.88.57.58\",\n           \"19.241.23.116\",\n           \"147.64.232.1\"\n        ]\n     }\n  }\n  ```\n\n- Configure the privacy level:\n\n  To prevent client applications from seeing or calling the\n  Function, set `private` to `true`.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"<Function Name>\",\n  \"private\": <Boolean>,\n  \"can_evaluate\": { <JSON Expression> },\n  \"disable_arg_logs\": <Boolean>,\n  \"run_as_system\": <Boolean>,\n  \"run_as_user_id\": \"<App Services User ID>\",\n  \"run_as_user_id_script_source\": \"<Function Source Code>\"\n}",
+          "tokenEstimate": 74
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"run_as_system\": true,\n   \"run_as_user_id\": \"\",\n   \"run_as_user_id_script_source\": \"\"\n}",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"run_as_system\": false,\n   \"run_as_user_id\": \"\",\n   \"run_as_user_id_script_source\": \"<Function Source Code>\"\n}",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"run_as_system\": false,\n   \"run_as_user_id\": \"<App Services User Id>\",\n   \"run_as_user_id_script_source\": \"\"\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"%%request.remoteIPAddress\": {\n      \"$nin\": [\n         \"248.88.57.58\",\n         \"19.241.23.116\",\n         \"147.64.232.1\"\n      ]\n   }\n}",
+          "tokenEstimate": 49
+        }
+      ]
+    },
+    {
+      "heading": "Step 5: Deploy Your Changes:",
+      "headingLevel": 3,
+      "body": "Push the Function configuration and source code to deploy it to your app. You can begin using the Function immediately.\n\nRun the following command to [deploy](atlas/app-services/apps/update) your changes:\n\n```shell\nappservices push\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "appservices push",
+          "tokenEstimate": 3
+        }
+      ]
+    },
+    {
+      "heading": "Call a Function",
+      "headingLevel": 2,
+      "body": "You can call a Function from another Function or using the App Services CLI.\n\nThe examples in this section demonstrate calling a simple Function named\n`sum` that takes two arguments, adds them, and returns the result:\n\n```javascript\n// sum: adds two numbers\nexports = function sum(a, b) {\n  return a + b;\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// sum: adds two numbers\nexports = function sum(a, b) {\n  return a + b;\n};",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "Call from a Function",
+      "headingLevel": 3,
+      "body": "You can call a Function from another Function through the\n[context.functions](atlas-context-functions) interface, which is\navailable as a global variable in any Function. The called Function\nruns in the same context as the Function that called it.\n\n```javascript\n// difference: subtracts b from a using the sum function\nexports = function difference(a, b) {\n  return context.functions.execute(\"sum\", a, -1 * b);\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// difference: subtracts b from a using the sum function\nexports = function difference(a, b) {\n  return context.functions.execute(\"sum\", a, -1 * b);\n};",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "Call from the App Services CLI",
+      "headingLevel": 3,
+      "body": "You can call a Function through the App Services CLI with the\n[function run](atlas/app-services/cli/appservices-function-run) command. The command returns the\nFunction result as EJSON as well as any log or error messages.\n\n```sh\nappservices function run \\\n  --name=sum \\\n  --args=1 --args=2\n```\n\nBy default, Functions run in the [system functions](atlas-system-functions). To call a Function in the context of a specific\nuser, include their User ID in the `--user` argument.\n\n```sh\nappservices function run \\\n  --name=sum \\\n  --args=1 --args=2 \\\n  --user=61a50d82532cbd0de95c7c89\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "appservices function run \\\n  --name=sum \\\n  --args=1 --args=2",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "sh",
+          "content": "appservices function run \\\n  --name=sum \\\n  --args=1 --args=2 \\\n  --user=61a50d82532cbd0de95c7c89",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "Constraints",
+      "headingLevel": 2,
+      "body": "- Functions are capped at 300 seconds of runtime\n  per request, after which a Function will time out and fail.\n\n- Functions may use up to 350MB of memory at any time.\n\n- Functions are limited to 1000 async operations.\n\n- Functions support most commonly used ES6+ features and Node.js\n  built-in modules. However, some features that are uncommon or unsuited\n  to serverless workloads are not supported. For more information, see\n  [JavaScript Support](atlas-js-support).\n\n- A Function may open a maximum of 25 sockets using the [net](https://nodejs.org/docs/v10.18.1/api/net.html) built-in module.\n\n- Incoming requests are limited to a maximum size of 18 MB. This limit\n  applies to the total size of all arguments passed to the Function.",
+      "codeBlocks": []
+    }
+  ]
+}

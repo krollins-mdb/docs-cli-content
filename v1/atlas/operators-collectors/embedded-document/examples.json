@@ -1,0 +1,146 @@
+{
+  "path": "atlas/operators-collectors/embedded-document",
+  "product": "atlas",
+  "title": "embeddedDocument Operator",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "javascript": 1,
+      "json": 9
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 40
+          }
+        ]
+      },
+      {
+        "heading": "Index Definition",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 101
+          }
+        ]
+      },
+      {
+        "heading": "Basic Query",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 175
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 282
+          }
+        ]
+      },
+      {
+        "heading": "Facet Query",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 156
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 88
+          }
+        ]
+      },
+      {
+        "heading": "Query and Sort",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 126
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 1133
+          }
+        ]
+      },
+      {
+        "heading": "Query for Matching Embedded Documents Only",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 256
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 545
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  \"embeddedDocument\": {\n    \"path\": \"<path-to-field>\",\n    \"operator\": { <operator-specification> },\n    \"score\": { <score-options> }\n  }\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "json",
+      "section": "Index Definition",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"items\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"embeddedDocuments\"\n        },\n        {\n          \"dynamic\": true,\n          \"fields\": {\n            \"tags\": {\n              \"type\": \"token\"\n            }\n          },\n          \"type\": \"document\"\n        }\n      ],\n      \"purchaseMethod\": {\n        \"type\": \"token\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "json",
+      "section": "Basic Query",
+      "content": "db.sales.aggregate({\n  \"$search\": {\n    \"embeddedDocument\": {\n      \"path\": \"items\",\n      \"operator\": {\n        \"compound\": {\n          \"must\": [{\n            \"text\": {\n              \"path\": \"items.tags\",\n              \"query\": \"school\"\n            }\n          }],\n          \"should\": [{\n            \"text\": {\n              \"path\": \"items.name\",\n              \"query\": \"backpack\"\n            }\n          }]\n        }\n      },\n      \"score\": {\n        \"embedded\": {\n          \"aggregate\": \"mean\"\n        }\n      }\n    }\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"items.name\": 1,\n    \"items.tags\": 1,\n    \"score\": { $meta: \"searchScore\" }\n  }\n})",
+      "tokenEstimate": 175
+    },
+    {
+      "language": "json",
+      "section": "Basic Query",
+      "content": "[\n  {\n    items: [ {\n      name: 'backpack',\n      tags: [ 'school', 'travel', 'kids' ]\n    } ],\n    score: 1.2907354831695557\n  },\n  {\n    items: [ {\n      name: 'envelopes',\n      tags: [ 'stationary', 'office', 'general' ]\n    },\n    {\n      name: 'printer paper',\n      tags: [ 'office', 'stationary' ]\n    },\n    {\n      name: 'backpack',\n      tags: [ 'school', 'travel', 'kids' ]\n    } ],\n    score: 1.2907354831695557\n  },\n  {\n    items: [ {\n      name: 'backpack',\n      tags: [ 'school', 'travel', 'kids' ]\n    } ],\n    score: 1.2907354831695557\n  },\n  {\n    items: [ {\n      name: 'backpack',\n      tags: [ 'school', 'travel', 'kids' ]\n    } ],\n    score: 1.2907354831695557\n  },\n  {\n    items: [ {\n      name: 'backpack',\n      tags: [ 'school', 'travel', 'kids' ]\n    } ],\n    score: 1.2907354831695557\n  }\n]",
+      "tokenEstimate": 282
+    },
+    {
+      "language": "json",
+      "section": "Facet Query",
+      "content": "db.sales.aggregate({\n  \"$searchMeta\": {\n    \"facet\": {\n      \"operator\": {\n        \"embeddedDocument\": {\n          \"path\": \"items\",\n          \"operator\": {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.tags\",\n                    \"query\": \"school\"\n                  }\n                }\n              ],\n              \"should\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.name\",\n                    \"query\": \"backpack\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"facets\": {\n        \"purchaseMethodFacet\": {\n          \"type\": \"string\",\n          \"path\": \"purchaseMethod\"\n        }\n      }\n    }\n  }\n})",
+      "tokenEstimate": 156
+    },
+    {
+      "language": "json",
+      "section": "Facet Query",
+      "content": "[\n  {\n    count: { lowerBound: Long(\"2309\") },\n    facet: {\n      purchaseMethodFacet: {\n        buckets: [\n          { _id: 'In store', count: Long(\"2751\") },\n          { _id: 'Online', count: Long(\"1535\") },\n          { _id: 'Phone', count: Long(\"578\") }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "json",
+      "section": "Query and Sort",
+      "content": "db.sales.aggregate({\n  \"$search\": {\n    \"embeddedDocument\": {\n      \"path\": \"items\",\n      \"operator\": {\n        \"text\": {\n          \"path\": \"items.name\",\n          \"query\": \"laptop\"\n        }\n      }\n    },\n    \"sort\": {\n      \"items.tags\": 1\n    }\n  }\n},\n{\n  \"$limit\": 5\n},\n{\n  \"$project\": {\n    \"_id\": 0,\n    \"items.name\": 1,\n    \"items.tags\": 1,\n    \"score\": { \"$meta\": \"searchScore\" }\n  }\n})",
+      "tokenEstimate": 126
+    },
+    {
+      "language": "json",
+      "section": "Query and Sort",
+      "content": "[\n  {\n    items: [\n      { name: 'envelopes',  tags: [ 'stationary', 'office', 'general' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'laptop', tags: [ 'electronics', 'school', 'office' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'printer paper', tags: [ 'office', 'stationary' ] },\n      { name: 'backpack', tags: [ 'school', 'travel', 'kids' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'envelopes', tags: [ 'stationary', 'office', 'general' ] }\n    ],\n    score: 1.168686032295227\n  },\n  {\n    items: [\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'printer paper', tags: [ 'office', 'stationary' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'backpack', tags: [ 'school', 'travel', 'kids' ] },\n      { name: 'laptop', tags: [ 'electronics', 'school', 'office' ] }\n    ],\n    score: 1.168686032295227\n  },\n  {\n    items: [\n      { name: 'backpack', tags: [ 'school', 'travel', 'kids' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'envelopes', tags: [ 'stationary', 'office', 'general' ] },\n      { name: 'laptop', tags: [ 'electronics', 'school', 'office' ] }\n    ],\n    score: 1.168686032295227\n  },\n  {\n    items: [\n      { name: 'laptop', tags: [ 'electronics', 'school', 'office' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'backpack', tags: [ 'school', 'travel', 'kids' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'printer paper', tags: [ 'office', 'stationary' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] }\n    ],\n    score: 1.168686032295227\n  },\n  {\n    items: [\n      { name: 'envelopes', tags: [ 'stationary', 'office', 'general' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'notepad', tags: [ 'office', 'writing', 'school' ] },\n      { name: 'backpack', tags: [ 'school', 'travel', 'kids' ] },\n      { name: 'envelopes', tags: [ 'stationary', 'office', 'general' ] },\n      { name: 'pens', tags: [ 'writing', 'office', 'school', 'stationary' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] },\n      { name: 'laptop', tags: [ 'electronics', 'school', 'office' ] },\n      { name: 'printer paper', tags: [ 'office', 'stationary' ] },\n      { name: 'binder', tags: [ 'school', 'general', 'organization' ] }\n    ],\n    score: 1.168686032295227\n  }\n]",
+      "tokenEstimate": 1133
+    },
+    {
+      "language": "json",
+      "section": "Query for Matching Embedded Documents Only",
+      "content": "db.sales.aggregate(\n  {\n    \"$search\": {\n      \"embeddedDocument\": {\n        \"path\": \"items\",\n        \"operator\": {\n          \"compound\": {\n            \"must\": [\n              {\n                \"range\": {\n                  \"path\": \"items.quantity\",\n                  \"gt\": 2\n                }\n              },\n              {\n                \"exists\": {\n                  \"path\": \"items.price\"\n                }\n              },\n              {\n                \"text\": {\n                  \"path\": \"items.tags\",\n                  \"query\": \"school\"\n                }\n              }\n            ]\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 2\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"storeLocation\": 1,\n      \"items\": {\n        \"$filter\": {\n          \"input\": \"$items\",\n          \"cond\": {\n            \"$and\": [\n              {\n                \"$ifNull\": [\n                  \"$$this.price\", \"false\"\n                ]\n              },\n              {\n                \"$gt\": [\n                  \"$$this.quantity\", 2\n                ]\n              },\n              {\n                \"$in\": [\n                  \"office\", \"$$this.tags\"\n                ]\n              }\n            ]\n          }\n        }\n      }\n    }\n  }\n)",
+      "tokenEstimate": 256
+    },
+    {
+      "language": "json",
+      "section": "Query for Matching Embedded Documents Only",
+      "content": "[\n  {\n    storeLocation: 'Austin',\n    items: [\n      {\n        name: 'laptop',\n        tags: [ 'electronics', 'school', 'office' ],\n        price: Decimal128('753.04'),\n        quantity: 3\n      },\n      {\n        name: 'pens',\n        tags: [ 'writing', 'office', 'school', 'stationary' ],\n        price: Decimal128('19.09'),\n        quantity: 4\n      },\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('30.23'),\n        quantity: 5\n      },\n      {\n        name: 'pens',\n        tags: [ 'writing', 'office', 'school', 'stationary' ],\n        price: Decimal128('20.05'),\n        quantity: 4\n      },\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('22.08'),\n        quantity: 3\n      },\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('21.67'),\n        quantity: 4\n      }\n    ]\n  },\n  {\n    storeLocation: 'Austin',\n    items: [\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('24.16'),\n        quantity: 5\n      },\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('28.04'),\n        quantity: 5\n      },\n      {\n        name: 'notepad',\n        tags: [ 'office', 'writing', 'school' ],\n        price: Decimal128('21.42'),\n        quantity: 5\n      },\n      {\n        name: 'laptop',\n        tags: [ 'electronics', 'school', 'office' ],\n        price: Decimal128('1540.63'),\n        quantity: 3\n      },\n      {\n        name: 'pens',\n        tags: [ 'writing', 'office', 'school', 'stationary' ],\n        price: Decimal128('29.43'),\n        quantity: 5\n      },\n      {\n        name: 'pens',\n        tags: [ 'writing', 'office', 'school', 'stationary' ],\n        price: Decimal128('28.48'),\n        quantity: 5\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 545
+    }
+  ]
+}

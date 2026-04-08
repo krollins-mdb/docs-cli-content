@@ -1,0 +1,12 @@
+{
+  "heading": "Considerations",
+  "headingLevel": 2,
+  "body": "By default, the KMIP (Key Management Interoperability) Proxy Standalone uses the credentials stored in\nthe\n`/<dbPath>/cloudProviderCredentials/<keyID>.<cloudProvider>.metadata`\nfile.\n\n- If you rotate keys, these credentials reflect the latest key\n  rotation.\n\n- If the KMIP (Key Management Interoperability) Proxy Standalone binary is unable to decrypt the snapshots\n  using these credentials, the binary shows an error message stating that\n  you must update the metadata files on disk that contain the old\n  credentials. You can update the metadata file with any text editor.\n\n- If you use [role-based access to your encryption key](aws-kms-enable-project), the\n  `/<dbPath>/cloudProviderCredentials/<keyID>.<cloudProvider>.metadata`\n  file won't contain valid credentials.\n\n  Take one of the following actions:\n\n  - Update the\n    `/<dbPath>/cloudProviderCredentials/<keyID>.<cloudProvider>.metadata`\n    file. Use an empty `roleId`. Provide temporary credentials based\n    on the IAM (Identity and Access Management) role that can access your encryption key in the\n    `accessKeyId` and `secretAccessKey` fields:\n\n    ```json\n    {\n      \"accessKeyId\": \"TemporaryAccessKeyId\",\n      \"secretAccessKey\": \"TemporarySecretAccessKey\",\n      \"roleId\": \"\",\n      \"region\": \"us-east-1\"\n    }\n    ```\n\n  - Start the KMIP (Key Management Interoperability) Proxy Standalone binary with the following options:\n\n    - `awsAccessKey`\n\n    - `awsSecretAccessKey`\n\n    - `awsSessionToken`\n\n    - `awsRegion`\n\n  To generate temporary credentials based on an IAM (Identity and Access Management) role, see the\n  [AWS documentation](http://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html).\n\n- You can download encrypted snapshots in the same way as\n  unencrypted snapshots. We recommend using [role-based access to your encryption key](aws-kms-enable-project) for the project as a security best practice.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"accessKeyId\": \"TemporaryAccessKeyId\",\n  \"secretAccessKey\": \"TemporarySecretAccessKey\",\n  \"roleId\": \"\",\n  \"region\": \"us-east-1\"\n}",
+      "tokenEstimate": 39
+    }
+  ]
+}

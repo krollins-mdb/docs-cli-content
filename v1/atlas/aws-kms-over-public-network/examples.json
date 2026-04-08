@@ -1,0 +1,51 @@
+{
+  "path": "atlas/aws-kms-over-public-network",
+  "product": "atlas",
+  "title": "Step 3: Review and apply your changes.",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "json": 2,
+      "none": 1
+    },
+    "bySection": [
+      {
+        "heading": "Enable Role-Based Access for Your Encryption Key for a Project",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 109
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 92
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 125
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:Encrypt\",\n        \"kms:DescribeKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:us-east-1:123456789012:key/12x345y6-7z89-0a12-3456-xyz123456789\"\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "json",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "{\n  \"Version\": \"2020-03-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"<atlasAWSAccountArn>\"\n      },\n      \"Action\": \"sts:AssumeRole\",\n      \"Condition\": {\n        \"StringEquals\": {\n          \"sts:ExternalId\": \"<atlasAssumedRoleExternalId>\"\n        }\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "none",
+      "section": "Enable Role-Based Access for Your Encryption Key for a Project",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --header \"Accept: application/json\" \\\n  --header \"Content-Type: application/json\" \\\n  --include \\\n  --request PATCH \\\n  \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{groupId}/encryptionAtRest?pretty=true&envelope=true\" \\\n  --data '\n   {\n       \"awsKms\": {\n           \"enabled\": true,\n           \"roleId\": \"<roleId>\",\n           \"customerMasterKeyID\": \"<master-key-id>\",\n           \"region\": \"<aws-region>\"\n       }\n   }'",
+      "tokenEstimate": 125
+    }
+  ]
+}

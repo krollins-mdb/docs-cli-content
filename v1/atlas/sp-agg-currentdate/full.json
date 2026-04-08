@@ -1,0 +1,52 @@
+{
+  "path": "atlas/sp-agg-currentdate",
+  "product": "atlas",
+  "title": "$currentDate (Stream Processing)",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "The `$currentDate` expression returns the system time of your\nstream processing workspace each time Atlas Stream Processing evaluates it. This ensures that time\nfields you add from within a streaming data pipeline remain up-to-date\nfor each processed message.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "The `$currentDate` expression is an empty object `{}` and has no\ninternal syntax.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "Pass `$currentDate: {}` as the value of any expression which accepts\nan [ISODate](manual/reference/glossary) value.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following example demonstrates a basic use of the `$currentDate`\nexpression to ensure accurate timestamps for each output document from\na given stream processor.\n\n**Input:**\n\n```json\n{\n  \"$addFields\": {\n    \"time1\": {\n      \"$currentDate\": {}\n    }\n  }\n}\n```\n\n**Output:**\n\n```json\n{\n  \"a\": 1,\n  \"time1\": ISODate(\"2025-01-24T11:57:22.033Z\")\n}\n```\n\nYou can use the `$currentDate` expression multiple times in your\nstream processing pipeline to generate multiple timestamps for various\nstages within a stream processor.\n\n**Input:**\n\n```json\n{\n  \"$addFields\": {\n    \"time1\": {\n      \"$currentDate\": {}\n    }\n  },\n  \"$group\": {\n    \"_id\": \"$time1\",\n    \"count\": {\n      \"$count\": {}\n    }\n  },\n  \"$addFields\": {\n    \"time1\": \"$_id\",\n    \"time2\": {\n      \"$currentDate\": {}\n    }\n  }\n}\n```\n\n**Output:**\n\n```json\n{\n  \"time1\": ISODate(\"2025-01-24T11:57:22.033Z\"),\n  \"time2\": ISODate(\"2025-01-24T11:57:26.036Z\"),\n  \"count\": 1\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"$addFields\": {\n    \"time1\": {\n      \"$currentDate\": {}\n    }\n  }\n}",
+          "tokenEstimate": 24
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"a\": 1,\n  \"time1\": ISODate(\"2025-01-24T11:57:22.033Z\")\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"$addFields\": {\n    \"time1\": {\n      \"$currentDate\": {}\n    }\n  },\n  \"$group\": {\n    \"_id\": \"$time1\",\n    \"count\": {\n      \"$count\": {}\n    }\n  },\n  \"$addFields\": {\n    \"time1\": \"$_id\",\n    \"time2\": {\n      \"$currentDate\": {}\n    }\n  }\n}",
+          "tokenEstimate": 82
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"time1\": ISODate(\"2025-01-24T11:57:22.033Z\"),\n  \"time2\": ISODate(\"2025-01-24T11:57:26.036Z\"),\n  \"count\": 1\n}",
+          "tokenEstimate": 57
+        }
+      ]
+    }
+  ]
+}

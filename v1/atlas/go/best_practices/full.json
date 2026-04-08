@@ -1,0 +1,117 @@
+{
+  "path": "atlas/go/best_practices",
+  "product": "atlas",
+  "title": "Best Practices",
+  "sections": [
+    {
+      "heading": "Using Getters Instead of Direct Field Access",
+      "headingLevel": 2,
+      "body": "When accessing responses, use the getter function instead of direct field access.\n\nFor example, use `response.GetField()` instead of `response.Field`.\n\nUsing getter functions allows seamless pointer handling and can help prevent panic errors.\nAdditionally, the Atlas Go SDK provides `Set` , `IsSet` and `Unset` methods for safe field modifications.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Check for Empty Strings for String Pointers",
+      "headingLevel": 2,
+      "body": "When a model contains a pointer to a `string` , the Atlas Go SDK sends that value to the server,\neven if it is set to an empty string ( `\"\"` ).\n\nInstead of direct assignment:\n\n```go\n// Surrounding code omitted for brevity\n\ntest := \"\"\nrequestBody.StringPointerValue = test\n```\n\nUsers should always check for empty strings before assigning them:\n\n```go\n// Surrounding code omitted for brevity\n\nif test != \"\"\n    requestBody.StringPointerValue = test\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\ntest := \"\"\nrequestBody.StringPointerValue = test",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nif test != \"\"\n    requestBody.StringPointerValue = test",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Working with Date Fields",
+      "headingLevel": 2,
+      "body": "In the Atlas Go SDK, the `*time.Time` type represents date fields for handling time-related data.\nWhen you compare values based on `time.Time` , either never compare pointers directly or do the following:\n\n- Avoid using direct comparison operators (e.g., `myStruct.MyDateField == \"\"` ) to check for equality. Comparing pointers directly will check if they refer to the same memory address rather than comparing the actual date values. Since each `time.Time` instance is allocated in different memory locations, direct comparisons might yield unexpected results.\n\n- Use the `Has` function to check non-nil pointers:\n  The SDK provides a dedicated `HasFieldName` or `GetFieldName` function for each model to check if a `time.Time` pointer is non-nil before accessing its value. Always use this function to ensure that the pointer is valid before you perform any operations.\n\n- Use `time.Time` methods to compare date values:\n  When you have confirmed that the `time.Time pointer` is non-nil, you can safely use `time.Time` methods to compare the actual date values. Commonly used methods for comparison include `Before` , `After` , and `Equal` :\n\n```go\n// Surrounding code omitted for brevity\n\nif !sdkModel.HasSomeDateField() {\n   return;\n}\ndatePtr1 := sdkModel.SomeDateField;\nif datePtr1.Before(*datePtr2) {\n    // datePtr1 is before datePtr2.\n} else if datePtr1.After(*datePtr2) {\n    // datePtr1 is after datePtr2.\n} else {\n    // datePtr1 and datePtr2 are equal.\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nif !sdkModel.HasSomeDateField() {\n   return;\n}\ndatePtr1 := sdkModel.SomeDateField;\nif datePtr1.Before(*datePtr2) {\n    // datePtr1 is before datePtr2.\n} else if datePtr1.After(*datePtr2) {\n    // datePtr1 is after datePtr2.\n} else {\n    // datePtr1 and datePtr2 are equal.\n}",
+          "tokenEstimate": 96
+        }
+      ]
+    },
+    {
+      "heading": "Working with Objects",
+      "headingLevel": 2,
+      "body": "The Atlas Go SDK represents free-form objects with the golang `ìnterface{}` type in models and parameters. Free-form objects include objects of any shape.\n\nThe golang `ìnterface{}` type allows you to use the following types as input arguments:\n\n- Basic types (integer, boolean)\n\n- Your own structures\n\n- any for free-form objects\n\nNOTE: The Atlas Go SDK uses free-form objects only where models need to handle multiple conflicting values. For example, some of the existing MongoDB Search APIs allow you to supply booleans or objects.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Working with Pointers",
+      "headingLevel": 2,
+      "body": "The Atlas Go SDK utilizes SDK pointers to denote optional values in the Go programming language:\n\n```golang\n// Surrounding code omitted for brevity\n\ntype Data struct {\n    // Represents an optional name\n    Name *string `json:\"results,omitempty\"`\n}\n```\n\nIn the example above, the string value is optional, and it won't be sent to the server if you don't explicitly set it.",
+      "codeBlocks": [
+        {
+          "language": "golang",
+          "content": "// Surrounding code omitted for brevity\n\ntype Data struct {\n    // Represents an optional name\n    Name *string `json:\"results,omitempty\"`\n}",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Working with Arrays",
+      "headingLevel": 2,
+      "body": "The Atlas Go SDK represents all arrays as pointers:\n\n```golang\n// Surrounding code omitted for brevity\n\ntype Data struct {\n    Results *[]DataRole `json:\"results,omitempty\"`\n}\n```\n\nThe following scenarios use pointers with arrays:\n\n- Update a request containing an empty array (resetting the field values):\n\nIf you explicitly set a struct property to an empty array, the SDK will send an empty array request to the Atlas API.\n\n```golang\n// Surrounding code omitted for brevity\n\ndata := Data{\n    // Sending an empty array\n    Results: &[]DataRole{}\n}\n```\n\n- Update a request without updating the array field:\n\nWhen performing an update operation, we recommend that you don't set the struct property.\n\n```golang\n// Surrounding code omitted for brevity\n\ndata := Data{\n    // Sending an empty array by not setting field values (value is nil)\n    // Results: &[]DataRole{}\n}\n```\n\nThese practices ensure accurate handling of optional values and array updates in the SDK when you work with pointers in Golang.",
+      "codeBlocks": [
+        {
+          "language": "golang",
+          "content": "// Surrounding code omitted for brevity\n\ntype Data struct {\n    Results *[]DataRole `json:\"results,omitempty\"`\n}",
+          "tokenEstimate": 27
+        },
+        {
+          "language": "golang",
+          "content": "// Surrounding code omitted for brevity\n\ndata := Data{\n    // Sending an empty array\n    Results: &[]DataRole{}\n}",
+          "tokenEstimate": 30
+        },
+        {
+          "language": "golang",
+          "content": "// Surrounding code omitted for brevity\n\ndata := Data{\n    // Sending an empty array by not setting field values (value is nil)\n    // Results: &[]DataRole{}\n}",
+          "tokenEstimate": 40
+        }
+      ]
+    },
+    {
+      "heading": "Working with Binary Responses",
+      "headingLevel": 2,
+      "body": "In the Atlas Go SDK, the `io.ReadCloser` type is used to return binary data using the APIs.\n\n- Use `io.Copy` to store on a file or pass through another steam.\n\n- Use `io.ReadAll` to read all bytes in memory.\n\n- Call the `.Close()` function after reading the data\n\nNote: see example in [examples/download/downloadLogs.go](https://github.com/mongodb/atlas-sdk-go/blob/main/examples/download/downloadLogs.go)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Use Method for Creating Models",
+      "headingLevel": 2,
+      "body": "Use dedicated methods for creating new models.\n\nFor example, instead of using the following:\n\n```go\n// Surrounding code omitted for brevity\n\nGroupInvitationUpdateRequest{\n    ...\n}\n```\n\nUse the following dedicated method:\n\n```go\n// Surrounding code omitted for brevity\n\nadmin.NewGroupInvitationUpdateRequest(...)\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nGroupInvitationUpdateRequest{\n    ...\n}",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nadmin.NewGroupInvitationUpdateRequest(...)",
+          "tokenEstimate": 18
+        }
+      ]
+    },
+    {
+      "heading": "Use golangci-lint Validators",
+      "headingLevel": 2,
+      "body": "Use [golangci-lint](https://golangci-lint.run/) to detect common errors when using the Atlas Go SDK.\nThe Atlas Go SDK doesn't provide its own linter.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Linting Issues",
+      "headingLevel": 3,
+      "body": "We don't recommend using the `bodyclose` rule as it reports an many false positives with Atlas GO SDK and other libraries.\n\nTo learn more, see [bodyclose](https://github.com/timakin/bodyclose/issues/39).",
+      "codeBlocks": []
+    }
+  ]
+}

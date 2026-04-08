@@ -1,0 +1,79 @@
+{
+  "path": "atlas/faq/deployment",
+  "product": "atlas",
+  "title": "FAQ: Deployment",
+  "sections": [
+    {
+      "heading": "MongoDB Atlas or MongoDB Cloud Manager?",
+      "headingLevel": 2,
+      "body": "Atlas offers a managed and simplified experience. Atlas users\nhave access to a curated selection of configuration and infrastructure\noptions. The available Atlas configuration and infrastructure\noptions may not provide the flexibility that some users require. For\nexample, Atlas requires TLS (Transport Layer Security) for cluster connectivity and does not\nsurface options for disabling TLS (Transport Layer Security). Atlas suits users who want\nfewer moving parts to manage, enabling developers and database\nadministrators to be more productive.\n\nMongoDB Cloud Manager offers more control by exposing more configuration options\non the infrastructure of your choice. Cloud Manager users have access to\nadvanced operations and a higher level of control, but must manage the\nfull lifecycle of their infrastructure. Cloud Manager is best suited for users\nwho require a higher level of control over their MongoDB clusters.\n\nFor guidance on which MongoDB service best suits the needs of your\norganization,\n[contact MongoDB Support](https://www.mongodb.com/contact/atlas).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can I bring an existing MongoDB deployment into MongoDB Atlas for management?",
+      "headingLevel": 2,
+      "body": "No. However, you can upload data from existing MongoDB deployment into\nMongoDB Atlas.\n\nYou can use live migration in the Atlas UI to live migrate data from\na source replica set or sharded cluster to an Atlas cluster.\nTo choose an import strategy, see [Migrate or Import Data](import-strategies).\n\nYou can also write scripts using official MongoDB supported drivers to\nupload data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can I migrate between regions?",
+      "headingLevel": 2,
+      "body": "Yes. You can change one or more regions for a given cluster within the\noriginal cloud service provider or across different cloud service providers.\nMongoDB Atlas uses a rolling-migration strategy for moving nodes from the\noriginal region to a new region to preserve cluster availability.\n\n> **Important:**&#x20;\n>\n> AWS Only\n>\n> Amazon Web Services (AWS) Virtual Private Cloud (VPC) peering\n> connections are region-specific. Clusters utilizing an existing\n> VPC (Virtual Private Cloud) peering connection to an AWS (Amazon Web Services) VPC (Virtual Private Cloud) in a given AWS (Amazon Web Services) region\n> lose access to that peering connection if moved to a different AWS (Amazon Web Services)\n> region. The moved cluster may use an existing peering connection in\n> the new region.\n>\n> To learn more, see Set Up a Network Peering Connection.\n\nIf you need to migrate data between regions on different cloud service\nproviders, you can:\n\n- [edit the cluster configuration](edit-cluster-atlas) in the Atlas UI by changing the cloud providers and region for each cluster whose data you are migrating. The migration rolls cluster by cluster, starting from the secondary nodes.\n\n- [Configure High Availability and Workload Isolation](create-cluster-multi-region). This method minimizes the risk of issues related to cloud provider capacity, but can result in higher [data transfer costs](data-transfer-costs).\n\n- Seed the destination cluster using mongorestore.\n\n- Restore a backup from the source cluster to the destination cluster.\n\n> **Warning:**&#x20;\n>\n> - When you transition to a new cloud provider, your deployment IP addresses change.\n>\n> - Data migration interrupts VPC peering and private endpoint operation. You must reconfigure these after completing migration.\n>\n> - Adding or moving a node to a new region or cloud provider without a primary or secondary node\n>   requires each newly migrated replica set member to perform an [initial sync](manual/core/replica-set-sync).\n>\n> - If you created an Atlas cluster on Google Cloud or Microsoft Azure before November 2, 2020 when Atlas added support for\n>   multi-cloud clusters, changing to a different provider changes the connection string to your new cluster. Consider\n>   scheduling a time to [update your applications with the new connection string](tenant-to-tenant) to connect to the cluster again.\n\n> **See Also:** [Migrate or Import Data](import-strategies)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Does Atlas support cross-region deployments?",
+      "headingLevel": 2,
+      "body": "Yes. You can specify additional regions for high availability or local\nreads when creating or\nscaling a deployment.\n\nAtlas supports cross-cloud service provider deployments. To learn\nmore, see [highest priority region](deploy-across-multiple-regions).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "What AWS regions does Atlas support?",
+      "headingLevel": 2,
+      "body": "Atlas supports all AWS (Amazon Web Services) regions other than those in China and\n[US GovCloud](https://aws.amazon.com/govcloud-us/). To learn more,\nsee Amazon Web Services (AWS).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can I pause or stop my Atlas clusters?",
+      "headingLevel": 2,
+      "body": "You can [pause](pause-cluster) an `M10+` paid cluster for up to\n30 days at a time. Atlas automatically resumes the cluster after 30 days.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can I pre-split chunks in a Atlas sharded cluster?",
+      "headingLevel": 2,
+      "body": "The [Atlas admin](manual/reference/built-in-roles) database user role has the necessary\nprivileges to pre-split chunks in an empty sharded collection.\n\nTo learn more about sharded cluster chunk creation and management, see\n[Create Chunks in a Sharded Cluster](manual/tutorial/create-chunks-in-sharded-cluster).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can MongoDB Atlas deploy clusters with more than 50 shards?",
+      "headingLevel": 2,
+      "body": "Yes, MongoDB Atlas allows selection of up to 70 shards. If you're\ninterested in more than 70 shards, contact MongoDB Support.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How does MongoDB Atlas deliver high availability?",
+      "headingLevel": 2,
+      "body": "Atlas clusters use replication capability of MongoDB to deliver high\navailability. All Atlas clusters are either replica sets or sharded\nclusters where each shard is a replica set. To learn more about\nMongoDB replica sets and replication, see [Replication](manual/replication).\n\nAtlas uses a rolling update strategy for executing maintenance or\ninfrastructure operations, such as applying security patches or scaling up\nan Atlas cluster. The rolling update strategy ensures that the cluster\ncan process reads and writes for the majority of the maintenance or\ninfrastructure operation. During the rolling update procedure:\n\n- Atlas applies the changes to each secondary node in the cluster.\n\n- Atlas directs the primary node to step down to the secondary\n  state and trigger an election of a new primary.\n\n- Once the cluster has a new primary, Atlas applies the changes to\n  the former primary node.\n\nApplications must hold write operations while the cluster elects a new\nprimary. The cluster can continue to process\n[secondary read operations](manual/core/read-preference) during this\nperiod. Elections on Atlas clusters typically complete within a few\nseconds. Factors such as network latency may extend the time required for\nreplica set elections to complete, which in turn affects the amount of time\nyour cluster may operate without a primary. These factors are dependent\non your particular cluster architecture.\n\nYou can enable retryable writes by adding [retryWrites=true](manual/reference/connection-string) to your Atlas\nURI connection string. To learn more, see [Retryable Writes](manual/core/retryable-writes).\n\nFor `M10+` clusters, Atlas provides a Test Primary Failover feature that allows\nyou to check that your applications can detect and react to a replica\nset election. By designing applications that can seamlessly handle a\nreplica set election, you no longer have to worry about the underlying\nmaintenance occurring on your clusters.\n\nAtlas maintenance operations include OS patches and maintenance patches\nfor the MongoDB database itself. Infrastructure operations include repair\noperations required to replace faulty infrastructure, and scheduled\ninfrastructure replacements, such as changing the cluster tier.\n\n[Contact MongoDB Support](https://www.mongodb.com/contact/atlas) for help with\narchitecting your application to use MongoDB Atlas with optimal\navailability.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "What are Analytics Nodes?",
+      "headingLevel": 2,
+      "body": "*Available on M10+ clusters.*\n\nAnalytics nodes are specialized read-only nodes used to isolate\nqueries which you do not want to affect your operational workload.\nThey are useful for handling analytic data such as reporting queries\nexecuted by BI (Business Intelligence) tools.\n\nAnalytics nodes and [read-only nodes](deploy-read-only-replicas)\nare configured with distinct\n[pre-defined replica set tags](replica-set-tags) that allow you to direct\nqueries to desired node types and regions. For details on the\npre-defined replica set tags implemented by Atlas, see\n[pre-defined replica set tags](replica-set-tags).\n\nYou can have up to 50 total nodes on a multi-region cluster.\nWithin that [limit](manual/reference/limits)\nthere's no maximum number of analytics nodes.\n\nAnalytics nodes cannot contribute to a cluster's availability because\nthey cannot participate in [elections](manual/reference/glossary), or become the\n[primary](manual/reference/glossary) for their cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Why can't I submit another disk storage change request?",
+      "headingLevel": 2,
+      "body": "If you recently submitted a disk storage change request, AWS (Amazon Web Services) requires\nyou to wait 6 hours and for the first request to complete before\nsubmitting another disk change request.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How can I migrate my Atlas cluster from one cloud provider to another?",
+      "headingLevel": 2,
+      "body": "If you use public IPs to connect to the Atlas cluster from your\napplication, you can switch to a different cloud provider most efficiently\nby modifying the cluster on the Atlas UI. Provided that your application is\nresilient to failovers, this should migrate your cluster successfully.\n\nHowever, if your application is connecting to the Atlas cluster\nthrough [VPC/VNet peering](vpc-peering) or PrivateLink, the peering or\nthe PrivateLink connection between your application and the cluster breaks\nafter the cluster migrates to a different cloud provider. Because of\nthis, you need to consider how your application connects to your cluster\nafter it is migrated to the new cloud provider. Please consult your\napplication's network administrator for additional advice or\n[MongoDB Support](request-support).\n\n> **Note:** If your cluster contains [Search Nodes](configure-search-nodes),\n> you can only migrate to cloud provider regions that support Search\n> Nodes. For a full list of cloud provider regions that don't support\n> Search Nodes, see [Cloud Provider Regions](fts-cloud-provider-regions).",
+      "codeBlocks": []
+    }
+  ]
+}

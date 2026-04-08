@@ -1,0 +1,12 @@
+{
+  "heading": "Use Cases and Examples",
+  "headingLevel": 2,
+  "body": "Consider the following scenarios where utilizing pre-defined replica set\ntags would be beneficial, and see the corresponding sample connection\nstrings.\n\n> **Important:**&#x20;\n>\n> High Availability for Analytics Node Queries\n>\n> For reads targeting analytic nodes with tags like `readPreferenceTags=nodeType:ANALYTICS`,\n> resilience is crucial when node availability fluctuates. Without fallback tags,\n> queries may fail during:\n>\n> - Initial sync during data compaction\n>\n> - Disk scale-down events\n>\n> - Any NVMe (non-volatile memory express) cluster tier changes\n>\n> To mitigate these risks, ensure your connection string includes *multiple read\n> preference tags* to provide fallback options so Atlas can route analytic\n> reads to available nodes during such events. For example:\n>\n> ```none\n> db+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS,priority:1&readPreferenceTags=&readConcernLevel=local\n> ```\n>\n> In this example:\n>\n> - The application first tries to connect to a node tagged `nodeType:ANALYTICS`.\n>\n> - If no such nodes are available, the final empty `readPreferenceTags=`\n>   allows the application to connect to any available secondary node.\n\n> **Note:** Each of the following example connection strings employ the\n> `readConcernLevel=local` connection string option. Specifying\n> a [read concern of local](manual/reference/read-concern-local)\n> ensures that secondary reads on sharded clusters do not\n> return [orphaned documents](manual/reference/glossary). You do not\n> need to specify this option when connecting to non-sharded replica sets.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "db+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS,priority:1&readPreferenceTags=&readConcernLevel=local",
+      "tokenEstimate": 53
+    }
+  ]
+}

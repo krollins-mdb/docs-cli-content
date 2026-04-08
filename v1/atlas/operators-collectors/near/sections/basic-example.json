@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 4,
+  "body": "The following query returns all documents that match the search\ncriteria. It includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to\n7 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title` and `runtime`\n\n- Add a field named `score`\n\nThe `score` is calculated using `pivot`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"index\": \"runtimes\",\n      \"near\": {\n        \"path\": \"year\",\n        \"origin\": 2000,\n        \"pivot\": 2\n      }\n    }\n  },\n  {\n    $limit: 7\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Jinx: The Life and Deaths of Robert Durst', score: 1  },\n  { runtime: 281, title: 'Les Misèrables', score: 0.5 },\n  { runtime: 277, title: 'Tokyo Trial', score: 0.5 },\n  { runtime: 283, title: 'Scenes from a Marriage', score: 0.3333333432674408 },\n  { runtime: 274, title: 'The Crimson Petal and the White', score: 0.2857142984867096 }\n]\n```\n\nIn the MongoDB Search results, the movies `The Kingdom` and `The\nJinx: The Life and Deaths of Robert Durst` receive a score of\n`1.0` because their `runtime` field value of `279` is an exact\nmatch. The movies `Les Misèrables` and `Tokyo Trial` receive a\nscore of `0.5` because their `runtime` field value is `2`\nunits away from `279`.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"index\": \"runtimes\",\n      \"near\": {\n        \"path\": \"year\",\n        \"origin\": 2000,\n        \"pivot\": 2\n      }\n    }\n  },\n  {\n    $limit: 7\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Jinx: The Life and Deaths of Robert Durst', score: 1  },\n  { runtime: 281, title: 'Les Misèrables', score: 0.5 },\n  { runtime: 277, title: 'Tokyo Trial', score: 0.5 },\n  { runtime: 283, title: 'Scenes from a Marriage', score: 0.3333333432674408 },\n  { runtime: 274, title: 'The Crimson Petal and the White', score: 0.2857142984867096 }\n]",
+      "tokenEstimate": 169
+    }
+  ]
+}

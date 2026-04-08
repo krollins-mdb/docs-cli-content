@@ -1,0 +1,76 @@
+{
+  "path": "atlas/migrate-to-new-version",
+  "product": "atlas",
+  "title": "Migrate to the New Versioned Atlas Administration API",
+  "sections": [
+    {
+      "heading": "Versioned Atlas Administration API Introduction",
+      "headingLevel": 2,
+      "body": "The new versioned Atlas Administration API gives a significantly better\noverall experience in accessing Atlas programmatically. The\nversioned Atlas Administration API provides a predictable and consistent\nexperience with API changes and gives better visibility into new\nfeatures and changes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Versioned Atlas Administration API Lifecycle",
+      "headingLevel": 2,
+      "body": "Atlas exposes a new resource version of an existing API (Application Programming Interface) endpoint\nwhen Atlas introduces breaking changes to the current stable version\nof the API (Application Programming Interface) endpoint. When Atlas exposes a new resource version,\nAtlas automatically deprecates the old resource version. Atlas\nautomatically deletes the deprecated resource version twelve months\nafter deprecation. Although Atlas will continue to support the older\nresource version for use in your production environment for up to\ntwelve months, you should migrate to the new version of the\nAPI (Application Programming Interface) endpoint ASAP (as soon as possible). To learn more, see\nthe example in [Versioning Schema](api-versioning-schema).\n\nNote that with resource-level versioning, each resource in the versioned\nAtlas Administration API might introduce a new version independently from\nother resources. You have to take action only when the resources you are\nutilizing are deprecated.\n\n> **Example:** Suppose Atlas introduces some new resource in\n> 2023-06-01, but `/backup` doesn't have any breaking changes and\n> stays on 2023-02-01. You must migrate to 2023-06-01 only if you are\n> utilizing that resource. If you haven't implemented\n> the resource, you don't need to take any action.\n\nAtlas supports deprecated resource version for at least twelve\nmonths until it is removed, which provides you with time to plan and\ntransition to the new version. You can see changes in each new resource\nin the [API changelog](versioned-api-changelog) and details of the\nAPI version in the API specification.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "To migrate to the new Versioned Atlas Administration API, you must do the\nfollowing:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Specify the number representing the Versioned API in the base  for the resource.",
+      "headingLevel": 3,
+      "body": "```shell\nhttps://cloud.mongodb.com/api/atlas/<version-number>/\n```\n\n> **Example:** Consider the following base URL (Uniform Resource Locator) for the legacy version of an\n> Atlas Administration API resource:\n>\n> ```shell\n> https://cloud.mongodb.com/api/atlas/v1.0/\n> ```\n>\n> With the introduction of Versioned Admin API, the preceding\n> base URL (Uniform Resource Locator) indicates you are using resources that are not\n> versioned. To send a request to the Versioned\n> Atlas Administration API (`/v2`) resource, you must send your\n> request to the following base URL (Uniform Resource Locator):\n>\n> ```shell\n> https://cloud.mongodb.com/api/atlas/v2/\n> ```\n>\n> To learn about submitting requests to Atlas Administration API\n> endpoints in different states, see [Versioning Schema](api-versioning-schema).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "https://cloud.mongodb.com/api/atlas/<version-number>/",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "shell",
+          "content": "https://cloud.mongodb.com/api/atlas/v1.0/",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "shell",
+          "content": "https://cloud.mongodb.com/api/atlas/v2/",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Add the versioning  header to requests.",
+      "headingLevel": 3,
+      "body": "To use the versioned Atlas Administration API, you must provide a\nresource version for your resources. The first version is the same\nacross all resources and for the initial migration from the\nunversioned legacy API to the versioned API, you must use the\nversion number that corresponds to the resource version date.\n\n> **Example:** The following curl command is an example of a request to a\n> versioned Atlas Administration API (v2) endpoint with the header:\n>\n> ```shell\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n>   --header \"Accept: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n>   --request {GET|DELETE}\n>   \"https://cloud.mongodb.com/api/atlas/v2/{RESOURCE}/{ENDPOINT}?{PARAMS}\"\n> ```\n\nYou must specify the content type also for `POST`, `PUT`, or\n`PATCH` requests. Value for content type can be one of the\nfollowing:\n\n- `application/json`\n\n- `application/vnd.atlas.{yyyy-mm-dd}+json`\n\n> **Example:** The following curl command is an example of a request to a\n> versioned Atlas Administration API (v2) endpoint with the header and\n> content type:\n>\n> ```shell\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n>   --header \"Content-Type: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n>   --header \"Accept: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n>   --request {POST|PUT|PATCH}\n>   \"https://cloud.mongodb.com/api/atlas/v2/{RESOURCE}/{ENDPOINT}?{PARAMS}\"\n> ```\n\nTo learn more about versioned Atlas Administration API headers, see API (Application Programming Interface)\nlifecycle under [Versioning Schema](api-versioning-schema).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --header \"Accept: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n  --request {GET|DELETE}\n  \"https://cloud.mongodb.com/api/atlas/v2/{RESOURCE}/{ENDPOINT}?{PARAMS}\"",
+          "tokenEstimate": 63
+        },
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --header \"Content-Type: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n  --header \"Accept: application/vnd.atlas.{yyyy-mm-dd}+json\" \\\n  --request {POST|PUT|PATCH}\n  \"https://cloud.mongodb.com/api/atlas/v2/{RESOURCE}/{ENDPOINT}?{PARAMS}\"",
+          "tokenEstimate": 85
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Review the changelog to determine the syntax changes for the Atlas Administration API endpoint in the new resource version.",
+      "headingLevel": 3,
+      "body": "New resource versions of API (Application Programming Interface) endpoints might include breaking changes.\nEnsure that your request to the new resource incorporates those changes\nand the request header includes the state of the endpoint to which you\nare sending the request.\n\n> **Note:** You need not check the [API changelog](versioned-api-changelog) for the initial migration from the\n> unversioned Atlas Administration API to the versioned\n> Atlas Administration API on the resource version 2023-02-01 unless\n> you are migrating the `/v1.0/clusters` resource to the\n> versioned Atlas Administration API (v2) `/clusters` resource. The\n> initial release of the versioned Atlas Administration API on\n> `2023-02-01` contains syntax changes for only the\n> `/clusters` resource. To learn more, see API specification\n> for [Clusters](api/doc/atlas-admin-api-v2/group/endpoint-clusters).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: (Optional) Migrate the unversioned Atlas Administration API v1.0 Clusters resource to the versioned Atlas Administration API (v2) Clusters resource.",
+      "headingLevel": 3,
+      "body": "The `2023-02-01` release of the versioned Atlas Administration API\ncontains the following syntax changes for the\n[Clusters](api/doc/atlas-admin-api-v2/group/endpoint-clusters) resource:\n\n| Versioned Atlas Administration API (v2) endpoint Request Type | Changelog                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| POST                                                          | Includes the following changes:Removes the following request properties:mongoURIWithOptionsproviderBackupEnabledmongoURIUpdatedsrvAddressreplicationSpecmongoURInumShardsautoScalingproviderSettingsreplicationFactorreplicationSpecs.regionsConfigAdds the request property replicationSpecs.regionConfigsRemoves the following optional properties from the response:mongoURIWithOptionsproviderBackupEnabledmongoURIUpdatedsrvAddressreplicationSpecmongoURInumShardsautoScalingproviderSettingsreplicationFactorreplicationSpecs.regionsConfigAdds the response property replicationSpecs.regionConfigs                                   |\n| GET (all)                                                     | Includes the following changes:Removes the following optional properties from the response:results.items.mongoURIWithOptionsresults.items.providerBackupEnabledresults.items.mongoURIUpdatedresults.items.srvAddressresults.items.replicationSpecresults.items.mongoURIresults.items.numShardsresults.items.autoScalingresults.items.providerSettingsresults.items.replicationFactorresults.items.replicationSpecs.regionsConfigAdds the response property results.items.replicationSpecs.regionConfigs                                                                                                                                       |\n| GET (one)                                                     | Includes the following changes:Removes the following optional properties from the response:mongoURIWithOptionsproviderBackupEnabledmongoURIUpdatedsrvAddressreplicationSpecmongoURInumShardsautoScalingproviderSettingsreplicationFactorreplicationSpecs.regionsConfigAdds the response property results.items.replicationSpecs.regionConfigs                                                                                                                                                                                                                                                                                                 |\n| PATCH (one)                                                   | Includes the following changes:Removes the following optional properties from the response:mongoURIWithOptionsproviderBackupEnabledmongoURIUpdatedsrvAddressreplicationSpecmongoURInumShardsautoScalingproviderSettingsreplicationFactorreplicationSpecs.regionsConfigAdds the response property results.items.replicationSpecs.regionConfigsRemoves the following optional properties from the response:mongoURIWithOptionsproviderBackupEnabledmongoURIUpdatedsrvAddressreplicationSpecmongoURInumShardsautoScalingproviderSettingsreplicationFactorreplicationSpecs.regionsConfigAdds the response property replicationSpecs.regionConfigs |\n\nIf you use the unversioned Atlas Administration API\n[/clusters](atlas/reference/api-resources-spec/v1) resource to\n[create one](atlas/reference/api-resources-spec/v1),\n[get one](atlas/reference/api-resources-spec/v1),\n[get all](atlas/reference/api-resources-spec/v1),\n[modify one](atlas/reference/api-resources-spec/v1),\nor [delete one](atlas/reference/api-resources-spec/v1)\ncluster, migrate to the :oas-bump-atlas-op:\u0001, :oas-bump-atlas-op:\u0001,\n:oas-bump-atlas-op:\u0001, :oas-bump-atlas-op:\u0001, and :oas-bump-atlas-op:\u0001 endpoints in the versioned Atlas Administration API\n(v2) [Clusters](api/doc/atlas-admin-api-v2/group/endpoint-clusters) resource.\n\nIf you don't want to migrate to the `2023-02-01` version yet,\nperform only steps 1 and 2 in the procedure to use the\n`2023-01-01` API (Application Programming Interface) version. Note that `2023-01-01` is\ndeprecated.",
+      "codeBlocks": []
+    }
+  ]
+}

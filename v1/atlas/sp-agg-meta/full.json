@@ -1,0 +1,53 @@
+{
+  "path": "atlas/sp-agg-meta",
+  "product": "atlas",
+  "title": "$meta Aggregation Stage (Stream Processing)",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "The `$meta` expression returns an object containing all streaming\nmetadata for a document. You can expose this data for either the\nentire stream, or one of the following Atlas Stream Processing aggregation\nstages:\n\n- [$source](pipe.$source)\n\n- [$hoppingWindow](pipe.$hoppingWindow)\n\n- [$tumblingWindow](pipe.$tumblingWindow)\n\n- [$https](pipe.$https)\n\nA `$meta` expression has the following prototype form:\n\n```json\n{ \"$meta\": <string> }\n```\n\n```json\n{\n  source: {\n    type: string,\n    ts: date,\n    source.topic: string\n    source.partition: int\n    source.offset: int\n    source.key: string|int|long|double|object|binData\n    source.headers: array[obj]\n  },\n  window: {\n    start: date,\n    end: date\n  },\n  https: {\n    url: string\n    method: string\n    httpStatusCode: int\n    responseTimeMs: int\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \"$meta\": <string> }",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "json",
+          "content": "{\n  source: {\n    type: string,\n    ts: date,\n    source.topic: string\n    source.partition: int\n    source.offset: int\n    source.key: string|int|long|double|object|binData\n    source.headers: array[obj]\n  },\n  window: {\n    start: date,\n    end: date\n  },\n  https: {\n    url: string\n    method: string\n    httpStatusCode: int\n    responseTimeMs: int\n  }\n}",
+          "tokenEstimate": 104
+        }
+      ]
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "The `$meta` expression takes a single string input corresponding to\nthe fully qualified, dot-syntax path of a source of metadata. The root\nof this path must be `\"stream\"`. You can query the following paths:\n\n| Path                        | Type                                       | Description                                                                                                                                             |\n| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| stream                      | object                                     | All metadata for the $source stage and any window stage or $https stage configured in the pipeline.                                                     |\n| stream.source               | object                                     | All metadata for the $source stage.                                                                                                                     |\n| stream.source.type          | string                                     | Type of connection used as a source.                                                                                                                    |\n| stream.source.ts            | ISODate                                    | Date and time of the record at the point of ingestion.                                                                                                  |\n| stream.source.topic         | string                                     | Kafka topic from which the stream ingests records. Available only from a Kafka source.                                                                  |\n| stream.source.partition     | integer                                    | Partition of the Kafka topic from which the stream ingests records. Available only from a Kafka source.                                                 |\n| stream.source.offset        | integer                                    | Offset tracking message order and queue position within a Kafka source partition. Available only from a Kafka source.                                   |\n| stream.source.key           | string\\|int\\|long\\|double\\|object\\|binData | Key assigned to Kafka messages for partitioning and load distribution. Available only from a Kafka source.                                              |\n| stream.source.headers       | array                                      | Set of key-value pairs describing Kafka message metadata.                                                                                               |\n| stream.window               | object                                     | All metadata for the $hoppingWindow or $tumblingWindow stage. This object is set only when a document enters a $hoppingWindow or $tumblingWindow stage. |\n| stream.window\\.start        | ISODate                                    | Start time of the current window.                                                                                                                       |\n| stream.window\\.end          | ISODate                                    | End time of the current window.                                                                                                                         |\n| stream.https                | object                                     | All metadata for the $https stage. This object is set only when an $https stage outputs a document.                                                     |\n| stream.https.url            | string                                     | URL from which the $https stage sources data.                                                                                                           |\n| stream.https.method         | string                                     | HTTPS request method sent to the URL.                                                                                                                   |\n| stream.https.httpStatusCode | int                                        | HTTP response code for the request sent to the URL.                                                                                                     |\n| stream.https.responseTimeMs | int                                        | Time, in milliseconds, it took to receive the response from the URL.                                                                                    |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "The Atlas Stream Processing `$meta` expression provides all of the\nfunctionality of the existing MongoDB [$meta](manual/reference/operator/aggregation/meta) aggregation\nexpression. However, you can't use the functionality specific to the\nAtlas Stream Processing version of `$meta` in a standard MongoDB aggregation\nquery.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following example enriches the output of a stream with an array of\nthe Kafka source topics from which the data was ingested:\n\n```json\n{\n  $source: {\n    connectionName: “kafka”,\n    topic: [“t1”, “t2”, “t3”]\n  }\n},\n{\n  $emit: {\n    connectionName: “kafka”,\n    topic: {\n      $concat: [\n        {\n          $meta: “stream.source.topic”\n        },\n        “out\"\n      ]\n    }\n  }\n}\n```\n\nThe following example adds a field to the stream reporting the start\ntime of each window.\n\n```json\n{\n  $source: {\n    connectionName: \"kafka\",\n    topic: \"t1\"\n  }\n},\n{\n  $hoppingWindow: . . .\n},\n{\n  $addFields: {\n    start: { $meta: \"stream.window.start\" }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  $source: {\n    connectionName: “kafka”,\n    topic: [“t1”, “t2”, “t3”]\n  }\n},\n{\n  $emit: {\n    connectionName: “kafka”,\n    topic: {\n      $concat: [\n        {\n          $meta: “stream.source.topic”\n        },\n        “out\"\n      ]\n    }\n  }\n}",
+          "tokenEstimate": 83
+        },
+        {
+          "language": "json",
+          "content": "{\n  $source: {\n    connectionName: \"kafka\",\n    topic: \"t1\"\n  }\n},\n{\n  $hoppingWindow: . . .\n},\n{\n  $addFields: {\n    start: { $meta: \"stream.window.start\" }\n  }\n}",
+          "tokenEstimate": 58
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Simple String Example",
+  "headingLevel": 3,
+  "body": "> **Example:** You want to write 1 GiB of data as compressed BSON (Binary Javascript Object Notation) files to\n> an Google Cloud Storage bucket named `my-gcs-bucket`.\n>\n> Using the following $out syntax:\n>\n> ```json\n> {\n>   \"$out\": {\n>     \"gcs\": {\n>       \"bucket\": \"my-gcs-bucket\",\n>       \"filename\": \"big_box_store/\",\n>       \"format\": {\n>         \"name\": \"bson.gz\"\n>       }\n>     }\n>   }\n> }\n> ```\n>\n> The `gcs.region` is omitted and so, Atlas Data Federation determines the\n> region where the bucket named `my-gcs-bucket` is hosted from\n> the storage configuration. $out writes five compressed BSON (Binary Javascript Object Notation)\n> files:\n>\n> - The first 200 MiB of data to a file that $out names\n>   `big_box_store/1.bson.gz`.\n>\n>   - The value of `gcs.filename` serves as a constant in\n>     each filename. This value doesn't depend upon any\n>     document field or value.\n>\n>   - Your `gcs.filename` ends with a delimiter, so Atlas Data Federation\n>     appends the counter after the constant.\n>\n>   - If it didn't end with a delimiter, Atlas Data Federation would have\n>     added a `.` between the constant and the counter,\n>     like `big_box_store.1.bson.gz`\n>\n>   - Because you didn't change the maximum file size using\n>     `gcs.format.maxFileSize`, Atlas Data Federation uses the default\n>     value of 200 MiB.\n>\n> - The second 200 MiB of data to a new file that $out names\n>   `big_box_store/2.bson.gz`.\n>\n> - Three more files that $out names\n>   `big_box_store/3.bson.gz` through\n>   `big_box_store/5.bson.gz`.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"$out\": {\n    \"gcs\": {\n      \"bucket\": \"my-gcs-bucket\",\n      \"filename\": \"big_box_store/\",\n      \"format\": {\n        \"name\": \"bson.gz\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 52
+    }
+  ]
+}

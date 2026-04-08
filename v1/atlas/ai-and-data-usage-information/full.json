@@ -1,0 +1,119 @@
+{
+  "path": "atlas/ai-and-data-usage-information",
+  "product": "atlas",
+  "title": "AI and Data Usage Information",
+  "sections": [
+    {
+      "heading": "AI Features in Data Explorer",
+      "headingLevel": 2,
+      "body": "The [intelligent assistant](de-ai-assistant) is an AI-powered tool designed for\nintegrated, expert MongoDB development support in the Atlas UI.\n\nYou can also [Query with Natural Language](atlas-ui-query-natural-language)\nin MongoDB Atlas. MongoDB Atlas uses AI to generate filter queries and\naggregations based on the prompts you provide.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Read-only Tools",
+      "headingLevel": 3,
+      "body": "When using [Enable read-only tools in the MongoDB Assistant](de-read-only-tools) in the intelligent\nassistant, the assistant may access information about the current query or\naggregation or any data in the database itself via a tool call, but only with\nexplicit user approval.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Third Party Providers",
+      "headingLevel": 2,
+      "body": "AI features in Atlas currently use the\n[Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service)\nhosted by Microsoft.  This is subject to change in the future.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How Your Data is Used",
+      "headingLevel": 2,
+      "body": "When you use AI features in Atlas, the following information may be sent\nto MongoDB's backend and/or the third-party AI provider:\n\nFor [Query with Natural Language](atlas-ui-query-natural-language):\n\n- The full text of your natural language prompt.\n\n- The schema of the collection you are querying,\n  including database name, collection name, field names, and types.\n\n- Sample field values to improve the quality of recommendations.\n\n  > **Note:** You can prevent Atlas from sending sample field values in the\n  > [project-level settings](atlas-ui-ai-features-project-level-disable).\n  > If you disable this setting, you can still use natural language querying,\n  > however, responses might be less accurate.\n\nFor the [intelligent assistant](de-ai-assistant):\n\n- Explain plan metadata. The **Interpret** button uses Explain plan metadata,\n  including the original query, to process requests. The assistant prompts a\n  user to confirm that they're okay with this before proceeding with the request\n  each time.\n\n- Sanitized connection information. The **Debug** button passes sanitized\n  connection information and error messages to the assistant.\n\n- The tab you are working on in Atlas.\n\n- Database tool calling sends additional data to the AI provider, depending on\n  which tool is executed. All tools require explicit user approval. See the full\n  list of [Enable read-only tools in the MongoDB Assistant](de-read-only-tools) for an overview of\n  data used.\n\nThe information that is sent will not be shared with any other third\nparties or stored by the AI provider. We do not send unsanitized\nconnection strings, credentials, rows, or documents from your databases.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disable AI Features",
+      "headingLevel": 2,
+      "body": "You can disable AI-powered features at the project and organization levels.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Don't Share Sample Field Values",
+      "headingLevel": 3,
+      "body": "If you want to use AI features in Data Explorer but want to prevent\nAtlas from sending sample field values to MongoDB or third-party\nproviders, you can opt out from sharing field values within a project.> **Note:** If you disable this functionality, responses from your natural language\n> queries and other AI features might be less accurate.**Api:**Atlas Administration APITo opt out from sharing field values with the Atlas Administration API,\nsend a `PATCH` request to the [settings](api/doc/atlas-admin-api-v2/operation/operation-updateprojectsettings) endpoint with the\n`isDataExplorerGenAISampleDocumentPassingEnabled` boolean flag value set\nto `false`.**Atlascli:**Atlas CLITo opt out from sharing field values with the Atlas CLI, run\nthe following command:```\natlas projects settings update --disableDataExplorerGenAISampleDocumentPassing\n```**Ui:**Atlas UI",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "atlas projects settings update --disableDataExplorerGenAISampleDocumentPassing",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Don't share sample field values.",
+      "headingLevel": 4,
+      "body": "Set the\n**Enable Sending Sample Field Values in Data Explorer Generative AI Features**\ntoggle to **off**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disable Natural Language Querying",
+      "headingLevel": 3,
+      "body": "If you no longer want to use natural language querying on your project, you can\nturn this feature off in the project-level settings.**Api:**Atlas Administration APITo disable natural language querying with the Atlas Administration API,\nsend a `PATCH` request to the [settings](api/doc/atlas-admin-api-v2/operation/operation-updateprojectsettings) endpoint with the\n`isDataExplorerGenAIFeaturesEnabled` boolean flag value set to\n`false`.**Atlascli:**Atlas CLITo disable natural language querying with the Atlas CLI, run the\nfollowing command:```\natlas projects settings update --disableDataExplorerGenAIFeatures\n```**Ui:**Atlas UI",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "atlas projects settings update --disableDataExplorerGenAIFeatures",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Disable natural language querying.",
+      "headingLevel": 4,
+      "body": "Set the **Enable Data Explorer Generative AI Features**\ntoggle to **off**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disable All AI Features on Atlas",
+      "headingLevel": 3,
+      "body": "If you want to prevent users in your organization from using all Atlas\nfeatures that use generative AI, you can change this setting at the organization\nlevel.**Api:**Atlas Administration APITo disable AI features for an organization with the Atlas Administration API,\nsend a `PATCH` request to the [settings](api/doc/atlas-admin-api-v2/operation/operation-updateorganization) endpoint with the\n`genAIFeaturesEnabled` boolean flag value set to `false`.**Atlascli:**Atlas CLITo disable AI features for an organization with the Atlas CLI, specify\n`genAIFeaturesEnabled: false` in a JSON configuration file:```json\n{\n   \"genAIFeaturesEnabled\": false\n}\n```After you update the `genAIFeaturesEnabled` field in your configuration\nfile, run the following command to update the organization settings:```\natlas api updateOrgSettings --file <path-to-config-file>\n```**Ui:**Atlas UI",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n   \"genAIFeaturesEnabled\": false\n}",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "text",
+          "content": "atlas api updateOrgSettings --file <path-to-config-file>",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Disable the AI feature.",
+      "headingLevel": 4,
+      "body": "Set the **Enable Atlas features that use generative AI**\ntoggle to **off**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disable Read-Only Tools on Atlas",
+      "headingLevel": 3,
+      "body": "If you no longer want to use read-only tools on your project, you can\nturn this feature off in the project-level settings.**Api:**Atlas Administration APITo disable read-only tools with the Atlas Administration API,\nsend a `PATCH` request to the [settings\n\\<updateprojectsettings>\\`endpoint with the\n\\`\\`enableGenAIToolCalling\\`](<https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/operation/operation-settings&#xA;\\<updateprojectsettings\\>`endpoint with the&#xA;``enableGenAIToolCalling`>) boolean flag value set to\n`false`.**Atlascli:**Atlas CLITo disable read-only tools for a project with the Atlas CLI,\nspecify `enableGenAIToolCalling: false` in a JSON configuration file:```json\n{\n   \"enableGenAIToolCalling\": false\n}\n```After you update the `enableGenAIToolCalling` field in your configuration\nfile, run the following command to update the project settings:```\natlas api projects updateGroupSettings --file <path-to-config-file>\n```**Ui:**Atlas UI",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n   \"enableGenAIToolCalling\": false\n}",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "text",
+          "content": "atlas api projects updateGroupSettings --file <path-to-config-file>",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Disable Tool Calling",
+      "headingLevel": 4,
+      "body": "Disable [Enable read-only tools in the MongoDB Assistant](de-read-only-tools)\nby toggling **Enable read-only tools in the MongoDB Assistant**.\nIf you disable tool calling at the project label, you will be unable to\nre-enable it from the data explorer interface.",
+      "codeBlocks": []
+    }
+  ]
+}

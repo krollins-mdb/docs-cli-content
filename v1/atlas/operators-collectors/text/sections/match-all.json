@@ -1,0 +1,17 @@
+{
+  "heading": "Match all",
+  "headingLevel": 4,
+  "body": "The following query uses the `text` operator to search the `plot`\nfield in the `movies` collection for all the terms in the query string\n`automobile race`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"plot\",\n        \"query\": \"automobile race\",\n        \"matchCriteria\": \"all\"\n      }\n    }\n  },\n  {\n    \"$limit\": 20\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"plot\": 1,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  {\n    plot: 'A young driver, Speed Racer, aspires to be champion of the racing world with the help of his family and his high-tech Mach 5 automobile.',\n    title: 'Speed Racer',\n    score: 6.122188568115234\n  },\n  {\n    plot: 'A gorgeous young automobile fanatic--and front to the hottest unsigned band on the West coast--finds herself caught up in illegal drag-racing competitions organized by exotic car fanatics.',\n    title: 'Redline',\n    score: 5.497724533081055\n  },\n  {\n    plot: 'When a popular daredevil proposes an automobile race across three continents, his arch rival vows to beat him, while an ambitious female reporter has her own plans for victory.',\n    title: 'The Great Race',\n    score: 5.282209396362305\n  }\n]\n```\n\nMongoDB Search returns documents that contain the terms `automobile` and\n`race` anywhere in the `plot` field.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"plot\",\n        \"query\": \"automobile race\",\n        \"matchCriteria\": \"all\"\n      }\n    }\n  },\n  {\n    \"$limit\": 20\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"plot\": 1,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    plot: 'A young driver, Speed Racer, aspires to be champion of the racing world with the help of his family and his high-tech Mach 5 automobile.',\n    title: 'Speed Racer',\n    score: 6.122188568115234\n  },\n  {\n    plot: 'A gorgeous young automobile fanatic--and front to the hottest unsigned band on the West coast--finds herself caught up in illegal drag-racing competitions organized by exotic car fanatics.',\n    title: 'Redline',\n    score: 5.497724533081055\n  },\n  {\n    plot: 'When a popular daredevil proposes an automobile race across three continents, his arch rival vows to beat him, while an ambitious female reporter has her own plans for victory.',\n    title: 'The Great Race',\n    score: 5.282209396362305\n  }\n]",
+      "tokenEstimate": 186
+    }
+  ]
+}

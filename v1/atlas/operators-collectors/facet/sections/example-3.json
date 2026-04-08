@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "> **Example:** The following example uses an index named `default` on the\n> `sample_mflix.movies` collection. The `released` field in the\n> collection is indexed as the [date](bson-data-types-date)\n> type.\n>\n> ```json\n> {\n>   \"mappings\": {\n>     \"dynamic\": false,\n>     \"fields\": {\n>       \"released\": [\n>         {\n>           \"type\": \"date\"\n>         }\n>       ]\n>     }\n>   }\n> }\n> ```\n>\n> The query  uses the [$searchMeta](pipe.$searchMeta) stage to search the\n> `released` field in the `movies` collection for movies between\n> the years `2000` to `2015` and retrieve metadata results for the\n> query string. The query specifies four buckets:\n>\n> - `2000-01-01`, inclusive lower bound for this bucket\n>\n> - `2005-01-01`, exclusive upper bound for the `2000-01-01`\n>   bucket and inclusive lower bound for this bucket\n>\n> - `2010-01-01`, exclusive upper bound for the `2005-01-01`\n>   bucket and inclusive lower bound for this bucket\n>\n> - `2015-01-01`, exclusive upper bound for the `2010-01-01` bucket\n>\n> The query also specifies a `default` bucket named `other` to\n> retrieve results of the query that don't fall under any of the\n> specified boundaries.\n>\n> **Input:**\n>\n> ```json\n> db.movies.aggregate([\n>   {\n>     \"$searchMeta\": {\n>       \"facet\": {\n>         \"operator\": {\n>           \"range\": {\n>             \"path\": \"released\",\n>             \"gte\": ISODate(\"2000-01-01T00:00:00.000Z\"),\n>             \"lte\": ISODate(\"2015-01-31T00:00:00.000Z\")\n>           }\n>         },\n>         \"facets\": {\n>           \"yearFacet\": {\n>             \"type\": \"date\",\n>             \"path\": \"released\",\n>             \"boundaries\": [ISODate(\"2000-01-01\"), ISODate(\"2005-01-01\"), ISODate(\"2010-01-01\"), ISODate(\"2015-01-01\")],\n>             \"default\": \"other\"\n>           }\n>         }\n>       }\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```shell\n> [\n>   {\n>     count: { lowerBound: Long('11922') },\n>     facet: {\n>       yearFacet: {\n>         buckets: [\n>           {\n>             _id: ISODate('2000-01-01T00:00:00.000Z'),\n>             count: Long('3028')\n>           },\n>           {\n>             _id: ISODate('2005-01-01T00:00:00.000Z'),\n>             count: Long('3953')\n>           },\n>           {\n>             _id: ISODate('2010-01-01T00:00:00.000Z'),\n>             count: Long('4832')\n>           },\n>           { _id: 'other', count: Long('109') }\n>         ]\n>       }\n>     }\n>   }\n> ]\n> ```\n>\n> To learn more about these results, see [Facet Results](fts-facet-results).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": [\n        {\n          \"type\": \"date\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"released\",\n            \"gte\": ISODate(\"2000-01-01T00:00:00.000Z\"),\n            \"lte\": ISODate(\"2015-01-31T00:00:00.000Z\")\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"date\",\n            \"path\": \"released\",\n            \"boundaries\": [ISODate(\"2000-01-01\"), ISODate(\"2005-01-01\"), ISODate(\"2010-01-01\"), ISODate(\"2015-01-01\")],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 176
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    count: { lowerBound: Long('11922') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          {\n            _id: ISODate('2000-01-01T00:00:00.000Z'),\n            count: Long('3028')\n          },\n          {\n            _id: ISODate('2005-01-01T00:00:00.000Z'),\n            count: Long('3953')\n          },\n          {\n            _id: ISODate('2010-01-01T00:00:00.000Z'),\n            count: Long('4832')\n          },\n          { _id: 'other', count: Long('109') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 159
+    }
+  ]
+}

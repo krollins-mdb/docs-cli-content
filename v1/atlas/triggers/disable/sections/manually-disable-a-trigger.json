@@ -1,0 +1,27 @@
+{
+  "heading": "Manually Disable a Trigger",
+  "headingLevel": 2,
+  "body": "You can manually disable an active Trigger from the Atlas UI or by\nimporting an application directory with the App Services CLI.**Ui:**Atlas UI* In Atlas, go to the Triggers page.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Triggers under\n    the Streaming Data heading.\n\n  The [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n* From the listed Triggers, find the Trigger that you want to disable.\n\n* Toggle the **Enabled** setting to disable it, then click\n  **Save**.**Cli:**App Services CLI* Authenticate a MongoDB Atlas user:\n\n  Use your [API Access Lists endpoint](atlas-admin-api-access) to\n  log in to the App Services CLI:\n\n  ```shell\n  appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"\n  ```\n\n* Pull your App's latest configuration files:\n\n  Run the following command to get a local copy of your configuration files:\n\n  ```shell\n  appservices pull --remote=<App ID>\n  ```\n\n  By default, the command pulls files into the current working directory. You can\n  specify a directory path with the optional `--local` flag.\n\n* Verify the Trigger configuration file:\n\n  If you exported a new copy of your application, it should already\n  include an up-to-date configuration file for the suspended Trigger. You\n  can confirm that the configuration file exists by looking in the\n  `/triggers` directory for a [Trigger configuration file](atlas/app-services/reference/config/triggers) with the same name as the Trigger.\n\n* Disable the Trigger:\n\n  After you have verified that the Trigger configuration file exists, add\n  a field named `\"disabled\"` with the value `true` to the top\n  level of the Trigger json definition:\n\n  ```json\n  {\n     \"id\": \"6142146e2f052a39d38e1605\",\n     \"name\": \"steve\",\n     \"type\": \"SCHEDULED\",\n     \"config\": {\n        \"schedule\": \"*/1 * * * *\"\n     },\n     \"function_name\": \"myFunc\",\n     \"disabled\": true\n  }\n  ```\n\n* Deploy your changes:\n\n  Run the following command to [deploy](atlas/app-services/apps/update) your changes:\n\n  ```shell\n  appservices push\n  ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "content": "{\n   \"id\": \"6142146e2f052a39d38e1605\",\n   \"name\": \"steve\",\n   \"type\": \"SCHEDULED\",\n   \"config\": {\n      \"schedule\": \"*/1 * * * *\"\n   },\n   \"function_name\": \"myFunc\",\n   \"disabled\": true\n}",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    }
+  ]
+}

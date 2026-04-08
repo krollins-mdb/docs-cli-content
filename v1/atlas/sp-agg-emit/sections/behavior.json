@@ -1,0 +1,17 @@
+{
+  "heading": "Behavior",
+  "headingLevel": 2,
+  "body": "You can only write to a single Atlas time series collection per\nstream processor. If you specify a collection that doesn't exist,\nAtlas creates the collection with the time series fields you\nspecified. You must specify an existing database.\n\nAtlas Stream Processing doesn't support writing BSON documents larger than `125\nMB` using the [$emit](atlas-sp-agg-emit) stage to an AWS (Amazon Web Services) S3 (Simple Storage Service) bucket.\n\nYou can use a [dynamic expression](manual/reference/mql/expressions) as the value\nof the `topic`, `db`, and `coll` fields to enable your stream\nprocessor to write to different targets on a message-by-message\nbasis. The expression must evaluate to a string.\n\n> **Example:** You have a stream of transaction events that generates messages of\n> the following form:\n>\n> ```json\n> {\n>   \"customer\": \"Very Important Industries\",\n>   \"customerStatus\": \"VIP\",\n>   \"tenantId\": 1,\n>   \"transactionType\": \"subscription\"\n> }\n>\n> {\n>   \"customer\": \"N. E. Buddy\",\n>   \"customerStatus\": \"employee\",\n>   \"tenantId\": 5,\n>   \"transactionType\": \"requisition\"\n> }\n>\n> {\n>   \"customer\": \"Khan Traktor\",\n>   \"customerStatus\": \"contractor\",\n>   \"tenantId\": 11,\n>   \"transactionType\": \"billableHours\"\n> }\n> ```\n>\n> To sort each of these into a distinct [Apache Kafka](https://kafka.apache.org/) topic, you can write\n> the following `$emit` stage:\n>\n> ```json\n> {\n>   \"$emit\": {\n>     \"connectionName\": \"kafka1\",\n>     \"topic\": \"$customerStatus\"\n>   }\n> }\n> ```\n>\n> This `$emit` stage:\n>\n> - Writes the `Very Important Industries` message to a topic named\n>   `VIP`.\n>\n> - Writes the `N. E. Buddy` message to a topic named `employee`.\n>\n> - Writes the `Khan Traktor` message to a topic named\n>   `contractor`.\n\nFor more information on dynamic expressions, see [expression\noperators](manual/reference/mql/expressions).\n\nIf you specify a topic that doesn't already exist, [Apache Kafka](https://kafka.apache.org/)\nautomatically creates the topic when it receives the first message\nthat targets it.\n\nIf you specify a topic with a dynamic expression, but\nAtlas Stream Processing cannot evaluate the expression for a given message,\nAtlas Stream Processing sends that message to the [dead letter queue](manual/reference/glossary) if configured\nand processes subsequent messages. If there is no [dead letter queue](manual/reference/glossary)\nconfigured, then Atlas Stream Processing skips the message completely and processes\nsubsequent messages.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"customer\": \"Very Important Industries\",\n  \"customerStatus\": \"VIP\",\n  \"tenantId\": 1,\n  \"transactionType\": \"subscription\"\n}\n\n{\n  \"customer\": \"N. E. Buddy\",\n  \"customerStatus\": \"employee\",\n  \"tenantId\": 5,\n  \"transactionType\": \"requisition\"\n}\n\n{\n  \"customer\": \"Khan Traktor\",\n  \"customerStatus\": \"contractor\",\n  \"tenantId\": 11,\n  \"transactionType\": \"billableHours\"\n}",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$emit\": {\n    \"connectionName\": \"kafka1\",\n    \"topic\": \"$customerStatus\"\n  }\n}",
+      "tokenEstimate": 27
+    }
+  ]
+}

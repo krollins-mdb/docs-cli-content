@@ -1,0 +1,12 @@
+{
+  "heading": "Avoid Workloads on the Destination Cluster",
+  "headingLevel": 3,
+  "body": "Writes are blocked during the live migration:\n\n- When a live migration starts, writes to the destination cluster\n  are blocked. Attempts to perform writes to the destination cluster\n  fail.\n\n- Before proceeding with the cutover, you must manually stop writes to\n  your source cluster. Atlas enforces this by enabling write blocking\n  on the source cluster during the cutover process.\n\n  > **Important:** Source and destination cluster write blocking during cutover occurs if\n  > you are migrating source cluster running MongoDB version 6.0 and later.\n\n- After a live migration completes successfully or fails, writes to the\n  destination cluster may continue.\n\n  > **Note:** Atlas automatically attempts to remove the write blocks when the\n  > migration is complete.\n  >\n  > If you need to manually remove the write block on your cluster, use\n  > the [setUserWriteBlockMode](manual/reference/command/setUserWriteBlockMode) command with the `global` field\n  > set to `false`:\n  >\n  > ```sh\n  > db.adminCommand( {\n  >   setUserWriteBlockMode: 1,\n  >   global: false\n  > } )\n  > ```\n  >\n  > To run the `setUserWriteBlockMode` command, the user must\n  > have the [SET\\_USER\\_WRITE\\_BLOCK](manual/reference/privilege-actions) privilege.\n\nDon't run multiple migrations to the same destination cluster at the\nsame time.\n\nDon't start the cutover process for your applications to the destination\ncluster while the live migration process is syncing.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "db.adminCommand( {\n  setUserWriteBlockMode: 1,\n  global: false\n} )",
+      "tokenEstimate": 21
+    }
+  ]
+}

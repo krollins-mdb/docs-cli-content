@@ -1,0 +1,17 @@
+{
+  "heading": "Sample Query",
+  "headingLevel": 4,
+  "body": "The following query searches for all movies with a runtime\nless than or equal to `2`. It includes a [$limit](manual/reference/operator/aggregation/limit)\nstage to limit the output to `5` results and\n[$project](manual/reference/operator/aggregation/project) stage to:* Exclude all fields except `title` and `runtime`\n\n* Add a field named `score`**Input:**```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"lte\": 2\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```**Output:**```json\n{ \"runtime\" : 1, \"title\" : \"Blacksmith Scene\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"The Kiss\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"Dickson Experimental Sound Film\", \"score\" : 1 }\n```**Eg3:**Example 3The following example dynamically indexes all the dynamically\nindexable fields, including fields with array of numeric values,\nin the `sample_analytics.customers` collection. The sample\nquery uses the `gte` and `lte` fields to search for all\nvalues between the given values in an array of numeric values.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"lte\": 2\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "json",
+      "content": "{ \"runtime\" : 1, \"title\" : \"Blacksmith Scene\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"The Kiss\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"Dickson Experimental Sound Film\", \"score\" : 1 }",
+      "tokenEstimate": 125
+    }
+  ]
+}

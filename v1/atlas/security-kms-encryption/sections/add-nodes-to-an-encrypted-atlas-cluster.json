@@ -1,0 +1,12 @@
+{
+  "heading": "Add Nodes to an Encrypted Atlas Cluster",
+  "headingLevel": 2,
+  "body": "You can [add electable nodes](add-electable-node) to M10+ clusters or\n[increase the number of shards](scale-cluster-shardNum) in your sharded cluster.\n\nDepending on your Key Management configuration, you may have to add Atlas cluster node IP\naddresses to your cloud provider KMS access list, so that the cluster can communicate with your KMS.\nTo enable communication between the cluster and KMS:\n\n- Send a GET request to the `ipAddresses` endpoint. The\n  [returnAllIpAddresses API endpoint](atlas/reference/api-resources-spec/v2) returns a list of IP\n  addresses from the new cluster nodes or shards, similar to the\n  following:\n\n  ```json\n  {\n    \"groupId\": \"xxx\", // ObjectId\n    \"services\": {\n      \"clusters\": [\n        {\n          \"clusterName\": \"Cluster0\",\n          \"inbound\": [\n            \"3.92.113.229\",\n            \"3.208.110.31\",\n            \"107.22.44.69\"\n            ], // List<String>\n          \"outbound\": [\n            \"3.92.113.229\",\n            \"3.208.110.31\",\n            \"107.22.44.69\"\n          ]\n        }\n      ]\n    }\n  }\n  ```\n\n- Add the returned IP addresses to your cloud provider's IP access list. You must modify\n  your IP access list before the provisioning plan rolls back. The cluster attempts\n  provisioning for up to three days before the provisioning plan rolls back from IP access restrictions.\n\n  See the prerequisites for managing customer keys with [AWS](aws-ksm-prereqs),\n  [Azure](azure-kms-prereqs), and [GCP](gcp-kms-prereqs) for more information.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"groupId\": \"xxx\", // ObjectId\n  \"services\": {\n    \"clusters\": [\n      {\n        \"clusterName\": \"Cluster0\",\n        \"inbound\": [\n          \"3.92.113.229\",\n          \"3.208.110.31\",\n          \"107.22.44.69\"\n          ], // List<String>\n        \"outbound\": [\n          \"3.92.113.229\",\n          \"3.208.110.31\",\n          \"107.22.44.69\"\n        ]\n      }\n    ]\n  }\n}",
+      "tokenEstimate": 119
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "heading": "Behavior",
+  "headingLevel": 2,
+  "body": "The Atlas Stream Processing version of [$lookup](streams-agg-pipeline-lookup)\nperforms a left outer join of messages from your `$source` and the\ndocuments in a specified Atlas collection. This version behaves\nsimilarly to the [$lookup](manual/reference/operator/aggregation/lookup) stage available in a standard\nMongoDB database. However, this version requires that you specify an\nAtlas collection from your\n[Connection Registry](atlas-sp-manage-connections) as the value for\nthe `from` field.\n\nThe [pipeline](manual/reference/operator/aggregation/lookup) can contain a nested\n[$lookup](manual/reference/operator/aggregation/lookup) stage. If you include a nested [$lookup](manual/reference/operator/aggregation/lookup)\nstage in your pipeline, you must use the standard `from` syntax to\nspecify a collection in the same remote Atlas connection as the\nouter [$lookup](manual/reference/operator/aggregation/lookup) stage.\n\n> **Example:**&#x20;\n>\n> ```json\n> $lookup : {\n>   from: {connectionName: \"dbsrv1\", db: \"db1\", coll: \"coll1\"},\n>     …,\n>   pipeline: [\n>     …,\n>     {\n>       $lookup: {\n>         from: \"coll2\",\n>         …,\n>       }\n>     },\n>     …,\n>   ]\n> }\n> ```\n\nIf your pipeline has both [$lookup](manual/reference/operator/aggregation/lookup) and [$merge](manual/reference/operator/aggregation/merge)\non the same collection, Atlas Stream Processing results might vary if you\ntry to maintain an incremental view. Atlas Stream Processing processes\nmultiple source messages simultaneously and then merges them all\ntogether. If multiple messages have the same ID, which both\n[$lookup](manual/reference/operator/aggregation/lookup) and [$merge](manual/reference/operator/aggregation/merge) use, Atlas Stream Processing might\nreturn results that haven't yet materialized.\n\n> **Example:** Consider the following input stream:\n>\n> ```shell\n> { _id: 1, count: 2 }\n> { _id: 1, count: 3 }\n> ```\n>\n> Suppose your query contains the following inside the pipeline:\n>\n> ```js\n> {\n>   ...,\n>   pipeline: [\n>     { $lookup on _id == foreignDoc._id from collection A }\n>     { $project: { _id: 1, count: $count + $foreignDoc.count } }\n>     { $merge: { into collection A } }\n>   ]\n> }\n> ```\n>\n> If you are trying to maintain an incremental view, you might expect a\n> result similar to the following:\n>\n> ```shell\n> { _id: 1, count: 5 }\n> ```\n>\n> However, Atlas Stream Processing might return a count of `5` or `3`\n> depending on whether Atlas Stream Processing has processed the documents.\n\nFor more information, see [$lookup](manual/reference/operator/aggregation/lookup).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "$lookup : {\n  from: {connectionName: \"dbsrv1\", db: \"db1\", coll: \"coll1\"},\n    …,\n  pipeline: [\n    …,\n    {\n      $lookup: {\n        from: \"coll2\",\n        …,\n      }\n    },\n    …,\n  ]\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "shell",
+      "content": "{ _id: 1, count: 2 }\n{ _id: 1, count: 3 }",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "js",
+      "content": "{\n  ...,\n  pipeline: [\n    { $lookup on _id == foreignDoc._id from collection A }\n    { $project: { _id: 1, count: $count + $foreignDoc.count } }\n    { $merge: { into collection A } }\n  ]\n}",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "shell",
+      "content": "{ _id: 1, count: 5 }",
+      "tokenEstimate": 12
+    }
+  ]
+}

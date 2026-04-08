@@ -1,0 +1,27 @@
+{
+  "heading": "Built-In Language Analyzer Example",
+  "headingLevel": 3,
+  "body": "The following example index definition specifies an index on\nthe `subject.fr` field using the `french` analyzer:\n\n```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"fr\": {\n            \"analyzer\": \"lucene.french\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  }\n}\n```\n\nThe following query searches for the string `pour` in the\n`subject.fr` field:\n\n**Input:**\n\n```shell\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"pour\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])\n```\n\nThe previous query returns no results when using the `french` analyzer,\nbecause `pour` is a built-in stop word. Using the `standard`\nanalyzer, the same query would return both documents.\n\nThe following query searches for the string `carburant` in the\n`subject.fr` field:\n\n**Input:**\n\n```shell\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"carburant\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ subject: { fr: \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\" } }\n```\n\nMongoDB Search returns a document with `_id: 1` in the results because the query\nmatched a token that the `lucene.french` analyzer created for the\ndocument. The `lucene.french` analyzer creates the following tokens\nfor the `subject.fr` field in document with `_id: 1`:\n\n| meileu | moment  | fair      |\n| ------ | ------- | --------- |\n| est    | imediat | aprè      |\n| fait   | plein   | carburant |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"fr\": {\n            \"analyzer\": \"lucene.french\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "shell",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"pour\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "shell",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"carburant\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+      "tokenEstimate": 67
+    },
+    {
+      "language": "json",
+      "content": "{ subject: { fr: \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\" } }",
+      "tokenEstimate": 34
+    }
+  ]
+}

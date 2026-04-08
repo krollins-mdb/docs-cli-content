@@ -1,0 +1,17 @@
+{
+  "heading": "Examples",
+  "headingLevel": 2,
+  "body": "The following example enriches the output of a stream with an array of\nthe Kafka source topics from which the data was ingested:\n\n```json\n{\n  $source: {\n    connectionName: “kafka”,\n    topic: [“t1”, “t2”, “t3”]\n  }\n},\n{\n  $emit: {\n    connectionName: “kafka”,\n    topic: {\n      $concat: [\n        {\n          $meta: “stream.source.topic”\n        },\n        “out\"\n      ]\n    }\n  }\n}\n```\n\nThe following example adds a field to the stream reporting the start\ntime of each window.\n\n```json\n{\n  $source: {\n    connectionName: \"kafka\",\n    topic: \"t1\"\n  }\n},\n{\n  $hoppingWindow: . . .\n},\n{\n  $addFields: {\n    start: { $meta: \"stream.window.start\" }\n  }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  $source: {\n    connectionName: “kafka”,\n    topic: [“t1”, “t2”, “t3”]\n  }\n},\n{\n  $emit: {\n    connectionName: “kafka”,\n    topic: {\n      $concat: [\n        {\n          $meta: “stream.source.topic”\n        },\n        “out\"\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "json",
+      "content": "{\n  $source: {\n    connectionName: \"kafka\",\n    topic: \"t1\"\n  }\n},\n{\n  $hoppingWindow: . . .\n},\n{\n  $addFields: {\n    start: { $meta: \"stream.window.start\" }\n  }\n}",
+      "tokenEstimate": 58
+    }
+  ]
+}

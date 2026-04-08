@@ -1,0 +1,113 @@
+{
+  "path": "atlas/operators-collectors/exists",
+  "product": "atlas",
+  "title": "exists (MongoDB Search Operator)",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "`exists` has the following syntax:\n\n```javascript\n{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"exists\": {\n      \"path\": \"<field-to-test-for>\",\n      \"score\": <options>\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"exists\": {\n      \"path\": \"<field-to-test-for>\",\n      \"score\": <options>\n    }\n  }\n}",
+          "tokenEstimate": 49
+        }
+      ]
+    },
+    {
+      "heading": "Options",
+      "headingLevel": 2,
+      "body": "`exists` uses the following terms to construct a query:\n\n| Field | Type   | Description                                                                                                                                      | Required? |\n| ----- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |\n| path  | string | Indexed field to search.                                                                                                                         | yes       |\n| score | object | Score to assign to matching search results. To learn more about the options to modify the default score, see Score the Documents in the Results. | no        |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scoring Behavior",
+      "headingLevel": 2,
+      "body": "MongoDB Search assigns a [constant](scoring-constant) score of `1` for all the\ndocuments in the result set. You can customize the default MongoDB Search score\nusing the `score` options. To learn more about modifying the default\nscore returned by MongoDB Search, see [Modifying](scoring-options).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "You can try the following examples in the MongoDB Search Playground or your\ncluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Collection",
+      "headingLevel": 3,
+      "body": "The examples on this page use a collection called `fruit` that contains\nthe following documents:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n},\n{\n  \"_id\" : 2,\n  \"type\" : \"banana\",\n  \"description\" : \"Bananas are usually sold in bunches of five or six.\"\n},\n{ \"_id\" : 3,\n  \"type\": \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n},\n{ \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n},\n{\n  \"_id\" : 2,\n  \"type\" : \"banana\",\n  \"description\" : \"Bananas are usually sold in bunches of five or six.\"\n},\n{ \"_id\" : 3,\n  \"type\": \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n},\n{ \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}",
+          "tokenEstimate": 177
+        }
+      ]
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 3,
+      "body": "The `fruit` collection has a default [dynamic mappings](static-dynamic-mappings) MongoDB Search index that uses the default\n[standard analyzer](ref-standard-analyzer) analyzer. The `standard`\nanalyzer lower-cases all words and disregards common stop words\n(`\"the\", \"a\", \"and\",` etc).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Queries",
+      "headingLevel": 3,
+      "body": "The following queries demonstrate the `exists` operator in MongoDB Search\nqueries.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Basic Example",
+      "headingLevel": 4,
+      "body": "The following example searches for documents which include a field\nnamed `type`.\n\n```javascript\ndb.fruit.aggregate([\n  {\n    $search: {\n      \"exists\": {\n        \"path\": \"type\"\n      }\n    }\n  }\n])\n```\n\nThe above query returns the first three documents of the collection.\nThe document with `_id: 4` is not included because it does not have a\n`type` field.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/664f77ceacd5b8b88d15cff9).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"exists\": {\n        \"path\": \"type\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 31
+        }
+      ]
+    },
+    {
+      "heading": "Embedded Example",
+      "headingLevel": 4,
+      "body": "Use dot notation to search for embedded fields. The following example\nsearches for documents which have a field named `lemons` embedded\nwithin a field named `quantities`.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    \"$search\": {\n      \"exists\": {\n        \"path\": \"quantities.lemons\"\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{\n  \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}\n```\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/664f7892f024313ed0dbcc6e).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"exists\": {\n        \"path\": \"quantities.lemons\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 34
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}",
+          "tokenEstimate": 64
+        }
+      ]
+    },
+    {
+      "heading": "Compound Example",
+      "headingLevel": 4,
+      "body": "The following example uses `exists` as part of a\n[compound](compound-ref) query.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [\n          {\n            \"exists\": {\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          }],\n        \"should\": {\n          \"text\": {\n            \"query\": \"fuji\",\n            \"path\": \"description\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n}\n```\n\nBoth documents have a `type` field, and both include the search term\n`apple`. The document with `_id: 1` is returned first because it\nsatisfies the [should](should) clause.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/664f7c2dacd5b8b88d15cffb).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [\n          {\n            \"exists\": {\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          }],\n        \"should\": {\n          \"text\": {\n            \"query\": \"fuji\",\n            \"path\": \"description\"\n          }\n        }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 101
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n}",
+          "tokenEstimate": 79
+        }
+      ]
+    }
+  ]
+}

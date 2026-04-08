@@ -1,0 +1,17 @@
+{
+  "heading": "Use Project Expressions to Reduce Input Data Size",
+  "headingLevel": 3,
+  "body": "In the **Project Expression** field,\nlimit the number of fields that the Trigger processes by using a\n[$project](manual/reference/operator/aggregation/project) expression.\n\n> **Note:**&#x20;\n>\n> Project is inclusive only\n>\n> When using Triggers, a projection expression is inclusive *only*.\n> Project does not support mixing inclusions and exclusions.\n> The project expression must be inclusive because Triggers require you\n> to include `operationType`.\n>\n> If you want to exclude a single field, the projection expression must\n> include every field *except* the one you want to exclude.\n> You can only explicitly exclude `_id`, which is included by default.\n\nA Trigger is configured with the following **Project Expression**:\n\n```json\n{\n  \"_id\": 0,\n  \"operationType\": 1,\n  \"updateDescription.updatedFields.status\": 1\n}\n```\n\nThe change event object that Atlas passes to the Trigger Function\nonly includes the fields specified in the projection, as in the following\nexample:\n\n```json\n{\n  \"operationType\": \"update\",\n  \"updateDescription\": {\n    \"updatedFields\": {\n      \"status\": \"InProgress\"\n    }\n  }\n}\n```\n\n> **See Also:** [Triggers examples](https://github.com/mongodb/atlas-app-services-examples/tree/main/triggers-examples)\n> on Github.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"_id\": 0,\n  \"operationType\": 1,\n  \"updateDescription.updatedFields.status\": 1\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"operationType\": \"update\",\n  \"updateDescription\": {\n    \"updatedFields\": {\n      \"status\": \"InProgress\"\n    }\n  }\n}",
+      "tokenEstimate": 33
+    }
+  ]
+}

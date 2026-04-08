@@ -1,0 +1,17 @@
+{
+  "heading": "Create Partitions from ISODate",
+  "headingLevel": 3,
+  "body": "You can specify [ISODate](manual/reference/glossary)\nin the path to the files. For files that contain `ISODate` in the\nfilename, Atlas Data Federation creates partitions for each `ISODate`.\n\nConsider the following federated database instance store, `accountingArchive`. This data\nstore contains files that include `ISODate` in the filename:\n\n```text\naccountingArchive\n|--invoices\n   |--01_02_2022_2301.json\n   |--02_02_2022_2301.json\n   |--03_02_2022_2301.json\n   |--04_02_2022_2301.json\n   |--05_02_2022_2301.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the `ISODate`. The `path` demonstrates how to use\nregex for the date format if the date is not in [RFC 3339](https://tools.ietf.org/html/rfc3339) format.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/creationDate isodate('01_02_2006_1504'):\\\\d{2}_\\\\d{2}_\\\\d{4}_\\\\d{4}.json\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nTo learn more about other supported formats, see\n[isodate](adf-path-attribute-types).",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "accountingArchive\n|--invoices\n   |--01_02_2022_2301.json\n   |--02_02_2022_2301.json\n   |--03_02_2022_2301.json\n   |--04_02_2022_2301.json\n   |--05_02_2022_2301.json",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "text",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/creationDate isodate('01_02_2006_1504'):\\\\d{2}_\\\\d{2}_\\\\d{4}_\\\\d{4}.json\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 108
+    }
+  ]
+}

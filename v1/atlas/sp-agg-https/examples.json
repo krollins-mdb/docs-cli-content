@@ -1,0 +1,65 @@
+{
+  "path": "atlas/sp-agg-https",
+  "product": "atlas",
+  "title": "$https Aggregation Stage (Stream Processing)",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "json": 4
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 185
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 146
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 826
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$https\": {\n    \"connectionName\": \"<registered-connection>\",\n    \"path\" : \"<subpath>\" | <expression>,\n    \"parameters\" : {\n      \"<key1>\" : \"<val1>\",\n      . . .\n      \"<keyn>\" : \"<valn>\"\n    },\n    \"method\" : \"<GET | POST | PUT | PATCH | DELETE>\",\n    \"headers\" : {\n      \"<key1>\" : \"<val1>\",\n      . . .\n      \"<keyn>\" : \"<valn>\"\n    },\n    \"as\" : \"response\",\n    \"onError\" : \"<DLQ | Ignore | Fail>\",\n    \"payload\" : [{\n      <inner-pipeline>\n    }],\n    \"config\" : {\n      \"connectionTimeoutSec\" : <integer>,\n      \"requestTimeoutSec\" : <integer>,\n      \"parseJsonStrings\": <boolean>\n    }\n  }\n}",
+      "tokenEstimate": 185
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  '$source': {\n    connectionName: 'sample_weatherdata',\n    topic: 'my_weatherdata',\n    tsFieldName: 'ingestionTime'\n  }\n},\n{\n  '$https': {\n    connectionName: 'https_weather',\n    path: 'forecast',\n    parameters: {\n      latitude: { $arrayElemAt: ['$$ROOT.position.coordinates', 0 ] },\n      longitude: { $arrayElemAt: ['$$ROOT.position.coordinates', 1 ] }\n    },\n    as: 'airTemperatureForecast'\n},\n{\n  '$merge': {\n    into: {\n     connectionName: 'weatherStreamOutput',\n     db: 'sample_weatherstream',\n     coll: 'stream'\n    }\n  }\n}",
+      "tokenEstimate": 146
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.getSiblingDB(\"sample_weatherstream\").stream.find()",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  _id: ObjectId('66ad2edfd4fcac13b1a28ce3'),\n  airTemperature: { quality: '1', value: 27.7 },\n  airTemperatureForecast: [22.3, 22.4, 22.5, 22.3, 22.4, 22.5, 23.1],\n  atmosphericPressureChange: {\n    quantity24Hours: { quality: '9', value: 99.9 },\n    quantity3Hours: { quality: '1' },\n    tendency: { code: '1', quality: '1' }\n  },\n  atmosphericPressureObservation: {\n    altimeterSetting: { quality: '1', value: 1015.9 },\n    stationPressure: { quality: '1', value: 1021.9 }\n  },\n  callLetters: 'CGDS',\n  dataSource: '4',\n  dewPoint: { quality: '9', value: 25.7 },\n  elevation: 9999,\n  extremeAirTemperature: { code: 'N', period: 99.9, quantity: '9', value: -30.4 },\n  ingestionTime: ISODate('2024-08-02T19:09:18.071Z'),\n  liquidPrecipitation: { condition: '9', depth: 160, period: 24, quality: '2' },\n  pastWeatherObservationManual: {\n    atmosphericCondition: { quality: '1', value: '8' },\n    period: { quality: '9', value: 3 }\n  },\n  position: { coordinates: [ 30.27, -97.74], type: 'Point' },\n  precipitationEstimatedObservation: { discrepancy: '4', estimatedWaterDepth: 4 },\n  presentWeatherObservationManual: { condition: '53', quality: '1' },\n  pressure: { quality: '1', value: 1016.3 },\n  qualityControlProcess: 'V020',\n  seaSurfaceTemperature: { quality: '9', value: 27.6 },\n  sections: [ 'AA2', 'SA1', 'MW1', 'AG1', 'GF1' ],\n  skyCondition: {\n    cavok: 'N',\n    ceilingHeight: { determination: 'C', quality: '1', value: 6900 }\n  },\n  skyConditionObservation: {\n    highCloudGenus: { quality: '1', value: '05' },\n    lowCloudGenus: { quality: '9', value: '03' },\n    lowestCloudBaseHeight: { quality: '9', value: 150 },\n    lowestCloudCoverage: { quality: '1', value: '05' },\n    midCloudGenus: { quality: '9', value: '08' },\n    totalCoverage: { opaque: '99', quality: '1', value: '06' }\n  },\n  skyCoverLayer: {\n    baseHeight: { quality: '9', value: 99999 },\n    cloudType: { quality: '9', value: '05' },\n    coverage: { quality: '1', value: '04' }\n  },\n  st: 'x+35700-027900',\n  type: 'SAO',\n  visibility: {\n    distance: { quality: '1', value: 4000 },\n    variability: { quality: '1', value: 'N' }\n  },\n  waveMeasurement: {\n    method: 'I',\n    seaState: { code: '99', quality: '9' },\n    waves: { height: 99.9, period: 14, quality: '9' }\n  },\n  wind: {\n    direction: { angle: 280, quality: '9' },\n    speed: { quality: '1', rate: 30.3 },\n    type: '9'\n  }\n}",
+      "tokenEstimate": 826
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "path": "atlas/counting",
+  "product": "atlas",
+  "title": "Count MongoDB Search Results",
+  "summary": {
+    "total": 12,
+    "byLanguage": {
+      "json": 12
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 74
+          }
+        ]
+      },
+      {
+        "heading": "SEARCH_META Aggregation Variable",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 125
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 161
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 212
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 351
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 62
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 19
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 61
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 18
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$searchMeta\"|\"$search\": {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"<operator>\": {\n      <operator-specifications>\n    },\n    \"count\": {\n      \"type\": \"lowerBound\"|\"total\",\n      \"threshold\": <number-of-documents> //optional\n    }\n  }\n}",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"near\": {\n        \"path\": \"released\",\n        \"origin\": ISODate(\"2011-09-01T00:00:00.000+00:00\"),\n        \"pivot\": 7776000000\n      },\n      \"count\": {\n         \"type\": \"total\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"meta\": \"$$SEARCH_META\",\n      \"title\": 1,\n      \"released\": 1\n    }\n  },\n  {\n    \"$limit\": 2\n  }\n])",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "{\n  \"_id\" : ObjectId(\"573a13c3f29313caabd6b025\"),\n  \"title\" : \"Submarino\",\n  \"released\" : ISODate(\"2011-09-01T00:00:00Z\"),\n  \"meta\" : {\n    \"count\" : { \"total\" : NumberLong(23026) }\n  }\n}\n{\n  \"_id\" : ObjectId(\"573a13c7f29313caabd748f7\"),\n  \"title\" : \"Devil's Playground\",\n  \"released\" : ISODate(\"2011-09-01T00:00:00Z\"),\n  \"meta\" : {\n    \"count\" : { \"total\" : NumberLong(23026) }\n  }\n}",
+      "tokenEstimate": 161
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"token\"\n      },\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"near\": {\n            \"path\": \"released\",\n            \"origin\": ISODate(\"2011-09-01T00:00:00.000+00:00\"),\n            \"pivot\": 7776000000\n          }\n        },\n        \"facets\": {\n          \"genresFacet\": {\n            \"type\": \"string\",\n            \"path\": \"genres\"\n          }\n        }\n      },\n      \"count\": {\n        \"type\": \"total\"\n      }\n    }\n  },\n  {\n    \"$limit\": 2\n  },\n  {\n    \"$facet\": {\n      \"results\": [\n        { \"$project\":\n          {\n            \"title\": 1,\n            \"released\": 1,\n            \"genres\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  }\n])",
+      "tokenEstimate": 212
+    },
+    {
+      "language": "json",
+      "section": "SEARCH_META Aggregation Variable",
+      "content": "[\n  {\n    results: [\n      {\n        _id: ObjectId('573a13c3f29313caabd6b025'),\n        genres: [ 'Drama' ],\n        title: 'Submarino',\n        released: ISODate('2011-09-01T00:00:00.000Z')\n      },\n      {\n        _id: ObjectId('573a13c7f29313caabd748f7'),\n        genres: [ 'Action', 'Horror' ],\n        title: \"Devil's Playground\",\n        released: ISODate('2011-09-01T00:00:00.000Z')\n      }\n    ],\n    meta: [\n      {\n        count: { total: Long('20878') },\n        facet: {\n          genresFacet: {\n            buckets: [\n              { _id: 'Drama', count: Long('12149') },\n              { _id: 'Comedy', count: Long('6436') },\n              { _id: 'Romance', count: Long('3274') },\n              { _id: 'Crime', count: Long('2429') },\n              { _id: 'Thriller', count: Long('2400') },\n              { _id: 'Action', count: Long('2349') },\n              { _id: 'Adventure', count: Long('1876') },\n              { _id: 'Documentary', count: Long('1755') },\n              { _id: 'Horror', count: Long('1432') },\n              { _id: 'Biography', count: Long('1244') }\n            ]\n          }\n        }\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 351
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"range\": {\n        \"path\": \"year\",\n        \"gte\": 2010,\n        \"lte\": 2015\n      },\n      \"count\": {\n        \"type\": \"lowerBound\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 62
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{ \"count\" : { \"lowerBound\" : NumberLong(1001) } }",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"range\": {\n        \"path\": \"year\",\n        \"gte\": 2010,\n        \"lte\": 2015\n      },\n      \"count\": {\n        \"type\": \"total\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{ \"count\" : { \"total\" : NumberLong(5971) } }",
+      "tokenEstimate": 18
+    }
+  ]
+}

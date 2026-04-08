@@ -1,0 +1,55 @@
+{
+  "path": "atlas/validation",
+  "product": "atlas",
+  "title": "Set Validation Rules for Your Schema",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "javascript": 3
+    },
+    "bySection": [
+      {
+        "heading": "JSON Schema Validation",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 56
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 227
+          }
+        ]
+      },
+      {
+        "heading": "Validation using Query Operators",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 75
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "JSON Schema Validation",
+      "content": "{\n   $jsonSchema: {\n      required: ['name', 'borough'], // the name and borough fields are required\n      properties: {\n         cuisine: {\n            bsonType: \"string\",\n            description: \"must be a string\"\n         }\n      }\n   }\n}",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "javascript",
+      "section": "JSON Schema Validation",
+      "content": "{\n   $jsonSchema: {\n      bsonType: \"object\",\n      required: [ \"address\", \"borough\", \"name\" ],\n      properties: {\n         address: {\n            bsonType: \"object\",\n            properties: {\n               coord: {\n                  bsonType: \"array\",\n                  items: [\n                     {\n                        bsonType: \"double\",\n                        minimum: -180,\n                        maximum: 180,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -180, 180 ]\"\n                     },\n                     {\n                        bsonType: \"double\",\n                        minimum: -90,\n                        maximum: 90,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -90, 90 ]\"\n                     }\n                  ]\n               }\n            },\n            description: \"must be an object\"\n         },\n         borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n         }\n      }\n   }\n}",
+      "tokenEstimate": 227
+    },
+    {
+      "language": "javascript",
+      "section": "Validation using Query Operators",
+      "content": "{\n   $or: [\n      { name: { $type: \"string\" } },\n      { borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n      } }\n   ]\n}",
+      "tokenEstimate": 75
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Usage",
+  "headingLevel": 3,
+  "body": "The following example demonstrates how to use memory with AI agents.\nThis example uses `memoryOptions` to scope recall for the request.\nSet `lastMessages: 5` to limit recency-based recall. Use\n`semanticRecall` to fetch the `topK: 3` most relevant messages,\nincluding `messageRange: 2` neighboring messages for context around\neach match.\n\n```typescript\nimport \"dotenv/config\";\n \nimport { mastra } from \"./mastra\";\n \nconst threadId = \"123\";\nconst resourceId = \"user-456\";\n \nconst agent = mastra.getAgent(\"mongodbAgent\");\n \nconst message = await agent.stream(\"My name is Mastra\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  }\n});\n \nawait message.textStream.pipeTo(new WritableStream());\n \nconst stream = await agent.stream(\"What's my name?\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  },\n  memoryOptions: {\n    lastMessages: 5,\n    semanticRecall: {\n      topK: 3,\n      messageRange: 2\n    }\n  }\n});\n \nfor await (const chunk of stream.textStream) {\n  process.stdout.write(chunk);\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "import \"dotenv/config\";\n \nimport { mastra } from \"./mastra\";\n \nconst threadId = \"123\";\nconst resourceId = \"user-456\";\n \nconst agent = mastra.getAgent(\"mongodbAgent\");\n \nconst message = await agent.stream(\"My name is Mastra\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  }\n});\n \nawait message.textStream.pipeTo(new WritableStream());\n \nconst stream = await agent.stream(\"What's my name?\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  },\n  memoryOptions: {\n    lastMessages: 5,\n    semanticRecall: {\n      topK: 3,\n      messageRange: 2\n    }\n  }\n});\n \nfor await (const chunk of stream.textStream) {\n  process.stdout.write(chunk);\n}",
+      "tokenEstimate": 176
+    }
+  ]
+}

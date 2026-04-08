@@ -1,0 +1,17 @@
+{
+  "heading": "Step 3: Run the following  query against the  collection.",
+  "headingLevel": 2,
+  "body": "This query finds the high schools and requests a count of the number\nof schools that offer classes in each grade.\n\n**Input:**\n\n```json\ndb.schools.aggregate({\n    \"$searchMeta\": {\n      \"index\": \"embedded-documents-tutorial\",\n      \"facet\": {\n        \"operator\": {\n          \"text\":{\n            \"path\": \"name\",\n            \"query\": \"High\"\n          }\n        },\n        \"facets\": {\n          \"gradeFacet\": {\n            \"type\": \"string\",\n            \"path\": \"teachers.classes.grade\"\n          }\n        }\n      }\n    }\n})\n```\n\n**Output:**\n\n```sh\n[\n    {\n      count: { lowerBound: Long('3') },\n      facet: {\n        gradeFacet: {\n          buckets: [\n            { _id: '12th', count: Long('3') },\n            { _id: '9th', count: Long('3') },\n            { _id: '10th', count: Long('2') },\n            { _id: '11th', count: Long('1') }\n          ]\n        }\n      }\n    }\n]\n```\n\nThe results show that `3` schools offer classes for `12th` and\n`9th` grades, `2` schools offer classes for `10th` grade, and\n`1` school offers classes for `11th` grade. When you facet by a\nfield inside an embedded document, the query returns count for the\ntop-level parent document, which is the `teachers` field for this\nquery.\n\nYou must begin by creating a collection named `schools` in an\nexisting or new database on your cluster. After creating the\ncollection, you must upload the sample data into your collection. To\nlearn more about the documents in the sample collection, see\n[collection](embedded-documents-tutorial-sample-collection).\n\nThe steps in this section walk you through creating a new database\nand collection, and loading the sample data into your collection.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.schools.aggregate({\n    \"$searchMeta\": {\n      \"index\": \"embedded-documents-tutorial\",\n      \"facet\": {\n        \"operator\": {\n          \"text\":{\n            \"path\": \"name\",\n            \"query\": \"High\"\n          }\n        },\n        \"facets\": {\n          \"gradeFacet\": {\n            \"type\": \"string\",\n            \"path\": \"teachers.classes.grade\"\n          }\n        }\n      }\n    }\n})",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "sh",
+      "content": "[\n    {\n      count: { lowerBound: Long('3') },\n      facet: {\n        gradeFacet: {\n          buckets: [\n            { _id: '12th', count: Long('3') },\n            { _id: '9th', count: Long('3') },\n            { _id: '10th', count: Long('2') },\n            { _id: '11th', count: Long('1') }\n          ]\n        }\n      }\n    }\n]",
+      "tokenEstimate": 102
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo import MongoClient\n\n# Connect to your Atlas cluster\nclient = MongoClient(\"mongodb+srv://<username>:<password>@<cluster-url>\")\ndb = client.sample_mflix\n\n# Create a MongoDB Search index on the objectId field\nr = db.command({\n    \"createSearchIndexes\": \"<collectionName>\",\n    \"indexes\": [{\n        \"name\": \"<indexName>\",\n        \"definition\": {\n            \"mappings\": {\n                \"dynamic\": True | False,\n                \"fields\": {\n                    \"<fieldName>\": {\n                        \"type\": \"objectId\"\n                    }\n                }\n            }\n        }\n    }]\n})\n\nprint(r)\n\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\n\n# Connect to your Atlas cluster\nclient = MongoClient(\"mongodb+srv://<username>:<password>@<cluster-url>\")\ndb = client.sample_mflix\n\n# Create a MongoDB Search index on the objectId field\nr = db.command({\n    \"createSearchIndexes\": \"<collectionName>\",\n    \"indexes\": [{\n        \"name\": \"<indexName>\",\n        \"definition\": {\n            \"mappings\": {\n                \"dynamic\": True | False,\n                \"fields\": {\n                    \"<fieldName>\": {\n                        \"type\": \"objectId\"\n                    }\n                }\n            }\n        }\n    }]\n})\n\nprint(r)\n",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ]
+}

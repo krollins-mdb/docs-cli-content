@@ -1,0 +1,32 @@
+{
+  "heading": "Set Up the Environment",
+  "headingLevel": 2,
+  "body": "You must first set up the environment for this tutorial, which includes\nadding the necessary dependencies and setting environment variables.\n\n- Open your IDE and create a new Java project and set the\n  following configurations:\n\n  - Name: LangChain4jSampleApp\n\n  - Language: Java\n\n  - Build system: Maven\n\n  - JDK: Any version greater than `8`\n\n  You might see an option to include sample code. Selecting this\n  option might help you test that your environment works and\n  locate the application file that you edit in the following steps.\n\n* Add the following dependencies to the `dependencies` array\n  in your project's `pom.xml` file. These dependencies add\n  LangChain4j, Voyage AI API for LangChain4j, and MongoDB Java\n  Sync Driver libraries to your application:\n\n  ```xml\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j-mongodb-atlas</artifactId>\n      <version>1.1.0</version>\n  </dependency>\n  <dependency>\n      <groupId>dev.langchain4j</groupId>\n      <artifactId>langchain4j-voyage-ai</artifactId>\n      <version>1.1.0-beta7</version>\n  </dependency>\n  ```\n\n* Next, add a `dependencyManagement` entry below your\n  dependency list for the LangChain4j Bill of Materials (BOM):\n\n  ```xml\n  <dependencyManagement>\n      <dependencies>\n          <dependency>\n              <groupId>dev.langchain4j</groupId>\n              <artifactId>langchain4j-bom</artifactId>\n              <version>1.1.0</version>\n              <type>pom</type>\n              <scope>import</scope>\n          </dependency>\n      </dependencies>\n  </dependencyManagement>\n  ```\n\n  To learn more about the LangChain4j BOM, see the [Get Started](https://docs.langchain4j.dev/get-started) page in the\n  LangChain4j documentation.\n\n  After you finish editing the `pom.xml` file, reload your\n  project to make sure your dependencies are installed.\n\nLocate the main application file `Main.java` in your project.\nReplace any existing imports with the following list of imports:\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport dev.langchain4j.data.document.Metadata;\nimport dev.langchain4j.data.embedding.Embedding;\nimport dev.langchain4j.data.segment.TextSegment;\nimport dev.langchain4j.model.embedding.EmbeddingModel;\nimport dev.langchain4j.model.voyageai.VoyageAiEmbeddingModel;\nimport dev.langchain4j.store.embedding.EmbeddingMatch;\nimport dev.langchain4j.store.embedding.EmbeddingSearchRequest;\nimport dev.langchain4j.store.embedding.EmbeddingSearchResult;\nimport dev.langchain4j.store.embedding.filter.comparison.*;\nimport dev.langchain4j.store.embedding.mongodb.IndexMapping;\nimport dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;\nimport org.bson.Document;\n\nimport java.io.*;\nimport java.util.*;\n```\n\nLater in this tutorial, you use these classes and methods to\ncreate vector embeddings and query data.\n\nDepending on your IDE, there might be multiple ways to set\nenvironment variables that your application can retrieve. To\nset environment variables in IntelliJ, you must create a run\nconfiguration for your application. To learn more, see the\n[Operating system](https://www.jetbrains.com/help/idea/run-debug-configuration-java-application.html#operating-system)\nsection of the Run/debug configuration: Application page in the\nIntelliJ documentation.\n\nSet the following environment variables:\n\n- `MONGODB_URI`: Set to your MongoDB connection string.\n\n- `VOYAGE_AI_KEY`: Set to your Voyage AI API key.\n\n> **Note:** Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>\n> ```\n>\n> To learn more about retrieving your connection string, see the\n> [a connection string that specifies the MONGODB-AWS authentication mechanism](manual/reference/connection-string) guide.\n\nRetrieve your environment variables by adding the following code\ninside the main method in your application's `Main.java` file:\n\n```java\nString embeddingApiKey = System.getenv(\"VOYAGE_AI_KEY\");\nString uri = System.getenv(\"MONGODB_URI\");\n```",
+  "codeBlocks": [
+    {
+      "language": "xml",
+      "content": "<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-mongodb-atlas</artifactId>\n    <version>1.1.0</version>\n</dependency>\n<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-voyage-ai</artifactId>\n    <version>1.1.0-beta7</version>\n</dependency>",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "xml",
+      "content": "<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>dev.langchain4j</groupId>\n            <artifactId>langchain4j-bom</artifactId>\n            <version>1.1.0</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport dev.langchain4j.data.document.Metadata;\nimport dev.langchain4j.data.embedding.Embedding;\nimport dev.langchain4j.data.segment.TextSegment;\nimport dev.langchain4j.model.embedding.EmbeddingModel;\nimport dev.langchain4j.model.voyageai.VoyageAiEmbeddingModel;\nimport dev.langchain4j.store.embedding.EmbeddingMatch;\nimport dev.langchain4j.store.embedding.EmbeddingSearchRequest;\nimport dev.langchain4j.store.embedding.EmbeddingSearchResult;\nimport dev.langchain4j.store.embedding.filter.comparison.*;\nimport dev.langchain4j.store.embedding.mongodb.IndexMapping;\nimport dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;\nimport org.bson.Document;\n\nimport java.io.*;\nimport java.util.*;",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "java",
+      "content": "String embeddingApiKey = System.getenv(\"VOYAGE_AI_KEY\");\nString uri = System.getenv(\"MONGODB_URI\");",
+      "tokenEstimate": 23
+    }
+  ]
+}

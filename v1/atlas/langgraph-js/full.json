@@ -1,0 +1,60 @@
+{
+  "path": "atlas/langgraph-js",
+  "product": "atlas",
+  "title": "Integrate MongoDB with LangGraph.js",
+  "sections": [
+    {
+      "heading": "Background",
+      "headingLevel": 2,
+      "body": "LangGraph is a specialized framework within the LangChain ecosystem\ndesigned for building AI agents and complex multi-agent workflows.\nGraphs are the core components of LangGraph, representing the workflow\nof your agent. The MongoDB LangGraph integration enables\nthe following capabilities:\n\n- **MongoDB LangGraph Checkpointer**: You can persist the state of your LangGraph agents\n  in MongoDB, providing *short-term memory*.\n\n- **Retrieval Tools**: You can use the MongoDB LangChain\n  integration to quickly create retrieval tools for your LangGraph workflows.\n\nIntegrating your LangGraph applications with MongoDB allows you to consolidate\nboth retrieval capabilities and agent memory in a single database,\nsimplifying your architecture and reducing operational complexity.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB LangGraph Checkpointer (Short-Term Memory)",
+      "headingLevel": 2,
+      "body": "The MongoDB LangGraph Checkpointer allows you to [persist](https://langchain-ai.github.io/langgraphjs/concepts/persistence/)\nyour agent's state in MongoDB to implement [short-term memory](https://langchain-ai.github.io/langgraphjs/concepts/memory/#short-term-memory).\nThis feature enables human-in-the-loop,\nmemory, time travel, and fault-tolerance for your LangGraph agents.\n\nTo install the package for this component:\n\n```bash\nnpm install @langchain/langgraph-checkpoint-mongodb\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "npm install @langchain/langgraph-checkpoint-mongodb",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoClient } from \"mongodb\";\n\n// Connect to your MongoDB cluster\nconst client = new MongoClient(\"<connection-string>\");\n\n// Initialize the MongoDB checkpointer\nconst checkpointer = new MongoDBSaver(client);\n\n// Instantiate the graph with the checkpointer\nconst app = graph.compile(checkpointer);\n```\n\n> **Note:**&#x20;\n>\n> - [Tutorial](langgraph-js-build-agents)\n>\n> - [LangGraph.js API Reference](https://langchain-ai.github.io/langgraphjs/reference/classes/checkpoint_mongodb.MongoDBSaver.html)\n>\n> - [npm package](https://www.npmjs.com/package/@langchain/langgraph-checkpoint-mongodb)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoClient } from \"mongodb\";\n\n// Connect to your MongoDB cluster\nconst client = new MongoClient(\"<connection-string>\");\n\n// Initialize the MongoDB checkpointer\nconst checkpointer = new MongoDBSaver(client);\n\n// Instantiate the graph with the checkpointer\nconst app = graph.compile(checkpointer);",
+          "tokenEstimate": 75
+        }
+      ]
+    },
+    {
+      "heading": "Retrieval Tools",
+      "headingLevel": 2,
+      "body": "You can seamlessly use [retrievers](https://js.langchain.com/docs/concepts#retrievers)\nas tools in your LangGraph workflow to retrieve relevant\ndata from MongoDB.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 3,
+      "body": "- To create a basic retrieval tool with MongoDB Vector Search and LangChain:\n\n  ```javascript\n  import { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\n  import { MongoClient } from \"mongodb\";\n  import { VoyageAIEmbeddings } from \"@langchain/community/embeddings/voyage\";\n  import { createRetrieverTool } from \"langchain/tools/retriever\";\n\n  // Instantiate the vector store\n  const client = new MongoClient(\"<connection-string>\");\n  const collection = client.db(\"<databaseName>\").collection(\"<collectionName>\");\n  const embeddingModel = new VoyageAIEmbeddings();\n\n  const vectorStore = new MongoDBAtlasVectorSearch(embeddingModel, {\n    collection: collection,\n    indexName: \"vector_index\", // Name of the index\n    textKey: \"text\",           // Name of the collection field containing the raw content\n    embeddingKey: \"embedding\", // Name of the collection field containing the embedded text\n  });\n\n  // Create a retriever tool\n  const retriever = vectorStore.asRetriever();\n  const retrieverTool = createRetrieverTool(\n    retriever,\n    {\n      name: \"vector_search_retriever\", // Tool name\n      description:\n        \"Retrieve relevant documents from the collection\" // Tool description\n    },\n  );\n  ```\n\n- To add the tool as a node in LangGraph:\n\n  - Convert the tool into a node.\n\n  - Add the node to the graph.\n\n  ```javascript\n  import { StateGraph } from \"@langchain/langgraph\";\n  import { ToolNode } from \"@langchain/langgraph/prebuilt\";\n\n  // Convert the retriever tool into a node\n  const retrieverNode = new ToolNode([retrieverTool]);\n\n  // Define the graph\n  const workflow = new StateGraph(SomeGraphState)\n    // Add the tool as a node in the graph\n    .addNode(\"vector_search_retriever\", retrieverNode);\n\n  const graph = workflow.compile();\n  ```\n\n> **Note:**&#x20;\n>\n> - [LangChain integration](langchain-js)\n>\n> - [LangGraph JS Documentation](https://langchain-ai.github.io/langgraphjs/)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\nimport { MongoClient } from \"mongodb\";\nimport { VoyageAIEmbeddings } from \"@langchain/community/embeddings/voyage\";\nimport { createRetrieverTool } from \"langchain/tools/retriever\";\n\n// Instantiate the vector store\nconst client = new MongoClient(\"<connection-string>\");\nconst collection = client.db(\"<databaseName>\").collection(\"<collectionName>\");\nconst embeddingModel = new VoyageAIEmbeddings();\n\nconst vectorStore = new MongoDBAtlasVectorSearch(embeddingModel, {\n  collection: collection,\n  indexName: \"vector_index\", // Name of the index\n  textKey: \"text\",           // Name of the collection field containing the raw content\n  embeddingKey: \"embedding\", // Name of the collection field containing the embedded text\n});\n\n// Create a retriever tool\nconst retriever = vectorStore.asRetriever();\nconst retrieverTool = createRetrieverTool(\n  retriever,\n  {\n    name: \"vector_search_retriever\", // Tool name\n    description:\n      \"Retrieve relevant documents from the collection\" // Tool description\n  },\n);",
+          "tokenEstimate": 235
+        },
+        {
+          "language": "javascript",
+          "content": "import { StateGraph } from \"@langchain/langgraph\";\nimport { ToolNode } from \"@langchain/langgraph/prebuilt\";\n\n// Convert the retriever tool into a node\nconst retrieverNode = new ToolNode([retrieverTool]);\n\n// Define the graph\nconst workflow = new StateGraph(SomeGraphState)\n  // Add the tool as a node in the graph\n  .addNode(\"vector_search_retriever\", retrieverNode);\n\nconst graph = workflow.compile();",
+          "tokenEstimate": 98
+        }
+      ]
+    }
+  ]
+}

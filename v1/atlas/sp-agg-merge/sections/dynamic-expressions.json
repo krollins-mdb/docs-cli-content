@@ -1,0 +1,17 @@
+{
+  "heading": "Dynamic Expressions",
+  "headingLevel": 3,
+  "body": "You can use a [dynamic expression](manual/reference/mql/expressions) as\nthe value of the following fields:\n\n- `into.db`\n\n- `into.coll`\n\nThis enables your stream processor to write messages to different\ntarget Atlas collections on a message-by-message basis.\n\n> **Example:** You have a stream of transaction events that generates messages of\n> the following form:\n>\n> ```json\n> {\n>   \"customer\": \"Very Important Industries\",\n>   \"customerStatus\": \"VIP\",\n>   \"tenantId\": 1,\n>   \"transactionType\": \"subscription\"\n> }\n>\n> {\n>   \"customer\": \"N. E. Buddy\",\n>   \"customerStatus\": \"employee\",\n>   \"tenantId\": 5,\n>   \"transactionType\": \"requisition\"\n> }\n>\n> {\n>   \"customer\": \"Khan Traktor\",\n>   \"customerStatus\": \"contractor\",\n>   \"tenantId\": 11,\n>   \"transactionType\": \"billableHours\"\n> }\n> ```\n>\n> To sort each of these into a distinct Atlas database and\n> collection, you can write the following `$merge` stage:\n>\n> ```json\n> $merge: {\n>   into: {\n>     connectionName: \"db1\",\n>     db: \"$customerStatus\",\n>     coll: \"$transactionType\"\n>   }\n> }\n> ```\n>\n> This `$merge` stage:\n>\n> - Writes the `Very Important Industries` message to a Atlas\n>   collection named `VIP.subscription`.\n>\n> - Writes the `N. E. Buddy` message to a Atlas\n>   collection named `employee.requisition`.\n>\n> - Writes the `Khan Traktor` message to a Atlas\n>   collection named `contractor.billableHours`.\n\nYou can only use dynamic expressions that evaluate to strings. For more\ninformation on dynamic expressions, see [expression operators](manual/reference/mql/expressions).\n\nIf you specify a database or collection with a dynamic expression, but\nAtlas Stream Processing cannot evaluate the expression for a given message,\nAtlas Stream Processing sends that message to the [dead letter queue](manual/reference/glossary) if configured\nand processes subsequent messages. If there is no [dead letter queue](manual/reference/glossary)\nconfigured, then Atlas Stream Processing skips the message completely and processes\nsubsequent messages.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"customer\": \"Very Important Industries\",\n  \"customerStatus\": \"VIP\",\n  \"tenantId\": 1,\n  \"transactionType\": \"subscription\"\n}\n\n{\n  \"customer\": \"N. E. Buddy\",\n  \"customerStatus\": \"employee\",\n  \"tenantId\": 5,\n  \"transactionType\": \"requisition\"\n}\n\n{\n  \"customer\": \"Khan Traktor\",\n  \"customerStatus\": \"contractor\",\n  \"tenantId\": 11,\n  \"transactionType\": \"billableHours\"\n}",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "json",
+      "content": "$merge: {\n  into: {\n    connectionName: \"db1\",\n    db: \"$customerStatus\",\n    coll: \"$transactionType\"\n  }\n}",
+      "tokenEstimate": 33
+    }
+  ]
+}

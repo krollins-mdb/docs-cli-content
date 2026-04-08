@@ -1,0 +1,55 @@
+{
+  "path": "atlas/field-types/knn-vector",
+  "product": "atlas",
+  "title": "How to Index Vector Embeddings for Vector Search",
+  "sections": [
+    {
+      "heading": "knnVector Type Limitations",
+      "headingLevel": 2,
+      "body": "You can't index fields inside arrays of documents or fields inside\narrays of objects (MongoDB Search [embeddedDocuments](bson-data-types-embedded-documents) type) as `knnVector` type.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Define the Index for the dateFacet Type",
+      "headingLevel": 2,
+      "body": "The following is the JSON (Javascript Object Notation) syntax for the dateFacet type.\nReplace the default index definition with the following. To learn more\nabout the fields, see Field Properties.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"knnVector\",\n        \"dimensions\": <number-of-dimensions>,\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"knnVector\",\n        \"dimensions\": <number-of-dimensions>,\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 68
+        }
+      ]
+    },
+    {
+      "heading": "Configure dateFacet Field Properties",
+      "headingLevel": 2,
+      "body": "The `knnVector` type has the following options:\n\n| Option     | Type   | Necessity | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| ---------- | ------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| type       | string | Required  | Human-readable label that identifies this field type. Value must be knnVector.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |\n| dimensions | int    | Required  | Number of vector dimensions, which MongoDB Search enforces at index- and query-time. This value can't be greater than 8192.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| similarity | string | Required  | Vector similarity function to use to search for top K-nearest neighbors. Value can be one of the following:euclidean - measures the distance between ends of vectors. This allows you to measure similarity based on varying dimensions. To learn more, see Euclidean.cosine - measures similarity based on the angle between vectors. This allows you to measure similarity that isn't scaled by magnitude. You can't use zero magnitude vectors with cosine. To measure cosine similarity, we recommend that you normalize your vectors and use dotProduct instead. To learn more, see Cosine.dotProduct - measures similarity like cosine, but takes into account the magnitude of the vector. This allows you to efficiently measure similarity based on both angle and magnitude. To learn more, see Dot Product.If you normalize the magnitude, cosine and dotProduct are almost identical in measuring similarity. |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Try an Example for the dateFacet Type",
+      "headingLevel": 2,
+      "body": "The following index definition for the `sample_mflix.embedded_movies`\ncollection dynamically indexes all the dynamically indexable fields\nin the collection and statically indexes `plot_embedding` field as\nthe `knnVector` type. The `plot_embedding` field contains embeddings\ncreated using OpenAI's `text-embedding-ada-002` embeddings model. The\nindex definition specifies `1536` vector dimensions and measures\nsimilarity using `euclidean`.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"plot_embedding\": {\n        \"type\": \"knnVector\",\n        \"dimensions\": 1536,\n        \"similarity\": \"euclidean\"\n      }\n    }\n  }\n}\n```\n\nIf you load the [sample data](mflix-embedded_movies) on your\ncluster and create the preceding MongoDB Search index for this collection,\nyou can run [$vectorSearch](pipe.$vectorSearch) queries against this collection.\nTo learn more about the sample queries that you can run, see\n[$vectorSearch Examples](vectorSearch-agg-pipeline-egs).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"plot_embedding\": {\n        \"type\": \"knnVector\",\n        \"dimensions\": 1536,\n        \"similarity\": \"euclidean\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Migrate to vector Type",
+      "headingLevel": 2,
+      "body": "To migrate your MongoDB Search indexes to the [vector index type](bson-data-types-vector) type, replace the `knnVector` type in your\nindex definition for the vector field with the `vector` type.\n\n> **Example:** To use the `vector` type for the `plot_embedding` field in the\n> [sample index definition](knn-vector-egs) for the\n> `sample_mflix.embedded_movies` collection, replace the index\n> definition with the following:\n>\n> ```json\n> {\n>   \"mappings\": {\n>     \"dynamic\": true,\n>     \"fields\": {\n>       \"plot_embedding\": {\n>         \"type\": \"vector\",\n>         \"dimensions\": 1536,\n>         \"similarity\": \"euclidean\"\n>       }\n>     }\n>   }\n> }\n> ```\n\nTo run queries against the `vector` type field, you **must** use the\n[vectorSearch](fts-vectorSearch-ref) instead of the [knnBeta](knn-beta-ref).\n\n> **Note:** Your existing [knnBeta](knn-beta-ref) queries can continue to run against\n> the `vector` type index. After migrating the index, we recommend\n> immediately migrating your `knnBeta` operator queries to the\n> [vectorSearch](fts-vectorSearch-ref).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"plot_embedding\": {\n        \"type\": \"vector\",\n        \"dimensions\": 1536,\n        \"similarity\": \"euclidean\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 55
+        }
+      ]
+    }
+  ]
+}

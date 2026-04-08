@@ -1,0 +1,27 @@
+{
+  "heading": "Create Partitions from ObjectIds",
+  "headingLevel": 3,
+  "body": "You can specify [ObjectIds](manual/reference/bson-types)\nin the path to the files. For files that contain `ObjectId` in the\nfilename, Atlas Data Federation creates partitions for each `ObjectId`.\n\nConsider the following federated database instance store, `accountingArchive`. This data\nstore contains files that include `ObjectId` in the filename:\n\n```text\naccountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011.json\n   |--507f1f77bcf86cd799439012.json\n   |--507f1f77bcf86cd799439013.json\n   |--507f1f77bcf86cd799439014.json\n   |--507f1f77bcf86cd799439015.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the `ObjectIds`.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{objid objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nOr, suppose the federated database instance store `accountingArchive` contains\nfiles that include a range of `ObjectIds` in the filename. For\nexample:\n\n```text\naccountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011-507f1f77bcf86cd799439020.json\n   |--507f1f77bcf86cd799439021-507f1f77bcf86cd799439030.json\n   |--507f1f77bcf86cd799439031-507f1f77bcf86cd799439040.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the given range of `ObjectIds`.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(obj) objectid}-{max(obj) objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Data Federation receives a query on the `ObjectId`, it uses the\nspecified path to identify which file contains the data that matches\nthe query.",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011.json\n   |--507f1f77bcf86cd799439012.json\n   |--507f1f77bcf86cd799439013.json\n   |--507f1f77bcf86cd799439014.json\n   |--507f1f77bcf86cd799439015.json",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "text",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{objid objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "text",
+      "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011-507f1f77bcf86cd799439020.json\n   |--507f1f77bcf86cd799439021-507f1f77bcf86cd799439030.json\n   |--507f1f77bcf86cd799439031-507f1f77bcf86cd799439040.json",
+      "tokenEstimate": 93
+    },
+    {
+      "language": "text",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(obj) objectid}-{max(obj) objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 83
+    }
+  ]
+}

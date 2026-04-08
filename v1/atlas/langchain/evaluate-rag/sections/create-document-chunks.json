@@ -1,0 +1,12 @@
+{
+  "heading": "Create Document Chunks",
+  "headingLevel": 2,
+  "body": "Split the reference texts into smaller chunks before embedding:\n\n```python\nfrom langchain.text_splitter import RecursiveCharacterTextSplitter\n\n# Split text by tokens using the tiktoken tokenizer\ntext_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(\n    encoding_name=\"cl100k_base\", keep_separator=False, chunk_size=200, chunk_overlap=30\n)\n\ndef split_texts(texts):\n    chunked_texts = []\n    for text in texts:\n        chunks = text_splitter.create_documents([text])\n        chunked_texts.extend([chunk.page_content for chunk in chunks])\n    return chunked_texts\n\n# Split the context field into chunks\ndf[\"chunks\"] = df[\"context\"].apply(lambda x: split_texts(x))\n# Aggregate list of all chunks\nall_chunks = df[\"chunks\"].tolist()\ndocs = [item for chunk in all_chunks for item in chunk]\n```\n\n> **Tip:** Experiment with different chunking strategies when evaluating retrieval.\n> This tutorial focuses on evaluating embedding models.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain.text_splitter import RecursiveCharacterTextSplitter\n\n# Split text by tokens using the tiktoken tokenizer\ntext_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(\n    encoding_name=\"cl100k_base\", keep_separator=False, chunk_size=200, chunk_overlap=30\n)\n\ndef split_texts(texts):\n    chunked_texts = []\n    for text in texts:\n        chunks = text_splitter.create_documents([text])\n        chunked_texts.extend([chunk.page_content for chunk in chunks])\n    return chunked_texts\n\n# Split the context field into chunks\ndf[\"chunks\"] = df[\"context\"].apply(lambda x: split_texts(x))\n# Aggregate list of all chunks\nall_chunks = df[\"chunks\"].tolist()\ndocs = [item for chunk in all_chunks for item in chunk]",
+      "tokenEstimate": 167
+    }
+  ]
+}

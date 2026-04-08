@@ -1,0 +1,17 @@
+{
+  "heading": "Analyze Results",
+  "headingLevel": 3,
+  "body": "To investigate the results further, convert them to a pandas\ndataframe and filter for low-scoring answers:\n\n```python\nresult_df = result.to_pandas()\nresult_df[result_df[\"answer_correctness\"] < 0.7]\n```\n\nFor a visual analysis, create a heatmap of questions versus metrics:\n\n```python\nimport seaborn as sns\nimport matplotlib.pyplot as plt\n\nplt.figure(figsize=(10, 8))\nsns.heatmap(\n    result_df[1:10].set_index(\"question\")[[\"answer_similarity\", \"answer_correctness\"]],\n    annot=True,\n    cmap=\"flare\",\n)\nplt.show()\n```\n\nThe preceding code outputs the following heatmap:\n\n![Heatmap visualizing the performance of a RAG application](</ai-integrations/images/Heatmap visualizing RAG (Retrieval-Augmented Generation) application performance>)\n\nUpon investigating low-scoring results, you might find:\n\n- Some ground-truth answers in the evaluation dataset are incorrect.\n  Although the LLM (Large Language Model)-generated answer is correct, it doesn't match\n  the ground truth, resulting in a low score.\n\n- Some ground-truth answers are full sentences, whereas the\n  LLM (Large Language Model)-generated answer is a single word or number.\n\nThese findings emphasize the importance of spot-checking LLM (Large Language Model)\nevaluations and curating accurate evaluation datasets.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "result_df = result.to_pandas()\nresult_df[result_df[\"answer_correctness\"] < 0.7]",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "python",
+      "content": "import seaborn as sns\nimport matplotlib.pyplot as plt\n\nplt.figure(figsize=(10, 8))\nsns.heatmap(\n    result_df[1:10].set_index(\"question\")[[\"answer_similarity\", \"answer_correctness\"]],\n    annot=True,\n    cmap=\"flare\",\n)\nplt.show()",
+      "tokenEstimate": 59
+    }
+  ]
+}

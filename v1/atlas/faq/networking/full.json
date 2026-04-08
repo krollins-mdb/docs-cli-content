@@ -1,0 +1,67 @@
+{
+  "path": "atlas/faq/networking",
+  "product": "atlas",
+  "title": "FAQ: Networking",
+  "sections": [
+    {
+      "heading": "Do Atlas cluster's public IPs ever change?",
+      "headingLevel": 2,
+      "body": "The factors that determine if and when an Atlas cluster's public IP\naddress changes depends on the cluster tier.\n\n> **Note:** This section applies to `M10` or larger dedicated clusters only\n> unless specified.\n\nAn Atlas cluster's public IP addresses must change when you:\n\n- [Scale your Replica Set to a Sharded Cluster](scale-cluster-sharding).\n\n- [increase the number of shards](scale-cluster-shardNum).\n\n- [Change the region into which a cluster is deployed](scale-cluster-region).\n\n- [Required Access](scale-cluster-open-dialog) a Free cluster (formerly known as `M0`) or Flex cluster\n  to an `M10` or larger cluster.\n\n- [Terminate active clusters](terminate-cluster) then re-deploy a\n  cluster with the same name *but in a different tier* within\n  36 hours.\n\n- [Encryption at Rest](scale-cluster-enable-encryption) on a cluster with a\n  lifetime less than 12 hours.\n\n> **Note:** For NVMe-backed clusters on [Amazon Web Services (AWS)](amazon-aws) or [Microsoft Azure](microsoft-azure),\n> vertically scaling usually keeps the existing public IP addresses.\n> However, there is a small chance they change; Atlas does not\n> guarantee IP address retention.\n\nAn Atlas cluster's public IPs don't change when you:\n\n- Vertically scale a cluster on [Amazon Web Services (AWS)](amazon-aws) or [Microsoft Azure](microsoft-azure) that is not\n  backed by an [NVMe storage volumes](nvme-storage), or vertically\n  scale a cluster from any tier on [Google Cloud Platform (GCP)](google-gcp).\n\n- Unpause the cluster.\n\n- [Terminate active clusters](terminate-cluster) and then re-deploy a cluster\n  with a lifetime of 12 hours or more within 12-36 hours.\n\n- Experience a maintenance or a healing event on your cluster.\n\nTo find the public IP address for any node in your cluster, use the\n`nslookup` tool from the command line. The IP address is shown in the\n`Address` portion of the output.\n\n```sh\n$ nslookup ds-shard-00-00-17jcm.mongodb-dev.net\n\nAddress: 34.226.104.79\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "$ nslookup ds-shard-00-00-17jcm.mongodb-dev.net\n\nAddress: 34.226.104.79",
+          "tokenEstimate": 28
+        }
+      ]
+    },
+    {
+      "heading": "Can I specify my own VPC for my MongoDB Atlas project?",
+      "headingLevel": 2,
+      "body": "No. An Atlas project, and its clusters, are associated with a\nregion-specific VPC (Virtual Private Cloud).\n\nAtlas creates a VPC (Virtual Private Cloud) when you deploy the first `M10+` dedicated\npaid cluster to a given provider and region. For multi-region clusters,\nAtlas creates one VPC (Virtual Private Cloud) per region if there is not already a VPC (Virtual Private Cloud)\nfor that region.\n\n*(AWS deployments only)* Atlas also creates a VPC (Virtual Private Cloud) when you create\na VPC peering connection to an AWS (Amazon Web Services)\nVPC (Virtual Private Cloud). Atlas creates the VPC (Virtual Private Cloud) in the same region as the peered\nVPC (Virtual Private Cloud).\n\nTo use a different VPC (Virtual Private Cloud) (that is, on the customer's own cloud\ninfrastructure accounts), you would need to use MongoDB Cloud Manager\nor Ops Manager.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How do I find my Atlas-side hostnames to open up my outbound firewall?",
+      "headingLevel": 2,
+      "body": "If your firewall blocks outbound network connections, you must configure\noutbound access from your application environment to MongoDB Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Automatically Resolve IP Addresses",
+      "headingLevel": 3,
+      "body": "You can use the [SRV Connection Format](manual/reference/connection-string-formats),\nwhich automatically resolves to the appropriate IP addresses for\nMongoDB Atlas services and clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Retrieve Specific IP Addresses for Outbound Firewall Rules",
+      "headingLevel": 3,
+      "body": "If your application environment requires configuring outbound firewall rules\nusing specific IP addresses, you can retrieve a list of IP addresses associated\nwith all clusters and services in your project using the\n[Return All IP Addresses for One Project](api/doc/atlas-admin-api-v2/operation/operation-getgroupipaddresses)\nAPI endpoint.\n\n> **Note:** These IP addresses are dynamic and subject to frequent changes.\n> Use this option only if your application can programmatically\n> integrate these IP addresses into your orchestration automation,\n> enabling frequent updates to your firewall rules.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How many cross-region network permissions does Atlas support?",
+      "headingLevel": 2,
+      "body": "Clusters can span regions and cloud service providers. The total number\nof nodes in clusters spanning across regions has a specific constraint\non a per-project basis.\n\nAtlas limits the total number of nodes in other regions in one\nproject to a total of 40, **not** including:\n\n- Google Cloud regions communicating with each other\n\n- Free clusters\n\n- Flex clusters\n\nSharded clusters include additional nodes. The electable nodes on\nthe dedicated Config Server Replica Set (CSRS) count towards the\ntotal number of allowable nodes. Each sharded cluster has an\nadditional electable node per region as part of the dedicated CSRS. To\nlearn more, see [Replica Set Config Servers](manual/core/sharded-cluster-config-servers).\n\nThe total number of nodes between any two regions must meet this\nconstraint.\n\n> **Example:** If an Atlas project has nodes in clusters spread across three\n> regions:\n>\n> - 30 nodes in **Region A**\n>\n> - 10 nodes in **Region B**\n>\n> - 5 nodes in **Region C**\n>\n> You can only add 5 more nodes to **Region C** because:\n>\n> - If you exclude Region C, Region A + Region B = 40.\n>\n>\n> - If you exclude Region B, Region A + Region C = 35, \\<= 40.\n>\n>\n> - If you exclude Region A, Region B + Region C = 15, \\<= 40.\n>\n>\n> - Each combination of regions with the added 5 nodes still meets\n>   the per-project constraint:\n>\n>   - Region A + B = 40&#x20;\n>\n>   - Region A + C = 40&#x20;\n>\n>   - Region B + C = 20&#x20;\n\nYou can't create a multi-region cluster in a project if it has one or\nmore clusters spanning 40 or more nodes in other regions.\n\nContact Atlas [support](manual/support) for questions\nor assistance with raising this limit.\n\nIf you would exceed the cross-region permissions limit when creating a\ncluster through the Atlas Administration API, the API (Application Programming Interface) returns the following\nerror:\n\n```json\n{\n  \"error\" : 403,\n  \"detail\" : \"Cannot have more than 40 cross-region network permissions.\",\n  \"reason\" : \"Forbidden\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"error\" : 403,\n  \"detail\" : \"Cannot have more than 40 cross-region network permissions.\",\n  \"reason\" : \"Forbidden\"\n}",
+          "tokenEstimate": 35
+        }
+      ]
+    },
+    {
+      "heading": "Can Atlas be used with AWS Transit Gateway?",
+      "headingLevel": 2,
+      "body": "Yes. AWS (Amazon Web Services) PrivateLink powers Atlas Private Endpoints. This allows\nfor transitive connectivity. You can use the\n[AWS Transit Gateway](http://docs.aws.amazon.com/vpc/latest/tgw/tgw-getting-started.html)\nwith your VPC (Virtual Private Cloud) if you connected your VPC (Virtual Private Cloud) to Atlas via AWS (Amazon Web Services)\nPrivateLink.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can Atlas be used with AWS Direct Connect?",
+      "headingLevel": 2,
+      "body": "Yes. AWS (Amazon Web Services) PrivateLink powers Atlas Private Endpoints. This allows\nfor transitive connectivity. You can use [AWS Direct Connect](http://docs.aws.amazon.com/whitepapers/latest/aws-vpc-connectivity-options/aws-direct-connect-network-to-amazon.html) with your\nVPC (Virtual Private Cloud) if you connected your VPC (Virtual Private Cloud) to Atlas via AWS (Amazon Web Services) PrivateLink.",
+      "codeBlocks": []
+    }
+  ]
+}

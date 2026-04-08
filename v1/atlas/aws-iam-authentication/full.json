@@ -1,0 +1,42 @@
+{
+  "path": "atlas/aws-iam-authentication",
+  "product": "atlas",
+  "title": "AWS IAM Authentication",
+  "sections": [
+    {
+      "heading": "Set Up Authentication with AWS IAM Roles",
+      "headingLevel": 2,
+      "body": "You can set up AWS (Amazon Web Services) IAM (Identity and Access Management) Roles to authenticate AWS (Amazon Web Services) compute types to your Atlas\nclusters.> **Note:** You can't set up authentication for AWS (Amazon Web Services) IAM principals when LDAP (Lightweight Directory Access Protocol) authorization is\n> enabled.\n>\n> If you require authentication for an AWS IAM principal, consider moving the\n> clusters that you want to access with AWS (Amazon Web Services) IAM authentication into another project\n> where LDAP (Lightweight Directory Access Protocol) authorization is disabled.For AWS (Amazon Web Services) Lambda and HTTP (ECS and EC2), drivers automatically read from the\n[environment variables](https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#obtaining-credentials). For AWS (Amazon Web Services) EKS, you\nmust manually assign the IAM (Identity and Access Management) role.This page describes how AWS (Amazon Web Services) Lambda, AWS (Amazon Web Services) ECS (Elastic Container Service), and\nAWS (Amazon Web Services) EKS (Elastic Kubernetes Service) can connect using an AWS (Amazon Web Services) IAM (Identity and Access Management) role.> **Note:** You must assign an IAM (Identity and Access Management) role to Lambda, EC2, ECS, or EKS in the\n> AWS (Amazon Web Services) console.<Tab tabid=\"aws-lambda\">\n  AWS Lambda\n\n  AWS (Amazon Web Services) Lambda passes information to functions through the following\n  environment variables if you [assign an execution role](http://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html) to the\n  lambda function.\n\n  - `AWS_ACCESS_KEY_ID`\n\n  - `AWS_SECRET_ACCESS_KEY`\n\n  - `AWS_SESSION_TOKEN`\n\n  > **Note:** You don't need to manually create these environment variables when\n  > you use an [execution role](http://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html) in your\n  > function.\n\n  To learn more about these environment variables, see [Using AWS Lambda\n  environment variables](http://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html).\n</Tab>AWS ECSAWS (Amazon Web Services) ECS (Elastic Container Service) gets the credentials from\nthe following URI:```shell\nhttp://169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}\n````AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` is an environment variable.\nTo learn more, see [IAM Roles for Tasks](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-iam-roles.html) in the AWS documentation.AWS (Amazon Web Services) EC2 gets the credentials from Instance Metadata Service V2 at the\nfollowing URL (Uniform Resource Locator):```shell\nhttp://169.254.169.254/latest/meta-data/iam/security-credentials/\n```To learn more, see [Launch an instance with an IAM role](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html#attach-iam-role) in the AWS\ndocumentation.AWS ECS FargateTo learn how to configure an AWS IAM role for authentication with\nAWS (Amazon Web Services) ECS Fargate, see the [Amazon ECS task execution IAM role](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_execution_IAM_role.html) in the AWS documentation.AWS EKSFor AWS (Amazon Web Services) EKS (Elastic Kubernetes Service), you must first\nassign the IAM (Identity and Access Management) role to your pod to set up the following environment\nvariables in that pod:* `AWS_WEB_IDENTITY_TOKEN_FILE` - contains the path to the web\n  identity token file.\n\n* `AWS_ROLE_ARN` - contains the IAM (Identity and Access Management) role used to connect to\n  your cluster.To learn more about AWS EKS, see [What is Amazon EKS?](http://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html) in the AWS documentation.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "http://169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "shell",
+          "content": "http://169.254.169.254/latest/meta-data/iam/security-credentials/",
+          "tokenEstimate": 18
+        }
+      ]
+    },
+    {
+      "heading": "Grant Database Access to AWS IAM Roles",
+      "headingLevel": 2,
+      "body": "To grant database access to the AWS (Amazon Web Services) IAM (Identity and Access Management) role, complete the steps\ndescribed in the [Configure Database Users](mongodb-users) section for AWS (Amazon Web Services) IAM (Identity and Access Management). For\nmore information on granting database access using Atlas CLI,\nAtlas Administration API, or Atlas UI, see [Configure Database Users](add-mongodb-users).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connect to Atlas Cluster Using AWS IAM",
+      "headingLevel": 2,
+      "body": "To connect to Atlas with your AWS (Amazon Web Services) IAM (Identity and Access Management) credentials using\n[mongosh](mongodb-shell), provide [a connection string that specifies the MONGODB-AWS authentication mechanism](manual/reference/connection-string). This connection string\nformat applies to all AWS IAM authentication mechanisms.\n\n> **Important:** You must configure authentication using one of the\n> methods described in [Set Up Authentication with AWS IAM Roles](passwordless-auth-aws-no-saml) before\n> you can use this connection string format.\n\nConnecting to Atlas using AWS IAM authentication with the\n[mongosh](mongodb-shell) requires shell version v0.9.0 or higher.\n\nConsider the following:\n\n- Use your [AWS IAM credentials](https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials),\n  using your access key ID as your username and your secret key as your\n  password.\n\n- The `authSource` query parameter is `$external`, URL-encoded as\n  `%24external`.\n\n- The `authMechanism` query parameter is `MONGODB-AWS`.\n\n  > **Example:**&#x20;\n  >\n  > ```sh\n  > mongosh \"mongodb+srv://<atlas-host-name>/test?authSource=%24external&authMechanism=MONGODB-AWS\" --username <access-key-id> --password <secret-key>\n  > ```\n\n> **See Also:** [IAM roles for service accounts](http://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html)",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "mongosh \"mongodb+srv://<atlas-host-name>/test?authSource=%24external&authMechanism=MONGODB-AWS\" --username <access-key-id> --password <secret-key>",
+          "tokenEstimate": 42
+        }
+      ]
+    }
+  ]
+}

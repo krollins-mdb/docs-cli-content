@@ -1,0 +1,111 @@
+{
+  "path": "atlas/operators-collectors/exists",
+  "product": "atlas",
+  "title": "exists (MongoDB Search Operator)",
+  "summary": {
+    "total": 7,
+    "byLanguage": {
+      "javascript": 6,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 49
+          }
+        ]
+      },
+      {
+        "heading": "Sample Collection",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 177
+          }
+        ]
+      },
+      {
+        "heading": "Basic Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 31
+          }
+        ]
+      },
+      {
+        "heading": "Embedded Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 64
+          }
+        ]
+      },
+      {
+        "heading": "Compound Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 101
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 79
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"exists\": {\n      \"path\": \"<field-to-test-for>\",\n      \"score\": <options>\n    }\n  }\n}",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "json",
+      "section": "Sample Collection",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n},\n{\n  \"_id\" : 2,\n  \"type\" : \"banana\",\n  \"description\" : \"Bananas are usually sold in bunches of five or six.\"\n},\n{ \"_id\" : 3,\n  \"type\": \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n},\n{ \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}",
+      "tokenEstimate": 177
+    },
+    {
+      "language": "javascript",
+      "section": "Basic Example",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"exists\": {\n        \"path\": \"type\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "javascript",
+      "section": "Embedded Example",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"exists\": {\n        \"path\": \"quantities.lemons\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "javascript",
+      "section": "Embedded Example",
+      "content": "{\n  \"_id\" : 4,\n  \"description\" : \"Types of citrus fruit include lemons, oranges, and grapefruit.\",\n  \"quantities\" : {\n    \"lemons\": 200,\n    \"oranges\": 240,\n    \"grapefruit\": 160\n  }\n}",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "javascript",
+      "section": "Compound Example",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [\n          {\n            \"exists\": {\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          }],\n        \"should\": {\n          \"text\": {\n            \"query\": \"fuji\",\n            \"path\": \"description\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "javascript",
+      "section": "Compound Example",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"apple\",\n  \"description\" : \"Apple pie and apple cobbler are popular apple-based desserts.\"\n}",
+      "tokenEstimate": 79
+    }
+  ]
+}

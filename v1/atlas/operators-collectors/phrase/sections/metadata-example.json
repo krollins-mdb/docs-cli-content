@@ -1,0 +1,17 @@
+{
+  "heading": "Metadata Example",
+  "headingLevel": 4,
+  "body": "The following query returns the metadata results for the search\ncriteria. It uses the [$searchMeta](pipe.$searchMeta) stage to get the\nnumber of movies in the following buckets (years) that match the search\ncriteria:\n\n- 2000, inclusive lower bound for this bucket\n\n- 2005, exclusive upper bound for the 2000 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2005 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2010 bucket\n\n> **Example:** **Input:**\n>\n> ```json\n> db.movies.aggregate([\n>   {\n>     \"$searchMeta\": {\n>       \"facet\": {\n>         \"operator\": {\n>           \"phrase\": {\n>             \"path\": \"title\",\n>             \"query\": \"new york\"\n>           }\n>         },\n>         \"facets\": {\n>           \"yearFacet\": {\n>             \"type\": \"number\",\n>             \"path\": \"year\",\n>             \"boundaries\": [2000, 2005, 2010, 2015 ]\n>           }\n>         }\n>       }\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```shell\n> [\n>   {\n>     count: { lowerBound: Long('27') },\n>     facet: {\n>       yearFacet: {\n>         buckets: [\n>           { _id: 2000, count: Long('3') },\n>           { _id: 2005, count: Long('8') },\n>           { _id: 2010, count: Long('4') }\n>         ]\n>       }\n>     }\n>   }\n> ]\n> ```\n>\n> The results show that there are 3 movies between 2000 and 2005, 8\n> movies between 2005 and 2010, and 4 movies between 2010 and 2015 that\n> contain the term `new york` in the `title`.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"phrase\": {\n            \"path\": \"title\",\n            \"query\": \"new york\"\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [2000, 2005, 2010, 2015 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    count: { lowerBound: Long('27') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3') },\n          { _id: 2005, count: Long('8') },\n          { _id: 2010, count: Long('4') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 86
+    }
+  ]
+}

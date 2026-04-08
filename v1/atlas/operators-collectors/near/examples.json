@@ -1,0 +1,197 @@
+{
+  "path": "atlas/operators-collectors/near",
+  "product": "atlas",
+  "title": "near (MongoDB Search Operator)",
+  "summary": {
+    "total": 14,
+    "byLanguage": {
+      "javascript": 8,
+      "text": 1,
+      "json": 5
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 66
+          }
+        ]
+      },
+      {
+        "heading": "Scoring Behavior",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Basic Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 109
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 169
+          }
+        ]
+      },
+      {
+        "heading": "Metadata Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 111
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 90
+          }
+        ]
+      },
+      {
+        "heading": "Date Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 129
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 127
+          }
+        ]
+      },
+      {
+        "heading": "GeoJSON Point Examples",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 67
+          }
+        ]
+      },
+      {
+        "heading": "Basic Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 127
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 466
+          }
+        ]
+      },
+      {
+        "heading": "Compound Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 172
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 430
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n   $search: {\n      \"index\": <index name>, // optional, defaults to \"default\"\n      \"near\": {\n         \"path\": \"<field-to-search>\",\n         \"origin\": <date-or-number>,\n         \"pivot\": <pivot-distance>,\n         \"score\": <score-options>\n      }\n   }\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "text",
+      "section": "Scoring Behavior",
+      "content": "              pivot\nscore = ------------------\n         pivot + distance",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "section": "Basic Example",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"index\": \"runtimes\",\n      \"near\": {\n        \"path\": \"year\",\n        \"origin\": 2000,\n        \"pivot\": 2\n      }\n    }\n  },\n  {\n    $limit: 7\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "javascript",
+      "section": "Basic Example",
+      "content": "[\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Kingdom', score: 1 },\n  { runtime: 279, title: 'The Jinx: The Life and Deaths of Robert Durst', score: 1  },\n  { runtime: 281, title: 'Les Misèrables', score: 0.5 },\n  { runtime: 277, title: 'Tokyo Trial', score: 0.5 },\n  { runtime: 283, title: 'Scenes from a Marriage', score: 0.3333333432674408 },\n  { runtime: 274, title: 'The Crimson Petal and the White', score: 0.2857142984867096 }\n]",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "json",
+      "section": "Metadata Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"near\": {\n            \"path\": \"runtime\",\n            \"origin\": 279,\n            \"pivot\": 2\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [2000, 2005, 2010, 2015 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "javascript",
+      "section": "Metadata Example",
+      "content": "[\n  {\n    count: { lowerBound: Long('20910') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3058') },\n          { _id: 2005, count: Long('4012') },\n          { _id: 2010, count: Long('4669') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "javascript",
+      "section": "Date Example",
+      "content": "{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"released\": {\n            \"type\": \"date\"\n         }\n      }\n   }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "javascript",
+      "section": "Date Example",
+      "content": "db.movies.aggregate([\n   {\n      $search: {\n         \"index\": \"releaseddate\",\n         \"near\": {\n            \"path\": \"released\",\n            \"origin\": ISODate(\"1915-09-13T00:00:00.000+00:00\"),\n            \"pivot\": 7776000000\n         }\n      }\n   },\n   {\n      $limit: 3\n   },\n   {\n      $project: {\n         \"_id\": 0,\n         \"title\": 1,\n         \"released\": 1,\n         score: { $meta: \"searchScore\" }\n      }\n   }\n])",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "json",
+      "section": "Date Example",
+      "content": "{ \"title\" : \"Regeneration\", \"released\" : ISODate(\"1915-09-13T00:00:00Z\"), \"score\" : 1 }\n{ \"title\" : \"The Cheat\", \"released\" : ISODate(\"1915-12-13T00:00:00Z\"), \"score\" : 0.49723756313323975 }\n{ \"title\" : \"Hell's Hinges\", \"released\" : ISODate(\"1916-03-05T00:00:00Z\"), \"score\" : 0.34090909361839294 }",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "javascript",
+      "section": "GeoJSON Point Examples",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"address\": {\n        \"fields\": {\n          \"location\": {\n            \"type\": \"geo\"\n          }\n        },\n        \"type\": \"document\"\n      },\n      \"property_type\": {\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 67
+    },
+    {
+      "language": "javascript",
+      "section": "Basic Example",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    \"$search\": {\n      \"near\": {\n        \"origin\": {\n          \"type\": \"Point\",\n          \"coordinates\": [-8.61308, 41.1413]\n        },\n        \"pivot\": 1000,\n        \"path\": \"address.location\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"name\": 1,\n      \"address\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "json",
+      "section": "Basic Example",
+      "content": "{\n  \"name\" : \"Ribeira Charming Duplex\",\n  \"address\" : {\n    \"street\" : \"Porto, Porto, Portugal\",\n    \"suburb\" : \"\",\n    \"government_area\" : \"Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória\",\n    \"market\" : \"Porto\",\n    \"country\" : \"Portugal\",\n    \"country_code\" : \"PT\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -8.61308, 41.1413 ],\n      \"is_location_exact\" : false\n    }\n  },\n  \"score\" : 1\n}\n{\n  \"name\" : \"DB RIBEIRA - Grey Apartment\",\n  \"address\" : {\n    \"street\" : \"Porto, Porto, Portugal\",\n    \"suburb\" : \"\",\n    \"government_area\" : \"Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória\",\n    \"market\" : \"Porto\",\n    \"country\" : \"Portugal\",\n    \"country_code\" : \"PT\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -8.61294, 41.14126 ],\n      \"is_location_exact\" : true\n    }\n  },\n  \"score\" : 0.9876177310943604\n}\n{\n  \"name\" : \"Ribeira 24 (4)\",\n  \"address\" : {\n    \"street\" : \"Porto, Porto, Portugal\",\n    \"suburb\" : \"\",\n    \"government_area\" : \"Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória\",\n    \"market\" : \"Porto\",\n    \"country\" : \"Portugal\",\n    \"country_code\" : \"PT\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -8.61318, 41.14107 ],\n      \"is_location_exact\" : false\n    }\n  },\n  \"score\" : 0.973789632320404\n}",
+      "tokenEstimate": 466
+    },
+    {
+      "language": "javascript",
+      "section": "Compound Example",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"query\": \"Apartment\",\n            \"path\": \"property_type\"\n          }\n        },\n        \"should\": {\n          \"near\": {\n            \"origin\": {\n              \"type\": \"Point\",\n              \"coordinates\": [114.15027, 22.28158]\n            },\n            \"pivot\": 1000,\n            \"path\": \"address.location\"\n          }\n        }\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"property_type\": 1,\n      \"address\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 172
+    },
+    {
+      "language": "json",
+      "section": "Compound Example",
+      "content": "{\n  \"property_type\" : \"Apartment\",\n  \"address\" : {\n    \"street\" : \"Hong Kong, Hong Kong Island, Hong Kong\",\n    \"suburb\" : \"Central & Western District\",\n    \"government_area\" : \"Central & Western\",\n    \"market\" : \"Hong Kong\",\n    \"country\" : \"Hong Kong\",\n    \"country_code\" : \"HK\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 114.15027, 22.28158 ],\n      \"is_location_exact\" : true\n    }\n  },\n  \"score\" : 1.177286982536316\n}\n{\n  \"property_type\" : \"Apartment\",\n  \"address\" : {\n    \"street\" : \"Hong Kong, Hong Kong Island, Hong Kong\",\n    \"suburb\" : \"Central & Western District\",\n    \"government_area\" : \"Central & Western\",\n    \"market\" : \"Hong Kong\",\n    \"country\" : \"Hong Kong\",\n    \"country_code\" : \"HK\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 114.15082, 22.28161 ],\n      \"is_location_exact\" : true\n    }\n  },\n  \"score\" : 1.1236450672149658\n}\n{\n  \"property_type\" : \"Apartment\",\n  \"address\" : {\n    \"street\" : \"Hong Kong,\n    Hong Kong Island, Hong Kong\",\n    \"suburb\" : \"Mid-Levels\",\n    \"government_area\" : \"Central & Western\",\n    \"market\" : \"Hong Kong\",\n    \"country\" : \"Hong Kong\",\n    \"country_code\" : \"HK\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 114.15007, 22.28215 ],\n      \"is_location_exact\" : true\n    }\n  },\n  \"score\" : 1.114811897277832\n}",
+      "tokenEstimate": 430
+    }
+  ]
+}

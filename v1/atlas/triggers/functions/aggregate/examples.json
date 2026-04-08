@@ -1,0 +1,217 @@
+{
+  "path": "atlas/triggers/functions/aggregate",
+  "product": "atlas",
+  "title": "Aggregation Pipeline Operator Availability",
+  "summary": {
+    "total": 16,
+    "byLanguage": {
+      "json\n :caption: The JSON schema for store.purchases": 1,
+      "javascript": 14,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Data Model",
+        "blocks": [
+          {
+            "language": "json\n :caption: The JSON schema for store.purchases",
+            "tokenEstimate": 129
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 54
+          }
+        ]
+      },
+      {
+        "heading": "Run an Aggregation Pipeline",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 213
+          }
+        ]
+      },
+      {
+        "heading": "Find Data with Atlas Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 167
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 196
+          }
+        ]
+      },
+      {
+        "heading": "Filter Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 34
+          }
+        ]
+      },
+      {
+        "heading": "Group Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 29
+          }
+        ]
+      },
+      {
+        "heading": "Project Document Fields",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 41
+          }
+        ]
+      },
+      {
+        "heading": "Add Fields to Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Unwind Array Values",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 27
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 63
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 116
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json\n :caption: The JSON schema for store.purchases",
+      "section": "Data Model",
+      "content": "{\n  \"title\": \"Purchase\",\n  \"required\": [\"_id\", \"customerId\", \"items\"],\n  \"properties\": {\n    \"_id\": { \"bsonType\": \"objectId\" },\n    \"customerId\": { \"bsonType\": \"objectId\" },\n    \"items\": {\n      \"bsonType\": \"array\",\n      \"items\": {\n        \"bsonType\": \"object\",\n        \"required\": [\"name\", \"quantity\"],\n        \"properties\": {\n          \"name\": { \"bsonType\": \"string\" },\n          \"quantity\": { \"bsonType\": \"int\" }\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "javascript",
+      "section": "Data Model",
+      "content": "exports = function() {\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const itemsCollection = mongodb.db(\"store\").collection(\"items\");\n  const purchasesCollection = mongodb.db(\"store\").collection(\"purchases\");\n  // ... paste snippet here ...\n}",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "javascript",
+      "section": "Run an Aggregation Pipeline",
+      "content": "const pipeline = [\n  { \"$group\": {\n      \"_id\": \"$customerId\",\n      \"numPurchases\": { \"$sum\": 1 },\n      \"numItemsPurchased\": { \"$sum\": { \"$size\": \"$items\" } }\n  } },\n  { \"$addFields\": {\n      \"averageNumItemsPurchased\": {\n        \"$divide\": [\"$numItemsPurchased\", \"$numPurchases\"]\n      }\n  } }\n]\n\nreturn purchasesCollection.aggregate(pipeline).toArray()\n  .then(customers => {\n    console.log(`Successfully grouped purchases for ${customers.length} customers.`)\n    for(const customer of customers) {\n      console.log(`customer: ${customer._id}`)\n      console.log(`num purchases: ${customer.numPurchases}`)\n      console.log(`total items purchased: ${customer.numItemsPurchased}`)\n      console.log(`average items per purchase: ${customer.averageNumItemsPurchased}`)\n    }\n    return customers\n  })\n  .catch(err => console.error(`Failed to group purchases by customer: ${err}`))",
+      "tokenEstimate": 213
+    },
+    {
+      "language": "javascript",
+      "section": "Find Data with Atlas Search",
+      "content": "exports = async function searchMoviesAboutBaseball() {\n  // 1. Get a reference to the collection you want to search.\n  const movies = context.services\n    .get(\"mongodb-atlas\")\n    .db(\"sample_mflix\")\n    .collection(\"movies\");\n  // 2. Run an aggregation with $search as the first stage.\n  const baseballMovies = await movies\n    .aggregate([\n      {\n        $search: {\n          text: {\n            query: \"baseball\",\n            path: \"plot\",\n          },\n        },\n      },\n      {\n        $limit: 5,\n      },\n      {\n        $project: {\n          _id: 0,\n          title: 1,\n          plot: 1,\n        },\n      },\n    ])\n    .toArray();\n  return baseballMovies;\n};",
+      "tokenEstimate": 167
+    },
+    {
+      "language": "json",
+      "section": "Find Data with Atlas Search",
+      "content": "{\n  \"plot\" : \"A trio of guys try and make up for missed\n  opportunities in childhood by forming a three-player\n  baseball team to compete against standard children\n  baseball squads.\",\n  \"title\" : \"The Benchwarmers\"\n}\n{\n  \"plot\" : \"A young boy is bequeathed the ownership of a\n  professional baseball team.\",\n  \"title\" : \"Little Big League\"\n}\n{\n  \"plot\" : \"A trained chimpanzee plays third base for a\n  minor-league baseball team.\",\n  \"title\" : \"Ed\"\n}\n{\n  \"plot\" : \"The story of the life and career of the famed\n  baseball player, Lou Gehrig.\",\n  \"title\" : \"The Pride of the Yankees\"\n}\n{\n  \"plot\" : \"Babe Ruth becomes a baseball legend but is\n  unheroic to those who know him.\",\n  \"title\" : \"The Babe\"\n}",
+      "tokenEstimate": 196
+    },
+    {
+      "language": "javascript",
+      "section": "Filter Documents",
+      "content": "{\n  \"$match\": {\n    \"<Field Name>\": <Query Expression>,\n    ...\n  }\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "javascript",
+      "section": "Filter Documents",
+      "content": "{\n  \"$match\": {\n    \"graduation_year\": {\n      \"$gte\": 2019,\n      \"$lte\": 2024\n    },\n  }\n}",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "javascript",
+      "section": "Group Documents",
+      "content": "{\n  \"$group\": {\n    \"_id\": <Group By Expression>,\n    \"<Field Name>\": <Aggregation Expression>,\n    ...\n  }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "javascript",
+      "section": "Group Documents",
+      "content": "{\n  \"$group\": {\n    \"_id\": \"$customerId\",\n    \"numPurchases\": { \"$sum\": 1 }\n  }\n}",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "section": "Project Document Fields",
+      "content": "{\n  \"$project\": {\n    \"<Field Name>\": <0 | 1 | Expression>,\n    ...\n  }\n}",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "javascript",
+      "section": "Project Document Fields",
+      "content": "{\n  \"$project\": {\n    \"_id\": 0,\n    \"customerId\": 1,\n    \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "javascript",
+      "section": "Add Fields to Documents",
+      "content": "{\n  \"$addFields\": {\n    \"numItems\": { \"$sum\": { \"$size\": \"$items\" } }\n  }\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Unwind Array Values",
+      "content": "{\n  $unwind: {\n    path: <Array Field Path>,\n    includeArrayIndex: <string>,\n    preserveNullAndEmptyArrays: <boolean>\n  }\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "javascript",
+      "section": "Unwind Array Values",
+      "content": "{\n  \"$unwind\": {\n    \"path\": \"$items\",\n    \"includeArrayIndex\": \"itemIndex\"\n  }\n}",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "javascript",
+      "section": "Unwind Array Values",
+      "content": "{\n  _id: 123,\n  customerId: 24601,\n  items: [\n    { name: \"Baseball\", quantity: 5 },\n    { name: \"Baseball Mitt\", quantity: 1 },\n    { name: \"Baseball Bat\", quantity: 1 },\n  ]\n}",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "javascript",
+      "section": "Unwind Array Values",
+      "content": "{\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 0,\n  items: { name: \"Baseball\", quantity: 5 }\n}, {\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 1,\n  items: { name: \"Baseball Mitt\", quantity: 1 }\n}, {\n  _id: 123,\n  customerId: 24601,\n  itemIndex: 2,\n  items: { name: \"Baseball Bat\", quantity: 1 }\n}",
+      "tokenEstimate": 116
+    }
+  ]
+}

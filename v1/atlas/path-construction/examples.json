@@ -1,0 +1,336 @@
+{
+  "path": "atlas/path-construction",
+  "product": "atlas",
+  "title": "Construct a Query Path",
+  "summary": {
+    "total": 27,
+    "byLanguage": {
+      "javascript": 11,
+      "json": 16
+    },
+    "bySection": [
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 5
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 10
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 129
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 27
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 137
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 103
+          }
+        ]
+      },
+      {
+        "heading": "Single Field Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 38
+          }
+        ]
+      },
+      {
+        "heading": "Multiple Field Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 43
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 50
+          }
+        ]
+      },
+      {
+        "heading": "Simple Analyzer Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 44
+          }
+        ]
+      },
+      {
+        "heading": "Whitespace Analyzer Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 152
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 90
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 161
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "Nested Field Search",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 85
+          }
+        ]
+      },
+      {
+        "heading": "Wildcard Field Search",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 236
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "All Fields Search Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 156
+          }
+        ]
+      },
+      {
+        "heading": "Nested Field Search Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 45
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 156
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "\"path\": \"description\"",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "\"path\": [ \"description\", \"type\" ]",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "json",
+      "section": "Usage",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"names\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"notes\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"comments\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"mySecondaryAnalyzer\": {\n            \"analyzer\": \"lucene.whitespace\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "\"path\": { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "\"path\": [ \"names\", \"notes\", { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" } ]",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "\"path\": [{ \"wildcard\": \"n*\" }, { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }]",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three\n  to four passengers.\"\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\"\n}",
+      "tokenEstimate": 137
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"make\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"description\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"simpleAnalyzer\": {\n            \"analyzer\": \"lucene.simple\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "javascript",
+      "section": "Single Field Search",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Ford\",\n        \"path\": \"make\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "javascript",
+      "section": "Multiple Field Search",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"blue\",\n        \"path\": [ \"make\", \"description\" ]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "json",
+      "section": "Multiple Field Search",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four\n  passengers.\"\n}",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "javascript",
+      "section": "Simple Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"driver\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "section": "Simple Analyzer Example",
+      "content": "{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "\"multi\": {\n  \"simpleAnalyzer\": {\n    \"analyzer\": \"lucene.whitespace\",\n    \"type\": \"string\"\n  }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Three\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to\n  four passengers.\"\n}",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"path\": \"description\",\n              \"query\": \"Three\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"Three\",\n              \"path\": { \"value\" : \"description\", \"multi\" : \"simpleAnalyzer\" },\n              score: { boost: { value: 2 }}\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"type\": 1,\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 152
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "{\n  \"type\" : \"sedan\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four passengers seats.\",\n  \"score\" : 1.1092689037322998\n}\n{\n  \"type\" : \"SUV\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\",\n  \"score\" : 0.17812025547027588\n}",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": " {\n  \"_id\": 1,\n  \"username\": \"pinto\",\n  \"post\": {\n    \"date\": \"12-03-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Spicy Garlic Tofu cooks up crispy in 10 minutes or less.\n             Serve with broccoli and rice for a delicious vegetarian meal.\"\n  }\n}\n{\n  \"_id\": 2,\n  \"username\": \"paloma\",\n  \"post\": {\n    \"date\": \"12-08-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Crispy Tofu in Shiitake Broth has flavors of citrus and\n             umami. Great as an appetizer or entree.\"\n  }\n}",
+      "tokenEstimate": 161
+    },
+    {
+      "language": "json",
+      "section": "Whitespace Analyzer Example",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Nested Field Search",
+      "content": "db.posts.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"query\": \"broccoli\",\n            \"path\": \"post.body\"\n          }\n        },\n        \"mustNot\": {\n          \"text\": {\n            \"query\": \"cauliflower\",\n            \"path\": \"post.body\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "json",
+      "section": "Wildcard Field Search",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Two-door convertible, driver's-side airbag.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 5,\n      \"color\" : \"black\"\n    }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 7,\n      \"color\" : \"white\"\n    },\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}",
+      "tokenEstimate": 236
+    },
+    {
+      "language": "json",
+      "section": "Wildcard Field Search",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "All Fields Search Example",
+      "content": "db.cars.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": { \"wildcard\": \"*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "json",
+      "section": "All Fields Search Example",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}",
+      "tokenEstimate": 156
+    },
+    {
+      "language": "javascript",
+      "section": "Nested Field Search Example",
+      "content": "db.cars.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": { \"wildcard\": \"warehouse.*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "json",
+      "section": "Nested Field Search Example",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}",
+      "tokenEstimate": 156
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "path": "atlas/langchain4j",
+  "product": "atlas",
+  "title": "Step 6: Perform queries on your data.",
+  "summary": {
+    "total": 23,
+    "byLanguage": {
+      "xml": 3,
+      "java": 15,
+      "text": 4,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "xml",
+            "tokenEstimate": 97
+          },
+          {
+            "language": "xml",
+            "tokenEstimate": 79
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 169
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 23
+          }
+        ]
+      },
+      {
+        "heading": "Instantiate the Embedding Model",
+        "blocks": [
+          {
+            "language": "java",
+            "tokenEstimate": 34
+          }
+        ]
+      },
+      {
+        "heading": "Use MongoDB as an Embedding Store",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 45
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 193
+          }
+        ]
+      },
+      {
+        "heading": "Store Custom Data",
+        "blocks": [
+          {
+            "language": "java",
+            "tokenEstimate": 326
+          }
+        ]
+      },
+      {
+        "heading": "Run Vector Search Queries",
+        "blocks": [
+          {
+            "language": "java",
+            "tokenEstimate": 159
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 130
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 91
+          }
+        ]
+      },
+      {
+        "heading": "Use Your Data to Answer Questions",
+        "blocks": [
+          {
+            "language": "xml",
+            "tokenEstimate": 89
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 90
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 105
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 88
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 96
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 35
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 112
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "xml",
+      "section": "Set Up the Environment",
+      "content": "<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-mongodb-atlas</artifactId>\n    <version>1.1.0</version>\n</dependency>\n<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-voyage-ai</artifactId>\n    <version>1.1.0-beta7</version>\n</dependency>",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "xml",
+      "section": "Set Up the Environment",
+      "content": "<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>dev.langchain4j</groupId>\n            <artifactId>langchain4j-bom</artifactId>\n            <version>1.1.0</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "java",
+      "section": "Set Up the Environment",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport dev.langchain4j.data.document.Metadata;\nimport dev.langchain4j.data.embedding.Embedding;\nimport dev.langchain4j.data.segment.TextSegment;\nimport dev.langchain4j.model.embedding.EmbeddingModel;\nimport dev.langchain4j.model.voyageai.VoyageAiEmbeddingModel;\nimport dev.langchain4j.store.embedding.EmbeddingMatch;\nimport dev.langchain4j.store.embedding.EmbeddingSearchRequest;\nimport dev.langchain4j.store.embedding.EmbeddingSearchResult;\nimport dev.langchain4j.store.embedding.filter.comparison.*;\nimport dev.langchain4j.store.embedding.mongodb.IndexMapping;\nimport dev.langchain4j.store.embedding.mongodb.MongoDbEmbeddingStore;\nimport org.bson.Document;\n\nimport java.io.*;\nimport java.util.*;",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "java",
+      "section": "Set Up the Environment",
+      "content": "String embeddingApiKey = System.getenv(\"VOYAGE_AI_KEY\");\nString uri = System.getenv(\"MONGODB_URI\");",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "java",
+      "section": "Instantiate the Embedding Model",
+      "content": "EmbeddingModel embeddingModel = VoyageAiEmbeddingModel.builder()\n        .apiKey(embeddingApiKey)\n        .modelName(\"voyage-3-large\")\n        .build();",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "json",
+      "section": "Use MongoDB as an Embedding Store",
+      "content": "{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"embedding\",\n      \"numDimensions\": 1024,\n      \"similarity\": \"cosine\"\n    }\n  ]\n}",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "java",
+      "section": "Use MongoDB as an Embedding Store",
+      "content": "MongoClient mongoClient = MongoClients.create(uri);\n\nSystem.out.println(\"Instantiating the embedding store...\");\n\n// Set to false if the vector index already exists\nBoolean createIndex = true;\n\nIndexMapping indexMapping = IndexMapping.builder()\n        .dimension(embeddingModel.dimension())\n        .metadataFieldNames(new HashSet<>())\n        .build();\n\nMongoDbEmbeddingStore embeddingStore = MongoDbEmbeddingStore.builder()\n        .databaseName(\"search\")\n        .collectionName(\"langchaintest\")\n        .createIndex(createIndex)\n        .indexName(\"vector_index\")\n        .indexMapping(indexMapping)\n        .fromClient(mongoClient)\n        .build();\n\nif (createIndex) {\n    // Creating a vector search index can take up to a minute,\n    // so this delay allows the index to become queryable\n    try {\n        Thread.sleep(15000);\n    } catch (InterruptedException e) {\n        throw new RuntimeException(e);\n    }\n}",
+      "tokenEstimate": 193
+    },
+    {
+      "language": "java",
+      "section": "Store Custom Data",
+      "content": "ArrayList<Document> docs = new ArrayList<>();\n\ndocs.add(new Document()\n        .append(\"text\", \"In Zadie Smith's new novel, the true story of a heated nineteenth-century criminal trial connects to the unrest of current times.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"A\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"D\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"C\"))));\ndocs.add(new Document()\n        .append(\"text\", \"Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\")\n        .append(\"metadata\", new Metadata(Map.of(\"author\", \"B\"))));\n\nSystem.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : docs) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            doc.get(\"metadata\", Metadata.class)\n    );\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\n// Delay for persisting data\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}",
+      "tokenEstimate": 326
+    },
+    {
+      "language": "java",
+      "section": "Run Vector Search Queries",
+      "content": "String query = \"Where do penguins live?\";\nEmbedding queryEmbedding = embeddingModel.embed(query).content();\n\nEmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .maxResults(3)\n        .build();\n\nSystem.out.println(\"Performing the query...\");\n\nEmbeddingSearchResult<TextSegment> searchResult = embeddingStore.search(searchRequest);\nList<EmbeddingMatch<TextSegment>> matches = searchResult.matches();\n\nfor (EmbeddingMatch<TextSegment> embeddingMatch : matches) {\n    System.out.println(\"Response: \" + embeddingMatch.embedded().text());\n    System.out.println(\"Author: \" + embeddingMatch.embedded().metadata().getString(\"author\"));\n    System.out.println(\"Score: \" + embeddingMatch.score());\n}",
+      "tokenEstimate": 159
+    },
+    {
+      "language": "text",
+      "section": "Run Vector Search Queries",
+      "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.829620897769928\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7459062337875366\nResponse: Emperor penguins are the tallest and heaviest of all penguin species, standing up to 4 feet.\nAuthor: D\nScore: 0.6908764839172363",
+      "tokenEstimate": 130
+    },
+    {
+      "language": "java",
+      "section": "Run Vector Search Queries",
+      "content": "EmbeddingSearchRequest searchRequest = EmbeddingSearchRequest.builder()\n        .queryEmbedding(queryEmbedding)\n        .filter(new IsIn(\"author\", List.of(\"B\", \"C\")))\n        .maxResults(3)\n        .build();",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "text",
+      "section": "Run Vector Search Queries",
+      "content": "Response: Penguins are flightless seabirds that live almost exclusively below the equator. Some island-dwellers can be found in warmer climates.\nAuthor: C\nScore: 0.8520907163619995\nResponse: Patagonia is home to five penguin species - Magellanic, Humboldt, Gentoo, Southern Rockhopper and King.\nAuthor: B\nScore: 0.7666836977005005",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "xml",
+      "section": "Use Your Data to Answer Questions",
+      "content": "<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j-open-ai</artifactId>\n    <version>1.1.0</version>\n</dependency>\n<dependency>\n    <groupId>dev.langchain4j</groupId>\n    <artifactId>langchain4j</artifactId>\n    <version>1.1.0</version>\n</dependency>",
+      "tokenEstimate": 89
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "import com.fasterxml.jackson.core.type.TypeReference;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport dev.langchain4j.service.AiServices;\nimport dev.langchain4j.model.chat.ChatLanguageModel;\nimport dev.langchain4j.model.openai.OpenAiChatModel;\nimport dev.langchain4j.rag.content.retriever.ContentRetriever;\nimport dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "private static List<Document> loadJsonDocuments(String resourcePath) throws IOException {\n    // Loads file from resources directory using the ClassLoader\n    InputStream inputStream = Main.class.getClassLoader().getResourceAsStream(resourcePath);\n\n    if (inputStream == null) {\n        throw new FileNotFoundException(\"Resource not found: \" + resourcePath);\n    }\n\n    // Parses JSON file to List of MongoDB Documents\n    ObjectMapper objectMapper = new ObjectMapper();\n    List<Document> documents = objectMapper.readValue(inputStream, new TypeReference<>() {});\n\n    return documents;\n}",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "System.out.println(\"Loading documents from file...\");\n\nString resourcePath = \"rainforest-docs.json\";\nList<Document> documents = loadJsonDocuments(resourcePath);",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "System.out.println(\"Persisting document embeddings...\");\n\nfor (Document doc : documents) {\n    TextSegment segment = TextSegment.from(\n            doc.getString(\"text\"),\n            new Metadata(doc.get(\"metadata\", Map.class)));\n    Embedding embedding = embeddingModel.embed(segment).content();\n    embeddingStore.add(embedding, segment);\n}\n\ntry {\n    Thread.sleep(5000);\n} catch (InterruptedException e) {\n    throw new RuntimeException(e);\n}",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "String chatApiKey = System.getenv(\"OPENAI_KEY\");\n\nChatLanguageModel chatModel = OpenAiChatModel.builder()\n        .apiKey(chatApiKey)\n        .modelName(\"gpt-4\")\n        .build();\n\nContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()\n        .embeddingStore(embeddingStore)\n        .embeddingModel(embeddingModel)\n        .maxResults(3)\n        .minScore(0.75)\n        .build();",
+      "tokenEstimate": 96
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "package org.example;\n\npublic interface Assistant {\n    String answer(String question);\n}\n",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "Assistant assistant = AiServices.builder(Assistant.class)\n        .chatLanguageModel(chatModel)\n        .contentRetriever(contentRetriever)\n        .build();",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "java",
+      "section": "Use Your Data to Answer Questions",
+      "content": "String ragQuery = \"What types of insects live in the rainforest?\";\nString output = assistant.answer(ragQuery);\n\nSystem.out.println(\"Response:\\n\" + output);",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "text",
+      "section": "Use Your Data to Answer Questions",
+      "content": "Response:\nIn the rainforest, there are numerous species of insects\nsuch as beetles, butterflies, moths, wasps, bees, flies, and\nants. Of the many insects that live in the rainforest, ants\nare particularly important as they play a crucial role in\nnutrient recycling and aeration of the soil. Moreover, many\nof these insects are involved in the processes of\npollination and decomposition. The adaptations these insects\nhave developed enable their survival in the rainforest's\nspecific conditions, characterized by heavy rainfall.",
+      "tokenEstimate": 112
+    }
+  ]
+}

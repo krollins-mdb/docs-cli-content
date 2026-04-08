@@ -1,0 +1,205 @@
+{
+  "path": "atlas/supported-unsupported/pipeline/merge",
+  "product": "atlas",
+  "title": "$merge Stage (Atlas Data Federation)",
+  "summary": {
+    "total": 17,
+    "byLanguage": {
+      "json": 17
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 123
+          }
+        ]
+      },
+      {
+        "heading": "Remediating Duplicate IDs",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 54
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 112
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 111
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 90
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 110
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 84
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Merge Data Using $merge",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 66
+          }
+        ]
+      },
+      {
+        "heading": "Run $merge in the background",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 84
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$merge\": {\n    \"into\": {\n      \"atlas\": {\n        \"projectId\": \"<atlas-project-ID>\",\n        \"clusterName\": \"<atlas-cluster-name>\",\n        \"db\": \"<atlas-database-name>\",\n        \"coll\": \"<atlas-collection-name>\"\n      }\n    },\n    \"on\": \"<identifier field>\"|[ \"<identifier field1>\", ...],\n    \"let\": { <variables> },\n    \"whenMatched\": \"replace|keepExisting|merge|fail|pipeline\",\n    \"whenNotMatched\": \"insert|discard|fail\"\n  }\n}",
+      "tokenEstimate": 123
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n},\n{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "db.s3coll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"keepExisting\",\n      \"whenNotMatched\": \"insert\"\n    }\n  }\n])",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "db.s3coll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"replace\",\n      \"whenNotMatched\": \"insert\"\n    }\n  }\n])",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"FL\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"AZ\"\n},\n{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n},\n{\n  \"_id\" : 2,\n  \"state\" : \"NJ\"\n},\n{\n  \"_id\" : 3,\n  \"state\" : \"NY\"\n},\n{\n  \"_id\" : 4,\n  \"state\" : \"TX\"\n}",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "db.archivecoll.aggregate([\n  {\n    \"$sort\": {\n      \"_id\": 1,\n      \"state\": 1,\n    }\n  },\n  {\n    \"$merge\": {\n      \"into\": {\n        \"atlas\": {\n          \"clusterName\": \"clustername\",\n          \"db\": \"clusterdb\",\n          \"coll\": \"clustercoll\"\n        }\n      },\n      \"on\": \"_id\",\n      \"whenMatched\": \"replace\",\n      \"whenNotMatched\": \"discard\"\n    }\n  }\n])",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"AZ\" // gets replaced\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n}\n{\n  \"_id\" : 2,\n  \"state\" : \"NJ\" // gets discarded\n}\n{\n  \"_id\" : 3,\n  \"state\" : \"NY\" // gets discarded\n}\n{\n  \"_id\" : 4,\n  \"state\" : \"TX\" // gets discarded\n}",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "json",
+      "section": "Remediating Duplicate IDs",
+      "content": "{\n  \"_id\" : 1,\n  \"state\" : \"CA\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "section": "Merge Data Using $merge",
+      "content": "db.mySampleData.aggregate(\n  [\n    {\n      \"$merge\": {\n        \"into\": {\n          \"atlas\": {\n            \"clusterName\": \"myTestCluster\",\n            \"db\": \"sampleDB\",\n            \"coll\": \"mySampleData\"\n          }\n        },\n        ...\n      }\n    }\n  ]\n)",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "json",
+      "section": "Run $merge in the background",
+      "content": "db.runCommand({\n  \"aggregate\": \"mySampleData\",\n  \"pipeline\": [\n    {\n      \"$merge\": {\n        \"into\": {\n          \"atlas\": {\n            \"clusterName\": \"myTestCluster\",\n            \"db\": \"sampleDB\",\n            \"coll\": \"mySampleData\"\n          }\n        },\n        ...\n      }\n    }\n  ],\n  { \"background\" : true }\n})",
+      "tokenEstimate": 84
+    }
+  ]
+}

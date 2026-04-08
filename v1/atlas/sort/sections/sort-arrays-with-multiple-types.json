@@ -1,0 +1,12 @@
+{
+  "heading": "Sort Arrays with Multiple Types",
+  "headingLevel": 4,
+  "body": "When sorting over array fields that contain values of multiple\nBSON (Binary Javascript Object Notation) types, MongoDB Search selects a representative element from the array\nto use for comparison according to the [MongoDB comparison and sort order](manual/reference/bson-type-comparison-order) by default.\n\n- For an ascending sort, MongoDB Search uses the element with the\n  lowest BSON (Binary Javascript Object Notation) type.\n\n- For a descending sort, MongoDB Search uses the element with the\n  highest BSON (Binary Javascript Object Notation) type.\n\nIf there are multiple values of the same BSON (Binary Javascript Object Notation) type\nin the array, standard sort behavior for the selected\ntype applies.\n\n> **Example:** Consider the following array:\n>\n> ```shell\n> [ 'foo', null, 15, true, false ]\n> ```\n>\n> - For an ascending sort, MongoDB Search uses `null`, as it\n>   is the lowest [supported](bson-data-types) BSON (Binary Javascript Object Notation) type.\n>\n> - For a descending sort, MongoDB Search uses `true`, as it\n>   is the highest BSON (Binary Javascript Object Notation) type in the array and MongoDB Search ranks `true`\n>   values above `false` values.\n>\n> However, if you set `noData: highest` in your\n> `sort` [sort syntax](sort-syntax-ref), MongoDB Search considers\n> null and missing values as the highest BSON (Binary Javascript Object Notation) type.\n> For the example array, the following behavior applies:\n>\n> - For an ascending sort, MongoDB Search uses `15`, as\n>   it is now the lowest BSON (Binary Javascript Object Notation) type in the array.\n>\n> - For a descending sort, MongoDB Search uses `null`, as it\n>   is now the highest BSON (Binary Javascript Object Notation) type in the array.\n>\n> To learn more, see [Sort by Null and Missing Values](fts-sort-null).\n\nFor an example, see [Sort on Multi-Typed Arrays](fts-sort-eg-null-multiple-types).",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "[ 'foo', null, 15, true, false ]",
+      "tokenEstimate": 13
+    }
+  ]
+}

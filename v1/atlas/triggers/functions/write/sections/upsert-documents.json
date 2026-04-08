@@ -1,0 +1,12 @@
+{
+  "heading": "Upsert Documents",
+  "headingLevel": 3,
+  "body": "If an update operation does not match any document in the collection,\nyou can automatically insert a single new document into the collection\nthat matches the update query by setting the `upsert` option to\n`true`.\n\nThe following [Atlas Function](atlas-functions) snippet updates a document in\nthe `items` collection that has a `name` of `board game` by\nincrementing its `quantity` by `5`. The `upsert` option is\nenabled, so if no document has a `name` value of `\"board game\"` then\nMongoDB inserts a new document with the `name` field set to `\"board\ngame\"` and the `quantity` value set to `5`:\n\n```javascript\nconst query = { \"name\": \"board games\" };\nconst update = { \"$inc\": { \"quantity\": 5 } };\nconst options = { \"upsert\": true };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount, upsertedId } = result;\n    if(upsertedId) {\n      console.log(`Document not found. Inserted a new document with _id: ${upsertedId}`)\n    } else {\n      console.log(`Successfully increased ${query.name} quantity by ${update.$inc.quantity}`)\n    }\n  })\n  .catch(err => console.error(`Failed to upsert document: ${err}`))\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const query = { \"name\": \"board games\" };\nconst update = { \"$inc\": { \"quantity\": 5 } };\nconst options = { \"upsert\": true };\n\nitemsCollection.updateOne(query, update, options)\n  .then(result => {\n    const { matchedCount, modifiedCount, upsertedId } = result;\n    if(upsertedId) {\n      console.log(`Document not found. Inserted a new document with _id: ${upsertedId}`)\n    } else {\n      console.log(`Successfully increased ${query.name} quantity by ${update.$inc.quantity}`)\n    }\n  })\n  .catch(err => console.error(`Failed to upsert document: ${err}`))",
+      "tokenEstimate": 145
+    }
+  ]
+}

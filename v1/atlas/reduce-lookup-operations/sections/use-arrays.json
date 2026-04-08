@@ -1,0 +1,22 @@
+{
+  "heading": "Use Arrays",
+  "headingLevel": 3,
+  "body": "Consider the following example where documents in a baseball league's\n`players` collection reference documents in a `teams`\ncollection, similar to a tabular database:\n\n```javascript\n// players collection\n\n{\n   \"team_id\": 1, // reference to a team document\n   \"name\": \"Nick\",\n   \"position\": \"Pitcher\"\n   ...\n}\n\n{\n   \"team_id\": 1,\n   \"name\": \"Anuj\",\n   \"position\": \"Shortstop\"\n   ...\n}\n```\n\n```javascript\n// teams collection\n\n{\n   \"_id\": 1,\n   \"name\": \"Danbury Dolphins\"\n   ...\n}\n```\n\nIf an application requests a list of players on a team, this schema\nstructure requires a [$lookup](manual/reference/operator/aggregation/lookup) of the `players` collection\nto find each player that matches a `team_id`.\n\nInstead, you can list the `players` in an array on the\nteam document itself:\n\n```javascript\n// teams collection\n\n{\n    \"_id\": 1,\n    \"name\": \"Danbury Dolphins\",\n    \"players\": [\n       {\n          \"name\": \"Nick\",\n          \"position\": \"Pitcher\"\n          ...\n       },\n       {\n          \"name\": \"Anuj\",\n          \"position\": \"Shortstop\"\n          ...\n       }\n    ]\n}\n```\n\nBy using arrays to hold related data, an application can retrieve\ncomplete `team` information, including that team's players,\nwithout `$lookup` operations or indexes on other collections.\nIn this case, using arrays is more performant than storing the\ninformation in separate collections.\n\n> **Note:** In the example above, the baseball teams have a set number of\n> players and there is no risk of arrays becoming exceedingly large.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// players collection\n\n{\n   \"team_id\": 1, // reference to a team document\n   \"name\": \"Nick\",\n   \"position\": \"Pitcher\"\n   ...\n}\n\n{\n   \"team_id\": 1,\n   \"name\": \"Anuj\",\n   \"position\": \"Shortstop\"\n   ...\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "javascript",
+      "content": "// teams collection\n\n{\n   \"_id\": 1,\n   \"name\": \"Danbury Dolphins\"\n   ...\n}",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "javascript",
+      "content": "// teams collection\n\n{\n    \"_id\": 1,\n    \"name\": \"Danbury Dolphins\",\n    \"players\": [\n       {\n          \"name\": \"Nick\",\n          \"position\": \"Pitcher\"\n          ...\n       },\n       {\n          \"name\": \"Anuj\",\n          \"position\": \"Shortstop\"\n          ...\n       }\n    ]\n}",
+      "tokenEstimate": 72
+    }
+  ]
+}

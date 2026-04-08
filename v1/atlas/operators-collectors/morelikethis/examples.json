@@ -1,0 +1,197 @@
+{
+  "path": "atlas/operators-collectors/morelikethis",
+  "product": "atlas",
+  "title": "moreLikeThis Operator",
+  "summary": {
+    "total": 16,
+    "byLanguage": {
+      "javascript": 9,
+      "text": 1,
+      "json": 6
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 68
+          }
+        ]
+      },
+      {
+        "heading": "Example 1: Single Document with Multiple Fields",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 94
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 203
+          }
+        ]
+      },
+      {
+        "heading": "Example 2: Input Document Excluded in Results",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 65
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 45
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 128
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 295
+          }
+        ]
+      },
+      {
+        "heading": "Example 3: Multiple Analyzers",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 118
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 357
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 124
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 437
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 140
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 713
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": " {\n   \"$search\": {\n     \"index\": index name, // optional, defaults to \"default\"\n     \"moreLikeThis\": {\n       \"like\": [\n         {\n           <\"field-name\">: <\"field-value\">,\n           ...\n         },\n         ...\n       ],\n       \"score\": <options>\n     }\n   }\n }",
+      "tokenEstimate": 68
+    },
+    {
+      "language": "text",
+      "section": "Example 1: Single Document with Multiple Fields",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Example 1: Single Document with Multiple Fields",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n    moreLikeThis: {\n     like:\n      {\n        \"title\": \"The Godfather\",\n        \"genres\": \"action\"\n      }\n    }\n   }\n  },\n  { \"$limit\": 5},\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1\n    }\n  }\n])",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "javascript",
+      "section": "Example 1: Single Document with Multiple Fields",
+      "content": "[\n { genres: [ 'Comedy', 'Drama', 'Romance' ], title: 'Godfather' },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather',\n  released: ISODate(\"1972-03-24T00:00:00.000Z\")\n },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part II',\n  released: ISODate(\"1974-12-20T00:00:00.000Z\")\n },\n {\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part III',\n  released: ISODate(\"1990-12-26T00:00:00.000Z\")\n },\n {\n  genres: [ 'Action' ],\n  title: 'The Defender',\n  released: ISODate(\"1994-07-28T00:00:00.000Z\")\n }\n]",
+      "tokenEstimate": 203
+    },
+    {
+      "language": "javascript",
+      "section": "Example 2: Input Document Excluded in Results",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      },\n      \"genres\": {\n        \"type\": \"string\"\n      },\n      \"_id\": {\n        \"type\": \"objectId\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "javascript",
+      "section": "Example 2: Input Document Excluded in Results",
+      "content": "movie = db.movies.find( { title: \"The Godfather\" }, { genres: 1, title: 1} ).toArray()",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "section": "Example 2: Input Document Excluded in Results",
+      "content": "[\n {\n  _id: ObjectId(\"573a1396f29313caabce4a9a\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather'\n }\n]",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "json",
+      "section": "Example 2: Input Document Excluded in Results",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n       \"compound\":{\n          \"must\":[{\n            \"moreLikeThis\": {\n              \"like\": movie\n            }\n          }],\n          \"mustNot\":[{\n            \"equals\": {\n               \"path\": \"_id\",\n               \"value\": ObjectId (\"573a1396f29313caabce4a9a\")\n            }\n          }]\n         }\n       }\n     },\n{\"$limit\": 5},\n{\n \"$project\": {\n   \"_id\": 1,\n   \"title\": 1,\n   \"released\": 1,\n   \"genres\": 1\n  }\n }\n])",
+      "tokenEstimate": 128
+    },
+    {
+      "language": "json",
+      "section": "Example 2: Input Document Excluded in Results",
+      "content": "[\n {\n  _id: ObjectId(\"573a13acf29313caabd27afc\"),\n  genres: [ 'Comedy', 'Drama', 'Romance' ],\n  title: 'Godfather'\n },\n {\n  _id: ObjectId(\"573a1396f29313caabce557f\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part II',\n  released: ISODate(\"1974-12-20T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a1398f29313caabcebf7b\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part III',\n  released: ISODate(\"1990-12-26T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a1399f29313caabceed8d\"),\n  genres: [ 'Action' ],\n  title: 'The Defender',\n  released: ISODate(\"1994-07-28T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a139af29313caabcef2a0\"),\n  genres: [ 'Action' ],\n  title: 'The Enforcer',\n  released: ISODate(\"1995-03-02T00:00:00.000Z\")\n }\n]",
+      "tokenEstimate": 295
+    },
+    {
+      "language": "javascript",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"keywordAnalyzer\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.keyword\"\n          }\n        }\n      },\n      \"genres\": {\n        \"type\": \"string\"\n      },\n      \"_id\": {\n        \"type\": \"objectId\"\n      }\n    }\n  },\n  \"analyzer\": \"lucene.english\"\n}",
+      "tokenEstimate": 118
+    },
+    {
+      "language": "javascript",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "movie = db.movies.find( { title: \"Alice in Wonderland\" }, { genres: 1, title: 1} ).toArray",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "[\n  {\n   _id: ObjectId(\"573a1394f29313caabcde9ef\"),\n   plot: 'Alice stumbles into the world of Wonderland. Will she get home? Not if the Queen of Hearts has her way.',\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a1398f29313caabce963d\"),\n   plot: 'Alice is in Looking Glass land, where she meets many Looking Glass creatures and attempts to avoid the Jabberwocky, a monster that appears due to her being afraid.',\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a1398f29313caabce9644\"),\n   plot: 'Alice is in Looking Glass land, where she meets many Looking Glass creatures and attempts to avoid the Jabberwocky, a monster that appears due to her being afraid.',\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a139df29313caabcfb504\"),\n   plot: `The wizards behind The Odyssey (1997) and Merlin (1998) combine Lewis Carroll's \"Alice in Wonderland\" and \"Through the Looking Glass\" into a two-hour special that just gets curiouser and curiouser.`,\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a13bdf29313caabd5933b\"),\n   plot: \"Nineteen-year-old Alice returns to the magical world from her childhood adventure, where she reunites with her old friends and learns of her true destiny: to end the Red Queen's reign of terror.\",\n   title: 'Alice in Wonderland'\n  }\n]",
+      "tokenEstimate": 357
+    },
+    {
+      "language": "json",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "db.movies.aggregate([\n{\n   $search: {\n     \"compound\": {\n       \"should\": [{\n          \"moreLikeThis\": {\n             \"like\": movie\n          }\n       }],\n     \"mustNot\": [\n     {\n     \"equals\": {\n     \"path\": \"_id\",\n      \"value\": ObjectId (\"573a1394f29313caabcde9ef\")\n    }\n   }]\n }\n  }\n  },\n { $limit: 10 },\n          {\n $project: {\n     \"title\": 1,\n     \"genres\": 1,\n     \"_id\": 1\n   }\n  }\n ])",
+      "tokenEstimate": 124
+    },
+    {
+      "language": "json",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "[\n  {\n   _id: ObjectId(\"573a1398f29313caabce963d\"),\n   genres: [ 'Adventure', 'Family', 'Fantasy' ],\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a1398f29313caabce9644\"),\n   genres: [ 'Adventure', 'Family', 'Fantasy' ],\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a139df29313caabcfb504\"),\n   genres: [ 'Adventure', 'Comedy', 'Family' ],\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a13bdf29313caabd5933b\"),\n   genres: [ 'Adventure', 'Family', 'Fantasy' ],\n   title: 'Alice in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a1396f29313caabce3e7e\"),\n   genres: [ 'Comedy', 'Drama' ],\n   title: 'Alex in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a13bdf29313caabd5a44b\"),\n   genres: [ 'Drama' ],\n   title: 'Phoebe in Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a139af29313caabcf0e23\"),\n   genres: [ 'Documentary' ],\n   title: 'Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a139ef29313caabcfcebc\"),\n   genres: [ 'Drama' ],\n   title: 'Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a13a0f29313caabd03dab\"),\n   genres: [ 'Drama' ],\n   title: 'Wonderland'\n  },\n  {\n   _id: ObjectId(\"573a13abf29313caabd2372a\"),\n   genres: [ 'Crime', 'Drama', 'Mystery' ],\n   title: 'Wonderland'\n  }\n]",
+      "tokenEstimate": 437
+    },
+    {
+      "language": "json",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "db.movies.explain(\"queryPlanner\").aggregate([\n {\n   $search: {\n     \"compound\": {\n       \"should\": [{\n          \"moreLikeThis\": {\n             \"like\": [{\n                \"title\": \"Alice in Wonderland\"\n             }]\n          }\n       }],\n     \"mustNot\": [\n     {\n     \"equals\": {\n     \"path\": \"_id\",\n      \"value\": ObjectId (\"573a1394f29313caabcde9ef\")\n    }\n   }]\n }\n  }\n  },\n{ $limit: 10 },\n          {\n$project: {\n     \"title\": 1,\n     \"genres\": 1,\n     \"_id\": 1\n   }\n }\n])",
+      "tokenEstimate": 140
+    },
+    {
+      "language": "json",
+      "section": "Example 3: Multiple Analyzers",
+      "content": "{\n explainVersion: '1',\n   stages: [\n     {\n      '$_internalSearchMongotRemote': {\n         mongotQuery: {\n         compound: {\n         should: [\n          {\n            moreLikeThis: { like: [ { title: 'Alice in Wonderland' } ] }\n          }\n         ],\n         mustNot: [\n          {\n            equals: {\n              path: '_id',\n              value: ObjectId(\"573a1394f29313caabcde9ef\")\n            }\n          }\n         ]\n      }\n     },\n     explain: {\n      type: 'BooleanQuery',\n        args: {\n         must: [],\n         mustNot: [\n           {\n             path: 'compound.mustNot',\n             type: 'ConstantScoreQuery',\n             args: {\n               query: {\n               type: 'TermQuery',\n             args: {\n                path: '_id',\n                value: '[57 3a 13 94 f2 93 13 ca ab cd e9 ef]'\n               }\n              }\n            }\n           }\n         ],\n         should: [\n          {\n            path: 'compound.should',\n            type: 'BooleanQuery',\n            args: {\n             must: [],\n             mustNot: [],\n             should: [\n              {\n               type: 'TermQuery',\n               args: { path: 'title', value: 'in' }\n              },\n              {\n                type: 'TermQuery',\n                args: {\n                  path: 'title.keywordAnalyzer',\n                  value: 'Alice in Wonderland'\n                }\n               },\n              {\n                type: 'TermQuery',\n                args: { path: 'title', value: 'wonderland' }\n              },\n              {\n                type: 'TermQuery',\n                args: { path: 'title', value: 'alice' }\n              }\n             ],\n             filter: [],\n              minimumShouldMatch: 0\n             }\n            }\n          ],\n            filter: [],\n             minimumShouldMatch: 0\n            }\n           }\n          }\n         },\n { '$_internalSearchIdLookup': {} },\n { '$limit': Long(\"10\") },\n { '$project': { _id: true, title: true, genres: true } }\n  ],\n serverInfo: {\n ...\n },\n serverParameters: {\n ...\n },\n command: {\n   aggregate: 'movies',\n     pipeline: [\n       {\n        '$search': {\n           compound: {\n             should: [\n               {\n                 moreLikeThis: { like: [ { title: 'Alice in Wonderland' } ] }\n               }\n             ],\n             mustNot: [\n              {\n                equals: {\n                  path: '_id',\n                  value: ObjectId(\"573a1394f29313caabcde9ef\")\n                }\n              }\n             ]\n           }\n          }\n        },\n  { '$limit': 10 },\n  { '$project': { title: 1, genres: 1, _id: 1 } }\n  ],\n  cursor: {},\n  '$db': 'sample_mflix'\n  },\n  ok: 1,\n  '$clusterTime': {\n  clusterTime: Timestamp({ t: 1659133479, i: 1 }),\n  signature: {\n     hash: Binary(Buffer.from(\"865d9ef1187ae1a74c4a0da1e29882aebcf2be7c\", \"hex\"), 0),\n     keyId: Long(\"7123262728533180420\")\n  }\n },\n operationTime: Timestamp({ t: 1659133479, i: 1 })\n }",
+      "tokenEstimate": 713
+    }
+  ]
+}

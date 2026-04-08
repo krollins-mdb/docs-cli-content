@@ -1,0 +1,22 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 3,
+  "body": "In this section, you create the `haystack_db` database\nand `test` collection to store your custom data.\nThen, to enable vector search queries on your data, you\ncreate a MongoDB Vector Search index.\n\n```python\nclient = MongoClient(os.environ.get(\"MONGO_CONNECTION_STRING\"))\n```\n\nRun the following code to create your `haystack_db` database and `test` collection.\n\n```python\n# Create your database and collection\ndb_name = \"haystack_db\"\ncollection_name = \"test\"\ndatabase = client[db_name]\ndatabase.create_collection(collection_name)\n\n# Define collection\ncollection = client[db_name][collection_name]\n```\n\nRun the following code to create an index of the [index definition](avs-types-vector-search) type. The `embedding` field\ncontains the embeddings that you'll create using OpenAI's\n`text-embedding-ada-002` embedding model. The index\ndefinition specifies `1536` vector dimensions and\nmeasures similarity using `cosine`.\n\n```python\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n            \"type\": \"vector\",\n            \"path\": \"embedding\",\n            \"numDimensions\": 1536,\n            \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)\n```\n\nThe index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "client = MongoClient(os.environ.get(\"MONGO_CONNECTION_STRING\"))",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "python",
+      "content": "# Create your database and collection\ndb_name = \"haystack_db\"\ncollection_name = \"test\"\ndatabase = client[db_name]\ndatabase.create_collection(collection_name)\n\n# Define collection\ncollection = client[db_name][collection_name]",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "python",
+      "content": "# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n            \"type\": \"vector\",\n            \"path\": \"embedding\",\n            \"numDimensions\": 1536,\n            \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 90
+    }
+  ]
+}

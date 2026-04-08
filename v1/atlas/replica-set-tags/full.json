@@ -1,0 +1,109 @@
+{
+  "path": "atlas/replica-set-tags",
+  "product": "atlas",
+  "title": "Query using Pre-Defined Replica Set Tags",
+  "sections": [
+    {
+      "heading": "Pre-Defined Replica Set Tag Descriptions",
+      "headingLevel": 2,
+      "body": "The following table describes the pre-defined replica set tags\nthat Atlas provides.\n\n| Pre-Defined Tag Name | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Example                                                                                                                                                               |\n| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Availability Zone    | AWS (Amazon Web Services) availability zone ID, Google Cloud fully-qualified name for a zone, or Azure (Microsoft Azure) zone number.Azure (Microsoft Azure) supports availability zones only in a subset of regions. Atlas provides pre-defined availability zone tags for Azure (Microsoft Azure) only for regions that support availability zones. To learn more, see Microsoft Azure.For more information about the possible availabilityZone values for each cloud provider, see the cloud provider's documentation:AWSGCPAzure | AWS (Amazon Web Services): \\{\"availabilityZone\" : \"us-east-1a\"}Google Cloud: \\{\"availabilityZone\" : \"us-east1-b\"}Azure (Microsoft Azure): \\{\"availabilityZone\" : \"1\"} |\n| Node Type            | Node type.Possible values are:ELECTABLEREAD\\_ONLYANALYTICSFor more information, see Node Types.                                                                                                                                                                                                                                                                                                                                                                                                                                      | \\{\"nodeType\" : \"ANALYTICS\"}                                                                                                                                           |\n| Provider             | Cloud provider on which the node is provisioned.Possible values are:AWSGCPAZURE                                                                                                                                                                                                                                                                                                                                                                                                                                                      | \\{\"provider\" : \"AWS\"}                                                                                                                                                 |\n| Region               | Cloud region in which the node resides.For a complete list of possible region values, see the reference page for your cloud provider:AWSGCPAzure                                                                                                                                                                                                                                                                                                                                                                                     | \\{\"region\" : \"US\\_EAST\\_2\"}                                                                                                                                           |\n| Workload Type        | Pre-defined replica set tag to distribute your workload evenly among your non-analytics (electable or read-only) nodes.Possible values are:OPERATIONAL                                                                                                                                                                                                                                                                                                                                                                               | \\{\"workloadType\" : \"OPERATIONAL\"}                                                                                                                                     |\n| Disk State           | State of your disk.Possible value: READYFor more information, see Disk States.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | \\{\"diskState\" : \"READY\"}                                                                                                                                              |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disk States",
+      "headingLevel": 3,
+      "body": "The following table describes the possible `diskState` values in your\npre-defined replica set tags.\n\n| Disk State | Description                                                                                         |\n| ---------- | --------------------------------------------------------------------------------------------------- |\n| READY      | Only target warm nodes.You can run queries without experiencing increased or unpredictable latency. |\n\nFor an example of this replica set tag, see\n[Reduce Secondary Disk Warming Impact](reduce-secondary-disk-warming-example).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Node Types",
+      "headingLevel": 3,
+      "body": "The following table describes the possible `nodeType` values in your\npre-defined replica set tags.\n\n| Node Type  | Description                                                                                                                                     |\n| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |\n| ELECTABLE  | Read from nodes eligible to be elected primary. ELECTABLE nodes correspond to Electable nodes for high availability in the cluster creation UI. |\n| READ\\_ONLY | Read from read-only nodes. READ\\_ONLY nodes correspond to Read-only nodes for optimal local reads in the cluster creation UI.                   |\n| ANALYTICS  | Read from read-only analytics nodes. ANALYTICS nodes correspond to Analytics nodes for workload isolation in the cluster creation UI.           |\n\nTo learn how to configure electable, read-only, and analytics nodes for\nyour cluster, see [Configure High Availability and Workload Isolation](create-cluster-multi-region).\n\n> **See Also:** For details on how these pre-defined replica set tags correspond to\n> BI Connector for Atlas read preferences, refer to the BI Connector cluster options\n> section of the [Create a Cluster Page](bic-read-preferences).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Use Cases and Examples",
+      "headingLevel": 2,
+      "body": "Consider the following scenarios where utilizing pre-defined replica set\ntags would be beneficial, and see the corresponding sample connection\nstrings.\n\n> **Important:**&#x20;\n>\n> High Availability for Analytics Node Queries\n>\n> For reads targeting analytic nodes with tags like `readPreferenceTags=nodeType:ANALYTICS`,\n> resilience is crucial when node availability fluctuates. Without fallback tags,\n> queries may fail during:\n>\n> - Initial sync during data compaction\n>\n> - Disk scale-down events\n>\n> - Any NVMe (non-volatile memory express) cluster tier changes\n>\n> To mitigate these risks, ensure your connection string includes *multiple read\n> preference tags* to provide fallback options so Atlas can route analytic\n> reads to available nodes during such events. For example:\n>\n> ```none\n> db+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS,priority:1&readPreferenceTags=&readConcernLevel=local\n> ```\n>\n> In this example:\n>\n> - The application first tries to connect to a node tagged `nodeType:ANALYTICS`.\n>\n> - If no such nodes are available, the final empty `readPreferenceTags=`\n>   allows the application to connect to any available secondary node.\n\n> **Note:** Each of the following example connection strings employ the\n> `readConcernLevel=local` connection string option. Specifying\n> a [read concern of local](manual/reference/read-concern-local)\n> ensures that secondary reads on sharded clusters do not\n> return [orphaned documents](manual/reference/glossary). You do not\n> need to specify this option when connecting to non-sharded replica sets.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "db+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS,priority:1&readPreferenceTags=&readConcernLevel=local",
+          "tokenEstimate": 53
+        }
+      ]
+    },
+    {
+      "heading": "Use Analytics Nodes to Isolate Workloads",
+      "headingLevel": 3,
+      "body": "If an application performs complex or long-running operations, such as\nETL (Extract Transform Load) or reporting, you may want to\nisolate the application's queries from the rest of your operational\nworkload by connecting exclusively to analytics nodes.\n\nConsider the following connection string:\n\n```none\nmongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS&readConcernLevel=local\n```\n\nThe connection string options appear in the following order:\n\n- `readPreference=secondary`\n\n- `readPreferenceTags=nodeType:ANALYTICS`\n\n- `readConcernLevel=local`\n\nThe [readPreference](manual/reference/read-preference) option of\n`secondary` and [readPreferenceTag](manual/core/read-preference) option of\n`{ nodeType : ANALYTICS }` limit the application connections to\nanalytic nodes.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "mongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=nodeType:ANALYTICS&readConcernLevel=local",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Isolate Normal Application Secondary Reads from Analytics Nodes",
+      "headingLevel": 4,
+      "body": "You may want to isolate regular application reads from the workload on\nanalytics nodes.\n\nConsider the following connection string:\n\n```none\nmongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=workloadType:OPERATIONAL&readConcernLevel=local\n```\n\nThe connection string options appear in the following order:\n\n- `readPreference=secondary`\n\n- `readPreferenceTags=workloadType:OPERATIONAL`\n\n- `readConcernLevel=local`\n\nThe specified options prevent your application from reading from\nanalytics nodes. The application must read from `operational`, or\nnon-analytics, nodes.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "mongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=workloadType:OPERATIONAL&readConcernLevel=local",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Target Local Reads for Geographically-Distributed Applications",
+      "headingLevel": 3,
+      "body": "Use pre-defined replica set tags to target local reads to\nspecific regions for globally distributed applications. Prior to the\nintroduction of these pre-defined replica set tags, local reads for\nglobally distributed applications relied on correctly calculating the\n[nearest](manual/reference/read-preference) read\npreference. With pre-defined replica set tags, specifying appropriate\ngeographic tags in combination with a read preference mode of\n`nearest` provides more consistent behavior.\n\nThe following connection string prioritizes connections to the\nAWS (Amazon Web Services) `US_EAST_1` region, followed by the `US_EAST_2` region:\n\n```none\nmongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=nearest&readPreferenceTags=provider:AWS,region:US_EAST_1&readPreferenceTags=provider:AWS,region:US_EAST_2&readPreferenceTags=&readConcernLevel=local\n```\n\nThe connection string options appear in the following order:\n\n- `readPreference=nearest`\n\n- `readPreferenceTags=provider:AWS,region:US_EAST_1`\n\n- `readPreferenceTags=provider:AWS,region:US_EAST_2`\n\n- `readPreferenceTags=`\n\n- `readConcernLevel=local`\n\nAtlas considers each read preference tag in the order you specify\nthem. After Atlas matches a node to a tag, it finds all eligible\nnodes that match that tag. Atlas then ignores any following\n`readPreferenceTags`.\n\nIn this example, the application first tries to connect to a node in\nAWS (Amazon Web Services) region `US_EAST_1`. If there no nodes in that region are\navailable, the application tries to connect to a node in AWS (Amazon Web Services) region\n`US_EAST_2`.\n\nThe final (empty) `readPreferenceTags=` provides a fallback option.\nWith an empty `readPreferenceTags=` option, the application can\nconnect to any available node regardless of provider or region.\n\nThese options help ensure that the application connects to the closest\ngeographic region for reduced latency and improved performance.\n\n> **Note:** You can further target reads based on availability zones.\n\n> **See Also:** For additional information and use cases for various read\n> preferences, refer to the\n> [Read Preference page in the MongoDB Manual](manual/reference/read-preference).",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "mongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=nearest&readPreferenceTags=provider:AWS,region:US_EAST_1&readPreferenceTags=provider:AWS,region:US_EAST_2&readPreferenceTags=&readConcernLevel=local",
+          "tokenEstimate": 70
+        }
+      ]
+    },
+    {
+      "heading": "Reduce Secondary Disk Warming Impact",
+      "headingLevel": 3,
+      "body": "When Atlas adds or replaces a node in your cluster, it performs\n[disk pre-warming](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-initialize.html)\nby default. During the disk pre-warming process, the newly created storage\nvolume undergoes a period of heavy IOPS (Input/Output Operations per Second) usage. This slows down read operations\nmade against this node. Therefore, during the disk pre-warming process,\nAtlas keeps the pre-warming node hidden by default, preventing it\nfrom participating in any read operations.\n\nIf you prefer that a newly added or replaced node becomes immediately active\nand visible, you can choose to [Enable or Disable Fast Disk Pre-Warming](disk-pre-warming)\nand prevent read operations on a warming node by using a connection string\nas in the following example:\n\n```none\nmongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=diskState:READY&readConcernLevel=local\n```\n\nThe connection string options appear in the following order:\n\n- `readPreference=secondary`\n\n- `readPreferenceTags=diskState:READY`\n\n- `readConcernLevel=local`\n\nThe [readPreference](manual/reference/read-preference) option of\n`secondary` and [readPreferenceTag](manual/core/read-preference) option of `{ diskState : READY }`\ntells Atlas to only target warm nodes.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "mongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=diskState:READY&readConcernLevel=local",
+          "tokenEstimate": 43
+        }
+      ]
+    },
+    {
+      "heading": "Retrieve Availability Zones",
+      "headingLevel": 3,
+      "body": "Atlas provides pre-defined replica set tags for availability\nzones by default. These tags include the AWS (Amazon Web Services) availability zone ID,\nGoogle Cloud fully-qualified name for a zone, or Azure (Microsoft Azure) zone number. You can\ncheck the availability zone of a node by using the [rs.conf()](manual/reference/method/rs.conf) shell method or by viewing the last ping of the cluster\nnode.\n\n> **Example:**&#x20;\n>\n> ```sh\n> ...\n>\n> \"tags\": {\n>           \"availabilityZone\": \"use2-az2\",\n>\n> ...\n> ```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "...\n\n\"tags\": {\n          \"availabilityZone\": \"use2-az2\",\n\n...",
+          "tokenEstimate": 18
+        }
+      ]
+    },
+    {
+      "heading": "Built-In Custom Write Concerns",
+      "headingLevel": 2,
+      "body": "Atlas provides built-in custom write concerns for multi-region\nclusters. Write concern describes the level of acknowledgment requested\nfrom MongoDB for write operations to a cluster.\n\nAtlas's built-in custom write concerns can help improve\ndata consistency by ensuring your operations are propagated to a set\nnumber of regions to succeed.\n\nTo use a custom write concern, specify the\nwrite concern in the [write concern document](manual/reference/write-concern) of your operation.\n\nAtlas provides the following custom write concerns for multi-region\nclusters:\n\n| Write Concern | Tags             | Description                                                                                                  |\n| ------------- | ---------------- | ------------------------------------------------------------------------------------------------------------ |\n| twoRegions    | \\{ region: 2 }   | Write operations must be acknowledged by at least two regions in your cluster.                               |\n| threeRegions  | \\{ region: 3 }   | Write operations must be acknowledged by at least three regions in your cluster.                             |\n| twoProviders  | \\{ provider: 2 } | Write operations must be acknowledged by at least two regions in your cluster with distinct cloud providers. |\n\n> **Example:** Consider a multi-region cluster across three regions:\n> **us-east-1**, **us-east-2**, and **us-west-1**. You want to have\n> write operations propagate to all three regions in your cluster\n> before Atlas accepts them.\n>\n> The following operation inserts a document and requires that the\n> operation be propagated to all three regions due to the\n> `{ w: \"threeRegions\" }` write concern object:\n>\n> ```javascript\n> db.employees.insertOne(\n>   { name: \"Bob Smith\", company: \"MongoDB\" },\n>   { writeConcern: { w: \"threeRegions\", j: true } }\n> )\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.employees.insertOne(\n  { name: \"Bob Smith\", company: \"MongoDB\" },\n  { writeConcern: { w: \"threeRegions\", j: true } }\n)",
+          "tokenEstimate": 39
+        }
+      ]
+    }
+  ]
+}

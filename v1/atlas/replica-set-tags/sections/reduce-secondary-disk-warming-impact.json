@@ -1,0 +1,12 @@
+{
+  "heading": "Reduce Secondary Disk Warming Impact",
+  "headingLevel": 3,
+  "body": "When Atlas adds or replaces a node in your cluster, it performs\n[disk pre-warming](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-initialize.html)\nby default. During the disk pre-warming process, the newly created storage\nvolume undergoes a period of heavy IOPS (Input/Output Operations per Second) usage. This slows down read operations\nmade against this node. Therefore, during the disk pre-warming process,\nAtlas keeps the pre-warming node hidden by default, preventing it\nfrom participating in any read operations.\n\nIf you prefer that a newly added or replaced node becomes immediately active\nand visible, you can choose to [Enable or Disable Fast Disk Pre-Warming](disk-pre-warming)\nand prevent read operations on a warming node by using a connection string\nas in the following example:\n\n```none\nmongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=diskState:READY&readConcernLevel=local\n```\n\nThe connection string options appear in the following order:\n\n- `readPreference=secondary`\n\n- `readPreferenceTags=diskState:READY`\n\n- `readConcernLevel=local`\n\nThe [readPreference](manual/reference/read-preference) option of\n`secondary` and [readPreferenceTag](manual/core/read-preference) option of `{ diskState : READY }`\ntells Atlas to only target warm nodes.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "mongodb+srv://<db_username>:<db_password>@foo-q8x1v.mycluster.com/test?readPreference=secondary&readPreferenceTags=diskState:READY&readConcernLevel=local",
+      "tokenEstimate": 43
+    }
+  ]
+}

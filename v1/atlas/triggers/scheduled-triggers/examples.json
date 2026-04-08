@@ -1,0 +1,113 @@
+{
+  "path": "atlas/triggers/scheduled-triggers",
+  "product": "atlas",
+  "title": "Scheduled Triggers",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "shell": 3,
+      "json": 3,
+      "text": 1,
+      "javascript": 1
+    },
+    "bySection": [
+      {
+        "heading": "Create a Scheduled Trigger",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 52
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Format",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 89
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 162
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 55
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 488
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Create a Scheduled Trigger",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Create a Scheduled Trigger",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "section": "Create a Scheduled Trigger",
+      "content": "{\n   \"type\": \"SCHEDULED\",\n   \"name\": \"<Trigger Name>\",\n   \"function_name\": \"<Trigger Function Name>\",\n   \"config\": {\n     \"schedule\": \"<CRON expression>\"\n   },\n   \"disabled\": <boolean>\n}",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "shell",
+      "section": "Create a Scheduled Trigger",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "section": "Format",
+      "content": "* * * * *\n│ │ │ │ └── weekday...........[0 (SUN) - 6 (SAT)]\n│ │ │ └──── month.............[1 (JAN) - 12 (DEC)]\n│ │ └────── dayOfMonth........[1 - 31]\n│ └──────── hour..............[0 - 23]\n└────────── minute............[0 - 59]",
+      "tokenEstimate": 89
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "{\n  _id: ObjectId(\"59cf1860a95168b8f685e378\"),\n  customerId: ObjectId(\"59cf17e1a95168b8f685e377\"),\n  orderDate: ISODate(\"2018-06-26T16:20:42.313Z\"),\n  shipDate: ISODate(\"2018-06-27T08:20:23.311Z\"),\n  orderContents: [\n    { qty: 1, name: \"Earl Grey Tea Bags - 100ct\", price: Decimal128(\"10.99\") }\n  ],\n  shippingLocation: [\n    { location: \"Memphis\", time: ISODate(\"2018-06-27T18:22:33.243Z\") },\n  ]\n}",
+      "tokenEstimate": 162
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "{\n  \"type\": \"SCHEDULED\",\n  \"name\": \"reportDailyOrders\",\n  \"function_name\": \"generateDailyReport\",\n  \"config\": {\n    \"schedule\": \"0 7 * * *\"\n  },\n  \"disabled\": false\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "exports = function() {\n  // Instantiate MongoDB collection handles\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const orders = mongodb.db(\"store\").collection(\"orders\");\n  const reports = mongodb.db(\"store\").collection(\"reports\");\n\n  // Generate the daily report\n  return orders.aggregate([\n    // Only report on orders placed since yesterday morning\n    { $match: {\n        orderDate: {\n          $gte: makeYesterdayMorningDate(),\n          $lt: makeThisMorningDate()\n        }\n    } },\n    // Add a boolean field that indicates if the order has already shipped\n    { $addFields: {\n        orderHasShipped: {\n          $cond: {\n            if: \"$shipDate\", // if shipDate field exists\n            then: 1,\n            else: 0\n          }\n        }\n    } },\n    // Unwind individual items within each order\n    { $unwind: {\n        path: \"$orderContents\"\n    } },\n    // Calculate summary metrics for yesterday's orders\n    { $group: {\n        _id: \"$orderDate\",\n        orderIds: { $addToSet: \"$_id\" },\n        numSKUsOrdered: { $sum: 1 },\n        numItemsOrdered: { $sum: \"$orderContents.qty\" },\n        totalSales: { $sum: \"$orderContents.price\" },\n        averageOrderSales: { $avg: \"$orderContents.price\" },\n        numItemsShipped: { $sum: \"$orderHasShipped\" },\n    } },\n    // Add the total number of orders placed\n    { $addFields: {\n        numOrders: { $size: \"$orderIds\" }\n    } }\n  ]).next()\n    .then(dailyReport => {\n      reports.insertOne(dailyReport);\n    })\n    .catch(err => console.error(\"Failed to generate report:\", err));\n};\n\nfunction makeThisMorningDate() {\n  return setTimeToMorning(new Date());\n}\n\nfunction makeYesterdayMorningDate() {\n  const thisMorning = makeThisMorningDate();\n  const yesterdayMorning = new Date(thisMorning);\n  yesterdayMorning.setDate(thisMorning.getDate() - 1);\n  return yesterdayMorning;\n}\n\nfunction setTimeToMorning(date) {\n  date.setHours(7);\n  date.setMinutes(0);\n  date.setSeconds(0);\n  date.setMilliseconds(0);\n  return date;\n}",
+      "tokenEstimate": 488
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "path": "atlas/langgraph",
+  "product": "atlas",
+  "title": "Integrate MongoDB with LangGraph",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "shell": 2,
+      "python": 6
+    },
+    "bySection": [
+      {
+        "heading": "MongoDB LangGraph Checkpointer (Short-Term Memory)",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 8
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 65
+          }
+        ]
+      },
+      {
+        "heading": "MongoDB LangGraph Store (Long-Term Memory)",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 7
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 160
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 162
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 106
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 187
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 80
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "MongoDB LangGraph Checkpointer (Short-Term Memory)",
+      "content": "pip install langgraph-checkpoint-mongodb",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from langgraph.checkpoint.mongodb import MongoDBSaver\nfrom pymongo import MongoClient\n\n# Connect to your MongoDB cluster\nclient = MongoClient(\"<connection-string>\")\n\n# Initialize the MongoDB checkpointer\ncheckpointer = MongoDBSaver(client)\n\n# Instantiate the graph with the checkpointer\napp = graph.compile(checkpointer=checkpointer)",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "shell",
+      "section": "MongoDB LangGraph Store (Long-Term Memory)",
+      "content": "pip install langgraph-store-mongodb",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from langgraph.store.mongodb import MongoDBStore, create_vector_index_config\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Vector search index configuration with client-side embedding\nindex_config = create_vector_index_config(\n    embed = VoyageAIEmbeddings(),\n    dims = <dimensions>,\n    fields = [\"<field-name>\"],\n    filters = [\"<filter-field-name>\", ...] # Optional\n)\n\n# Store memories in MongoDB collection\nwith MongoDBStore.from_conn_string(\n     conn_string=MONGODB_URI,\n     db_name=\"<database-name>\",\n     collection_name=\"<collection-name>\",\n     index_config=index_config\n ) as store:\n     store.put(\n         namespace=(\"user\", \"memories\"),\n         key=f\"memory_{hash(content)}\",\n         value={\"content\": content}\n     )",
+      "tokenEstimate": 160
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from langgraph.store.mongodb import MongoDBStore, create_vector_index_config\nfrom langchain_mongodb import AutoEmbeddings\n\n# Vector search index configuration with server-side Automated Embedding\nindex_config = create_vector_index_config(\n    embed = AutoEmbeddings(model_name=\"voyage-4\"),\n    fields = [\"<field-name>\"],\n    filters = [\"<filter-field-name>\", ...] # Optional\n)\n\n# Store memories - text is embedded server-side\nwith MongoDBStore.from_conn_string(\n     conn_string=MONGODB_URI,\n     db_name=\"<database-name>\",\n     collection_name=\"<collection-name>\",\n     index_config=index_config\n ) as store:\n     store.put(\n         namespace=(\"user\", \"memories\"),\n         key=f\"memory_{hash(content)}\",\n         value={\"content\": content}\n     )",
+      "tokenEstimate": 162
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "# Retrieve memories from MongoDB collection\nwith MongoDBStore.from_conn_string(\n    conn_string=MONGODB_URI,\n    db_name=\"<database-name>\",\n    collection_name=\"<collection-name>\",\n    index_config=index_config\n) as store:\n     results = store.search(\n         (\"user\", \"memories\"),\n         query=\"<query-text>\",\n         limit=3\n     )\n     for result in results:\n         print(result.value)\n\n# To delete memories, use store.delete(namespace, key)\n# To batch operations, use store.batch(ops)",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from langchain.tools.retriever import create_retriever_tool\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Instantiate the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",        # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n  embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n  index_name = \"vector_index\",                      # Name of the vector search index\n  # Other optional parameters...\n)\n\n# Create a retrieval tool\nretriever = vector_store.as_retriever()\nretriever_tool = create_retriever_tool(\n    retriever,\n    \"vector_search_retriever\", # Tool name\n    \"Retrieve relevant documents from the collection\" # Tool description\n)",
+      "tokenEstimate": 187
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from langgraph.graph import StateGraph\nfrom langgraph.prebuilt import ToolNode\n\n# Define the graph\nworkflow = StateGraph()\n\n# Convert the retriever tool into a node\nretriever_node = ToolNode([retriever_tool])\n\n# Add the tool as a node in the graph\nworkflow.add_node(\"vector_search_retriever\", retriever_node)\n\ngraph = workflow.compile()",
+      "tokenEstimate": 80
+    }
+  ]
+}

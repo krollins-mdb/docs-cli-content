@@ -1,0 +1,79 @@
+{
+  "path": "atlas/alert-resolutions/query-targeting",
+  "product": "atlas",
+  "title": "Fix Query Issues",
+  "sections": [
+    {
+      "heading": "Alert Conditions",
+      "headingLevel": 2,
+      "body": "You can configure the following alert conditions in the project-level\n[Configure Alert Settings](configure-alerts) page to trigger alerts.\n\n[Query Targeting: Scanned Objects / Returned](<Query Targeting: Scanned Objects / Returned>) alerts are\ntriggered when the average number of documents scanned relative to the\naverage number of documents returned server-wide across all operations\nduring a sampling period exceeds a defined threshold. The default alert\nuses a 1000:1 threshold.\n\nIdeally, the ratio of scanned documents to returned documents should be\nclose to 1. A high ratio negatively impacts query performance.\n\n[Query Targeting: Scanned / Returned](<Query Targeting: Scanned / Returned>) occurs if the number of\nindex keys examined to fulfill a query relative to the actual number of\nreturned documents meets or exceeds a user-defined threshold. This\nalert is not enabled by default.\n\n> **Example:** The following [log data](mongodb-logs) entry shows statistics\n> generated from an inefficient query:\n>\n> ```json\n> <Timestamp> COMMAND  <query>\n> planSummary: COLLSCAN keysExamined:0\n> docsExamined: 10000 cursorExhausted:1 numYields:234\n> nreturned:4  protocol:op_query 358ms\n> ```\n>\n> This query scanned 10,000 documents and returned only 4 for a ratio\n> of 2500, which is highly inefficient. No index keys were examined, so\n> MongoDB scanned all documents in the collection, known as a\n> [collection scan](manual/reference/glossary).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "<Timestamp> COMMAND  <query>\nplanSummary: COLLSCAN keysExamined:0\ndocsExamined: 10000 cursorExhausted:1 numYields:234\nnreturned:4  protocol:op_query 358ms",
+          "tokenEstimate": 50
+        }
+      ]
+    },
+    {
+      "heading": "Common Triggers",
+      "headingLevel": 2,
+      "body": "The query targeting alert typically occurs when there is no index to\nsupport a query or queries or when an existing index only partially\nsupports a query or queries.\n\nThe [change streams](manual/changeStreams) cursors that the MongoDB Search\nprocess (`mongot`) uses to keep MongoDB Search indexes updated can\ncontribute to the query targeting ratio and trigger\n[query targeting alerts](query-targeting-alerts) if the ratio\nis high.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Fix the Immediate Problem",
+      "headingLevel": 2,
+      "body": "Add one or more indexes to better serve the inefficient queries.\n\nThe Performance Advisor provides the\neasiest and quickest way to create an index. The Performance Advisor\nmonitors queries that MongoDB considers slow and recommends indexes to\nimprove performance. Atlas dynamically adjusts your slow query\nthreshold based on the execution time of operations across your\ncluster.\n\nClick **Create Index** on a slow query for instructions on how\nto create the recommended index.\n\n> **Note:** It is possible to receive a Query Targeting alert for an\n> inefficient query without receiving index suggestions from the\n> Performance Advisor if the query exceeds the slow query threshold and\n> the ratio of scanned to returned documents is greater than the\n> threshold specified in the alert.\n\nIn addition, you can use the following resources to determine which\nquery generated the alert:\n\n- The Real-Time Performance Panel\n  monitors and displays current network traffic and database operations\n  on machines hosting MongoDB in your Atlas clusters.\n\n- The [log data](mongodb-logs) maintain an account of\n  activity,\n  including queries, for each `mongod` instance in your Atlas\n  clusters.\n\n- The [cursor.explain()](manual/reference/method/cursor.explain)\n  command for [mongosh](mongodb-shell) provides performance details for\n  all queries.\n\n- [monitor collection-level query latency](namespace-insights) monitors\n  collection-level query latency.\n\n- The Atlas [Query Profiler](query-profiler) records\n  operations that Atlas considers slow when compared to average\n  execution time for all operations on your cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Implement a Long-Term Solution",
+      "headingLevel": 2,
+      "body": "Refer to the following for more information on query performance:\n\n- [MongoDB Indexing Strategies](manual/applications/indexes)\n\n- [Query Optimization](manual/core/query-optimization)\n\n- [Analyze Query Plan](manual/tutorial/analyze-query-plan)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Monitor Your Progress",
+      "headingLevel": 2,
+      "body": "Atlas provides the following methods to visualize query targeting:\n\n- Query Targeting\n  [performance metrics](monitor-cluster-metrics), which highlight high ratios\n  of objects scanned to objects returned.\n\n- [monitor collection-level query latency](namespace-insights), which monitors\n  collection-level query latency.\n\n- The [Query Profiler](query-profiler), which describes specific\n  inefficient queries executed on the cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Targeting Metrics",
+      "headingLevel": 3,
+      "body": "You can view historical metrics to help you visualize the query\nperformance of your cluster. To view **Query Targeting**\nmetrics in the Atlas UI:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: View  metrics.",
+      "headingLevel": 4,
+      "body": "- Click **View Monitoring** on the dashboard for the\n  cluster.\n\n- On the **Metrics** page, click the\n  **Add Chart** dropdown menu and select\n  **Query Targeting**.\n\nThe **Query Targeting** chart displays the following metrics\nfor queries executed on the server:\n\n| Metric                     | Description                                                                                                         |\n| -------------------------- | ------------------------------------------------------------------------------------------------------------------- |\n| Scanned Objects / Returned | Indicates the average number of documents examined relative to the average number of returned documents.            |\n| Scanned / Returned         | Indicates the number of index keys examined to fulfill a query relative to the actual number of returned documents. |\n\nThe [change streams](manual/changeStreams) cursors that the MongoDB Search\nprocess (`mongot`) uses to keep MongoDB Search indexes updated can\ncontribute to the query targeting ratio and trigger\n[query targeting alerts](query-targeting-alerts) if the ratio\nis high.\n\nIf either of these metrics exceed the\nuser-defined threshold, Atlas generates\nthe corresponding\n[Query Targeting: Scanned Objects / Returned](<Query Targeting: Scanned Objects / Returned>) or\n[Query Targeting: Scanned / Returned](<Query Targeting: Scanned / Returned>) alert.\n\n> **Note:** You can also view **Query Targeting** ratios of operations in\n> real-time using the\n> [Real-Time Performance Panel](real-time-metrics-status-tab).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Namespace Insights",
+      "headingLevel": 3,
+      "body": "[monitor collection-level query latency](namespace-insights) monitors\ncollection-level [query latency](manual/reference/operator/aggregation/collStats). You can view query\nlatency metrics and statistics for certain hosts and operation types.\nManage pinned namespaces and choose up to five namespaces to show in\nthe corresponding query latency charts.\n\nTo access Namespace Insights:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Go to the  tab.",
+      "headingLevel": 4,
+      "body": "- Click the name of the cluster to open the **Cluster** sidebar.\n\n- Click **Query Insights** in the **Cluster** sidebar.\n\n- Click the **Namespace Insights** tab.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Profiler",
+      "headingLevel": 3,
+      "body": "The [Query Profiler](query-profiler) contains several metrics\nyou can use to pinpoint specific inefficient queries. You can\nvisualize up to the past 24 hours of query operations. The Query\nProfiler can show the **Examined : Returned Ratio** (index keys\nexamined to documents returned) of logged queries, which might help you\nidentify the queries that triggered a\n[Query Targeting: Scanned / Returned](<Query Targeting: Scanned / Returned>) alert. The chart shows the\nnumber of index keys examined to fulfill a query relative to the actual\nnumber of returned documents.\n\n> **Note:** The [default alert](default-alert-settings)\n> [Query Targeting: Scanned Objects / Returned](<Query Targeting: Scanned Objects / Returned>)\n> alert ratio differs slightly. The ratio of the average number of\n> documents scanned to the average number of documents returned during\n> a sampling period triggers this alert.\n\nAtlas might not [log data](mongodb-logs) the individual operations\nthat contribute to the Query Targeting ratios due to automatically set\nthresholds. However, you can still use the Query Profiler and\n**Query Targeting** metrics to analyze and optimize query\nperformance.\n\nTo access the Query Profiler:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Go to the  tab.",
+      "headingLevel": 4,
+      "body": "- Click the name of the cluster to open the **Cluster** sidebar.\n\n- Click **Query Insights** in the **Cluster** sidebar.\n\n- Click the **Query Profiler** tab.",
+      "codeBlocks": []
+    }
+  ]
+}

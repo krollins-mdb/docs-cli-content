@@ -1,0 +1,17 @@
+{
+  "heading": "Facet Query",
+  "headingLevel": 3,
+  "body": "The following query searches for items tagged `school` with a\npreference for items named `backpack`. It requests facet information\non the `purchaseMethod` field.\n\n**Input:**\n\n```json\ndb.sales.aggregate({\n  \"$searchMeta\": {\n    \"facet\": {\n      \"operator\": {\n        \"embeddedDocument\": {\n          \"path\": \"items\",\n          \"operator\": {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.tags\",\n                    \"query\": \"school\"\n                  }\n                }\n              ],\n              \"should\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.name\",\n                    \"query\": \"backpack\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"facets\": {\n        \"purchaseMethodFacet\": {\n          \"type\": \"string\",\n          \"path\": \"purchaseMethod\"\n        }\n      }\n    }\n  }\n})\n```\n\n**Output:**\n\n```json\n[\n  {\n    count: { lowerBound: Long(\"2309\") },\n    facet: {\n      purchaseMethodFacet: {\n        buckets: [\n          { _id: 'In store', count: Long(\"2751\") },\n          { _id: 'Online', count: Long(\"1535\") },\n          { _id: 'Phone', count: Long(\"578\") }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.sales.aggregate({\n  \"$searchMeta\": {\n    \"facet\": {\n      \"operator\": {\n        \"embeddedDocument\": {\n          \"path\": \"items\",\n          \"operator\": {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.tags\",\n                    \"query\": \"school\"\n                  }\n                }\n              ],\n              \"should\": [\n                {\n                  \"text\": {\n                    \"path\": \"items.name\",\n                    \"query\": \"backpack\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"facets\": {\n        \"purchaseMethodFacet\": {\n          \"type\": \"string\",\n          \"path\": \"purchaseMethod\"\n        }\n      }\n    }\n  }\n})",
+      "tokenEstimate": 156
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    count: { lowerBound: Long(\"2309\") },\n    facet: {\n      purchaseMethodFacet: {\n        buckets: [\n          { _id: 'In store', count: Long(\"2751\") },\n          { _id: 'Online', count: Long(\"1535\") },\n          { _id: 'Phone', count: Long(\"578\") }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 88
+    }
+  ]
+}

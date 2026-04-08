@@ -1,0 +1,180 @@
+{
+  "path": "atlas/faq/connection-changes",
+  "product": "atlas",
+  "title": "Use Optimized Connection Strings with mongosh",
+  "sections": [
+    {
+      "heading": "How do I identify which connection string my application uses?",
+      "headingLevel": 2,
+      "body": "The structure of the connection string's URI (Uniform Resource Identifier) indicates the string's\ntype. If you have created a peering connection or private endpoint,\nAtlas displays more than one of these options for your use.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Why does my cluster have multiple connection strings?",
+      "headingLevel": 2,
+      "body": "To connect to Atlas, point your applications to a URI (Uniform Resource Identifier) to\ncommunicate with a cluster. Atlas creates clusters with more than\none node or host. Each node has its own hostname that resolves to an IP\naddress. The URI (Uniform Resource Identifier), known as a *connection string*, to which Atlas\nconnects might have more than one hostname. Configure Atlas to\naccept connections to the cluster hosts from allowed IP addresses.\n\nAtlas secures connections from public IP address through\nauthentication and TLS (Transport Layer Security). If you want to connect to private IP\naddresses, you can use:\n\n- AWS and GCP VPC Peering\n\n- Azure VNet Peering\n\n- [Private Endpoint-Aware Connection Strings](private-endpoint-connection-strings)\n\nThese features all manage communication over internal IP addresses\nwithin secure networks.\n\nAtlas provides more than one connection string when using secure\nnetworks. Each network offers a string that resolves to different IP\naddresses.\n\nAll clusters have a\n[standard connection string](connstring-standard). This resolves\nto the cluster's:\n\n- Public IP addresses for Internet connections and\n\n- VPC (Virtual Private Cloud) private IP addresses for AWS (Amazon Web Services) clusters when resolved from a\n  peered VPC (Virtual Private Cloud).\n\nUse this string for applications connecting over the Internet or\nconnecting to peered clusters in AWS (Amazon Web Services).\n\nClusters with peered networks have a\n[Private IP for Peering connection strings](connstring-private).\nThis string resolves to IP addresses available to:\n\n- Peered networks in Azure (Microsoft Azure) or Google Cloud\n\n- AWS (Amazon Web Services) peered clusters with a custom DNS (Domain Name System) service.\n\nUse this connection string with applications connecting:\n\n- Within an Azure (Microsoft Azure) or Google Cloud peered network\n\n- To AWS (Amazon Web Services) clusters when using AWS (Amazon Web Services) with custom DNS (Domain Name System) service.\n\nAWS (Amazon Web Services) or Azure (Microsoft Azure) clusters in regions with [Private Endpoint-Aware Connection Strings](private-endpoint-connection-strings) configured have one or more\nconnection strings. Each string resolves to the private IP address of a\nnetwork interface in your VPC (Virtual Private Cloud) or VNet that connects directly to a load\nbalancer in the Atlas VPC (Virtual Private Cloud) or VNet. Use these connection strings\nwith applications connecting with private endpoints.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can I use a single MongoDB SRV connection string for a multi-region cluster with private link?",
+      "headingLevel": 2,
+      "body": "Yes, you can use a single SRV (DNS Service Record) connection string for a multi-region cluster\nwith Private Link in MongoDB Atlas. The SRV (DNS Service Record) connection string automatically\nresolves to the appropriate nodes across regions.\nHowever, ensure that your network setup allows for cross-region connectivity\nthrough private endpoints. For AWS (Amazon Web Services) and Azure (Microsoft Azure), this involves setting up VPC/VNet\npeering between regions. For Google Cloud, you need to configure global access for Private Service Connect.\n\nTo learn more, see the documentation for [Learn About Private Endpoints in Atlas](private-endpoint-overview).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "What does this mean for Google Cloud or Azure (Microsoft Azure) clusters in peering-only mode?",
+      "headingLevel": 2,
+      "body": "Before 31 March 2020, you were required to enable peering-only mode to\nconnect to databases on peer networked Azure (Microsoft Azure) or Google Cloud clusters. This\nmode:\n\n- Affected global DNS (Domain Name System) resolution and\n\n- Limited any database connections outside the peered network.\n\nMultiple horizons lifts these restrictions and unlocks the following\nadditional features:\n\n- [Charts](charts)\n\n- Live Migration\n\nTo leverage multiple horizons, complete the following tasks:\n\n- Update your application's existing connection strings to use\n  [Private IP for Peering connection strings](connstring-private).\n\n- [Disable Peering-Only mode](disable-peering-mode).\n\n- Connect using the strings outlined in [Why does my cluster have multiple connection strings](atlas-faq-multi-conn-strings).\n\n> **Note:** You *can* keep connecting to your clusters using existing\n> peering-enabled connection strings at this time. Peering-Only mode\n> prevents access to the improved functionality and reduced\n> limitations of multiple horizons. To use the new features and remove\n> the legacy limitations, MongoDB requires that you use the new\n> connection strings.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Can my VNet-peered Azure (Microsoft Azure) cluster span multiple regions?",
+      "headingLevel": 2,
+      "body": "Yes.\n\nChange your applications to connect using the\n[Private IP for Peering connection strings](connstring-private).\nThis change allows your applications to connect from peered networks\nusing the UI or API.\n\nTo expand into more regions, disable Peering-Only mode on existing\nAzure (Microsoft Azure) clusters first.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How do I disable peering-only mode?",
+      "headingLevel": 2,
+      "body": "To disable Peering-Only mode using the:**Console:**Atlas ConsoleChange any URL (Uniform Resource Locator)s in your applications that use your\nAtlas clusters to use\n[Private IP for Peering connection strings](connstring-private).Toggle Connect via Peering Only (GCP and Azure) to Off.**Api:**Atlas Administration APICall the [get all](atlas/reference/api-resources-spec/v2) API (Application Programming Interface) endpoint to\nreturn all clusters and their MongoDB versions:> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).> **Example:**&#x20;\n>\n> ```sh\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n>      --header \"Accept: application/json\" \\\n>      --header \"Content-Type: application/json\" \\\n>      --include \\\n>      --request GET \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{GROUP-ID}/clusters?pretty=true\"\n> ```\n>\n> If successful, the response should include:\n>\n> ```json\n> {\n>   \"results\": [{\n>     ...\n>     \"mongoDBMajorVersion\": \"6.0\",\n>     \"mongoDBVersion\": \"6.0.14\",\n>     ...\n>   },{\n>     ...\n>     \"mongoDBMajorVersion\": \"6.0\",\n>     \"mongoDBVersion\": \"6.0.12\",\n>     ...       }\n>   ]\n> }\n> ```Change any URL (Uniform Resource Locator)s in your applications that use your\nAtlas clusters to use\n[Private IP for Peering connection strings](connstring-private).Call the API (Application Programming Interface) endpoint to [Disable Private IP Mode](atlas/reference/api-resources-spec/v2).> **Example:** Using `curl`, you would invoke this command:\n>\n> ```sh\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n>      --header \"Accept: application/json\" \\\n>      --header \"Content-Type: application/json\" \\\n>      --include \\\n>      --request PATCH \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{GROUP-ID}/privateIpMode?pretty=true\" \\\n>      --data '\n>        {\n>          \"enabled\" : false\n>        }'\n> ```\n>\n> Change `{GROUP-ID}` to the\n> [maintenance](atlas-modify-project-settings).\n>\n> If successful, the response displays:\n>\n> ```json\n> {\n>   \"enabled\" : false\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n     --header \"Accept: application/json\" \\\n     --header \"Content-Type: application/json\" \\\n     --include \\\n     --request GET \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{GROUP-ID}/clusters?pretty=true\"",
+          "tokenEstimate": 66
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"results\": [{\n    ...\n    \"mongoDBMajorVersion\": \"6.0\",\n    \"mongoDBVersion\": \"6.0.14\",\n    ...\n  },{\n    ...\n    \"mongoDBMajorVersion\": \"6.0\",\n    \"mongoDBVersion\": \"6.0.12\",\n    ...       }\n  ]\n}",
+          "tokenEstimate": 71
+        },
+        {
+          "language": "sh",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n     --header \"Accept: application/json\" \\\n     --header \"Content-Type: application/json\" \\\n     --include \\\n     --request PATCH \"https://cloud.mongodb.com/api/atlas/v1.0/groups/{GROUP-ID}/privateIpMode?pretty=true\" \\\n     --data '\n       {\n         \"enabled\" : false\n       }'",
+          "tokenEstimate": 85
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"enabled\" : false\n}",
+          "tokenEstimate": 9
+        }
+      ]
+    },
+    {
+      "heading": "How does this affect AWS (Amazon Web Services) VPC (Virtual Private Cloud) peering when I use custom DNS (Domain Name System)?",
+      "headingLevel": 2,
+      "body": "Before 31 March 2020, applications deployed within AWS (Amazon Web Services) using custom\nDNS (Domain Name System) services and VPC (Virtual Private Cloud)-peered with Atlas couldn't connect over\nprivate IP addresses:\n\n- Custom DNS (Domain Name System) resolved to public IP addresses.\n\n- AWS (Amazon Web Services) internal DNS (Domain Name System) resolved to private IP addresses.\n\nApplications deployed with custom DNS (Domain Name System) services in AWS (Amazon Web Services) should use\n[Private IP for Peering connection strings](connstring-private).\n\nTo show these strings:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Show the connection string.",
+      "headingLevel": 3,
+      "body": "- Toggle\n  **Using Custom DNS on AWS with VPC Peering** to\n  **On**.\n\n- View the **connect** modal for your AWS (Amazon Web Services) cluster.\n\n- Select the **Private IP for Peering** connection\n  string.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Standard Connection Strings",
+      "headingLevel": 3,
+      "body": "Standard connection strings follow this format:\n\n```sh\nmongodb://xyz456-shard-00-00.ab123.mongodb.net:27017\nmongodb+srv://xyz456.ab123.mongodb.net\n```\n\nThe dot before `ab123` *matters*. URI (Uniform Resource Identifier)s using this format resolve\nto public IP addresses *except* when connecting from inside AWS (Amazon Web Services) with\nVPC (Virtual Private Cloud)-peering configured.\n\n> **Important:** This format changes one character from the\n> [Legacy Connection Strings](connstring-legacy): a hyphen\n> (`-`) after the cluster name becomes a period (`.`).\n>\n> For example, this *legacy connection string*:\n>\n> ```sh\n> mongodb+srv://xyx456-ab123.mongodb.net\n> ```\n>\n> is written as this *standard connection string*:\n>\n> ```sh\n> mongodb+srv://xyx456.ab123.mongodb.net\n> ```\n>\n> For new clusters, replica sets and shards don't derive their name\n> from the name of the cluster. The new names use a six alphanumeric\n> character ID.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "mongodb://xyz456-shard-00-00.ab123.mongodb.net:27017\nmongodb+srv://xyz456.ab123.mongodb.net",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "sh",
+          "content": "mongodb+srv://xyx456-ab123.mongodb.net",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "sh",
+          "content": "mongodb+srv://xyx456.ab123.mongodb.net",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Private Connection Strings",
+      "headingLevel": 3,
+      "body": "Private connection strings follow this format:\n\n```sh\nmongodb://xyx456-shard-00-00-pri.ab123.mongodb.net:27017\nmongodb+srv://xyx456-pri.ab123.mongodb.net\n```\n\nThe `-pri` before `ab123` *matters*. URI (Uniform Resource Identifier)s using this format\nresolve to private IP addresses reachable within the peered network.\nIf you configure network peering for your cluster, you must use the\nnew hostname when you connect to your cluster to utilize the peering.\n\n> **Important:** In new clusters, replica sets and shards don't derive their name\n> from the name of the cluster. The new names use a six\n> alphanumeric character ID.\n\n> **Note:** In AWS environments, the `-pri` connection string is optional,\n> even when network peering is enabled. AWS resolves the cluster's private\n> IP addresses whether you use the private or standard connection string.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "mongodb://xyx456-shard-00-00-pri.ab123.mongodb.net:27017\nmongodb+srv://xyx456-pri.ab123.mongodb.net",
+          "tokenEstimate": 34
+        }
+      ]
+    },
+    {
+      "heading": "AWS (Amazon Web Services) Privatelink Connection Strings",
+      "headingLevel": 3,
+      "body": "[Private Endpoint-Aware Connection Strings](private-endpoint-connection-strings)\nconnection strings follow this format:\n\n```sh\nmongodb://pl-0-us-east-1a.ab123.mongodb.net:1024\nmongodb+srv://pl-0-us-east-1a.ab123.mongodb.net\n```\n\nIf you enable the [Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl) setting, AWS PrivateLink connection strings follow\nthis format:\n\n```sh\nmongodb://pl-0-us-west-1.ab123.mongodb.net:1024\nmongodb+srv://cluster0-pl-0-us-west-1.ab123.mongodb.net\n```\n\nURI (Uniform Resource Identifier)s using this format can be reachable via the AWS (Amazon Web Services) VPC (Virtual Private Cloud) where\nsomeone configured PrivateLink, though access can be transitive from\nother VPC (Virtual Private Cloud)s peered in turn.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "mongodb://pl-0-us-east-1a.ab123.mongodb.net:1024\nmongodb+srv://pl-0-us-east-1a.ab123.mongodb.net",
+          "tokenEstimate": 34
+        },
+        {
+          "language": "sh",
+          "content": "mongodb://pl-0-us-west-1.ab123.mongodb.net:1024\nmongodb+srv://cluster0-pl-0-us-west-1.ab123.mongodb.net",
+          "tokenEstimate": 34
+        }
+      ]
+    },
+    {
+      "heading": "Azure (Microsoft Azure) Private Link Connection Strings",
+      "headingLevel": 3,
+      "body": "[Private Endpoint-Aware Connection Strings](private-endpoint-connection-strings)\nconnection strings follow this format:\n\n```sh\nmongodb://pl-0-eastus2.ab123.mongodb.net:1024\nmongodb+srv://pl-0-eastus2.ab123.mongodb.net\n```\n\nIf you enable the [Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl) setting, Azure Private Link connection strings follow\nthis format:\n\n```sh\nmongodb://pl-0-eastus2.ab123.mongodb.net:1024\nmongodb+srv://cluster0-pl-0-eastus2.ab123.mongodb.net\n```\n\nURI (Uniform Resource Identifier)s using this format can be reachable via the Azure (Microsoft Azure) VNet where\nsomeone configured Private Link, though access can be transitive from\nother VNets peered in turn.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "mongodb://pl-0-eastus2.ab123.mongodb.net:1024\nmongodb+srv://pl-0-eastus2.ab123.mongodb.net",
+          "tokenEstimate": 30
+        },
+        {
+          "language": "sh",
+          "content": "mongodb://pl-0-eastus2.ab123.mongodb.net:1024\nmongodb+srv://cluster0-pl-0-eastus2.ab123.mongodb.net",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Legacy Connection Strings",
+      "headingLevel": 3,
+      "body": "Before 31 March 2020, you wrote Atlas connection strings as\nfollows:\n\n| AWS (Amazon Web Services) | foo-shard-00-00-ab123.mongodb.net foo-ab123.mongodb.net             |\n| ------------------------- | ------------------------------------------------------------------- |\n| Azure (Microsoft Azure)   | foo-shard-00-00-ab123.azure.mongodb.net foo-ab123.azure.mongodb.net |\n| Google Cloud              | foo-shard-00-00-ab123.gcp.mongodb.net foo-ab123.gcp.mongodb.net     |\n\nIf you enabled **Private Only** mode, these hostnames resolve to peered\nnetwork IP addresses. If you disabled that mode, hostnames resolve to\npublic IP addresses.\n\nIf your application uses a legacy connection string in **Peering Only**\nmode, switch to\n[Private IP for Peering connection strings](connstring-private).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How can I optimize connection performance for sharded clusters using private endpoints?",
+      "headingLevel": 2,
+      "body": "Atlas can generate an optimized SRV (DNS Service Record) connection string for sharded\nclusters using the load balancers from your private endpoint\nservice. When you use an optimized connection string, Atlas limits\nthe number of connections per `mongos` between your application and\nyour sharded cluster. The limited connections per `mongos`\nimprove performance during spikes in connection counts.\n\nTo use an optimized connection string, you must meet all of the following criteria:\n\n- [Configure a sharded cluster](cluster-option-sharding).\n\n- Ensure that the sharded cluster runs on AWS (Amazon Web Services).\n\n- Ensure that the sharded cluster runs MongoDB version 5.0 or\n  later. If your cluster currently runs an earlier version of\n  MongoDB, [upgrade your cluster to MongoDB 8.0](upgrade-major-MongoDB-version) to version 5.0 or later to use an\n  optimized SRV (DNS Service Record) connection string.\n\n- [set up a private endpoint for a cluster](cluster-private-endpoint) for your\n  cluster.\n\n- Use either:\n\n  - A single-region cluster or\n\n  - A multi-region cluster with [Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl) enabled. Only the AWS (Amazon Web Services) regions in a\n    multi-region cluster support an optimized SRV (DNS Service Record) connection string.\n\n  Atlas doesn't support\n  optimized connections to multi-region clusters using a single SRV (DNS Service Record) record.\n\n- Connect using one of the following methods:\n\n  - Connect using a driver that meets or exceeds the\n    [minimum driver version for optimized connections](driver-version-opt-connection).\n\n  - [Compass](atlas-connect-via-compass).\n\n  - [MongoDB Shell](connect-mongo-shell).\n\n> **Note:** If your cluster meets the criteria for optimized SRV (DNS Service Record) strings,\n> Atlas generates an\n> Optimized SRV Connection string for you. If your cluster ever had legacy connection strings, Atlas maintains those strings indefinitely and includes a\n> Legacy SRV Connection string when you select the\n> Private Endpoint connection type. Consider switching to\n> the Optimized SRV Connection for optimal performance and\n> update your connection string wherever you use it.\n>\n> If you create the cluster and enable private endpoints after\n> Atlas released this feature, Atlas displays the optimized\n> connection string by default when you select the\n> Private Endpoint connection type. You can identify an\n> optimized connection string by the addition of `lb` to the\n> connection string as shown in the following example:\n>\n> `mongodb+SRV://User1:P@ssword@cluster0-pl-0-lb.oq123.mongodb-dev.net/`\n>\n> To disable optimized connection strings for clusters that don't\n> have the Legacy SRV Connection option,\n> [MongoDB Support](request-support).\n\n> **Warning:**&#x20;\n>\n> Converting to a Multi-Region Cluster\n>\n> If you convert your single-region sharded cluster to a multi-region\n> cluster without enabling regionalized private endpoints, you cannot continue\n> to use the optimized connection string. Before converting your cluster, update\n> your connection string to the Legacy SRV Connection string\n> described in the preceding note.\n\nTo learn how to connect using a driver and an optimized connection\nstring, select the Private Endpoint Connection tab in the\n[Connect Your Application procedure](atlas/driver-connection).\n\nTo learn how to connect using Compass and an optimized connection\nstring, select the Private Endpoint Connection tab in the\n[Connect to your Cluster procedure](atlas/compass-connection).\n\nTo learn how to connect using `mongosh` and an optimized connection\nstring, select the Private Endpoint Connection tab in the\n[Connect to your Cluster procedure](atlas/mongo-shell-connection).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Should I update the connection string if I change cloud provider on a Free or Flex cluster?",
+      "headingLevel": 2,
+      "body": "If you have a [legacy connection string](atlas-faq-connstring-legacy) and you want to change cloud\nproviders, your connection string must include `.gcp` or `.azure`\nand you want to do one of the following:\n\n- Move to Google Cloud or Azure (Microsoft Azure)\n\n- Move off of Google Cloud or Azure (Microsoft Azure)\n\n  > **Note:** Either operation may change your connection string. In the\n  > Atlas UI, click **Connect** on your cluster after\n  > the upgrade completes for an updated connection string.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Should I update the connection string if I change cloud provider on a dedicated cluster?",
+      "headingLevel": 2,
+      "body": "It depends on the following:\n\n- which cloud provider your current cluster uses\n\n- when you created the cluster",
+      "codeBlocks": []
+    },
+    {
+      "heading": "GCP or Azure Clusters Created Before November 3, 2020",
+      "headingLevel": 3,
+      "body": "If you created your cluster before multi-cloud clusters were introduced\non November 3, 2020, **and** your cluster runs on Google Cloud or Azure (Microsoft Azure):\n\n- In Atlas, go to the Clusters page for your project.\n\n  - If it's not already displayed, select the organization that\n    contains your desired project from the Organizations menu in the\n    navigation bar.\n\n  - If it's not already displayed, select your desired project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Clusters under\n    the Database heading.\n\n    The [Clusters](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters) page displays.\n\n- Open the cluster builder.\n\n- Edit the cluster.\n\n- Add read-only nodes from your target cloud provider.\n\n  > **Note:** If you are using legacy backups, keep one node in your current cloud provider,\n  > and move the rest to your target cloud provider.\n\n- Review and submit the changes.\n\n- Copy the resulting comma-delimited URI (Uniform Resource Identifier) connection string.\n\n- Replace the connection string in your application with this new\n  [standard connection string](atlas-faq-connstring-standard).\n\n  This allows your application to connect to nodes from multiple cloud\n  providers.\n\n- Restart your application.\n\n- Make sure that your application can connect to Atlas.\n\n- After the first change completes, reconfigure your cluster:\n\n  - Remove all electable nodes using the original cloud provider.\n\n  - Remove the read-only nodes for the target cloud provider.\n\n  - Add the same number of electable nodes using the target cloud\n    provider.\n\n  > **Note:** If you are using legacy backups, wait until new backups are taken,\n  > then move the remaining node to your target cloud provider.\n\n- Review and submit the changes.\n\n- Copy the resulting comma-delimited URI (Uniform Resource Identifier) connection string.\n\n- Replace the URI (Uniform Resource Identifier) connection string in your application with this\n  new URI (Uniform Resource Identifier) connection string.\n\n- Restart your application.\n\n- Make sure that your application can connect to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "AWS and Clusters Created After November 2, 2020",
+      "headingLevel": 3,
+      "body": "Your connection string doesn't change and you don't experience cluster downtime\nif any of the following is true:\n\n- Your cluster runs on AWS (Amazon Web Services).\n\n- Your cluster runs on any cloud provider but was created after November 2, 2020.\n\nTo change the cloud provider for your cluster:\n\n- In Atlas, go to the Clusters page for your project.\n\n  - If it's not already displayed, select the organization that\n    contains your desired project from the Organizations menu in the\n    navigation bar.\n\n  - If it's not already displayed, select your desired project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Clusters under\n    the Database heading.\n\n    The [Clusters](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters) page displays.\n\n- Open the cluster builder.\n\n- Edit the cluster.\n\n- Change the cloud provider.\n\n- Review and submit the changes.",
+      "codeBlocks": []
+    }
+  ]
+}

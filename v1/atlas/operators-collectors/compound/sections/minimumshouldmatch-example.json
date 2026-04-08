@@ -1,0 +1,17 @@
+{
+  "heading": "minimumShouldMatch Example",
+  "headingLevel": 4,
+  "body": "In a query with multiple `should` clauses, you can use the\n`miniumumShouldMatch` option to specify a minimum number of clauses\nwhich must match to return a result.\n\nThe following query has one `must` clause and two `should` clauses,\nwith a `minimumShouldMatch` value of `1`. A document must include\nthe term `varieties` in the `description` field and must include\neither `Fuji` or `Golden Delicious` in the description field to be\nincluded in the result set.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n             \"query\": \"varieties\",\n             \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        },\n        {\n          \"text\": {\n            \"query\": \"Golden Delicious\",\n            \"path\": \"description\"\n          }\n        }],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}\n```\n\nThe document with `_id: 1` matches the `must` clause and the first\nof the two `should` clauses.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6613ff6fbfc02dcf24ce9588).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n             \"query\": \"varieties\",\n             \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        },\n        {\n          \"text\": {\n            \"query\": \"Golden Delicious\",\n            \"path\": \"description\"\n          }\n        }],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])",
+      "tokenEstimate": 117
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 59
+    }
+  ]
+}

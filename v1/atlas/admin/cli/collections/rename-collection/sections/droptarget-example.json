@@ -1,0 +1,22 @@
+{
+  "heading": "dropTarget Example",
+  "headingLevel": 3,
+  "body": "The following `renameCollection` command:\n\n- Renames the `weather` collection in the database named\n  `multiCollDB` to `airbnb`, which is the name of an existing\n  collection in the same database.\n\n- Replaces `airbnb` collection data with the data in the `weather`\n  collection.\n\n```json\nuse admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.weather\", \"to\": \"multiCollDB.airbnb\", \"dropTarget\": true })\n```\n\nThe previous command prints the following output:\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following command shows that the collection was successfully\nrenamed:\n\n```json\n> show collections\nairbnb\n> db.runCommand({ \"storageGetConfig\" : 1 })\n{\n       \"ok\" : 1,\n       \"storage\" : {\n              \"stores\" : [\n                     {\n                       \"name\" : \"egS3Store\",\n                       \"provider\" : \"s3\",\n                       \"region\" : \"us-east-2\",\n                       \"bucket\" : \"sbx-data-federation\",\n                       \"delimiter\" : \"/\",\n                       \"prefix\" : \"\"\n                     }\n              ],\n              \"databases\" : [{\n                     \"name\" : \"multiCollDB\",\n                     \"collections\" : [{\n                       \"name\": \"airbnb\",\n                       \"dataSources\" : [\n                              {\n                                     \"storeName\" : \"egS3Store\",\n                                     \"path\" : \"/json/airbnb\"\n                              }\n                       ]\n                     }]\n              }]\n       }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "use admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.weather\", \"to\": \"multiCollDB.airbnb\", \"dropTarget\": true })",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "json",
+      "content": "{ \"ok\" : 1 }",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "content": "> show collections\nairbnb\n> db.runCommand({ \"storageGetConfig\" : 1 })\n{\n       \"ok\" : 1,\n       \"storage\" : {\n              \"stores\" : [\n                     {\n                       \"name\" : \"egS3Store\",\n                       \"provider\" : \"s3\",\n                       \"region\" : \"us-east-2\",\n                       \"bucket\" : \"sbx-data-federation\",\n                       \"delimiter\" : \"/\",\n                       \"prefix\" : \"\"\n                     }\n              ],\n              \"databases\" : [{\n                     \"name\" : \"multiCollDB\",\n                     \"collections\" : [{\n                       \"name\": \"airbnb\",\n                       \"dataSources\" : [\n                              {\n                                     \"storeName\" : \"egS3Store\",\n                                     \"path\" : \"/json/airbnb\"\n                              }\n                       ]\n                     }]\n              }]\n       }\n}",
+      "tokenEstimate": 178
+    }
+  ]
+}

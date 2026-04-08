@@ -1,0 +1,171 @@
+{
+  "path": "atlas/langchain/hybrid-search",
+  "product": "atlas",
+  "title": "Step 2: Create the MongoDB Search index.",
+  "summary": {
+    "total": 13,
+    "byLanguage": {
+      "python": 9,
+      "text": 4
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 32
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Use MongoDB as a Vector Store",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 114
+          }
+        ]
+      },
+      {
+        "heading": "Create the Indexes",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 74
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 136
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 77
+          }
+        ]
+      },
+      {
+        "heading": "Run a Hybrid Search Query",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 221
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 389
+          }
+        ]
+      },
+      {
+        "heading": "Pass Results to a RAG Pipeline",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 164
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 323
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "pip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai pymongo pypdf",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "import os\n\nos.environ[\"VOYAGE_API_KEY\"] = \"<voyage-api-key>\"\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = VoyageAIEmbeddings(model = \"voyage-3-large\", output_dimension = 2048),\n   namespace = \"sample_mflix.embedded_movies\",\n   text_key = \"plot\",\n   embedding_key = \"plot_embedding_voyage_3_large\",\n   relevance_score_fn = \"dotProduct\"\n)",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "python",
+      "section": "Create the Indexes",
+      "content": "# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 2048 # The dimensions of the vector embeddings to be indexed\n)",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "python",
+      "section": "Create the Indexes",
+      "content": "from langchain_mongodb.index import create_fulltext_search_index\nfrom pymongo import MongoClient\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\n\n# Use helper method to create the search index\ncreate_fulltext_search_index(\n   collection = client[\"sample_mflix\"][\"embedded_movies\"],\n   field = \"plot\",\n   index_name = \"search_index\"\n)",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "python",
+      "section": "Create the Indexes",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"sample_mflix\"][\"embedded_movies\"]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"plot_embedding_voyage_3_large\",\n         \"numDimensions\": 2048,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)",
+      "tokenEstimate": 136
+    },
+    {
+      "language": "python",
+      "section": "Create the Indexes",
+      "content": "# Create your search index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n               \"plot\": {\n                  \"type\": \"string\"\n               }\n            }\n      }\n   },\n   name=\"search_index\"\n)\ncollection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "python",
+      "section": "Run a Hybrid Search Query",
+      "content": "from langchain_mongodb.retrievers.hybrid_search import MongoDBAtlasHybridSearchRetriever\n\n# Initialize the retriever\nretriever = MongoDBAtlasHybridSearchRetriever(\n    vectorstore = vector_store,\n    search_index_name = \"search_index\",\n    top_k = 5,\n    fulltext_penalty = 50,\n    vector_penalty = 50,\n    post_filter=[\n        {\n            \"$project\": {\n                \"plot_embedding\": 0,\n                \"plot_embedding_voyage_3_large\": 0\n            }\n        }\n    ])\n\n# Define your query\nquery = \"time travel\"\n\n# Print results\ndocuments = retriever.invoke(query)\nfor doc in documents:\n   print(\"Title: \" + doc.metadata[\"title\"])\n   print(\"Plot: \" + doc.page_content)\n   print(\"Search score: {}\".format(doc.metadata[\"fulltext_score\"]))\n   print(\"Vector Search score: {}\".format(doc.metadata[\"vector_score\"]))\n   print(\"Total score: {}\\n\".format(doc.metadata[\"fulltext_score\"] + doc.metadata[\"vector_score\"]))",
+      "tokenEstimate": 221
+    },
+    {
+      "language": "text",
+      "section": "Run a Hybrid Search Query",
+      "content": "Title: Timecop\nPlot: An officer for a security agency that regulates time travel, must fend for his life against a shady politician who has a tie to his past.\nSearch score: 0.019230769230769232\nVector Search score: 0.018518518518518517\nTotal score: 0.03774928774928775\n\nTitle: A.P.E.X.\nPlot: A time-travel experiment in which a robot probe is sent from the year 2073 to the year 1973 goes terribly wrong thrusting one of the project scientists, a man named Nicholas Sinclair into a...\nSearch score: 0.018518518518518517\nVector Search score: 0.018867924528301886\nTotal score: 0.0373864430468204\n\nTitle: About Time\nPlot: At the age of 21, Tim discovers he can travel in time and change what happens and has happened in his own life. His decision to make his world a better place by getting a girlfriend turns out not to be as easy as you might think.\nSearch score: 0\nVector Search score: 0.0196078431372549\nTotal score: 0.0196078431372549\n\nTitle: The Time Traveler's Wife\nPlot: A romantic drama about a Chicago librarian with a gene that causes him to involuntarily time travel, and the complications it creates for his marriage.\nSearch score: 0.0196078431372549\nVector Search score: 0\nTotal score: 0.0196078431372549\n\nTitle: Retroactive\nPlot: A psychiatrist makes multiple trips through time to save a woman that was murdered by her brutal husband.\nSearch score: 0\nVector Search score: 0.019230769230769232\nTotal score: 0.019230769230769232",
+      "tokenEstimate": 389
+    },
+    {
+      "language": "python",
+      "section": "Pass Results to a RAG Pipeline",
+      "content": "from langchain_core.output_parsers import StrOutputParser\nfrom langchain_core.prompts import PromptTemplate\nfrom langchain_core.runnables import  RunnablePassthrough\nfrom langchain_openai import ChatOpenAI\n\n# Define a prompt template\ntemplate = \"\"\"\n   Use the following pieces of context to answer the question at the end.\n   {context}\n   Question: Can you recommend some movies about {query}?\n\"\"\"\nprompt = PromptTemplate.from_template(template)\nmodel = ChatOpenAI()\n\n# Construct a chain to answer questions on your data\nchain = (\n   {\"context\": retriever, \"query\": RunnablePassthrough()}\n   | prompt\n   | model\n   | StrOutputParser()\n)\n\n# Prompt the chain\nquery = \"time travel\"\nanswer = chain.invoke(query)\nprint(answer)",
+      "tokenEstimate": 164
+    },
+    {
+      "language": "text",
+      "section": "Pass Results to a RAG Pipeline",
+      "content": "Certainly! Here are some movies about time travel from the context provided:\n\n1. **Timecop (1994)**\n   Genre: Action, Crime, Sci-Fi\n   Plot: A law enforcement officer working for the Time Enforcement Commission battles a shady politician with a personal tie to his past.\n   IMDb Rating: 5.8\n\n2. **A.P.E.X. (1994)**\n   Genre: Action, Sci-Fi\n   Plot: A time-travel experiment gone wrong thrusts a scientist into an alternate timeline plagued by killer robots.\n   IMDb Rating: 4.3\n\n3. **About Time (2013)**\n   Genre: Drama, Fantasy, Romance\n   Plot: A young man discovers he can time travel and uses this ability to improve his life, especially his love life, but learns the limitations and challenges of his gift.\n   IMDb Rating: 7.8\n\n4. **The Time Traveler's Wife (2009)**\n   Genre: Drama, Fantasy, Romance\n   Plot: A Chicago librarian with a gene causing him to involuntarily time travel struggles with its impact on his romantic relationship and marriage.\n   IMDb Rating: 7.1\n\n5. **Retroactive (1997)**\n   Genre: Action, Crime, Drama\n   Plot: A woman accidentally time-travels to prevent a violent event, but her attempts to fix the situation lead to worsening consequences due to repeated time cycles.\n   IMDb Rating: 6.3\n\nEach movie covers time travel with unique perspectives, from action-packed adventures to romantic dramas.",
+      "tokenEstimate": 323
+    }
+  ]
+}

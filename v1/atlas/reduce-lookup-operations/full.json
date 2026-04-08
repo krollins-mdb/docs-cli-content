@@ -1,0 +1,111 @@
+{
+  "path": "atlas/reduce-lookup-operations",
+  "product": "atlas",
+  "title": "Reduce $lookup Operations",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "[$lookup](manual/reference/operator/aggregation/lookup) operations join data from two collections in the\nsame database based on a specified field. [$lookup](manual/reference/operator/aggregation/lookup) operations\ncan be useful when your data is structured similarly to a relational\ndatabase and you need to model large hierarchical datasets. However,\nthese operations can be slow and resource-intensive because they need\nto read and perform logic on two collections instead of a single\ncollection.\n\nIf you frequently run [$lookup](manual/reference/operator/aggregation/lookup) operations, consider\nrestructuring your schema such that your application can query a\nsingle collection to obtain all of the information it needs. You can\nutilize MongoDB's [flexible schema model](manual/core/data-modeling-introduction) with embedded\ndocuments and arrays to capture relationships between data in a single\ndocument structure. Use this\n[denormalized model](anti-pattern-denormalization) to take\nadvantage of MongoDB's rich documents and allow your application to\nretrieve and manipulate related data in a single query.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following examples show two schema structures designed\nto reduce [$lookup](manual/reference/operator/aggregation/lookup) operations:\n\n- [Use Embedded Documents](use-embedded-documents)\n\n- [Use Arrays](use-arrays)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Use Embedded Documents",
+      "headingLevel": 3,
+      "body": "Consider the following example where a grocery store tracks\none-to-one inventory and nutrition information in two separate\ncollections. Each inventory item corresponds to a unique nutrition\nfacts item. The `nutrition_id` field links the `inventory`\ncollection to the `nutrition_facts` collection, similar to a\ntabular database:\n\n```javascript\n// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_id\": 123, // reference to a nutrition_fact document\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_id\": 456,\n   ...\n}\n```\n\n```javascript\n// nutrition_facts collection\n\n{\n   \"_id\": 123,\n   \"calories\": 100,\n   \"grams_sugar\": 17,\n   \"grams_protein\": 1,\n   ...\n}\n\n{\n   \"_id\": 456,\n   \"calories\": 250,\n   \"grams_sugar\": 27,\n   \"grams_protein\": 4,\n   ...\n}\n```\n\nIf an application requests the nutrition facts for an inventory\nitem by `name`, this schema structure requires a\n[$lookup](manual/reference/operator/aggregation/lookup) of the `nutrition_facts` collection to find\nan entry that matches the inventory item's `nutrition_id`.\n\nInstead, you can embed the nutrition information inside the\n`inventory` collection:\n\n```javascript\n// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_facts\": {\n      \"calories\": 100,\n      \"grams_sugar\": 17,\n      \"grams_protein\": 1,\n      ...\n   }\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_facts\": {\n      \"calories\": 250,\n      \"grams_sugar\": 27,\n      \"grams_protein\": 4,\n      ...\n   }\n   ...\n}\n```\n\nThis way, when you query for an item in `inventory`, the nutrition\nfacts are included in the result without the need for another query or\na `$lookup` operation. Consider embedding documents when data across\ncollections has a one-to-one relationship.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_id\": 123, // reference to a nutrition_fact document\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_id\": 456,\n   ...\n}",
+          "tokenEstimate": 66
+        },
+        {
+          "language": "javascript",
+          "content": "// nutrition_facts collection\n\n{\n   \"_id\": 123,\n   \"calories\": 100,\n   \"grams_sugar\": 17,\n   \"grams_protein\": 1,\n   ...\n}\n\n{\n   \"_id\": 456,\n   \"calories\": 250,\n   \"grams_sugar\": 27,\n   \"grams_protein\": 4,\n   ...\n}",
+          "tokenEstimate": 80
+        },
+        {
+          "language": "javascript",
+          "content": "// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_facts\": {\n      \"calories\": 100,\n      \"grams_sugar\": 17,\n      \"grams_protein\": 1,\n      ...\n   }\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_facts\": {\n      \"calories\": 250,\n      \"grams_sugar\": 27,\n      \"grams_protein\": 4,\n      ...\n   }\n   ...\n}",
+          "tokenEstimate": 116
+        }
+      ]
+    },
+    {
+      "heading": "Use Arrays",
+      "headingLevel": 3,
+      "body": "Consider the following example where documents in a baseball league's\n`players` collection reference documents in a `teams`\ncollection, similar to a tabular database:\n\n```javascript\n// players collection\n\n{\n   \"team_id\": 1, // reference to a team document\n   \"name\": \"Nick\",\n   \"position\": \"Pitcher\"\n   ...\n}\n\n{\n   \"team_id\": 1,\n   \"name\": \"Anuj\",\n   \"position\": \"Shortstop\"\n   ...\n}\n```\n\n```javascript\n// teams collection\n\n{\n   \"_id\": 1,\n   \"name\": \"Danbury Dolphins\"\n   ...\n}\n```\n\nIf an application requests a list of players on a team, this schema\nstructure requires a [$lookup](manual/reference/operator/aggregation/lookup) of the `players` collection\nto find each player that matches a `team_id`.\n\nInstead, you can list the `players` in an array on the\nteam document itself:\n\n```javascript\n// teams collection\n\n{\n    \"_id\": 1,\n    \"name\": \"Danbury Dolphins\",\n    \"players\": [\n       {\n          \"name\": \"Nick\",\n          \"position\": \"Pitcher\"\n          ...\n       },\n       {\n          \"name\": \"Anuj\",\n          \"position\": \"Shortstop\"\n          ...\n       }\n    ]\n}\n```\n\nBy using arrays to hold related data, an application can retrieve\ncomplete `team` information, including that team's players,\nwithout `$lookup` operations or indexes on other collections.\nIn this case, using arrays is more performant than storing the\ninformation in separate collections.\n\n> **Note:** In the example above, the baseball teams have a set number of\n> players and there is no risk of arrays becoming exceedingly large.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// players collection\n\n{\n   \"team_id\": 1, // reference to a team document\n   \"name\": \"Nick\",\n   \"position\": \"Pitcher\"\n   ...\n}\n\n{\n   \"team_id\": 1,\n   \"name\": \"Anuj\",\n   \"position\": \"Shortstop\"\n   ...\n}",
+          "tokenEstimate": 66
+        },
+        {
+          "language": "javascript",
+          "content": "// teams collection\n\n{\n   \"_id\": 1,\n   \"name\": \"Danbury Dolphins\"\n   ...\n}",
+          "tokenEstimate": 24
+        },
+        {
+          "language": "javascript",
+          "content": "// teams collection\n\n{\n    \"_id\": 1,\n    \"name\": \"Danbury Dolphins\",\n    \"players\": [\n       {\n          \"name\": \"Nick\",\n          \"position\": \"Pitcher\"\n          ...\n       },\n       {\n          \"name\": \"Anuj\",\n          \"position\": \"Shortstop\"\n          ...\n       }\n    ]\n}",
+          "tokenEstimate": 72
+        }
+      ]
+    },
+    {
+      "heading": "Array Considerations",
+      "headingLevel": 4,
+      "body": "The performance cost of reading and writing to large arrays can\noutweigh the benefit gained by avoiding [$lookup](manual/reference/operator/aggregation/lookup)\noperations. If your arrays are unbounded or exceedingly large, those\narrays may degrade read and write performance.\n\nIf you create an index on an array, each element in the array is\nindexed. If you write to that array frequently, the performance cost of\nindexing or re-indexing a potentially large array field may be\nsignificant.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Denormalization",
+      "headingLevel": 2,
+      "body": "Denormalizing your schema is the process of duplicating fields or\nderiving new fields from existing ones. Denormalization can improve\nread performance in a variety of cases, such as:\n\n- A recurring query requires a few fields from a large document in\n  another collection. You may choose to maintain a copy of those fields\n  in an embedded document in the collection that the recurring query\n  targets to avoid merging two distinct collections or performing\n  frequent `$lookup` operations.\n\n- An average value of some field in a collection is frequently\n  requested. You may choose to create a derived field in a separate\n  collection that is updated as part of your writes and maintains a\n  running average for that field.\n\nWhile embedding documents or arrays without duplication is\npreferred for grouping related data, denormalization can improve read\nperformance when separate collections must be maintained.\n\n> **Note:** When you denormalize your schema, it becomes your responsibility to\n> maintain consistent duplicated data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "The best structure for your schema depends on your application context.\nThe following resources provide detailed information on data modeling\nand additional example use cases for embedded documents and arrays:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data Models",
+      "headingLevel": 3,
+      "body": "- To learn more about Data Modeling in MongoDB and the flexible schema\n  model, see [Data Modeling Introduction](manual/core/data-modeling-introduction).\n\n- To learn more about the tradeoffs between embedded and normalized\n  data models, see [Data Modeling](manual/data-modeling).\n\n- MongoDB also offers a free MongoDB University Course on Data Modeling:\n  [Data Modeling for MongoDB](https://learn.mongodb.com/learning-paths/data-modeling-for-mongodb).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB.live 2020 Data Modeling Presentations",
+      "headingLevel": 4,
+      "body": "To learn how to incorporate the flexible data model into your schema,\nsee the following presentations from **MongoDB.live 2020**:\n\n- Learn about entity relationships in MongoDB and examples of their\n  implementations with\n  [Data Modeling with MongoDB](https://www.mongodb.com/presentations/data-modeling-with-mongodb).\n\n- Learn advanced data modeling design patterns you can incorporate\n  into your schema with\n  [Advanced Schema Design Patterns](https://www.mongodb.com/presentations/advanced-schema-design-patterns).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Arrays",
+      "headingLevel": 3,
+      "body": "To learn more about how to query arrays in MongoDB, see\n[Query an Array](manual/tutorial/query-arrays).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Design Patterns",
+      "headingLevel": 3,
+      "body": "To read about situations in which arrays work well, see the\nfollowing design patterns:\n\n- Use\n  [The Attribute Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-attribute-pattern) for handling data\n  with unique combinations of attributes, such as movie data where each\n  movie is released in a subset of countries.\n\n- Use\n  [The Bucket Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-bucket-pattern) for handling tightly\n  grouped or sequential data, such as time span data.\n\n- Use\n  [The Polymorphic Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-polymorphic-pattern) for handling\n  differently shaped documents in the same collection, such as athlete\n  records across several sports.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Denormalized Schemas",
+      "headingLevel": 3,
+      "body": "To read about a situation in which duplicating data\nimproves your schema, see the following design pattern:\n\n- Use\n  [The Extended Reference Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-extended-reference-pattern) to\n  duplicate a frequently-read portion of data from large documents to\n  smaller ones.",
+      "codeBlocks": []
+    }
+  ]
+}

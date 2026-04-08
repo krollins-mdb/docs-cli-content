@@ -1,0 +1,65 @@
+{
+  "path": "atlas/sp-agg-meta",
+  "product": "atlas",
+  "title": "$meta Aggregation Stage (Stream Processing)",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "json": 4
+    },
+    "bySection": [
+      {
+        "heading": "Definition",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 8
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 104
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 83
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 58
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Definition",
+      "content": "{ \"$meta\": <string> }",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "section": "Definition",
+      "content": "{\n  source: {\n    type: string,\n    ts: date,\n    source.topic: string\n    source.partition: int\n    source.offset: int\n    source.key: string|int|long|double|object|binData\n    source.headers: array[obj]\n  },\n  window: {\n    start: date,\n    end: date\n  },\n  https: {\n    url: string\n    method: string\n    httpStatusCode: int\n    responseTimeMs: int\n  }\n}",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  $source: {\n    connectionName: “kafka”,\n    topic: [“t1”, “t2”, “t3”]\n  }\n},\n{\n  $emit: {\n    connectionName: “kafka”,\n    topic: {\n      $concat: [\n        {\n          $meta: “stream.source.topic”\n        },\n        “out\"\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  $source: {\n    connectionName: \"kafka\",\n    topic: \"t1\"\n  }\n},\n{\n  $hoppingWindow: . . .\n},\n{\n  $addFields: {\n    start: { $meta: \"stream.window.start\" }\n  }\n}",
+      "tokenEstimate": 58
+    }
+  ]
+}

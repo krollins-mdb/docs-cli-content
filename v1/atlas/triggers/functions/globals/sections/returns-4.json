@@ -1,0 +1,22 @@
+{
+  "heading": "Returns",
+  "headingLevel": 4,
+  "body": "A [BSON.Binary](atlas-bson-binary) object that contains the\ndecrypted message.\n\nIf the provided encrypted message was encrypted with the\nspecified method and key, then the decrypted message is identical\nto the original message.\n\nAssume that we have defined a Value named\n`aesEncryptionKey` that contains the following 32-byte AES\nencryption key:\n\n```json\n\"603082712271C525E087BD999A4E0738\"\n```\n\nWe can use this AES key to decrypt any base64 string that was\nencrypted with the same key using the following function:\n\n**Input:**\n\n```javascript\nexports = function(encryptedMessage) {\n  // The encrypted message must be a BSON.Binary\n  if(typeof encryptedMessage === \"string\") {\n    encryptedMessage = BSON.Binary.fromBase64(encryptedMessage)\n  }\n  const key = context.values.get(\"aesEncryptionKey\");\n  const decryptedMessage = utils.crypto.decrypt(\"aes\", encryptedMessage, key);\n  return decryptedMessage.text();\n}\n```\n\n**Output:**\n\n```json\n\"MongoDB is great!\"\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "\"603082712271C525E087BD999A4E0738\"",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "javascript",
+      "content": "exports = function(encryptedMessage) {\n  // The encrypted message must be a BSON.Binary\n  if(typeof encryptedMessage === \"string\") {\n    encryptedMessage = BSON.Binary.fromBase64(encryptedMessage)\n  }\n  const key = context.values.get(\"aesEncryptionKey\");\n  const decryptedMessage = utils.crypto.decrypt(\"aes\", encryptedMessage, key);\n  return decryptedMessage.text();\n}",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "json",
+      "content": "\"MongoDB is great!\"",
+      "tokenEstimate": 6
+    }
+  ]
+}

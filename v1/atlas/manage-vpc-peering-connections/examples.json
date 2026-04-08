@@ -1,0 +1,95 @@
+{
+  "path": "atlas/manage-vpc-peering-connections",
+  "product": "atlas",
+  "title": "Manage VPC Peering Connections",
+  "summary": {
+    "total": 6,
+    "byLanguage": {
+      "sh": 6
+    },
+    "bySection": [
+      {
+        "heading": "Step 2: Retrieve the  Cloud  Account ID, the  ID, and the  block.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 99
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 52
+          }
+        ]
+      },
+      {
+        "heading": "Step 8: The  peering connection request displays in  after a potential delay.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 96
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 290
+          }
+        ]
+      },
+      {
+        "heading": "Step 9: Accept the incoming  Peering connection request.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 140
+          }
+        ]
+      },
+      {
+        "heading": "Accept an Inbound VPC Peering Connection",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 140
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Step 2: Retrieve the  Cloud  Account ID, the  ID, and the  block.",
+      "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\ \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/accountDetails?cloudProvider=aws&regionName=US_EAST_1\"",
+      "tokenEstimate": 99
+    },
+    {
+      "language": "sh",
+      "section": "Step 2: Retrieve the  Cloud  Account ID, the  ID, and the  block.",
+      "content": "{\n   \"awsAccountId\": \"974404375205\",\n   \"cidrBlock\": \"192.168.248.0/21\",\n   \"vpcId\": \"vpc-0ef7efa5ceca36e2f\"\n}",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "sh",
+      "section": "Step 8: The  peering connection request displays in  after a potential delay.",
+      "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659\"",
+      "tokenEstimate": 96
+    },
+    {
+      "language": "sh",
+      "section": "Step 8: The  peering connection request displays in  after a potential delay.",
+      "content": "{\n   \"links\": [\n      {\n         \"href\": \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659&pageNum=1&itemsPerPage=100\",\n         \"rel\": \"self\"\n      }\n   ],\n   \"results\": [\n      {\n         \"_id\": \"6759e61aa6cf0a5476e233d1\",\n         \"accepterAccountId\": \"974404375205\",\n         \"accepterVpcId\": \"vpc-0ddfd37072cc5ed61\",\n         \"cloudStatus\": \"pending-acceptance\",\n         \"expirationTime\": \"2024-12-18T19:20:37Z\",\n         \"groupId\": \"671a86f4cfc9da7d7c31b14f\",\n         \"localStatus\": \"NONE\",\n         \"name\": \"pcx-09277e1e81d0751c1\",\n         \"requesterAccountId\": \"417601102659\",\n         \"requesterCidr\": \"10.0.0.0/16\",\n         \"requesterVpcId\": \"vpc-0d13eb6a2f0377854\"\n      }\n   ],\n   \"totalCount\": 1\n}",
+      "tokenEstimate": 290
+    },
+    {
+      "language": "sh",
+      "section": "Step 9: Accept the incoming  Peering connection request.",
+      "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"",
+      "tokenEstimate": 140
+    },
+    {
+      "language": "sh",
+      "section": "Accept an Inbound VPC Peering Connection",
+      "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"",
+      "tokenEstimate": 140
+    }
+  ]
+}

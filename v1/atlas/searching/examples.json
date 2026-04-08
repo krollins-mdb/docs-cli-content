@@ -1,0 +1,181 @@
+{
+  "path": "atlas/searching",
+  "product": "atlas",
+  "title": "Queries and Indexes",
+  "summary": {
+    "total": 14,
+    "byLanguage": {
+      "json": 12,
+      "text": 2
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Choose which fields to index.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 50
+          }
+        ]
+      },
+      {
+        "heading": "Step 2:  Apply text analysis rules.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 158
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 41
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 56
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 117
+          }
+        ]
+      },
+      {
+        "heading": "Step 3:  Add options to optimize query performance.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 11
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 32
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Apply operators to define your search criteria.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 35
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 19
+          }
+        ]
+      },
+      {
+        "heading": "Step 3:  Apply options or collectors to return metadata.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 61
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 35
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Step 1: Choose which fields to index.",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "json",
+      "section": "Step 1: Choose which fields to index.",
+      "content": "{\n  \"mappings\": { \n    \"dynamic\": true|false, \n    \"fields\": { \n      \"<field-name>\": {\n        \"type\": \"<field-type>\",\n        ...\n      },\n      ...  \n    }\n  }\n}",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "section": "Step 2:  Apply text analysis rules.",
+      "content": "{\n  \"analyzer\": \"<index-analyzer-name>\", // top-level index analyzer, used if no analyzer is set in the field mappings\n  \"searchAnalyzer\": \"<search-analyzer-name>\", // query text analyzer, typically the same as the index analyzer\n  \"mappings\": {\n    \"dynamic\": <boolean>,\n    \"fields\":{\n      \"<field-name>\": [\n        {\n          \"type\": \"string|autocomplete\",\n          \"analyzer\": \"<field-analyzer-name>\" // field-specific index analyzer\n          \"multi\": {\n            \"<multi-option-name>\": {\n              \"type\": \"string|autocomplete\",\n              \"analyzer\": \"<alternate-analyzer-name>\" // multi-option specific index analyzer\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "json",
+      "section": "Step 2:  Apply text analysis rules.",
+      "content": "{\n  \"analyzers\": [\n    {\n      \"name\": \"<custom-analyzer-name>\",\n      \"tokenizer\": {\n        \"type\": \"<tokenizer-type>\"\n      }\n    },\n    ...\n  ]\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "section": "Step 2:  Apply text analysis rules.",
+      "content": "{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "json",
+      "section": "Step 2:  Apply text analysis rules.",
+      "content": "  \"mappings\": {\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"string|autocomplete\",\n        \"similarity\": {\n          \"type\": \"bm25|boolean|stableTfl\"\n        },\n      },\n      \"<field-name>\": {\n        \"type\": \"string\",\n        \"multi\": {\n          \"<multi-option-name>\": {\n            \"type\": \"string\",\n            \"similarity\": {\n              \"type\": \"bm25|boolean|stableTfl\"\n            }\n          }\n        }\n      }\n    }\n  }\n",
+      "tokenEstimate": 117
+    },
+    {
+      "language": "json",
+      "section": "Step 3:  Add options to optimize query performance.",
+      "content": "{\n  \"numPartitions\": <integer>,\n}",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "section": "Step 3:  Add options to optimize query performance.",
+      "content": "{\n  \"storedSource\": true | false | {\n    \"include\" | \"exclude\": [\n      \"<field-name>\",\n      ...\n    ]\n  }\n}",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "json",
+      "section": "Step 2: Apply operators to define your search criteria.",
+      "content": "{\n  $search: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Apply operators to define your search criteria.",
+      "content": "[\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  ...\n]",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "json",
+      "section": "Step 2: Apply operators to define your search criteria.",
+      "content": "{\n  $searchMeta: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Apply operators to define your search criteria.",
+      "content": "[\n  {\n    count: {\n      total: <results-count>\n    }\n  }\n]",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "json",
+      "section": "Step 3:  Apply options or collectors to return metadata.",
+      "content": "{\n  \"$search\" | \"$searchMeta\": {\n    \"<operator-name>\": {\n      <operator-specifications>\n    },\n    \"count\": {\n      \"type\": \"lowerBound\" | \"total\",\n      \"threshold\": <number-of-documents> // Optional\n    }\n  }\n}",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "json",
+      "section": "Step 3:  Apply options or collectors to return metadata.",
+      "content": "{\n  \"$search\" | \"$searchMeta\": {\n    \"facet\": {\n      \"facets\": {\n        <facet-definitions>\n      }\n    }\n  }\n}",
+      "tokenEstimate": 35
+    }
+  ]
+}

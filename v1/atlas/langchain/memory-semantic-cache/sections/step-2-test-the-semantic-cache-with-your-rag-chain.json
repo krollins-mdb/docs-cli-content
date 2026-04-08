@@ -1,0 +1,27 @@
+{
+  "heading": "Step 2: Test the semantic cache with your RAG chain.",
+  "headingLevel": 3,
+  "body": "The semantic cache automatically caches your prompts.\nRun the following sample queries, where you should see a significant\nreduction in response time for the second query. Your\nresponses and response times might vary.\n\n> **Tip:** You can view your cached prompts in the `semantic_cache` collection.\n> The semantic cache caches only the input to the LLM. When using it in retrieval chains,\n> note that documents retrieved can change between runs, resulting in cache misses for\n> semantically similar queries.\n\n**Input:**\n\n```python\n%%time\n\n# First query (not cached)\nrag_with_memory.invoke(\n  {\"question\": \"What was MongoDB's latest acquisition?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)\n```\n\n**Output:**\n\n```\nCPU times: user 54.7 ms, sys: 34.2 ms, total: 88.9 ms\nWall time: 7.42 s\n\n\"MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation AI applications.\"\n```\n\n**Input:**\n\n```python\n%%time\n\n# Second query (cached)\nrag_with_memory.invoke(\n  {\"question\": \"What company did MongoDB acquire recently?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)\n```\n\n**Output:**\n\n```text\nCPU times: user 79.7 ms, sys: 24 ms, total: 104 ms\nWall time: 3.87 s\n\n'MongoDB recently acquired Voyage AI.'\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "%%time\n\n# First query (not cached)\nrag_with_memory.invoke(\n  {\"question\": \"What was MongoDB's latest acquisition?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "text",
+      "content": "CPU times: user 54.7 ms, sys: 34.2 ms, total: 88.9 ms\nWall time: 7.42 s\n\n\"MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation AI applications.\"",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "python",
+      "content": "%%time\n\n# Second query (cached)\nrag_with_memory.invoke(\n  {\"question\": \"What company did MongoDB acquire recently?\"},\n  {\"configurable\": {\"session_id\": \"user_2\"}}\n)",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "text",
+      "content": "CPU times: user 79.7 ms, sys: 24 ms, total: 104 ms\nWall time: 3.87 s\n\n'MongoDB recently acquired Voyage AI.'",
+      "tokenEstimate": 39
+    }
+  ]
+}

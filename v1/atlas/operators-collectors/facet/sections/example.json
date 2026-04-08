@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "> **Example:** The following example uses an index named `default` on the\n> `sample_mflix.movies` collection. The `genres` field in the\n> collection is indexed as the [token](bson-data-types-token) type and the `year` field is\n> indexed as the [number](bson-data-types-number) type.\n>\n> ```json\n> {\n>   \"mappings\": {\n>     \"dynamic\": false,\n>     \"fields\": {\n>       \"genres\": {\n>         \"type\": \"token\"\n>       },\n>       \"year\": {\n>         \"type\": \"number\"\n>       }\n>     }\n>   }\n> }\n> ```\n>\n> The query  uses the [$searchMeta](pipe.$searchMeta) stage to search the\n> `year` field in the `movies` collection for movies from 2000 to\n> 2015 and retrieve a count of the number of movies in each genre.\n>\n> **Input:**\n>\n> ```shell\n> db.movies.aggregate([\n>   {\n>     \"$searchMeta\": {\n>       \"facet\": {\n>         \"operator\": {\n>           \"range\": {\n>             \"path\": \"year\",\n>             \"gte\": 2000,\n>             \"lte\": 2015\n>           }\n>         },\n>         \"facets\": {\n>           \"genresFacet\": {\n>             \"type\": \"string\",\n>             \"path\": \"genres\"\n>           }\n>         }\n>       }\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```shell\n> [\n>   {\n>     count: { lowerBound: Long('12568') },\n>     facet: {\n>       genresFacet: {\n>         buckets: [\n>           { _id: 'Drama', count: Long('7079') },\n>           { _id: 'Comedy', count: Long('3689') },\n>           { _id: 'Romance', count: Long('1764') },\n>           { _id: 'Thriller', count: Long('1584') },\n>           { _id: 'Documentary', count: Long('1472') },\n>           { _id: 'Action', count: Long('1471') },\n>           { _id: 'Crime', count: Long('1367') },\n>           { _id: 'Adventure', count: Long('1056') },\n>           { _id: 'Horror', count: Long('866') },\n>           { _id: 'Biography', count: Long('796') }\n>         ]\n>       }\n>     }\n>   }\n> ]\n> ```\n>\n> To learn more about these results, see [Facet Results](fts-facet-results).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"token\"\n      },\n      \"year\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "shell",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"year\",\n            \"gte\": 2000,\n            \"lte\": 2015\n          }\n        },\n        \"facets\": {\n          \"genresFacet\": {\n            \"type\": \"string\",\n            \"path\": \"genres\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    count: { lowerBound: Long('12568') },\n    facet: {\n      genresFacet: {\n        buckets: [\n          { _id: 'Drama', count: Long('7079') },\n          { _id: 'Comedy', count: Long('3689') },\n          { _id: 'Romance', count: Long('1764') },\n          { _id: 'Thriller', count: Long('1584') },\n          { _id: 'Documentary', count: Long('1472') },\n          { _id: 'Action', count: Long('1471') },\n          { _id: 'Crime', count: Long('1367') },\n          { _id: 'Adventure', count: Long('1056') },\n          { _id: 'Horror', count: Long('866') },\n          { _id: 'Biography', count: Long('796') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 204
+    }
+  ]
+}

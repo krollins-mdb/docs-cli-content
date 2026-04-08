@@ -1,0 +1,105 @@
+{
+  "path": "atlas/supported-unsupported/pipeline/lookup-stage",
+  "product": "atlas",
+  "title": "$lookup Stage (Atlas Data Federation)",
+  "summary": {
+    "total": 7,
+    "byLanguage": {
+      "json": 7
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 55
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 77
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 78
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 139
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 166
+          }
+        ]
+      },
+      {
+        "heading": "Basic Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 62
+          }
+        ]
+      },
+      {
+        "heading": "Nested Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 230
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $lookup: {\n    localField: \"<fieldName>\",\n    from: <collection-to-join>|{db: <db>, coll: <collection-to-join>},\n    foreignField: \"<fieldName>\",\n    as: \"<output-array-field>\",\n  }\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $lookup: {\n    from: <collection to join>|{db: <db>, coll: <collection-to-join>},\n    let: { <var_1>: <expression>, …, <var_n>: <expression> },\n    pipeline: [ <pipeline to execute on the collection to join> ],\n    as: <output array field>\n  }\n}",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.orders.insertMany([\n  { \"_id\" : 1, \"item\" : \"almonds\", \"price\" : 12, \"quantity\" : 2 },\n  { \"_id\" : 2, \"item\" : \"pecans\", \"price\" : 20, \"quantity\" : 1 },\n  { \"_id\" : 3  }\n])",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.catalog.insertMany([\n  { \"_id\" : 1, \"sku\" : \"almonds\", \"description\": \"product 1\" },\n  { \"_id\" : 2, \"sku\" : \"bread\", \"description\": \"product 2\" },\n  { \"_id\" : 3, \"sku\" : \"cashews\", \"description\": \"product 3\" },\n  { \"_id\" : 4, \"sku\" : \"pecans\", \"description\": \"product 4\" },\n  { \"_id\" : 5, \"sku\": null, \"description\": \"Incomplete\" },\n  { \"_id\" : 6 }\n])",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.warehouses.insertMany([\n  { \"_id\" : 1, \"stock_item\" : \"almonds\", \"warehouse\": \"A\", \"instock\" : 120 },\n  { \"_id\" : 2, \"stock_item\" : \"pecans\", \"warehouse\": \"A\", \"instock\" : 70 },\n  { \"_id\" : 3, \"stock_item\" : \"cashews\", \"warehouse\": \"B\", \"instock\" : 60 },\n  { \"_id\" : 4, \"stock_item\" : \"bread\", \"warehouse\": \"B\", \"instock\" : 80 },\n  { \"_id\" : 5, \"stock_item\" : \"cookies\", \"warehouse\": \"A\", \"instock\" : 80 }\n])",
+      "tokenEstimate": 166
+    },
+    {
+      "language": "json",
+      "section": "Basic Example",
+      "content": "db.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  {\n    $lookup: {\n      from: { db: \"sourceDB2\", coll: \"catalog\" },\n      localField: \"item\",\n      foreignField: \"sku\",\n      as: \"inventory_docs\"\n    }\n  }\n)",
+      "tokenEstimate": 62
+    },
+    {
+      "language": "json",
+      "section": "Nested Example",
+      "content": "db.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  [\n    {\n      $lookup: {\n        from: db: \"sourceDB2\", coll: \"catalog\",\n        let: { \"order_sku\": \"$item\" },\n        pipeline: [\n          {\n            $match: {\n              $expr: {\n                $eq: [\"$sku\", \"$$order_sku\"]\n              }\n            }\n          },\n          {\n            $lookup: {\n              from: db: \"sourceDB3\", coll: \"warehouses\",\n              pipeline: [\n                {\n                  $match: {\n                    $expr:{\n                      $eq : [\"$stock_item\", \"$$order_sku\"]\n                    }\n                  }\n                },\n                {\n                  $project : { \"instock\": 1, \"_id\": 0}\n                }\n              ],\n              as: \"wh\"\n            }\n          },\n          { \"$unwind\": \"$wh\" },\n          {\n            $project : { \"description\": 1, \"instock\": \"$wh.instock\", \"_id\": 0}\n          }\n        ],\n        as: \"inventory\"\n      },\n    },\n  ]\n)",
+      "tokenEstimate": 230
+    }
+  ]
+}

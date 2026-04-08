@@ -1,0 +1,67 @@
+{
+  "heading": "Sort by Null Values",
+  "headingLevel": 3,
+  "body": "Consider the following queries that search field `b` for the string `hello` in\nthe `users` collection using the [text](text-ref) operator. The query then\nsorts the results by field `c`, which contains null or missing values for\nsome documents in the collection.To learn more, see [Sort by Null and Missing Values](fts-sort-null).**Default:**Default**Ascending-sort:**Ascending SortDuring an ascending sort, MongoDB Search returns documents with\nnull or missing values at the top of the results by default,\nas shown in the following example:**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": { \"c\": 1 }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 4, c: null, score: 0.029335692524909973 },\n  { _id: 5, c: [], score: 0.029335692524909973 },\n  { _id: 6, score: 0.029335692524909973 },\n  { _id: 2, c: 'foo', score: 0.029335692524909973 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.029335692524909973\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.029335692524909973\n  },\n  { _id: 1, c: true, score: 0.029335692524909973 }\n]\n\n```**Descending-sort:**Descending SortDuring a descending sort, MongoDB Search returns documents with\nnull or missing values at the bottom of the results by default,\nas shown in the following example:**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": { \"c\": -1 }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]\n\n```**Nodata-lowest:**`noData: lowest`> **Note:** Setting `noData: lowest` is the same as the default.**Ascending-sort:**Ascending SortIf you specify the `noData` field as `lowest`\nduring an ascending sort, MongoDB Search returns documents\nwith null or missing values at the top of the results,\nas shown in the following example.**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": 1,\n          \"noData\": \"lowest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 4, c: null, score: 0.029335692524909973 },\n  { _id: 5, c: [], score: 0.029335692524909973 },\n  { _id: 6, score: 0.029335692524909973 },\n  { _id: 2, c: 'foo', score: 0.029335692524909973 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.029335692524909973\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.029335692524909973\n  },\n  { _id: 1, c: true, score: 0.029335692524909973 }\n]\n\n```**Descending-sort:**Descending SortIf you specify the `noData` field as `lowest`\nduring a descending sort, MongoDB Search returns documents\nwith null or missing values at the bottom of the results,\nas shown in the following example.**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": -1,\n          \"noData\": \"lowest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]\n\n```**Nodata-highest:**`noData: highest`**Ascending-sort:**Ascending SortIf you specify the `noData` field as `highest`\nduring an ascending sort, MongoDB Search returns documents\nwith null or missing values at the bottom of the results,\nas shown in the following example.**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": 1,\n          \"noData\": \"highest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]\n```**Descending-sort:**Descending SortIf you specify the `noData` field as `highest`\nduring a descending sort, MongoDB Search returns documents\nwith null or missing values at the top of the results,\nas shown in the following example.**Input:**```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": -1,\n          \"noData\": \"highest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```js\n[\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 },\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 }\n]\n```The order of documents with `\"_id\": 4`, `\"_id\": 5`, and `\"_id\": 6`\nis random because MongoDB Search treats null and missing values as equal\nwhen sorting.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": { \"c\": 1 }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 4, c: null, score: 0.029335692524909973 },\n  { _id: 5, c: [], score: 0.029335692524909973 },\n  { _id: 6, score: 0.029335692524909973 },\n  { _id: 2, c: 'foo', score: 0.029335692524909973 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.029335692524909973\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.029335692524909973\n  },\n  { _id: 1, c: true, score: 0.029335692524909973 }\n]\n",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": { \"c\": -1 }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]\n",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": 1,\n          \"noData\": \"lowest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 4, c: null, score: 0.029335692524909973 },\n  { _id: 5, c: [], score: 0.029335692524909973 },\n  { _id: 6, score: 0.029335692524909973 },\n  { _id: 2, c: 'foo', score: 0.029335692524909973 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.029335692524909973\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.029335692524909973\n  },\n  { _id: 1, c: true, score: 0.029335692524909973 }\n]\n",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": -1,\n          \"noData\": \"lowest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]\n",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": 1,\n          \"noData\": \"highest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 2, c: 'foo', score: 0.025981096550822258 },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 }\n]",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "json",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"b\",\n        \"query\": \"hello\"\n      },\n      \"sort\": {\n        \"c\": {\n          \"order\": -1,\n          \"noData\": \"highest\"\n        }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"c\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 4, c: null, score: 0.025981096550822258 },\n  { _id: 5, c: [], score: 0.025981096550822258 },\n  { _id: 6, score: 0.025981096550822258 },\n  { _id: 1, c: true, score: 0.025981096550822258 },\n  {\n    _id: 0,\n    c: ObjectId('507f1f77bcf86cd799439011'),\n    score: 0.025981096550822258\n  },\n  {\n    _id: 3,\n    c: UUID('3be11d4e-62cb-4e95-9a3c-5c9f1e56c732'),\n    score: 0.025981096550822258\n  },\n  { _id: 2, c: 'foo', score: 0.025981096550822258 }\n]",
+      "tokenEstimate": 218
+    }
+  ]
+}

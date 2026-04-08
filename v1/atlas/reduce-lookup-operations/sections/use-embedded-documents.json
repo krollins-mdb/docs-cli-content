@@ -1,0 +1,22 @@
+{
+  "heading": "Use Embedded Documents",
+  "headingLevel": 3,
+  "body": "Consider the following example where a grocery store tracks\none-to-one inventory and nutrition information in two separate\ncollections. Each inventory item corresponds to a unique nutrition\nfacts item. The `nutrition_id` field links the `inventory`\ncollection to the `nutrition_facts` collection, similar to a\ntabular database:\n\n```javascript\n// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_id\": 123, // reference to a nutrition_fact document\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_id\": 456,\n   ...\n}\n```\n\n```javascript\n// nutrition_facts collection\n\n{\n   \"_id\": 123,\n   \"calories\": 100,\n   \"grams_sugar\": 17,\n   \"grams_protein\": 1,\n   ...\n}\n\n{\n   \"_id\": 456,\n   \"calories\": 250,\n   \"grams_sugar\": 27,\n   \"grams_protein\": 4,\n   ...\n}\n```\n\nIf an application requests the nutrition facts for an inventory\nitem by `name`, this schema structure requires a\n[$lookup](manual/reference/operator/aggregation/lookup) of the `nutrition_facts` collection to find\nan entry that matches the inventory item's `nutrition_id`.\n\nInstead, you can embed the nutrition information inside the\n`inventory` collection:\n\n```javascript\n// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_facts\": {\n      \"calories\": 100,\n      \"grams_sugar\": 17,\n      \"grams_protein\": 1,\n      ...\n   }\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_facts\": {\n      \"calories\": 250,\n      \"grams_sugar\": 27,\n      \"grams_protein\": 4,\n      ...\n   }\n   ...\n}\n```\n\nThis way, when you query for an item in `inventory`, the nutrition\nfacts are included in the result without the need for another query or\na `$lookup` operation. Consider embedding documents when data across\ncollections has a one-to-one relationship.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_id\": 123, // reference to a nutrition_fact document\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_id\": 456,\n   ...\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "javascript",
+      "content": "// nutrition_facts collection\n\n{\n   \"_id\": 123,\n   \"calories\": 100,\n   \"grams_sugar\": 17,\n   \"grams_protein\": 1,\n   ...\n}\n\n{\n   \"_id\": 456,\n   \"calories\": 250,\n   \"grams_sugar\": 27,\n   \"grams_protein\": 4,\n   ...\n}",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "javascript",
+      "content": "// inventory collection\n\n{\n   \"name\": \"Pear\",\n   \"stock\": 20,\n   \"nutrition_facts\": {\n      \"calories\": 100,\n      \"grams_sugar\": 17,\n      \"grams_protein\": 1,\n      ...\n   }\n   ...\n}\n\n{\n   \"name\": \"Candy Bar\",\n   \"stock\": 26,\n   \"nutrition_facts\": {\n      \"calories\": 250,\n      \"grams_sugar\": 27,\n      \"grams_protein\": 4,\n      ...\n   }\n   ...\n}",
+      "tokenEstimate": 116
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Using the Atlas Go SDK in Your Code with Digest Authentication",
+  "headingLevel": 2,
+  "body": "To access different parts of the Atlas Admin API, construct a new Atlas SDK client and use its services. For example:\n\n```go\npackage main\n\nimport (\n    \"context\"\n    \"fmt\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n    apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n\n    sdk, err := admin.NewClient(admin.UseDigestAuth(apiKey, apiSecret))\n    if err != nil {\n        log.Fatalf(\"Error instantiating new client: %v\", err)\n    }\n    projects, response, err := sdk.ProjectsApi.ListProjects(ctx).Execute()\n    if err != nil {\n        log.Fatalf(\"Could not fetch projects: %v\", err)\n    }\n    fmt.Printf(\"Response status: %v\\n\", response.Status)\n    fmt.Printf(\"Projects: %v\\n\", projects)\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n    \"context\"\n    \"fmt\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n    apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n\n    sdk, err := admin.NewClient(admin.UseDigestAuth(apiKey, apiSecret))\n    if err != nil {\n        log.Fatalf(\"Error instantiating new client: %v\", err)\n    }\n    projects, response, err := sdk.ProjectsApi.ListProjects(ctx).Execute()\n    if err != nil {\n        log.Fatalf(\"Could not fetch projects: %v\", err)\n    }\n    fmt.Printf(\"Response status: %v\\n\", response.Status)\n    fmt.Printf(\"Projects: %v\\n\", projects)\n}",
+      "tokenEstimate": 181
+    }
+  ]
+}

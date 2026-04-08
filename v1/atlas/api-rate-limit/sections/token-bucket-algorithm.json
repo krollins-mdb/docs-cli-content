@@ -1,0 +1,12 @@
+{
+  "heading": "Token Bucket Algorithm",
+  "headingLevel": 3,
+  "body": "The Token Bucket Algorithm works as follows:\n\n- Atlas fills the bucket up to the maximum number of tokens (`capacity`)\n  for that bucket. This reflects the maximum number of requests you can send.\n\n- Atlas allows requests only if tokens are available. Each request to the\n  endpoint consumes one token.\n\n- Atlas adds tokens to the bucket at a fixed rate (`refillRate`) at\n  specific intervals (`refillDurationSeconds`) up to the maximum number of\n  tokens (`capacity`).\n\n  You can send a burst of requests as long as there are tokens in the bucket.\n  If there are only limited number of tokens in the bucket, your allowed burst\n  is limited to the available number of tokens in the bucket.\n\nWhen the bucket is empty, the Atlas Administration API returns a [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429)\n(Too Many Requests) HTTP (HyperText Transport Protocol) status code for any additional requests.\n\n```shell\n{\n  \"detail\": \"Rate limit exceeded for api/atlas/v2/orgs. Please retry after 55 seconds. Request capacity: 10. Refill rate: 5 per 60 seconds.\",\n  \"error\": 429,\n  \"errorCode\": \"RATE_LIMITED_TOKEN_BUCKET\",\n  \"parameters\": [\n     \"api/atlas/v2/orgs\",\n     55,\n     10,\n     5,\n     60\n  ],\n  \"reason\": \"Too Many Requests\"\n}\n```\n\nTo learn more, see [Response Headers](api-rate-limiting-response-header)",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "{\n  \"detail\": \"Rate limit exceeded for api/atlas/v2/orgs. Please retry after 55 seconds. Request capacity: 10. Refill rate: 5 per 60 seconds.\",\n  \"error\": 429,\n  \"errorCode\": \"RATE_LIMITED_TOKEN_BUCKET\",\n  \"parameters\": [\n     \"api/atlas/v2/orgs\",\n     55,\n     10,\n     5,\n     60\n  ],\n  \"reason\": \"Too Many Requests\"\n}",
+      "tokenEstimate": 103
+    }
+  ]
+}

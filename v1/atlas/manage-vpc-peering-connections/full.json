@@ -1,0 +1,155 @@
+{
+  "path": "atlas/manage-vpc-peering-connections",
+  "product": "atlas",
+  "title": "Manage VPC Peering Connections",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To create and configure connections, you must have the following:\n\n- An Atlas [Manage Project Access](manage-projects)\n\n- An Atlas user with the [Project Owner](<Project Owner>) or\n  the [Project Stream Processing Owner](<Project Stream Processing Owner>) role to manage a\n  connection registry\n\n  > **Note:** The [Project Owner](<Project Owner>) role allows you to create database\n  > deployments, manage project access and project settings, manage\n  > IP Access List entries, and more.\n  >\n  > The [Project Stream Processing Owner](<Project Stream Processing Owner>) role enables Atlas Stream Processing\n  > actions such as viewing, creating, deleting, and editing stream\n  > processing workspaces, and creating, updating, and deleting\n  > VPC Peering connections in the connection registry.\n  >\n  > See [project role](project-roles) to learn more about the\n  > differences between the two roles.\n\n- An Atlas cluster",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "Atlas Stream Processing supports only [RFC 1918](https://datatracker.ietf.org/doc/html/rfc1918) private IP ranges\nfor VPC peering. You must use one of the following IP ranges:\n\n- `10.0.0.0/8`\n\n- `172.16.0.0/12`\n\n- `192.168.0.0/16`",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create Outbound VPC Peering Connections",
+      "headingLevel": 2,
+      "body": "To create outbound VPC (Virtual Private Cloud) peering connections to your stream processing workspace:**Ui:**Atlas UITo create outbound VPC (Virtual Private Cloud) peering connections from your stream processing workspace\nto your cloud provider VPC (Virtual Private Cloud) using the Atlas UI,\nsee [Add an Atlas Stream Processing Connection](atlas-sp-add-connection) and select **Apache Kafka**\nas your connection type, and **Atlas UI** as your\ninterface.You must select `SASL_SSL` as your security protocol for VPC\npeering connections.**Api:**Atlas Administration APITo create outbound VPC (Virtual Private Cloud) peering connections to your stream processing workspace using the API, see\n[Return All Network Peering Connections in One Project](api/doc/atlas-admin-api-v2/operation/operation-listgroupstreamvpcpeeringconnections)You must select `SASL_SSL` as your security protocol for VPC\npeering connections.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Generate an Incoming VPC Peering Connection Request from Confluent",
+      "headingLevel": 2,
+      "body": "To set up and configure an AWS (Amazon Web Services) VPC (Virtual Private Cloud) peering connection initiated from a Confluent\naccount:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a service account to authenticate with the Atlas Administration API.",
+      "headingLevel": 3,
+      "body": "Create a [Service Account](service-accounts-overview) and\ngenerate an access token to authenticate your API requests. To\nlearn more, see [API Access Lists endpoint](atlas-admin-api-access).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Retrieve the  Cloud  Account ID, the  ID, and the  block.",
+      "headingLevel": 3,
+      "body": "A sample API request resembles the following:\n\n```sh\ncurl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\ \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/accountDetails?cloudProvider=aws&regionName=US_EAST_1\"\n```\n\nNote the following example parameter values:\n\n| Parameter values          | Description                               |\n| ------------------------- | ----------------------------------------- |\n| 671a86f4cfc9da7d7c31b14f  | The Atlas project Id                      |\n| AWS (Amazon Web Services) | The Cloud provider                        |\n| US\\_EAST\\_1               | The AWS (Amazon Web Services) region name |\n\nA sample output resembles the following:\n\n```sh\n{\n   \"awsAccountId\": \"974404375205\",\n   \"cidrBlock\": \"192.168.248.0/21\",\n   \"vpcId\": \"vpc-0ef7efa5ceca36e2f\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2024-11-13+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\ \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/accountDetails?cloudProvider=aws&regionName=US_EAST_1\"",
+          "tokenEstimate": 99
+        },
+        {
+          "language": "sh",
+          "content": "{\n   \"awsAccountId\": \"974404375205\",\n   \"cidrBlock\": \"192.168.248.0/21\",\n   \"vpcId\": \"vpc-0ef7efa5ceca36e2f\"\n}",
+          "tokenEstimate": 52
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Configure a network configuration.",
+      "headingLevel": 3,
+      "body": "A Confluent Network Configuration that supports VPC (Virtual Private Cloud) peering is required before you create a VPC (Virtual Private Cloud) peering connection.\nIf a network configuration doesn't yet exist in your account, then select AWS (Amazon Web Services) as your cloud provider and select a region from the\n**Add Network Configuration** field in Confluent Cloud.\n\n> **Note:** If a Confluent VPC (Virtual Private Cloud) Peering Network Configuration already exists in your account, then proceed to **Step 7**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Click  and select  in the next page.",
+      "headingLevel": 3,
+      "body": "Select three different **Zones** and the CIDR (Classless Inter-Domain Routing) block for the Confluent AWS (Amazon Web Services) VPC (Virtual Private Cloud).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Click .",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: Open the Confluent  Peering Network Configuration, and click .",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 7: Provide the connection with a name, an   Account ID, a  ID, and the  block from , and click .",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 8: The  peering connection request displays in  after a potential delay.",
+      "headingLevel": 3,
+      "body": "To see your pending request in your Atlas account, execute an API request similar to:\n\n```sh\ncurl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659\"\n```\n\nNote the following example parameter values:\n\n| Parameter values         | Description                                                           |\n| ------------------------ | --------------------------------------------------------------------- |\n| 671a86f4cfc9da7d7c31b14f | The Atlas project Id                                                  |\n| 417601102659             | The Confluent AWS (Amazon Web Services) Account ID obtained in Step 7 |\n\nA sample output resembles the following:\n\n```sh\n{\n   \"links\": [\n      {\n         \"href\": \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659&pageNum=1&itemsPerPage=100\",\n         \"rel\": \"self\"\n      }\n   ],\n   \"results\": [\n      {\n         \"_id\": \"6759e61aa6cf0a5476e233d1\",\n         \"accepterAccountId\": \"974404375205\",\n         \"accepterVpcId\": \"vpc-0ddfd37072cc5ed61\",\n         \"cloudStatus\": \"pending-acceptance\",\n         \"expirationTime\": \"2024-12-18T19:20:37Z\",\n         \"groupId\": \"671a86f4cfc9da7d7c31b14f\",\n         \"localStatus\": \"NONE\",\n         \"name\": \"pcx-09277e1e81d0751c1\",\n         \"requesterAccountId\": \"417601102659\",\n         \"requesterCidr\": \"10.0.0.0/16\",\n         \"requesterVpcId\": \"vpc-0d13eb6a2f0377854\"\n      }\n   ],\n   \"totalCount\": 1\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n--request GET \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659\"",
+          "tokenEstimate": 96
+        },
+        {
+          "language": "sh",
+          "content": "{\n   \"links\": [\n      {\n         \"href\": \"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections?requesterAccountId=417601102659&pageNum=1&itemsPerPage=100\",\n         \"rel\": \"self\"\n      }\n   ],\n   \"results\": [\n      {\n         \"_id\": \"6759e61aa6cf0a5476e233d1\",\n         \"accepterAccountId\": \"974404375205\",\n         \"accepterVpcId\": \"vpc-0ddfd37072cc5ed61\",\n         \"cloudStatus\": \"pending-acceptance\",\n         \"expirationTime\": \"2024-12-18T19:20:37Z\",\n         \"groupId\": \"671a86f4cfc9da7d7c31b14f\",\n         \"localStatus\": \"NONE\",\n         \"name\": \"pcx-09277e1e81d0751c1\",\n         \"requesterAccountId\": \"417601102659\",\n         \"requesterCidr\": \"10.0.0.0/16\",\n         \"requesterVpcId\": \"vpc-0d13eb6a2f0377854\"\n      }\n   ],\n   \"totalCount\": 1\n}",
+          "tokenEstimate": 290
+        }
+      ]
+    },
+    {
+      "heading": "Step 9: Accept the incoming  Peering connection request.",
+      "headingLevel": 3,
+      "body": "Note that the `cloudStatus` value is `pending-acceptance`.\n\nExecute the following API request:\n\n```sh\ncurl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"\n```\n\nNote the following example parameter values:\n\n| Parameter values                                                                  | Description                                                                                                                                                                                 |\n| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| \\{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"} | This is the POST payload containing the “requester”s VPC (Virtual Private Cloud) ID, and the “requester”s AWS (Amazon Web Services) Account ID. In this case, the “requester” is Confluent. |\n| 671a86f4cfc9da7d7c31b14f                                                          | The Atlas project Id                                                                                                                                                                        |\n| pcx-09277e1e81d0751c1                                                             | The incoming VPC (Virtual Private Cloud) connection name obtained from the previous step                                                                                                    |",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"",
+          "tokenEstimate": 140
+        }
+      ]
+    },
+    {
+      "heading": "Step 10: Verify that the connection was accepted.",
+      "headingLevel": 3,
+      "body": "To do this, repeat **Step 9** and observe the `cloudStatus` field value. When the connection is finally accepted, the value should return `active`.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Get AWS Account ID and VPC ID for a Project",
+      "headingLevel": 2,
+      "body": "If you want to create inbound VPC (Virtual Private Cloud) peering connections to your stream processing workspace,\nyou first need to retrieve the AWS (Amazon Web Services) account ID, the AWS (Amazon Web Services) VPC (Virtual Private Cloud) ID, and\nthe CIDR (Classless Inter-Domain Routing) block associated with your Atlas project to initiate a VPC (Virtual Private Cloud)\npeering request from an external cloud environment.\n\nTo retrieve the AWS (Amazon Web Services) account ID, the AWS (Amazon Web Services) VPC (Virtual Private Cloud) ID, and the CIDR (Classless Inter-Domain Routing) block for an\nAtlas project using the Atlas Administration API, see\n[Returns the Account ID, and the VPC ID for the group and region specified](api/doc/atlas-admin-api-v2/operation/operation-getgroupstreamaccountdetails)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "List Inbound VPC Peering Connections",
+      "headingLevel": 2,
+      "body": "To list all inbound VPC (Virtual Private Cloud) peering connections to your stream processing workspace using the Atlas Administration API,\nsee [Return All VPC Peering Connections](api/doc/atlas-admin-api-v2/operation/operation-listgroupstreamvpcpeeringconnections)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Accept an Inbound VPC Peering Connection",
+      "headingLevel": 2,
+      "body": "To accept an inbound VPC (Virtual Private Cloud) peering connection to your stream processing workspace using the Atlas Administration API,\nsee [Requests the acceptance of an incoming VPC Peering connection](api/doc/atlas-admin-api-v2/operation/operation-acceptgroupstreamvpcpeeringconnection)\n\nA sample API request resembles the following:\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n```sh\ncurl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"\n```\n\nNote the following example parameter values:\n\n| Parameter values                                                                  | Description                                                                                                       |\n| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |\n| \\{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"} | The POST payload containing the request's VPC (Virtual Private Cloud) ID and AWS (Amazon Web Services) Account ID |\n| 671a86f4cfc9da7d7c31b14f                                                          | The Atlas project Id                                                                                              |\n| pcx-09277e1e81d0751c1                                                             | The incoming VPC (Virtual Private Cloud) connection name obtained from listing inbound VPC peering connections    |",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl \\\n-s --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--header 'Content-Type: application/json' \\\n-d '{\"requesterVpcId\": \"vpc-0d13eb6a2f0377854\", \"requesterAccountId\":\"417601102659\"}' \\\n--request POST \\\n\"https://cloud.mongodb.com/api/atlas/v2/groups/671a86f4cfc9da7d7c31b14f/streams/vpcPeeringConnections/pcx-09277e1e81d0751c1:accept\"",
+          "tokenEstimate": 140
+        }
+      ]
+    },
+    {
+      "heading": "Reject an Inbound VPC Peering Connection",
+      "headingLevel": 2,
+      "body": "To reject an inbound VPC (Virtual Private Cloud) peering connection to your stream processing workspace using the Atlas Administration API,\nsee [Requests the rejection of an incoming VPC Peering connection](api/doc/atlas-admin-api-v2/operation/operation-rejectgroupstreamvpcpeeringconnection)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete an Inbound VPC Peering Connection",
+      "headingLevel": 2,
+      "body": "To delete an inbound VPC (Virtual Private Cloud) peering connection to your stream processing workspace using the Atlas Administration API,\nsee [Deletes an incoming VPC Peering connection](api/doc/atlas-admin-api-v2/operation/operation-deletegroupstreamvpcpeeringconnection)",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "path": "atlas/vector-search-overview",
+  "product": "atlas",
+  "title": "MongoDB Vector Search Overview",
+  "sections": [
+    {
+      "heading": "What is Vector Search?",
+      "headingLevel": 2,
+      "body": "Vector search is a search method that returns results based on\nyour data's semantic, or underlying, meaning. Unlike traditional\nfull-text search which finds text matches, vector search finds\n[vectors](vector) that are close to your search query\nin multi-dimensional space. The closer the vectors are to your query,\nthe more similar they are in meaning.\n\nBy interpreting the meaning of your search query and data,\nvector search allows you to consider the searcher's intent\nand search context to retrieve more relevant results.\n\nFor example, if you searched for the term \"red fruit,\" full-text search\nreturns only data that explicitly contains these keywords. However,\nsemantic search might return data that is similar in meaning,\nsuch as fruits that are red in color like apples or strawberries.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Use Cases",
+      "headingLevel": 2,
+      "body": "MongoDB Vector Search supports the following vector search use cases:\n\n- **Semantic Search**: Query your vector embeddings based on semantic similarity\n  by using the ANN (Approximate Nearest Neighbor) or ENN (Exact Nearest Neighbor) search algorithm.\n\n  To learn more, see [How to Perform Semantic Search Against Data in Your Atlas Cluster](vector-search-tutorial) and [Run Vector Search Queries](return-vector-search-results).\n\n- **Hybrid Search**: Combine results from multiple\n  search queries, including vector search and full-text search.\n  To learn more, see [How to Perform Hybrid Search](as_hybrid-search).\n\n- **Generative Search**: Use MongoDB Vector Search to retrieve relevant\n  data for your generative AI applications by implementing\n  **retrieval-augmented generation (RAG)**.\n\n  To learn how to implement RAG, see [Retrieval-Augmented Generation (RAG) with MongoDB](avs-rag).\n  To learn how to build AI agents with vector search, including implementing\n  agentic RAG, see [Build AI Agents with MongoDB](ai-agents).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "AI Integrations",
+      "headingLevel": 3,
+      "body": "You can use MongoDB Vector Search with embedding and generative models\nfrom any AI provider. MongoDB and partners also provide specific\nproduct integrations to help you leverage MongoDB Vector Search in your AI-powered\napplications. These integrations include frameworks, platforms, and\ntools that enable you to quickly implement vector search, RAG, and AI agents.\n\nTo learn more, see [MongoDB AI Integrations](vector-search-integrations).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Key Concepts",
+      "headingLevel": 2,
+      "body": "vectorA vector is an array of numbers that represents your data\nin multiple dimensions. Vectors can represent any kind of data,\nfrom text, image, and audio data to unstructured data. Semantic\nsimilarity is determined by measuring the distance between\nvectors.Vector dimensions refer to the number of elements\nin the array, and therefore the number of dimensions\nin vector space where the vectors are plotted.Specifically, MongoDB Vector Search uses dense vectors,\nwhich are a type of high-dimensional vector that favors\nsmaller storage and semantic richness. As opposed to sparse vectors,\ndense vectors can be packed with more data,\nwhich enables MongoDB Vector Search to capture more complex relationships.vector embeddingsVector embeddings are vectors you use to\nrepresent your data. These embeddings capture\nmeaningful relationships in your data and enable tasks like\nsemantic search and retrieval. You create\nvector embeddings by passing your data through an\n[embedding model](<embedding model>), and you can store these embeddings\nin a MongoDB collection as a field in a document.MongoDB Vector Search determines semantic similarity by identifying the\nvector embeddings that are closest in distance to\nyour [query vector](avs-queries).To learn more, see [How to Create Vector Embeddings Manually](create-vector-embeddings).embedding modelEmbedding models are algorithms that\nyou use to convert your data into vector embeddings.\nTo do this, embedding models use LLM (Large Language Model)s, machine\nlearning models trained on a large corpus of data, to generate\nvector embeddings that capture the semantic meaning of your data.The embedding model that you choose determines the\ndimensions of your vector embeddings. You must specify\nthese dimensions as a field in your [MongoDB Vector Search index](avs-indexes).Embedding models vary depending on how\nthe model was trained. Therefore,\ndifferent models offer different advantages depending\non your data and use case.\nTo learn more, see [Choosing an Embedding Model](choose-embedding-model).\nFor state-of-the-art embedding models, use\n[Voyage AI](https://docs.voyageai.com/docs/introduction).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB Vector Search Indexes",
+      "headingLevel": 2,
+      "body": "To perform vector search on your data in MongoDB, you must create\na MongoDB Vector Search index. MongoDB Vector Search indexes are separate from your other database\nindexes and are used to efficiently retrieve documents that contain\nvector embeddings at query-time. In your MongoDB Vector Search index definition,\nyou index the fields in your collection that contain your embeddings\nto enable vector search against those fields. MongoDB Vector Search supports embeddings\nthat are less than and equal to 8192 dimensions in length.\n\nYou can also pre-filter your data by indexing additional\nfields in your collection that you want to run your MongoDB Vector Search\nqueries against. You can filter on boolean, date, objectId, numeric, string, and UUID values, including arrays of these types.\nFiltering your data narrows the scope of your\nsearch and ensures that certain vector embeddings\naren't considered for comparison.\n\nTo learn how to index fields for MongoDB Vector Search, see [index definition](avs-types-vector-search).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB Vector Search Queries",
+      "headingLevel": 2,
+      "body": "MongoDB Vector Search supports approximate nearest neighbor (ANN (Approximate Nearest Neighbor)) search\nwith the Hierarchical Navigable Small Worlds algorithm and exact nearest neighbor (ENN (Exact Nearest Neighbor)) search.\n\nTo find the most similar vectors, MongoDB Vector Search performs ANN (Approximate Nearest Neighbor) search without\nscanning every vector embedding and ENN (Exact Nearest Neighbor) search exhaustively on all\nthe indexed vector embeddings. To learn more, see [vectorSearch Definition](vectorSearch-agg-pipeline).\n\nMongoDB Vector Search queries consist of [aggregation pipeline stages](manual/aggregation) where the [$vectorSearch](pipe.$vectorSearch) stage is the\nfirst stage in the pipeline. The process for a basic MongoDB Vector Search query\nis as follows:\n\n- You select either ANN (Approximate Nearest Neighbor) or ENN (Exact Nearest Neighbor) search and specify the [query vector](vectorSearch-agg-pipeline-options), which is the vector\n  embedding that represents your search query.\n\n- MongoDB Vector Search finds vector embeddings in your data that are closest to the\n  query vector.\n\n- MongoDB Vector Search returns the documents that contain the most similar vectors.\n\nTo customize your vector search query, you can pre-filter your data on\nfields that you've indexed by using an MQL (MongoDB Query Language)\nmatch expression with supported [evaluation query operators](manual/reference/mql/query-predicates)\nor [aggregation pipeline operators](manual/reference/mql/expressions),\nor you can add additional [stages](manual/reference/mql/aggregation-stages)\nto further process and organize your results.\n\nTo learn how to create and run MongoDB Vector Search queries,\nsee [Run Vector Search Queries](return-vector-search-results).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Next Steps",
+      "headingLevel": 2,
+      "body": "For a hands-on experience creating MongoDB Vector Search indexes and running MongoDB Vector Search\nqueries against sample data, try the [MongoDB Vector Search Course on MongoDB University](https://learn.mongodb.com/courses/using-vector-search-for-semantic-search) and the tutorials in the following pages:\n\n- [MongoDB Vector Search Quick Start](vector-search-quick-start)\n\n- [MongoDB Vector Search Use Cases and Design Patterns](avs-tutorials)\n\nFor optimal performance, we recommend deploying [Search Nodes](configure-search-nodes). Search Nodes\nsupport concurrent query execution to improve individual query\nlatency. To learn more, see [Review Deployment Options](avs-deployment-options).",
+      "codeBlocks": []
+    }
+  ]
+}

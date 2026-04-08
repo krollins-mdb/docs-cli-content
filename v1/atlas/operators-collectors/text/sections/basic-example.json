@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 3,
+  "body": "The following MongoDB Search query uses the `text` operator to search the\n`title` field in the `movies` collection for the term `surfer`. It\nincludes a [$project](manual/reference/operator/aggregation/project)\nstage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"surfer\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"title\" : \"Soul Surfer\", \"score\" : 4.518949508666992 }\n{ \"title\" : \"Little Surfer Girl\", \"score\" : 3.8856077194213867 }\n{ \"title\" : \"Fantastic 4: Rise of the Silver Surfer\", \"score\" : 2.489800453186035 }\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"surfer\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"Soul Surfer\", \"score\" : 4.518949508666992 }\n{ \"title\" : \"Little Surfer Girl\", \"score\" : 3.8856077194213867 }\n{ \"title\" : \"Fantastic 4: Rise of the Silver Surfer\", \"score\" : 2.489800453186035 }",
+      "tokenEstimate": 79
+    }
+  ]
+}

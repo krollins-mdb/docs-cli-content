@@ -1,0 +1,12 @@
+{
+  "heading": "Do Atlas cluster's public IPs ever change?",
+  "headingLevel": 2,
+  "body": "The factors that determine if and when an Atlas cluster's public IP\naddress changes depends on the cluster tier.\n\n> **Note:** This section applies to `M10` or larger dedicated clusters only\n> unless specified.\n\nAn Atlas cluster's public IP addresses must change when you:\n\n- [Scale your Replica Set to a Sharded Cluster](scale-cluster-sharding).\n\n- [increase the number of shards](scale-cluster-shardNum).\n\n- [Change the region into which a cluster is deployed](scale-cluster-region).\n\n- [Required Access](scale-cluster-open-dialog) a Free cluster (formerly known as `M0`) or Flex cluster\n  to an `M10` or larger cluster.\n\n- [Terminate active clusters](terminate-cluster) then re-deploy a\n  cluster with the same name *but in a different tier* within\n  36 hours.\n\n- [Encryption at Rest](scale-cluster-enable-encryption) on a cluster with a\n  lifetime less than 12 hours.\n\n> **Note:** For NVMe-backed clusters on [Amazon Web Services (AWS)](amazon-aws) or [Microsoft Azure](microsoft-azure),\n> vertically scaling usually keeps the existing public IP addresses.\n> However, there is a small chance they change; Atlas does not\n> guarantee IP address retention.\n\nAn Atlas cluster's public IPs don't change when you:\n\n- Vertically scale a cluster on [Amazon Web Services (AWS)](amazon-aws) or [Microsoft Azure](microsoft-azure) that is not\n  backed by an [NVMe storage volumes](nvme-storage), or vertically\n  scale a cluster from any tier on [Google Cloud Platform (GCP)](google-gcp).\n\n- Unpause the cluster.\n\n- [Terminate active clusters](terminate-cluster) and then re-deploy a cluster\n  with a lifetime of 12 hours or more within 12-36 hours.\n\n- Experience a maintenance or a healing event on your cluster.\n\nTo find the public IP address for any node in your cluster, use the\n`nslookup` tool from the command line. The IP address is shown in the\n`Address` portion of the output.\n\n```sh\n$ nslookup ds-shard-00-00-17jcm.mongodb-dev.net\n\nAddress: 34.226.104.79\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "$ nslookup ds-shard-00-00-17jcm.mongodb-dev.net\n\nAddress: 34.226.104.79",
+      "tokenEstimate": 28
+    }
+  ]
+}

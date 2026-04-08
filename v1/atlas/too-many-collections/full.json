@@ -1,0 +1,90 @@
+{
+  "path": "atlas/too-many-collections",
+  "product": "atlas",
+  "title": "Reduce Number of Collections",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "[Collections](manual/reference/glossary) are groupings of MongoDB documents,\nsimilar to an RDBMS (Relational Database Management System)\ntable. A collection exists within a single database.\n\nEven if a collection doesn't contain any documents, it still comes with\na resource cost because you can't drop the [default \\_id index](manual/indexes). For small collections, this index doesn't\ntake up much space. If you have thousands of collections, these indexes\ncan add up in resources and strain your database allocation.\n\nIf your deployment contains unnecessary or a large number of collections\nthat keeps increasing, to reduce the resource requirements of your application,\nrestructure your data to remove unnecessary collections.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "Consider a `temperatures` database that stores collections of\ntemperature readings obtained from a sensor. The sensor takes readings\nevery half hour from 10 AM to 10 PM. Each day's readings are stored in a\nseparate collection, named by the reading date:\n\n```javascript\n// temperatures.march-09-2020\n\n{\n  \"_id\": 1,\n  \"timestamp\": \"2020-03-09T010:00:00Z\",\n  \"temperature\": 29\n}\n{\n  \"_id\": 2,\n  \"timestamp\": \"2020-03-09T010:30:00Z\",\n  \"temperature\": 30\n}\n...\n{\n  \"_id\": 25,\n  \"timestamp\": \"2020-03-09T022:00:00Z\",\n  \"temperature\": 26\n}\n```\n\n```javascript\n// temperatures.march-10-2020\n\n{\n  \"_id\": 1,\n  \"timestamp\": \"2020-03-10T010:00:00Z\",\n  \"temperature\": 30\n}\n{\n  \"_id\": 2,\n  \"timestamp\": \"2020-03-10T010:30:00Z\",\n  \"temperature\": 32\n}\n...\n{\n  \"_id\": 25,\n  \"timestamp\": \"2020-03-10T022:00:00Z\",\n  \"temperature\": 28\n}\n```\n\nWith each passing day, the number of collections in the database\nincrements. Since the number of collections is unbounded, there is an\never-growing need from the database to maintain these collections and\ntheir corresponding indexes. If the database eventually reaches a point\nwhere it is managing thousands of collections and indexes, it may result\nin performance degradation.\n\nAdditionally, this approach does not easily facilitate queries across\nmultiple days. To query data from multiple days to obtain temperature\ntrends over longer periods of time, you would need to perform a\n[$lookup](manual/reference/operator/aggregation/lookup) operation, which is not as performant as querying\ndata in the same collection.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// temperatures.march-09-2020\n\n{\n  \"_id\": 1,\n  \"timestamp\": \"2020-03-09T010:00:00Z\",\n  \"temperature\": 29\n}\n{\n  \"_id\": 2,\n  \"timestamp\": \"2020-03-09T010:30:00Z\",\n  \"temperature\": 30\n}\n...\n{\n  \"_id\": 25,\n  \"timestamp\": \"2020-03-09T022:00:00Z\",\n  \"temperature\": 26\n}",
+          "tokenEstimate": 116
+        },
+        {
+          "language": "javascript",
+          "content": "// temperatures.march-10-2020\n\n{\n  \"_id\": 1,\n  \"timestamp\": \"2020-03-10T010:00:00Z\",\n  \"temperature\": 30\n}\n{\n  \"_id\": 2,\n  \"timestamp\": \"2020-03-10T010:30:00Z\",\n  \"temperature\": 32\n}\n...\n{\n  \"_id\": 25,\n  \"timestamp\": \"2020-03-10T022:00:00Z\",\n  \"temperature\": 28\n}",
+          "tokenEstimate": 116
+        }
+      ]
+    },
+    {
+      "heading": "Updated Schema",
+      "headingLevel": 3,
+      "body": "Instead, a better approach to structure this data is to store\nall temperature readings in a single collection, and have each\nday's readings in a single document. Consider this updated schema,\nwhere all temperatures are in a single collection:\n`temperatures.readings`:\n\n```javascript\n// temperatures.readings\n\n{\n  \"_id\": ISODate(\"2020-03-09\"),\n  \"readings\": [\n    {\n      \"timestamp\": \"2020-03-09T010:00:00Z\",\n      \"temperature\": 29\n    },\n    {\n      \"timestamp\": \"2020-03-09T010:30:00Z\",\n      \"temperature\": 30\n    },\n    ...\n    {\n      \"timestamp\": \"2020-03-09T022:00:00Z\",\n      \"temperature\": 26\n    }\n  ]\n}\n{\n  \"_id\": ISODate(\"2020-03-10\"),\n  \"readings\": [\n    {\n      \"timestamp\": \"2020-03-10T010:00:00Z\",\n      \"temperature\": 30\n    },\n    {\n      \"timestamp\": \"2020-03-10T010:30:00Z\",\n      \"temperature\": 32\n    },\n    ...\n    {\n      \"timestamp\": \"2020-03-10T022:00:00Z\",\n      \"temperature\": 28\n    }\n  ]\n}\n```\n\nThis updated schema requires much fewer resources than the original\nschema. Now, rather than requiring an index for every single day\nthat temperatures are read, the default `_id` index on this collection\nhelps facilitate queries by date.\n\n> **See Also:** [Use Buckets for Time Series Data](manual/tutorial/model-time-data)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// temperatures.readings\n\n{\n  \"_id\": ISODate(\"2020-03-09\"),\n  \"readings\": [\n    {\n      \"timestamp\": \"2020-03-09T010:00:00Z\",\n      \"temperature\": 29\n    },\n    {\n      \"timestamp\": \"2020-03-09T010:30:00Z\",\n      \"temperature\": 30\n    },\n    ...\n    {\n      \"timestamp\": \"2020-03-09T022:00:00Z\",\n      \"temperature\": 26\n    }\n  ]\n}\n{\n  \"_id\": ISODate(\"2020-03-10\"),\n  \"readings\": [\n    {\n      \"timestamp\": \"2020-03-10T010:00:00Z\",\n      \"temperature\": 30\n    },\n    {\n      \"timestamp\": \"2020-03-10T010:30:00Z\",\n      \"temperature\": 32\n    },\n    ...\n    {\n      \"timestamp\": \"2020-03-10T022:00:00Z\",\n      \"temperature\": 28\n    }\n  ]\n}",
+          "tokenEstimate": 237
+        }
+      ]
+    },
+    {
+      "heading": "How to Check for Unnecessary Collections",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB Shell",
+      "headingLevel": 3,
+      "body": "To check the number of collections in your database, you can\nrun the following command from [mongosh](mongodb-shell):\n\n```javascript\ndb.getCollectionNames().length\n```\n\nThe [db.stats()](manual/reference/method/db.stats) method also\nreturns the number of collections in your database, along with useful\ndatabase statistics such as the total size of your data and indexes.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.getCollectionNames().length",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "MongoDB Atlas",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas UI",
+      "headingLevel": 4,
+      "body": "If the [Atlas UI](atlas-ui) is enabled, the Atlas UI\nprovides a high-level overview of collections in your databases. The\nAtlas UI shows the total size of a collection, including the size of\na collection's indexes. If the majority of a collection's size is\ncomprised of indexes, you can consider consolidating that collection's\ndata into another collection and dropping the original collection. Refer\nto the [$merge](manual/reference/operator/aggregation/merge) documentation for an approach to merging data\nfrom one collection into another.\n\nAdditionally, if the Atlas UI reveals that you have empty\ncollections, you can drop those collections directly from the\nAtlas UI.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Real-Time Performance Panel",
+      "headingLevel": 4,
+      "body": "The Atlas [Real-Time Performance Panel](real-time-metrics-status-tab) shows which collections receive the most\nactivity. You can use this tool to ensure that before you drop a\ncollection, it is not being actively used by your application.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- To learn more about Data Modeling in MongoDB and the flexible schema\n  model, see [Data Modeling Introduction](manual/core/data-modeling-introduction).\n\n- To learn more about databases and collections, see\n  [Databases and Collections](manual/core/databases-and-collections).\n\n- To learn more about embedding related data in a single document, see\n  [Embedded Data Models](manual/data-modeling)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB.live 2020 Presentations",
+      "headingLevel": 3,
+      "body": "To learn how to incorporate the flexible data model into your schema,\nsee the following presentations from **MongoDB.live 2020**:\n\n- Learn about entity relationships in MongoDB and examples of their\n  implementations with\n  [Data Modeling with MongoDB](https://www.mongodb.com/presentations/data-modeling-with-mongodb).\n\n- Learn advanced data modeling design patterns you can incorporate\n  into your schema with\n  [Advanced Schema Design Patterns](https://www.mongodb.com/presentations/advanced-schema-design-patterns).",
+      "codeBlocks": []
+    }
+  ]
+}

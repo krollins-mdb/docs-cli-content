@@ -1,0 +1,100 @@
+{
+  "path": "atlas/benchmark/overview",
+  "product": "atlas",
+  "title": "MongoDB Vector Search Benchmark Overview",
+  "sections": [
+    {
+      "heading": "Factors Impacting Performance",
+      "headingLevel": 2,
+      "body": "This section outlines several factors that impact performance for\nMongoDB Vector Search and how we configured our benchmark to test them.\n\n- [Quantization](avs-benchmark-quantization)\n\n- [Dimensionality](avs-benchmark-dimensionality)\n\n- [Filtering](avs-benchmark-filtering)\n\n- [Search Node Configuration](avs-benchmark-search-node-config)\n\n- [binData vector compression](avs-benchmark-bindata-compression)\n\n- [Concurrency](avs-benchmark-concurrency)\n\n- [Sharding](avs-benchmark-sharding)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Quantization",
+      "headingLevel": 3,
+      "body": "Quantization reduces the precision of vector embeddings\nto decrease memory usage and improve search speed, with trade-offs in search accuracy.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scalar Quantization",
+      "headingLevel": 4,
+      "body": "Scalar quantization converts 32-bit floating-point vectors to 8-bit integers,\nachieving a 4x reduction in memory usage. Integer vector comparisons take less\ncomputation time compared to float vectors and require fewer resources, but may\nincur a penalty in the search precision.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Binary Quantization",
+      "headingLevel": 4,
+      "body": "Binary quantization converts vectors to 1-bit representations, achieving a\n32x reduction in memory usage. Binary vector comparisons involve computing\nthe Hamming distance and take even less computation time compared to int\nvectors and fewer resources. However, the penalty in search precision is so\nsignificant going from float vectors to binary vectors that to account for\nthis, we add a rescoring step, which increases latency. At query time,\nthe top `numCandidates` that are accumulated during search are reordered by their\nfull fidelity vectors on disk before yielding the top `limit` results.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Vector Dimensionality",
+      "headingLevel": 3,
+      "body": "We used Voyage AI's `voyage-3-large` model to embed the medium (5.5M)\nand large (15.3M) vectors datasets. We chose this embedding model because of its\noutperformance on many IR (Information Retrieval) benchmarks and because it\nis trained with both Matryoshka Representation Learning and quantization in mind.\nTherefore, it performs well at lower dimensions with quantization enabled, even at\nhigher volumes of vectors.\n\nWe leveraged [MongoDB Views](avs-transform-documents-collections)\nto produce additional fields that slice the first N dimensions of the source 2048\ndimension vector to produce 1024, 512, and 256 dimension vectors and index them\nas we would the source field.\n\n> **Note:** You must use MongoDB version 8.1 or later in order to create a vector search index on a view.\n\n```javascript\ndb.createView(\n  \"all_dims_amazon_dataset\",\n  \"2048d_amazon_dataset\",\n  [\n    {\n      $addFields: {\n        \"1024_embedding\": { $slice: [\"$embedding\", 1024] },\n        \"512_embedding\": { $slice: [\"$embedding\", 512] },\n        \"256_embedding\": { $slice: [\"$embedding\", 256] }\n      }\n    }\n  ]\n)\n```\n\n```javascript\ndb.all_dims_amazon_dataset.createSearchIndex(\n  \"all_dims_vector_index\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\", // original 2048d embedding produced by voyage-3-large\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 1024,\n        \"path\": \"1024_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\", // sliced embeddings aren't normalized, so must use cosine\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 512,\n        \"path\": \"512_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 256,\n        \"path\": \"256_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      }\n    ]\n  }\n)\n```\n\nSimilar to different representations at each position, the different\ndimensionalities impact the representational capacity of each vector.\nConsequently, you can achieve higher accuracy with 2048d vectors\ncompared to 256d vectors, especially when you measure against a 2048d\nfloat ENN (Exact Nearest Neighbor) baseline.\n\nIn addition to requiring more storage and memory, higher dimensional vectors\nare somewhat slower to query compared to lower dimensional vectors, but\nthis is mitigated significantly as MongoDB Vector Search leverages SIMD (Single Instruction, Multiple Data)\ninstructions when performing vector comparisons.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.createView(\n  \"all_dims_amazon_dataset\",\n  \"2048d_amazon_dataset\",\n  [\n    {\n      $addFields: {\n        \"1024_embedding\": { $slice: [\"$embedding\", 1024] },\n        \"512_embedding\": { $slice: [\"$embedding\", 512] },\n        \"256_embedding\": { $slice: [\"$embedding\", 256] }\n      }\n    }\n  ]\n)",
+          "tokenEstimate": 91
+        },
+        {
+          "language": "javascript",
+          "content": "db.all_dims_amazon_dataset.createSearchIndex(\n  \"all_dims_vector_index\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\", // original 2048d embedding produced by voyage-3-large\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 1024,\n        \"path\": \"1024_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\", // sliced embeddings aren't normalized, so must use cosine\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 512,\n        \"path\": \"512_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 256,\n        \"path\": \"256_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      }\n    ]\n  }\n)",
+          "tokenEstimate": 245
+        }
+      ]
+    },
+    {
+      "heading": "Filtering",
+      "headingLevel": 3,
+      "body": "We also created a separate index definition on the collection\ncontaining all 15.3M items, which includes filters on two fields\nto enable pre-filtered queries against this dataset.```javascript\ndb.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)\n```We ran vector search queries, both unfiltered and filtered, against the large indexed dataset:**Unfiltered-query:**Unfiltered Query```python\n# unfiltered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]\n```**Filtered-query:**Filtered Query```python\n# filtered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n      \"filter\": {\"$and\": [{'price': {'$lte': 1000}}, {'category': {'$eq': \"Pet Supplies\"}}]}\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]\n```> **Note:** Both query patterns exclude the embedding fields in the output by using\n> [$project](manual/reference/operator/aggregation/project) stage. This is always recommended to reduce\n> latency unless you need embeddings in your results.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)",
+          "tokenEstimate": 119
+        },
+        {
+          "language": "python",
+          "content": "# unfiltered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
+          "tokenEstimate": 72
+        },
+        {
+          "language": "python",
+          "content": "# filtered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n      \"filter\": {\"$and\": [{'price': {'$lte': 1000}}, {'category': {'$eq': \"Pet Supplies\"}}]}\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
+          "tokenEstimate": 102
+        }
+      ]
+    },
+    {
+      "heading": "Search Node Configuration",
+      "headingLevel": 3,
+      "body": "MongoDB Vector Search performance scales with [Search Nodes](what-is-search-node),\nwhich handle vector computations separately from your primary\ndatabase workload and make efficient use of dedicated hardware instances.\nAll tests were conducted using an `M20` base cluster, but depending on the type\nof test, we reconfigured the Search Nodes used to better fit our test case.\nAll tests were run using Search Nodes on AWS (Amazon Web Services) us-east-1, with an EC2 instance also in\n`us-east-1` making requests. There are three types of Search Nodes that you can provision on AWS,\nwhich vary in terms of disk, RAM, and vCPUs that they have available:\n\n| Node Type         | Resource Profile                              | Recommended Usage                                                                |\n| ----------------- | --------------------------------------------- | -------------------------------------------------------------------------------- |\n| Low-CPU           | Low disk to memory ratio (\\~6:1), low vCPU    | Good starting point for many vector workloads that don't leverage quantization   |\n| High-CPU          | High disk to memory ratio (\\~25:1), high vCPU | Performant choice for high QPS workloads or workloads that leverage quantization |\n| Storage-Optimized | High disk to memory ratio (\\~25:1), low vCPU  | Cost-effective choice for workloads that leverage quantization                   |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sizing for the Amazon Dataset",
+      "headingLevel": 4,
+      "body": "A 768-dimension float vector occupies \\~3kb of space on disk. This resource requirement scales\nlinearly with the number of vectors and the number of dimensions of each vector:\n1M 768d vectors occupies \\~3GB; 1M 1536d occupies \\~6gb.\n\nUsing quantization, we produce representation vectors that are held in memory from the full\nfidelity vectors stored on disk. This reduces the amount of required memory by 3.75x\nfor scalar quantization and 24x for binary quantization, but increases the amount of disk\nneeded to store the unquantized and quantized vectors.\n\n1 scalar quantized 768d vector requires 0.8kb of memory (`3/3.75`) and \\~3.8kb of disk (`3 + 3/3.75`).\nConsidering these hardware options and the resource requirements for quantization, we selected the\nfollowing search node tiers for the different test cases:\n\n| Test Case                                                          | Resources Required (RAM, Storage) | Search Node Tier RAM, disk, vCPUs            | Price for 2x Nodes |\n| ------------------------------------------------------------------ | --------------------------------- | -------------------------------------------- | ------------------ |\n| Medium dataset (5.5M vectors, all dimensions), scalar quantization | 22, 104.5 GB                      | S50-storage-optimized 32 GB, 843 GB, 4 vCPUs | $1.04/hr           |\n| Medium dataset (5.5M vectors, all dimensions), binary quantization | 3.43, 104.5 GB                    | S30-high-cpu 8 GB 213 GB 4 vCPUs             | $0.24/hr           |\n| Large dataset (15.3M vectors, 2048d), scalar quantization          | 32.64, 155.04 GB                  | S50-storage-optimized 32 GB, 843 GB, 4 vCPUs | $1.04/hr           |\n| Large dataset (15.3M vectors, 2048d), binary quantization          | 5.1, 155.04 GB                    | S30-high-cpu 8 GB 213 GB 4 vCPUs             | $0.24/hr           |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "binData Vector Compression",
+      "headingLevel": 3,
+      "body": "For the large dataset, we leveraged an additional feature called\n[Vector Compression](avs-vector-compression), which reduces the\nfootprint of each vector in the source collection by about 60%. This\naccelerates the step within a query when IDs are hydrated in the source collection,\nand this is a recommended step for all large workloads.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Concurrency",
+      "headingLevel": 3,
+      "body": "We assessed not only serial query latency, but also total throughput/QPS\nwhen 10 and 100 requests are issued concurrently.\n\n> **Note:** The recommended mechanism for handling higher throughput\n> is scaling out the number of Search Nodes horizontally, which\n> we did not measure in these tests.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sharding",
+      "headingLevel": 3,
+      "body": "We assessed the impact of [sharding](manual/sharding) our cluster\nand collection on the `_id` field on the system's throughput ,\nfocusing on request concurrency of 10 and 100 for the large binary\nquantized index.",
+      "codeBlocks": []
+    }
+  ]
+}

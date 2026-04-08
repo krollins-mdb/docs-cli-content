@@ -1,0 +1,79 @@
+{
+  "path": "atlas/third-party-integration-settings-discovery",
+  "product": "atlas",
+  "title": "Return the Latest Targets for Prometheus",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```none\nGET /groups/{GROUP-ID}/discovery\n```",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "GET /groups/{GROUP-ID}/discovery",
+          "tokenEstimate": 9
+        }
+      ]
+    },
+    {
+      "heading": "Request Path Parameters",
+      "headingLevel": 3,
+      "body": "| Parameter   | Required/Optional | Description         |\n| ----------- | ----------------- | ------------------- |\n| \\{GROUP-ID} | Required          | Project identifier. |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Request Query Parameters",
+      "headingLevel": 3,
+      "body": "| Name         | Type         | Necessity | Description                                                                                                                                                          | Default |\n| ------------ | ------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |\n| targetScheme | TargetScheme | Optional  | Type of targets to return. Values include:PUBLIC: Public internet accessible targets.PRIVATE: Private IP for VPC (Virtual Private Cloud) peering compatible targets. | PUBLIC  |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Request Body Parameters",
+      "headingLevel": 3,
+      "body": "This endpoint doesn't use HTTP request body parameters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Response",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Response Document",
+      "headingLevel": 3,
+      "body": "The response JSON (Javascript Object Notation) document includes an array of your latest\n**targets** from which to scrape and a document containing their\n**labels**.\n\n| Name    | Type             | Description                                                                  |\n| ------- | ---------------- | ---------------------------------------------------------------------------- |\n| targets | array of objects | Each host and port from which to scrape metrics.                             |\n| labels  | document         | Document that contains the label and value that differentiates your metrics. |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "labels Embedded Document",
+      "headingLevel": 3,
+      "body": "| Label              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| availability\\_zone | AWS (Amazon Web Services) availability zone ID, Google Cloud fully-qualified name for a zone, or Azure (Microsoft Azure) zone number.Azure (Microsoft Azure) supports availability zones only in a subset of regions. Atlas provides pre-defined availability zone tags for Azure (Microsoft Azure) only for regions that support availability zones. To learn more, see Microsoft Azure.For more information about the possible availabilityZone values for each cloud provider, see the AWS, GCP, or Azure documentation. |\n| cl\\_name           | Label that uniquely identifies the cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| group\\_id          | Unique hexadecimal digit string that identifies the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| group\\_name        | Label that uniquely identifies the project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| node\\_type         | Node type.Possible values are ELECTABLE, READ\\_ONLY, and ANALYTICS.For more information, see Node Types.                                                                                                                                                                                                                                                                                                                                                                                                                    |\n| org\\_id            | Unique hexadecimal digit string that identifies the organization.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n| provider           | Cloud provider on which the node is provisioned.Possible values are AWS, GCP, and AZURE.                                                                                                                                                                                                                                                                                                                                                                                                                                    |\n| region             | Cloud region in which the node resides.For a complete list of possible region values, see the AWS, GCP, or Azure reference page.                                                                                                                                                                                                                                                                                                                                                                                            |\n| replica\\_set\\_name | Label that uniquely identifies the replica set.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example Request",
+      "headingLevel": 2,
+      "body": "```sh\ncurl --header 'Accept: application/json'\n# Sets the `Authorization` header on every scrape request with the\n# configured username and password.\n--user prom_user_618d48e05277a606ed2496fe:fSIMUngfTmOTVEB4\n# The URL that Prometheus fetches the targets from.\n--request GET \"https://cloud.mongodb.com/prometheus/v1.0/groups/673f4ae24759b47bdd3a2e90/discovery\"\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "curl --header 'Accept: application/json'\n# Sets the `Authorization` header on every scrape request with the\n# configured username and password.\n--user prom_user_618d48e05277a606ed2496fe:fSIMUngfTmOTVEB4\n# The URL that Prometheus fetches the targets from.\n--request GET \"https://cloud.mongodb.com/prometheus/v1.0/groups/673f4ae24759b47bdd3a2e90/discovery\"",
+          "tokenEstimate": 103
+        }
+      ]
+    },
+    {
+      "heading": "Example Response",
+      "headingLevel": 2,
+      "body": "```json\n[\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az4\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n    },\n    \"targets\": [\n      \"cluster012-shard-00-00.rffkz.mongodb-dev.net:27018\"\n    ]\n  },\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az6\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n      },\n    \"targets\": [\n      \"cluster012-shard-00-01.rffkz.mongodb-dev.net:27018\"\n    ]\n  },\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az1\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n    },\n    \"targets\": [\n      \"cluster012-shard-00-02.rffkz.mongodb-dev.net:27018\"\n    ]\n  }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "[\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az4\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n    },\n    \"targets\": [\n      \"cluster012-shard-00-00.rffkz.mongodb-dev.net:27018\"\n    ]\n  },\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az6\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n      },\n    \"targets\": [\n      \"cluster012-shard-00-01.rffkz.mongodb-dev.net:27018\"\n    ]\n  },\n  {\n    \"labels\": {\n      \"availability_zone\": \"use1-az1\",\n      \"cl_name\": \"Cluster012\",\n      \"group_id\": \"673f4ae24759b47bdd3a2e90\",\n      \"node_type\": \"ELECTABLE\",\n      \"org_id\": \"673cad5b6b921181d015e1de\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\"\n    },\n    \"targets\": [\n      \"cluster012-shard-00-02.rffkz.mongodb-dev.net:27018\"\n    ]\n  }\n]",
+          "tokenEstimate": 386
+        }
+      ]
+    }
+  ]
+}

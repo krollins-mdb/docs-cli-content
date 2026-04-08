@@ -1,0 +1,264 @@
+{
+  "path": "atlas/driver-connection",
+  "product": "atlas",
+  "title": "Step 5: Select Your Driver and Version.",
+  "summary": {
+    "total": 21,
+    "byLanguage": {
+      "c": 1,
+      "cpp": 1,
+      "csharp": 1,
+      "go": 1,
+      "java": 1,
+      "kotlin": 1,
+      "javascript": 2,
+      "sh": 3,
+      "php": 1,
+      "python": 1,
+      "ruby": 2,
+      "yaml": 1,
+      "rust": 2,
+      "scala": 1,
+      "swift": 2
+    },
+    "bySection": [
+      {
+        "heading": "Driver Examples",
+        "blocks": [
+          {
+            "language": "c",
+            "tokenEstimate": 49
+          }
+        ]
+      },
+      {
+        "heading": "Behavior",
+        "blocks": [
+          {
+            "language": "cpp",
+            "tokenEstimate": 81
+          }
+        ]
+      },
+      {
+        "heading": "Behavior",
+        "blocks": [
+          {
+            "language": "csharp",
+            "tokenEstimate": 44
+          },
+          {
+            "language": "go",
+            "tokenEstimate": 153
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 61
+          },
+          {
+            "language": "kotlin",
+            "tokenEstimate": 190
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 85
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 53
+          },
+          {
+            "language": "php",
+            "tokenEstimate": 44
+          }
+        ]
+      },
+      {
+        "heading": "Behavior",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 53
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "ruby",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "ruby",
+            "tokenEstimate": 48
+          }
+        ]
+      },
+      {
+        "heading": "Mongoid Example",
+        "blocks": [
+          {
+            "language": "yaml",
+            "tokenEstimate": 227
+          },
+          {
+            "language": "rust",
+            "tokenEstimate": 135
+          },
+          {
+            "language": "rust",
+            "tokenEstimate": 139
+          },
+          {
+            "language": "scala",
+            "tokenEstimate": 66
+          },
+          {
+            "language": "swift",
+            "tokenEstimate": 133
+          },
+          {
+            "language": "swift",
+            "tokenEstimate": 62
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "c",
+      "section": "Driver Examples",
+      "content": "client = mongoc_client_new (\"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\");\ndb = mongoc_client_get_database (client, \"<databaseName>\");",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "cpp",
+      "section": "Behavior",
+      "content": "#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n\n//...\n\nmongocxx::instance inst{};\nmongocxx::client conn{mongocxx::uri{\"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"}};\nmongocxx::database db = conn[\"<databaseName>\"];",
+      "tokenEstimate": 81
+    },
+    {
+      "language": "csharp",
+      "section": "Behavior",
+      "content": "var client = new MongoClient(\"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\");\nvar database = client.GetDatabase(\"<databaseName>\");",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "go",
+      "section": "Behavior",
+      "content": "uri := \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"\n\nclientOpts := options.Client().ApplyURI(uri).SetTimeout(10 * time.Second)\n\nclient, err := mongo.Connect(clientOpts)\nif err != nil {\n   log.Fatalf(\"Failed to connect to MongoDB: %v\", err)\n}\n\ndefer func() {\n   if err = client.Disconnect(); err != nil {\n      log.Fatalf(\"Failed to disconnect from MongoDB: %v\", err)\n   }\n}()\n\nctx := context.Background()\n\n// Ping the primary\nif err := client.Ping(ctx, readpref.Primary()); err != nil {\n   log.Fatalf(\"Failed to ping MongoDB: %v\", err)\n}",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "java",
+      "section": "Behavior",
+      "content": "MongoClientURI uri = new MongoClientURI(\n    \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\");\n\nMongoClient mongoClient = MongoClients.create(uri);\nMongoDatabase database = mongoClient.getDatabase(\"<databaseName>\");",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "kotlin",
+      "section": "Behavior",
+      "content": "val uri = \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"\n\n// Construct a ServerApi instance using the ServerApi.builder() method\nval serverApi = ServerApi.builder()\n   .version(ServerApiVersion.V1)\n   .build()\nval settings = MongoClientSettings.builder()\n   .applyConnectionString(ConnectionString(uri))\n   .serverApi(serverApi)\n   .build()\n\n// Create a new client and connect to the server\nval mongoClient = MongoClient.create(settings)\nval database = mongoClient.getDatabase(\"<databaseName>\")\ntry {\n   // Send a ping to confirm a successful connection\n   val command = Document(\"ping\", BsonInt64(1))\n   val commandResult = database.runCommand(command)\n   println(\"Pinged your deployment. You successfully connected to MongoDB!\")\n}\n\ncatch (me: MongoException) {\n   System.err.println(me)\n}",
+      "tokenEstimate": 190
+    },
+    {
+      "language": "javascript",
+      "section": "Behavior",
+      "content": "import mongodb from 'mongodb';\n\nconst MongoClient = mongodb.MongoClient;\nconst uri = \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\";\nconst client = new MongoClient(uri);\nclient.connect(err => {\n  const collection = client.db(\"<databaseName>\").collection(\"<collectionName>\");\n  // perform actions on the collection object\n  client.close();\n});",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "sh",
+      "section": "Behavior",
+      "content": "mongodb://username:password@host1:port1,...,hostN:portN/database?authSource=admin&...",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "javascript",
+      "section": "Behavior",
+      "content": "var uriTestDb = \"mongodb+srv://<db_username>:<db_password>@cluster0.mongodb.net/test?ssl=true&authSource=admin&w=majority\";\nMongoClient.connect(uriTestDb, function(err, db) {\n   db.close();\n});",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "php",
+      "section": "Behavior",
+      "content": "$client = new MongoDB\\Client(\n    'mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority');\n\n$db = $client-><databaseName>;",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "python",
+      "section": "Behavior",
+      "content": "import pymongo\nimport dns # required for connecting with SRV\n\nclient = pymongo.MongoClient(\"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\")\ndb = client.<databaseName>",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "sh",
+      "section": "Behavior",
+      "content": "open \"/Applications/Python 3.6/Install Certificates.command\"",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "ruby",
+      "section": "Behavior",
+      "content": "client = Mongo::Client.new('mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority')",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "sh",
+      "section": "Behavior",
+      "content": "mongodb://username:password@host1:port1,...,hostN:portN/database?authSource=admin&...",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "ruby",
+      "section": "Behavior",
+      "content": "client = Mongo::Client.new('mongodb+srv://<db_username>:<db_password>@cluster0.mongodb.net/test?ssl=true&replicaSet=Mycluster0-shard-0&authSource=admin&w=majority')",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "yaml",
+      "section": "Mongoid Example",
+      "content": "production:\n  # Configure available database clients. (required)\n  clients:\n    # Defines the default client. (required)\n    default:\n      # Defines the name of the default database that Mongoid can connect to.\n      # (required).\n      database: 'myDatabaseName'\n\n      # Provides the hosts the default client can connect to. Must be an array\n      # of host:port pairs. (required)\n      hosts:\n        - mycluster0-shard-00-00.mongodb.net:27017\n        - mycluster0-shard-00-01.mongodb.net:27017\n        - mycluster0-shard-00-02.mongodb.net:27017\n      options:\n        # The name of the user for authentication.\n        user: <username>\n\n        # The password of the user for authentication.\n        password: <password>\n\n        # The database or source to authenticate the user against. If the database\n        # specified above is not admin, admin MUST be specified here.\n        auth_source: admin\n\n        # All Atlas servers use SSL. (default: false)\n        ssl: true",
+      "tokenEstimate": 227
+    },
+    {
+      "language": "rust",
+      "section": "Mongoid Example",
+      "content": "use mongodb::{options::ClientOptions, Client};\n#[tokio::main]\n    async fn main() -> mongodb::error::Result<()> {\n        let client_options = ClientOptions::parse(\n            \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\",\n        )\n        .await?;\n        let client = Client::with_options(client_options)?;\n        let _database = client.database(\"<databaseName>\");\n\n    // List the names of the databases in that cluster\n    for db_name in client.list_database_names(None, None)? {\n        println!(\"{}\", db_name);\n    }\n    Ok(())\n    }",
+      "tokenEstimate": 135
+    },
+    {
+      "language": "rust",
+      "section": "Mongoid Example",
+      "content": "use mongodb::{bson::doc, sync::Client};\nfn main() -> mongodb::error::Result<()> {\n        let client_options = ClientOptions::parse(\n            \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\",\n        )?;\n\n// Ping the server to see if you can connect to the cluster\nclient\n    .database(\"admin\")\n    .run_command(doc! {\"ping\": 1}, None)?;\nprintln!(\"Connected successfully.\");\n\n// List the names of the databases in that cluster\nfor db_name in client.list_database_names(None, None)? {\n    println!(\"{}\", db_name);\n}\nOk(())\n}",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "scala",
+      "section": "Mongoid Example",
+      "content": "val uri: String = \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"\nSystem.setProperty(\"org.mongodb.async.type\", \"netty\")\nval client: MongoClient = MongoClient(uri)\nval db: MongoDatabase = client.getDatabase(\"<databaseName>\")",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "swift",
+      "section": "Mongoid Example",
+      "content": "import MongoSwift\nimport NIO\n\nlet elg = MultiThreadedEventLoopGroup(numberOfThreads: 4)\n\nlet uri = \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"\nlet client = try MongoClient(\n    uri,\n    using: elg\n)\n\ndefer {\n\n    // clean up driver resources\n    try? client.syncClose()\n    cleanupMongoSwift()\n\n    // shut down EventLoopGroup\n    try? elg.syncShutdownGracefully()\n}\n\n// print a list of database names to confirm connection\nprint(try client.listDatabaseNames().wait())",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "swift",
+      "section": "Mongoid Example",
+      "content": "import MongoSwiftSync\n\nlet uri = \"mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority\"\nlet client = try MongoClient(uri)\n\n// print a list of database names to confirm connection\nprint (try client.listDatabaseNames())",
+      "tokenEstimate": 62
+    }
+  ]
+}

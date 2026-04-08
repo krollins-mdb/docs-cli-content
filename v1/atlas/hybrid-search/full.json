@@ -1,0 +1,90 @@
+{
+  "path": "atlas/hybrid-search",
+  "product": "atlas",
+  "title": "How to Perform Hybrid Search",
+  "sections": [
+    {
+      "heading": "What is Reciprocal Rank Fusion?",
+      "headingLevel": 2,
+      "body": "Reciprocal rank fusion is a technique to combine results from different\nsearch methods into a single result set by performing the following\nactions:\n\n- Calculate the reciprocal rank of the documents in the results.\n\n  For each ranked document in each search result, first add the rank\n  (`r`) of the document with a constant number, `60`, to smooth\n  the score (`rank_constant`), and then divide `1` by the sum of\n  `r` and `rank_constant` for the reciprocal rank of the document\n  in the results. You can't set the value of `rank_constant` and it\n  defaults to `60`.\n\n  ```shell\n  reciprocal_rank = 1 / ( r + rank_constant )\n  ```\n\n  For each method of search, apply different weights (`w`) to give more\n  importance to that method of search. For each document, the weighted\n  reciprocal rank is calculated by multiplying the weight by the\n  reciprocal rank of the document.\n\n  ```shell\n  weighted_reciprocal_rank = w x reciprocal_rank\n  ```\n\n- Combine the rank-derived and weighted scores of the documents in the\n  results.\n\n  For each document across all search results, add the calculated\n  reciprocal ranks for a single score for the document.\n\n- Sort the results by the combined score of the documents in the\n  results.\n\n  Sort the documents in the results based on the combined score across\n  the results for a single, combined ranked list of documents in the\n  results.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "reciprocal_rank = 1 / ( r + rank_constant )",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "shell",
+          "content": "weighted_reciprocal_rank = w x reciprocal_rank",
+          "tokenEstimate": 10
+        }
+      ]
+    },
+    {
+      "heading": "About the Different Hybrid Search Use Cases",
+      "headingLevel": 2,
+      "body": "You can leverage MongoDB Vector Search to perform several types of hybrid search.\nSpecifically, MongoDB Vector Search supports the following use cases:\n\n- Full-text and vector search in a single query: You can combine results\n  from different search methods, such as a semantic and a full-text\n  search. You can use the [$vectorSearch](pipe.$vectorSearch) for the semantic\n  search and the [$search](pipe.$search) for the full-text search results\n  and combine the results by using the reciprocal rank fusion technique.\n  To learn more, see the [hybrid search](avs-reciprocal-rank-fusion) tutorial,\n  which demonstrates how to perform a semantic search and full-text\n  search against the `sample_mflix.embedded_movies` namespace and\n  retrieve combined ranked results by using reciprocal rank fusion.\n\n  Alternatively, for a more granular hybrid search where the score\n  matters in addition to the relative ordering of results, you can use\n  the `$scoreFusion` pipeline stage. To learn more, see the\n  [hybrid search](avs-reciprocal-rank-fusion) tutorial, which demonstrates how to\n  perform a semantic search and full-text search against the\n  `sample_mflix.embedded_movies` namespace and retrieve input pipeline\n  results into a final scored results set.\n\n  While `$rankFusion` ranks documents based on their positions\n  (relative ranks) in input pipelines using the Reciprocal Rank Fusion\n  algorithm, `$scoreFusion` ranks documents based on scores assigned\n  by the input pipelines, using mathematical expressions for combining the\n  results.\n\n  In `$rankFusion`, rankings are influenced by pipeline weights. In\n  `$scoreFusion`, weights control the contribution of each pipeline's\n  scores to the final result.\n\n- Multiple vector search queries in a single query: The MongoDB\n  `$rankFusion` pipeline supports multiple sub-pipelines that contain\n  vector search queries executed against the same collection and\n  combining their results using the reciprocal rank fusion technique.\n  The [How to Combine Multiple $vectorSearch Queries](avs-with-unionwith) tutorial demonstrates the following\n  types of vector search:\n\n  - Perform a comprehensive search of your dataset for semantically\n    similar terms in the same query.\n\n  - Search multiple fields in your dataset to determine which fields\n    return the best results for the query.\n\n  - Search using embeddings from different embedding models to determine\n    the semantic interpretation differences between the different\n    models.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "When using the `$rankFusion` or `$scoreFusion`\npipeline stage for hybrid search, consider the following.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disjoint Result Sets",
+      "headingLevel": 3,
+      "body": "If you want to capture false negatives that one search methodology\ncouldn't catch, having disjoint results from individual sub-pipelines\nmight be acceptable. When you have disjoint results, most or all of the\nresults might appear to be returned from one of the pipelines and not\nthe other. However, if you want all the sub-pipelines to return similar\nresults, try increasing the number of results per sub-pipeline.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Weights",
+      "headingLevel": 3,
+      "body": "We recommend weighing lexical and vector queries on a per-query basis\nrather than having static weights for all queries to improve the\nrelevance of the results for each query. This also improves computation\nresource utilization by allocating resources on the query that needs it\nmost.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Multiple Pipelines",
+      "headingLevel": 3,
+      "body": "You can combine an arbitrary number of sub-pipelines together in the\n`$rankFusion` or `$scoreFusion` stage, but they must all execute\nagainst the same collection. You can't use the `$rankFusion` or\n`$scoreFusion` stage to search across collections. Use the\n[$unionWith](manual/reference/operator/aggregation/unionWith) stage with [$vectorSearch](pipe.$vectorSearch) for\ncross-collection search.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Non-Search Pipelines",
+      "headingLevel": 3,
+      "body": "We recommend using [$match](manual/reference/operator/aggregation/match), [$sort](manual/reference/operator/aggregation/sort), and so on in\nyour pipeline to boost on specific fields within your collection\nwithout requiring a search pipeline.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Geospatial Relevance",
+      "headingLevel": 3,
+      "body": "You can use the [$geoNear](manual/reference/operator/aggregation/geoNear) and the [near](near-ref) operator\ninside [$search](pipe.$search) for a geographic location search within the\n`$rankFusion` or `$scoreFusion` stage. However, the\n[$geoNear](manual/reference/operator/aggregation/geoNear) and the [near](near-ref) operator use\ndifferent coordinate reference frames. Therefore, the result ordinals\nand scores might not be identical.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limit the Results",
+      "headingLevel": 3,
+      "body": "We recommend setting limits for the number of results to return for each\nsub-pipeline. If the pipeline stage inside the\n[$rankFusion](manual/reference/operator/aggregation/rankFusion) or [$scoreFusion](manual/reference/operator/aggregation/scoreFusion) input pipeline doesn't support limiting the number of results (such\nas [$search](pipe.$search)), we recommend that you use [$limit](manual/reference/operator/aggregation/limit)\nsubsequently inside the input pipeline to limit the number of documents\nthat [$rankFusion](manual/reference/operator/aggregation/rankFusion) or [$scoreFusion](manual/reference/operator/aggregation/scoreFusion) evaluates.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Advanced Pre-Filters",
+      "headingLevel": 3,
+      "body": "We recommend using [vectorSearch](fts-vectorSearch-ref) if you want to pre-filter\ndata for vector search using [$search](pipe.$search) operators that include\nanalyzed text capabilities such as fuzzy search, phrase matching,\nlocation filtering, wildcard pattern matching, and so on.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "The following limitations apply to hybrid search using\n`$rankFusion` and `$scoreFusion`:\n\n- `$rankFusion` is only supported on MongoDB 8.0 and later (including latest\n  version with auto upgrades). `$scoreFusion` is available on v8.2+.\n\n  > **Note:** When you upgrade from 8.0, you might have to pause executing `$rankFusion`\n  > queries.\n\n- `$rankFusion` and `$scoreFusion` sub-pipelines can contain only the\n  following stages:\n\n  - [$search](pipe.$search)\n\n  - [$vectorSearch](pipe.$vectorSearch)\n\n  - [$match](manual/reference/operator/aggregation/match)\n\n  - [$sort](manual/reference/operator/aggregation/sort)\n\n  - [$geoNear](manual/reference/operator/aggregation/geoNear)\n\n- `$rankFusion` and `$scoreFusion` preserve a traceable link back to\n  the original input document for each sub-pipeline. Therefore, it\n  doesn't support the following:\n\n  - [$project](manual/reference/operator/aggregation/project) stage\n\n  - [storedSource](fts-stored-source-definition) fields\n\n- `$rankFusion` and `$scoreFusion` sub-pipelines run serially, not\n  in parallel.\n\n- `$rankFusion` and `$scoreFusion` don't support pagination.\n\n- `rankFusion` can be run on [Views](manual/core/views) only on\n  clusters running MongoDB 8.0 or higher. You can't run `rankFusion`\n  within a view definition or on a time series collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To try these tutorials, you must have the following:\n\n- A cluster with MongoDB version v8.0 or later.\n\n- The [Project Data Access Admin](<Project Data Access Admin>) access to the project to\n  create MongoDB Vector Search and MongoDB Search indexes.\n\n- The sample\\_mflix database loaded into your\n  cluster.\n\n- [mongosh](mongodb-shell) or MongoDB Compass to create the indexes and try the queries on\n  your cluster.\n\n  > **Note:** You can also try these hybrid search use cases with local Atlas\n  > deployments that you create with the Atlas CLI and in your\n  > self-managed (on-premises) deployments. To learn more,\n  > see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).",
+      "codeBlocks": []
+    }
+  ]
+}

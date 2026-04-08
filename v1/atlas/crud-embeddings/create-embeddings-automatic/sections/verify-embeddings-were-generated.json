@@ -1,0 +1,22 @@
+{
+  "heading": "Verify Embeddings Were Generated",
+  "headingLevel": 3,
+  "body": "To verify that MongoDB Vector Search has generated embeddings for your indexed text\ndata, run the following command after replacing the `<connection-string>`\nplaceholder with your cluster connection string:\n\n```javascript\nmongosh <connection-string> --eval '\n   print(\"Embeddings: \" +\n      db.getSiblingDB(\"__mdb_internal_search\")\n         .getCollectionNames()\n         .filter(c => c.match(/^[0-9a-f]{24}$/))\n         .map(c => db.getSiblingDB(\"__mdb_internal_search\").getCollection(c).countDocuments())\n         .reduce((a,b) => a+b, 0)\n   );\n'\n```\n\nThe preceding command connects to your cluster and returns the total\nnumber of vector embeddings stored across all collections in your\ndeployment.\n\n> **Example:**&#x20;\n>\n> Sample Command to Retrieve Embeddings Count\n>\n> **Input:**\n>\n> ```javascript\n> mongosh \"mongodb://localhost:27017/\" --eval '\n>    print(\"Embeddings: \" +\n>       db.getSiblingDB(\"__mdb_internal_search\")\n>          .getCollectionNames()\n>          .filter(c => c.match(/^[0-9a-f]{24}$/))\n>          .map(c => db.getSiblingDB(\"__mdb_internal_search\").getCollection(c).countDocuments())\n>          .reduce((a,b) => a+b, 0)\n>    );\n> '\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> Embeddings: 21349\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "mongosh <connection-string> --eval '\n   print(\"Embeddings: \" +\n      db.getSiblingDB(\"__mdb_internal_search\")\n         .getCollectionNames()\n         .filter(c => c.match(/^[0-9a-f]{24}$/))\n         .map(c => db.getSiblingDB(\"__mdb_internal_search\").getCollection(c).countDocuments())\n         .reduce((a,b) => a+b, 0)\n   );\n'",
+      "tokenEstimate": 89
+    },
+    {
+      "language": "javascript",
+      "content": "mongosh \"mongodb://localhost:27017/\" --eval '\n   print(\"Embeddings: \" +\n      db.getSiblingDB(\"__mdb_internal_search\")\n         .getCollectionNames()\n         .filter(c => c.match(/^[0-9a-f]{24}$/))\n         .map(c => db.getSiblingDB(\"__mdb_internal_search\").getCollection(c).countDocuments())\n         .reduce((a,b) => a+b, 0)\n   );\n'",
+      "tokenEstimate": 93
+    },
+    {
+      "language": "javascript",
+      "content": "Embeddings: 21349",
+      "tokenEstimate": 6
+    }
+  ]
+}

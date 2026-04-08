@@ -1,0 +1,12 @@
+{
+  "heading": "Pre-Migration Validation",
+  "headingLevel": 3,
+  "body": "Before starting the following live migration procedure, Atlas runs\nvalidation checks on the source and destination clusters and verifies that:\n\n- The source cluster's database user has the correct permissions as\n  described in [Source Cluster Security](live-import-c2c-security).\n\n- The source cluster does not contain the\n  `mongosync_reserved_for_internal_use` metadata database. You must\n  manually drop that database before starting the migration.\n\n* The destination Atlas cluster must have no data. If the cluster\n  has any data before you begin, you have the option to clear data on the\n  destination cluster during the live migration process. Alternatively,\n  you can manually delete the data on the destination cluster before\n  starting the migration procedure.\n\n> **Note:** If you are migrating from a sharded source cluster running MongoDB version 5.0,\n> you must first run the following [cleanupOrphaned](manual/reference/command/cleanupOrphaned) command\n> on the primary replica set member of each shard in the source cluster.\n> This command ensures all orphaned documents are correctly purged before the migration.\n>\n> ```sh\n> db.runCommand({cleanupOrphaned: \"<database>.<collection>\"})\n> ```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "db.runCommand({cleanupOrphaned: \"<database>.<collection>\"})",
+      "tokenEstimate": 16
+    }
+  ]
+}

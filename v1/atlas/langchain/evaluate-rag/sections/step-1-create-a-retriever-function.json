@@ -1,0 +1,12 @@
+{
+  "heading": "Step 1: Create a retriever function",
+  "headingLevel": 3,
+  "body": "Create a function to get a vector store retriever using\nLangChain and MongoDB Atlas:\n\n```python\nfrom langchain_openai import OpenAIEmbeddings\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_core.vectorstores import VectorStoreRetriever\n\ndef get_retriever(model: str, k: int) -> VectorStoreRetriever:\n    \"\"\"\n    Get a vector store retriever for a given embedding model.\n\n    Args:\n        model (str): Embedding model to use\n        k (int): Number of results to retrieve\n\n    Returns:\n        VectorStoreRetriever: A vector store retriever object\n    \"\"\"\n    embeddings = OpenAIEmbeddings(model=model)\n\n    vector_store = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=MONGODB_URI,\n        namespace=f\"{DB_NAME}.{model}\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        text_key=\"text\",\n    )\n\n    retriever = vector_store.as_retriever(\n        search_type=\"similarity\", search_kwargs={\"k\": k}\n    )\n    return retriever\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain_openai import OpenAIEmbeddings\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_core.vectorstores import VectorStoreRetriever\n\ndef get_retriever(model: str, k: int) -> VectorStoreRetriever:\n    \"\"\"\n    Get a vector store retriever for a given embedding model.\n\n    Args:\n        model (str): Embedding model to use\n        k (int): Number of results to retrieve\n\n    Returns:\n        VectorStoreRetriever: A vector store retriever object\n    \"\"\"\n    embeddings = OpenAIEmbeddings(model=model)\n\n    vector_store = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=MONGODB_URI,\n        namespace=f\"{DB_NAME}.{model}\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        text_key=\"text\",\n    )\n\n    retriever = vector_store.as_retriever(\n        search_type=\"similarity\", search_kwargs={\"k\": k}\n    )\n    return retriever",
+      "tokenEstimate": 204
+    }
+  ]
+}

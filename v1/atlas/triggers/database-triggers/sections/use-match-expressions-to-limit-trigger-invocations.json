@@ -1,0 +1,17 @@
+{
+  "heading": "Use Match Expressions to Limit Trigger Invocations",
+  "headingLevel": 3,
+  "body": "You can limit the number of Trigger invocations by specifying a [$match](manual/reference/operator/aggregation/match) expression in the **Match\nExpression** field. Atlas evaluates the match expression against the\nchange event document and invokes the Trigger only if the expression evaluates\nto true for the given change event.\n\nThe match expression is a JSON document that specifies the query conditions\nusing the [MongoDB read query syntax](manual/reference/mql/query-operators).\n\nWe recommend only using match expressions when the volume of Trigger events\nmeasurably becomes a performance issue. Until then, receive all events and\nhandle them individually in the Trigger Function code.\n\nThe exact shape of the change event document depends on the event that caused\nthe Trigger to fire. For details, see the reference for each event type:\n\n- [insert](manual/reference/change-events/insert)\n\n- [update](manual/reference/change-events/update)\n\n- [replace](manual/reference/change-events/replace)\n\n- [delete](manual/reference/change-events/delete)\n\n- [create](manual/reference/change-events/create)\n\n- [modify](manual/reference/change-events/modify)\n\n- [rename](manual/reference/change-events/rename)\n\n- [drop](manual/reference/change-events/drop)\n\n- [shardCollection](manual/reference/change-events/shardCollection)\n\n- [reshardCollection](manual/reference/change-events/reshardCollection)\n\n- [refineCollectionShardKey](manual/reference/change-events/refineCollectionShardKey)\n\n- [dropDatabase](manual/reference/change-events/dropDatabase)\n\nThe following match expression allows the Trigger to fire\nonly if the change event object specifies that the `status` field in\na document changed.\n\n`updateDescription` is a field of the [update Event object](manual/reference/change-events/update).\n\n```javascript\n{\n  \"updateDescription.updatedFields.status\": {\n    \"$exists\": true\n  }\n}\n```\n\nThe following match expression allows the Trigger to fire only when a\ndocument's `needsTriggerResponse` field is `true`. The `fullDocument`\nfield of the [insert](manual/reference/change-events/insert),\n[update](manual/reference/change-events/update), and [replace](manual/reference/change-events/replace) events represents a document after the\ngiven operation. To receive the `fullDocument` field, you must enable\n**Full Document** in your Trigger configuration.\n\n```javascript\n{\n  \"fullDocument.needsTriggerResponse\": true\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  \"updateDescription.updatedFields.status\": {\n    \"$exists\": true\n  }\n}",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  \"fullDocument.needsTriggerResponse\": true\n}",
+      "tokenEstimate": 13
+    }
+  ]
+}

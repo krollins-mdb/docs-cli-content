@@ -1,0 +1,17 @@
+{
+  "heading": "Slop Example",
+  "headingLevel": 3,
+  "body": "The following MongoDB Search example performs a search of the `title` field\nfor the query string `men women`. The `slop` value of `5` in the\n`query` allows greater movement of the words and distance between the\nwords `men` and `women`. The query includes a [$project](manual/reference/operator/aggregation/project)\nstage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": \"men women\",\n        \"slop\": 5\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  { title: 'Men Without Women', score: 3.367523193359375 },\n  { title: 'Men Vs Women', score: 3.367523193359375 },\n  { title: 'Good Men, Good Women', score: 2.8529787063598633 },\n  { title: 'The War Between Men and Women', score: 2.1851978302001953 },\n  { title: 'Women Without Men', score: 1.9656763076782227 },\n  { title: 'Women Vs Men', score: 1.9656763076782227 }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": \"men women\",\n        \"slop\": 5\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "content": "[\n  { title: 'Men Without Women', score: 3.367523193359375 },\n  { title: 'Men Vs Women', score: 3.367523193359375 },\n  { title: 'Good Men, Good Women', score: 2.8529787063598633 },\n  { title: 'The War Between Men and Women', score: 2.1851978302001953 },\n  { title: 'Women Without Men', score: 1.9656763076782227 },\n  { title: 'Women Vs Men', score: 1.9656763076782227 }\n]",
+      "tokenEstimate": 131
+    }
+  ]
+}

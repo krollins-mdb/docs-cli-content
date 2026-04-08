@@ -1,0 +1,32 @@
+{
+  "heading": "Step 2: Create a RAG chain that handles chat message history.",
+  "headingLevel": 3,
+  "body": "Paste and run the following code snippets to create the RAG chain:\n\n- Specify the LLM to use.\n\n  ```python\n  from langchain_openai import ChatOpenAI\n\n  # Define the model to use for chat completion\n  llm = ChatOpenAI(model = \"gpt-4o\")\n  ```\n\n- Define a prompt that summarizes the chat history for the retriever.\n\n  ```python\n  from langchain_core.prompts import ChatPromptTemplate\n  from langchain_core.output_parsers import StrOutputParser\n\n  # Create a prompt to generate standalone questions from follow-up questions\n  standalone_system_prompt = \"\"\"\n  Given a chat history and a follow-up question, rephrase the follow-up question to be a standalone question.\n  Do NOT answer the question, just reformulate it if needed, otherwise return it as is.\n  Only return the final standalone question.\n  \"\"\"\n\n  standalone_question_prompt = ChatPromptTemplate.from_messages(\n      [\n          (\"system\", standalone_system_prompt),\n          MessagesPlaceholder(variable_name=\"history\"),\n          (\"human\", \"{question}\"),\n      ]\n  )\n  # Parse output as a string\n  parse_output = StrOutputParser()\n\n  question_chain = standalone_question_prompt | llm | parse_output\n  ```\n\n- Build a retriever chain that processes the chat history and retrieves documents.\n\n  ```python\n  from langchain_core.runnables import RunnablePassthrough\n\n  # Create a retriever\n  retriever = vector_store.as_retriever(search_type=\"similarity\", search_kwargs={ \"k\": 5 })\n\n  # Create a retriever chain that processes the question with history and retrieves documents\n  retriever_chain = RunnablePassthrough.assign(context=question_chain | retriever | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])))\n  ```\n\n- Define a prompt to generate an answer based on the chat history and retrieved context.\n\n  ```python\n  # Create a prompt template that includes the retrieved context and chat history\n  rag_system_prompt = \"\"\"Answer the question based only on the following context:\n  {context}\n  \"\"\"\n\n  rag_prompt = ChatPromptTemplate.from_messages(\n      [\n          (\"system\", rag_system_prompt),\n          MessagesPlaceholder(variable_name=\"history\"),\n          (\"human\", \"{question}\"),\n      ]\n  )\n  ```\n\n- Implement RAG with memory.\n\n  Combine the components you defined into a complete RAG chain:\n\n  ```python\n  # Build the RAG chain\n  rag_chain = (\n      retriever_chain\n      | rag_prompt\n      | llm\n      | parse_output\n  )\n\n  # Wrap the chain with message history\n  rag_with_memory = RunnableWithMessageHistory(\n      rag_chain,\n      get_session_history,\n      input_messages_key=\"question\",\n      history_messages_key=\"history\",\n  )\n  ```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain_openai import ChatOpenAI\n\n# Define the model to use for chat completion\nllm = ChatOpenAI(model = \"gpt-4o\")",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "python",
+      "content": "from langchain_core.prompts import ChatPromptTemplate\nfrom langchain_core.output_parsers import StrOutputParser\n\n# Create a prompt to generate standalone questions from follow-up questions\nstandalone_system_prompt = \"\"\"\nGiven a chat history and a follow-up question, rephrase the follow-up question to be a standalone question.\nDo NOT answer the question, just reformulate it if needed, otherwise return it as is.\nOnly return the final standalone question.\n\"\"\"\n\nstandalone_question_prompt = ChatPromptTemplate.from_messages(\n    [\n        (\"system\", standalone_system_prompt),\n        MessagesPlaceholder(variable_name=\"history\"),\n        (\"human\", \"{question}\"),\n    ]\n)\n# Parse output as a string\nparse_output = StrOutputParser()\n\nquestion_chain = standalone_question_prompt | llm | parse_output",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "python",
+      "content": "from langchain_core.runnables import RunnablePassthrough\n\n# Create a retriever\nretriever = vector_store.as_retriever(search_type=\"similarity\", search_kwargs={ \"k\": 5 })\n\n# Create a retriever chain that processes the question with history and retrieves documents\nretriever_chain = RunnablePassthrough.assign(context=question_chain | retriever | (lambda docs: \"\\n\\n\".join([d.page_content for d in docs])))",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "python",
+      "content": "# Create a prompt template that includes the retrieved context and chat history\nrag_system_prompt = \"\"\"Answer the question based only on the following context:\n{context}\n\"\"\"\n\nrag_prompt = ChatPromptTemplate.from_messages(\n    [\n        (\"system\", rag_system_prompt),\n        MessagesPlaceholder(variable_name=\"history\"),\n        (\"human\", \"{question}\"),\n    ]\n)",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "python",
+      "content": "# Build the RAG chain\nrag_chain = (\n    retriever_chain\n    | rag_prompt\n    | llm\n    | parse_output\n)\n\n# Wrap the chain with message history\nrag_with_memory = RunnableWithMessageHistory(\n    rag_chain,\n    get_session_history,\n    input_messages_key=\"question\",\n    history_messages_key=\"history\",\n)",
+      "tokenEstimate": 73
+    }
+  ]
+}

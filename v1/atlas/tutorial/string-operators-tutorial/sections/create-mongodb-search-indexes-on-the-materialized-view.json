@@ -1,0 +1,17 @@
+{
+  "heading": "Create MongoDB Search Indexes on the Materialized View",
+  "headingLevel": 2,
+  "body": "To run the queries in the [Run Queries on the Converted Fields](query-nonstring-run-queries) stage of\nthis tutorial, you need to create MongoDB Search indexes on the converted\nstring fields in your `airbnb_mat_view` materialized view\\.The following JSON (Javascript Object Notation) definitions define MongoDB Search indexes on the\n`airbnb_mat_view` materialized view. You can use dynamic or static\nmappings to specify which fields you want to index in your\ncollection, depending on the type of queries you want to run. To\nlearn more about field mappings or MongoDB Search index syntax, see\n[Define Field Mappings](fts-field-mappings) or [index definitions](ref-index-definitions),\nrespectively.**Dynamic:**Dynamic MappingsThe following JSON (Javascript Object Notation) MongoDB Search index definition uses\n[dynamic mappings](fts-dynamic-mappings) to index the\nfields in the materialized view. You can use this index to run\nqueries using the [queryString](querystring-ref)\noperator.You can't run queries using the [autocomplete](autocomplete-ref) operator against dynamically indexed\nfields.```\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```**Static:**Static MappingsThe following JSON (Javascript Object Notation) MongoDB Search index definition uses [static mappings](fts-static-mappings) to index the fields in the\nmaterialized view as the [tokenization](bson-data-types-autocomplete). You can use this index to run\nqueries using the [autocomplete](autocomplete-ref).You can't run queries using the [queryString](querystring-ref) operator against fields indexed as type\n`autocomplete`.```\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"accommodatesNumber\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"minGrams\": 1,\n          \"type\": \"autocomplete\"\n        }\n      ],\n      \"lastScrapedDate\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"type\": \"autocomplete\"\n        }\n      ],\n      \"maximumNumberOfNights\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"minGrams\": 1,\n          \"type\": \"autocomplete\"\n        }\n      ]\n    }\n  }\n}\n```To learn how to create the indexes defined above using your preferred\ninterface, see [MongoDB Search indexes](fts-manage-indexes).",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "text",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"accommodatesNumber\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"minGrams\": 1,\n          \"type\": \"autocomplete\"\n        }\n      ],\n      \"lastScrapedDate\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"type\": \"autocomplete\"\n        }\n      ],\n      \"maximumNumberOfNights\": [\n        {\n          \"dynamic\": true,\n          \"type\": \"document\"\n        },\n        {\n          \"minGrams\": 1,\n          \"type\": \"autocomplete\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 156
+    }
+  ]
+}

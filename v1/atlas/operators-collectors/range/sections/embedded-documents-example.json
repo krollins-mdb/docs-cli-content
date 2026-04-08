@@ -1,0 +1,17 @@
+{
+  "heading": "Embedded Documents Example",
+  "headingLevel": 3,
+  "body": "The following query searches the `funding_rounds.raised_amount` field in\nthe `sample_training.companies` collection for amount greater than or\nequal to `500000` and less than or equal to `1000000`. It uses the\n`returnStoredSource: true` and `returnScope` to retrieve and return\nthe fields within the `funding_rounds` array of objects, which are\nstored on `mongot`. The query uses the sample index from the [embeddedDocuments](bson-data-types-embedded-documents)\nexample.\n\n➤ Try this in the [Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/68fbe4132ca0a88c52924bbb).\nThe results in the MongoDB Search Playground might vary because the data in the\nMongoDB Search Playground is smaller than the sample collection used in the\nfollowing example.\n\n**Input:**\n\n```json\ndb.companies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"funding_rounds.raised_amount\",\n        \"gte\": 500000,\n        \"lte\": 1000000\n      },\n      \"returnStoredSource\": true,\n      \"returnScope\": {\n        \"path\": \"funding_rounds\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    round_code: 'angel',\n    raised_amount: 500000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'angel',\n    raised_amount: 800000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'c',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'seed',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'a',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.companies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"funding_rounds.raised_amount\",\n        \"gte\": 500000,\n        \"lte\": 1000000\n      },\n      \"returnStoredSource\": true,\n      \"returnScope\": {\n        \"path\": \"funding_rounds\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  }\n])",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    round_code: 'angel',\n    raised_amount: 500000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'angel',\n    raised_amount: 800000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'c',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'seed',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'a',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  }\n]",
+      "tokenEstimate": 140
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "path": "atlas/sp-agg-tumbling",
+  "product": "atlas",
+  "title": "$tumblingWindow Stage (Stream Processing)",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "js": 1,
+      "json": 2
+    },
+    "bySection": [
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 228
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 133
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "js",
+      "section": "Examples",
+      "content": "{\n  '$source': {\n    connectionName: 'sample_weatherdata',\n    topic: 'my_weatherdata',\n    tsFieldName: 'ingestionTime'\n  }\n},\n{\n  '$tumblingWindow': {\n    interval: {\n      size: 30,\n      unit: \"second\"\n    },\n    pipeline: [{\n      $group: {\n        _id:\n  { $meta: \"stream.window.start\"},\n        averagePressure: { $avg: \"$atmosphericPressureObservation.altimeterSetting.value\" },\n        medianPressure: {\n          $median: {\n            input: \"$atmosphericPressureObservation.altimeterSetting.value\",\n            method: \"approximate\"\n          }\n        },\n        maxPressure: { $max: \"$atmosphericPressureObservation.altimeterSetting.value\" },\n        minPressure: { $min: \"$atmosphericPressureObservation.altimeterSetting.value\" }\n      }\n    }]\n  }\n},\n{\n  '$merge': {\n    into: {\n      connectionName: 'weatherStreamOutput',\n      db: 'sample_weatherstream',\n      coll: 'stream'\n    }\n  }\n}",
+      "tokenEstimate": 228
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "  db.getSiblingDB(\"sample_weatherstream\").stream.find()",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n   _id: ISODate('2024-09-26T16:34:00.000Z'),\n   averagePressure: 5271.47894736842,\n   maxPressure: 9999.9,\n   medianPressure: 1015.9,\n   minPressure: 1015.9\n },\n {\n   _id: ISODate('2024-09-26T16:34:30.000Z'),\n   averagePressure: 5507.9,\n   maxPressure: 9999.9,\n   medianPressure: 1015.9,\n   minPressure: 1015.9\n }",
+      "tokenEstimate": 133
+    }
+  ]
+}

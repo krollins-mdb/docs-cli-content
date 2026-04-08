@@ -1,0 +1,48 @@
+{
+  "path": "atlas/admin/optimize-query-performance",
+  "product": "atlas",
+  "title": "Optimize Query Performance",
+  "sections": [
+    {
+      "heading": "Data File Size",
+      "headingLevel": 2,
+      "body": "Each file that Atlas Data Federation handles requires a certain amount of compute\nresources. If your federated database instance store contains many small data\nfiles, the resources required compound and can reduce performance.\nAlternatively, many large data files are problematic as\nData Federation then downloads and processes unnecessary data.\n\nFor most use cases, a performant file size is **100 to 200 MB**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data File Format",
+      "headingLevel": 2,
+      "body": "Federated Database Instances support several [Supported Data Formats](adf-data-formats). You can improve performance by compressing\ncertain file formats or by optimizing file contents for your queries.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Compression",
+      "headingLevel": 3,
+      "body": "When you compress data files, they take less time to download. Reduced\ndownload time has a greater performance benefit than parsing\nuncompressed data.\n\nYou can compress the following file formats using [gzip](https://www.gnu.org/software/gzip/manual/gzip.html):\n\n- JSON (Javascript Object Notation)\n\n- BSON (Binary Javascript Object Notation)\n\n- [CSV](adf-csv-tsv-data)\n\n- [CSV](adf-csv-tsv-data)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "File Structure",
+      "headingLevel": 3,
+      "body": "[Parquet](https://parquet.apache.org/docs/), [Avro](https://avro.apache.org/docs/current/), and [ORC](https://orc.apache.org/docs/) files contain metadata about the file\nitself so that an application can traverse the file contents in\ndifferent ways. If you structure your data file to align with the\nqueries you want to run, Atlas Data Federation can leverage this metadata to quickly\njump to the right data.\n\nOf these formats, [Parquet](https://parquet.apache.org/docs/) files provide the\nbest performance and space efficiency for federated database instance, as it is\noptimized to parse row and column groups for [Parquet](https://parquet.apache.org/docs/).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data Structure in S3 (Simple Storage Service)",
+      "headingLevel": 2,
+      "body": "In AWS (Amazon Web Services) S3 Buckets, the structure of your data and the way you define it in the\n[Configure Atlas Data Federation to query data from S3](adf-configuration-file-aws) affect the performance\nof your federated database instance.\n\nFor easier management, ensure that your data is logically grouped\ninto partitions. Atlas Data Federation utilizes partitions you create with the field\nvalues that you specify in your [definitions](adf-path-syntax). You can improve your federated database instance's performance by\nensuring that your partition structure maps to your query patterns and\nthe partition structure is defined in your [path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path).\nFor the partition, choose fields that you query frequently and order\nthem from the most frequently queried in the first position to the\nleast queried field in the last position.\n\nThe order of fields listed in the [path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nis important in the same way as it is in [Compound Indexes](manual/core/index-compound). The specified path corresponds to data that\nis partitioned first by the value of the first field, and then by the\nvalue of the next field, and so on.\n\n> **Example:** Consider a collection with the `software`, `computer`, and\n> `OS` fields and partitions on the S3 (Simple Storage Service) bucket named `metrics`\n> first for the `software` field, followed by  the `computer`\n> field, and then the `OS` field.\n>\n> ```text\n> metrics\n> |--software\n>    |--computer\n>       |--OS\n> ```\n>\n> Atlas Data Federation uses the partitions for queries on the these fields:\n>\n> - the `software` field,\n>\n> - the `software` field and the `computer` field,\n>\n> - the `software` field and the `computer` field and the\n>   `OS` field.\n>\n> Atlas Data Federation can use the partitions to support a query on the\n> `software` and `OS` fields. However, in this case, Atlas Data Federation is\n> not as efficient for the query as it would be if the query was on\n> the `software` and `computer` fields only. Partitions are parsed\n> in order; if a query omits a particular partition, Atlas Data Federation is less\n> efficient in making use of any partitions that follow the partition.\n> Because a query on `software` and `OS` omits `computer`,\n> Atlas Data Federation uses the `software` partition more efficiently than the\n> `OS` partition to support this query.\n>\n> Atlas Data Federation can't use the partitions to support queries on fields not\n> specified in the [path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path).\n> Also, Atlas Data Federation can't use the partitions to support queries that\n> include the following fields without the `software` field:\n>\n> - the `computer` field,\n>\n> - the `OS` field, or\n>\n> - the `computer` and `OS` fields.\n\nYou can use partitions to improve Data Federation performance by mapping\nthem to partition attributes in your [Configure Atlas Data Federation to query data from S3](adf-configuration-file-aws). By mapping your *partition attributes*\n(the parts of your S3 (Simple Storage Service) prefix that looks like a folder) to a query\nattribute, Atlas Data Federation can selectively open the files that contain data\nrelated to your query. This reduces the amount of time a query takes\nand decreases cost, because Data Federation reads and downloads less files from\nAWS (Amazon Web Services).\n\n> **Example:** Consider an S3 (Simple Storage Service) bucket `metrics` with the following structure:\n>\n> ```text\n> metrics\n> |--hardware\n> |--software\n>    |--computer\n>    |--phone\n> ```\n>\n> You can set a partition attribute for \"metric type\" by defining\n> `/metrics/{metric_type string}/*` in your configuration. If\n> you issue a query that contains `{metric_type: software}`,\n> Data Federation only processes the files with the prefix\n> `/software` and ignores files with the prefix `/hardware`.\n>\n> You can then set a partition attribute for \"software type\" by\n> defining `/metrics/{metric_type string}/{software_type string}` in\n> your configuration . If you issue a query that contains\n> `{metric_type: software, software_type: computer}`,\n> Data Federation ignores files with the prefix `/phone`.\n\nFor more information on mapping partition attributes to a collection\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path), see\n[definitions](adf-path-syntax).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "metrics\n|--software\n   |--computer\n      |--OS",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "text",
+          "content": "metrics\n|--hardware\n|--software\n   |--computer\n   |--phone",
+          "tokenEstimate": 15
+        }
+      ]
+    }
+  ]
+}

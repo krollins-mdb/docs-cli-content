@@ -1,0 +1,111 @@
+{
+  "path": "atlas/return-scope",
+  "product": "atlas",
+  "title": "Query, Filter, and Retrieve Arrays of Objects",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "json": 4,
+      "javascript": 4
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 52
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 73
+          }
+        ]
+      },
+      {
+        "heading": "Sample Index",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 127
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 171
+          }
+        ]
+      },
+      {
+        "heading": "Sample Queries",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 92
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 824
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 136
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 659
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n   \"<operator>\": {\n      <operator-specification>,\n   },\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  }\n}",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $searchMeta: {\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  },\n  \"facet\": {\n    \"<operator>\": {\n      <operator-specification>,\n   },\n    \"facets\": {\n      <facet-definition>\n    }\n  }\n}",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "json",
+      "section": "Sample Index",
+      "content": "{\n  \"mappings\": { \n    \"dynamic\": false,\n    \"fields\": { \n      \"funding_rounds\": { \n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"fields\": {\n          \"investments\": {\n            \"type\": \"embeddedDocuments\",\n            \"dynamic\": true\n          }\n        },\n        \"storedSource\": {\n          \"include\": [\n            \"round_code\", \n            \"raised_currency_code\",\n            \"raised_amount\",\n            \"investments.person\",\n            \"investments.financial_org\"\n          ] \n        },\n      } \n    }\n  }\n}",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "json",
+      "section": "Sample Index",
+      "content": "{\n  ...,\n  \"funding_rounds\": [\n    {\n      \"id\": <integer>,\n      \"round_code\": \"<string>\",\n      \"source_url\": \"<string>\",\n      \"source_description\": \"<string>\",\n      \"raised_amount\": <integer>,\n      \"raised_currency_code\": \"<string>\",\n      \"funded_year\": <integer>,\n      \"funded_month\": \"<string>\",\n      \"funded_day\": \"<string>\",\n      \"investments\": [\n         {\n           \"company\": \"<string>\",\n           \"financial_org\": {\n             \"name\": \"<string>\",\n             \"permalink\": \"<string>\"\n           },\n           \"person\": {\n             \"first_name\": \"<string>\",\n             \"last_name\": \"<string>\",\n             \"permalink\": \"<string>\"\n           }\n         },\n         ...\n      ]\n    },\n    ...\n  ],\n  ...\n}",
+      "tokenEstimate": 171
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Queries",
+      "content": "db.companies.aggregate(\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"funding_rounds.raised_amount\",\n        \"gte\": 5000000,\n        \"lte\": 10000000\n      },\n      \"returnStoredSource\": true,\n      \"returnScope\": {\n        \"path\": \"funding_rounds\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  }\n)",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Queries",
+      "content": "[\n  {\n    round_code: 'a',\n    raised_amount: 5250000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'b',\n    raised_amount: 9500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'a',\n    raised_amount: 5000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: {\n          name: 'Charles River Ventures',\n          permalink: 'charles-river-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Union Square Ventures',\n          permalink: 'union-square-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Marc',\n          last_name: 'Andreessen',\n          permalink: 'marc-andreessen'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Dick',\n          last_name: 'Costolo',\n          permalink: 'dick-costolo'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Naval',\n          last_name: 'Ravikant',\n          permalink: 'naval-ravikant'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Ron',\n          last_name: 'Conway',\n          permalink: 'ron-conway'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Chris',\n          last_name: 'Sacca',\n          permalink: 'chris-sacca'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Greg',\n          last_name: 'Yaitanes',\n          permalink: 'greg-yaitanes'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Brian',\n          last_name: 'Pokorny',\n          permalink: 'brian-pokorny'\n        }\n      },\n      {\n        financial_org: { name: 'SV Angel', permalink: 'sv-angel' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'e',\n    raised_amount: 5166511,\n    raised_currency_code: 'USD',\n    investments: []\n  },\n  {\n    round_code: 'b',\n    raised_amount: 9000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: {\n          name: 'Charles River Ventures',\n          permalink: 'charles-river-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Redpoint Ventures', permalink: 'redpoint-ventures' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'The Kinsey Hills Group',\n          permalink: 'kinsey-hills-group'\n        },\n        person: null\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 824
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Queries",
+      "content": "db.companies.aggregate(\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"path\": \"funding_rounds.raised_currency_code\",\n            \"query\": \"usd\"\n          }\n        }],\n        \"should\": [{\n          \"phrase\": {\n            \"path\": \"funding_rounds.investments.financial_org\",\n            \"query\": \"Trinity Ventures\",\n          }\n        }]\n      },\n      \"returnStoredSource\": true,\n      \"returnScope\": {\n        \"path\": \"funding_rounds\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  }\n)",
+      "tokenEstimate": 136
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Queries",
+      "content": "[\n  {\n    round_code: 'a',\n    raised_amount: 5250000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'b',\n    raised_amount: 9500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'c',\n    raised_amount: 25000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'DAG Ventures', permalink: 'dag-ventures' },\n        person: null\n      },\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'angel',\n    raised_amount: 500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Peter',\n          last_name: 'Thiel',\n          permalink: 'peter-thiel'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  },\n  {\n    round_code: 'a',\n    raised_amount: 12700000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Mark',\n          last_name: 'Pincus',\n          permalink: 'mark-pincus'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  }\n]\n",
+      "tokenEstimate": 659
+    }
+  ]
+}

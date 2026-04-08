@@ -1,0 +1,133 @@
+{
+  "path": "atlas/database-auditing",
+  "product": "atlas",
+  "title": "Step 5: Click .",
+  "sections": [
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "> **Note:** To learn about best practices for auditing the actions of temporary\n> database users, see [Audit Temporary Database Users](audit-temp-db-users).\n\nUse the following procedure to set up database auditing:\n\nBy default, Atlas logs the failed authentication attempts of both\nknown and unknown users in the audit log of the [primary](manual/reference/glossary) node.\n\nAlternatively, click Use Custom JSON Filter to manually\nenter an [audit filter](manual/tutorial/configure-audit-filters)\nas a JSON string. For more information on configuring custom audit\nfilters in Atlas, see [Configure a Custom Auditing Filter](auditing-custom-filter).\n\n> **Note:** Deselecting the `authenticate` action prevents Atlas from\n> auditing authentication failures.\n\n> **Note:** When selecting the [authorization success granularity](manual/reference/parameters)\n> of auditing for the `authCheck` event action, Atlas does\n> not support different selections for reads and writes. For example,\n> you may not select Successes and Failures for authCheck Reads\n> and Failures for authCheck Writes. If you\n> select both authCheck Reads and authCheck Writes,\n> Atlas automatically applies your selected granularity to both.\n\nTo retrieve the audit logs in Atlas, see [log data](mongodb-logs). To retrieve the audit logs using the API, see\n[Logs](api/doc/atlas-admin-api-v2/operation/operation-downloadgroupclusterlog).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure a Custom Auditing Filter",
+      "headingLevel": 2,
+      "body": "> **Note:** This feature is not available for any of the following deployments:\n>\n> - Free clusters\n>\n> - Flex clusters\n>\n> To learn more, see [Limits](limits).\n\nAtlas supports specifying a JSON-formatted audit filter\nfor customizing [MongoDB Auditing](manual/core/auditing).\n\nCustom audit filters let users forgo the managed\nAtlas UI auditing filter builder\nin favor of hand-tailored granular control of event auditing.\nAtlas checks only that the custom filter uses valid\nJSON syntax, and doesn't validate or test the filter's functionality.\n\nThe audit filter document must resolve to a query that matches one or\nmore fields in the [audit event message](manual/reference/audit-message).\nThe filter document can use combinations of [query operators](manual/reference/mql/query-predicates) and equality\nconditions to match the desired audit messages.\n\nTo view example auditing filters, see\n[Example Auditing Filters](auditing-filter-example). To learn more about configuring MongoDB\nauditing filters, see [Configure Audit Filter](manual/tutorial/configure-audit-filters).\n\n> **Important:** Atlas uses a [Atlas High Availability](high-availability) strategy\n> for enabling or updating audit configuration settings across all\n> clusters in the Atlas project. Rolling updates require at least\n> one election per replica set.\n>\n> To learn more about testing application resilience to replica set\n> elections, see\n> Test Primary Failover. To learn more\n> about how Atlas provides high availability, see\n> [Atlas High Availability](high-availability).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 3,
+      "body": "> **Warning:** Enabling Audit authorization successes can severely\n> impact cluster performance. Enable this option with caution.\n\nFor audit filters specifying the\n`authCheck` [action type](manual/reference/audit-message),\nthe auditing system logs only authorization failures for\nany specified `param.command` by default. Enabling\nAudit authorization successes directs the auditing\nsystem to also log authorization successes. If you don't enable\n[auditAuthorizationSuccess](manual/reference/parameters), your\naudit system can't log successful CRUD operations specified in the\n[action type](manual/reference/audit-message).\nTo learn more,\nsee [auditAuthorizationSuccess](manual/reference/parameters).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Edit a Custom Auditing Filter",
+      "headingLevel": 3,
+      "body": "You can edit your filter at any time:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Edit the filter.",
+      "headingLevel": 4,
+      "body": "- Under **Database Auditing** arrow-right\n  **Configure Your Auditing Filter**, click\n  **Use Custom JSON Filter**.\n\n- Make the required changes.\n\n- Click **Save**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Your Custom Auditing Filter",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: View your filter.",
+      "headingLevel": 4,
+      "body": "Your custom auditing filter displays under\n**Database Auditing**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example Auditing Filters",
+      "headingLevel": 2,
+      "body": "Use the following example auditing filters for guidance in constructing\nyour own filters.\n\n> **Important:** These examples are not intended for use in\n> production environments, nor are they a replacement for familiarity\n> with the [MongoDB Auditing Documentation](manual/core/auditing).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Audit all authentication events for known users",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"atype\": \"authenticate\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"atype\": \"authenticate\"\n}",
+          "tokenEstimate": 9
+        }
+      ]
+    },
+    {
+      "heading": "Audit all authentication events for known users and authentication failures for unknown users",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"$or\": [\n    {\n      \"users\": []\n    },\n    {\n      \"atype\": \"authenticate\"\n    }\n  ]\n}\n```\n\n> **Note:** The `authenticate` action is required to log authentication\n> failures from known and unknown users.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"$or\": [\n    {\n      \"users\": []\n    },\n    {\n      \"atype\": \"authenticate\"\n    }\n  ]\n}",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Audit authentication events for the \"myClusterAdministrator\" user",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"atype\": \"authenticate\",\n  \"param\": {\n    \"user\": \"myClusterAdministrator\",\n    \"db\": \"admin\",\n    \"mechanism\": \"SCRAM-SHA-256\"\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"atype\": \"authenticate\",\n  \"param\": {\n    \"user\": \"myClusterAdministrator\",\n    \"db\": \"admin\",\n    \"mechanism\": \"SCRAM-SHA-256\"\n  }\n}",
+          "tokenEstimate": 46
+        }
+      ]
+    },
+    {
+      "heading": "Audit unauthorized attempts at executing the selected commands",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"atype\": \"authCheck\",\n  \"param.command\": {\n    \"$in\": [\n      \"insert\",\n      \"update\",\n      \"delete\"\n    ]\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"atype\": \"authCheck\",\n  \"param.command\": {\n    \"$in\": [\n      \"insert\",\n      \"update\",\n      \"delete\"\n    ]\n  }\n}",
+          "tokenEstimate": 37
+        }
+      ]
+    },
+    {
+      "heading": "Manage Database Auditing with the Atlas CLI",
+      "headingLevel": 2,
+      "body": "You can use the Atlas CLI to manage database auditing configuration\nfor your projects.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Update Auditing Configuration",
+      "headingLevel": 3,
+      "body": "To update the auditing configuration for the specified project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas auditing update [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas auditing update](atlas/cli/current/command/atlas-auditing-update).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas auditing update [options]\n",
+          "tokenEstimate": 8
+        }
+      ]
+    },
+    {
+      "heading": "View Auditing Configuration",
+      "headingLevel": 3,
+      "body": "To return the auditing configuration for the specified project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas auditing describe [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas auditing describe](atlas/cli/current/command/atlas-auditing-describe).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas auditing describe [options]\n",
+          "tokenEstimate": 8
+        }
+      ]
+    }
+  ]
+}
