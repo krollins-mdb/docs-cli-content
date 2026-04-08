@@ -1,0 +1,32 @@
+{
+  "heading": "Example 2: Input Document Excluded in Results",
+  "headingLevel": 3,
+  "body": "The following example uses `find()` to identify an input document, and\nthen uses the `moreLikeThis` operator to find similar documents. For\nthis example, the index definition uses [dynamic mappings](static-dynamic-mappings) to index only the `title`, `genres`, and\n`_id` fields.\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      },\n      \"genres\": {\n        \"type\": \"string\"\n      },\n      \"_id\": {\n        \"type\": \"objectId\"\n      }\n    }\n  }\n}\n```\n\n> **Example:** The following `find()` query finds the movie with the title\n> \"The Godfather\" and stores the result inside `movie`. It specifies\n> that the results should only contain the `title` and `genres`\n> fields for the matching documents. Note that, by default, the `find\n> ()` command always returns the `_id` field, the value for which\n> might be different on your cluster.\n>\n> **Input:**\n>\n> ```javascript\n> movie = db.movies.find( { title: \"The Godfather\" }, { genres: 1, title: 1} ).toArray()\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> [\n>  {\n>   _id: ObjectId(\"573a1396f29313caabce4a9a\"),\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather'\n>  }\n> ]\n> ```\n>\n> The following query uses a [compound](compound-ref) operator with the\n> `moreLikeThis` operator to query the `title` and `genres`\n> fields and the [equals](equals-ref) to exclude the input\n> document using the following clauses:\n>\n> - The `must` clause to query for movies similar to the movie\n>   stored in `movie`.\n>\n> - The `mustNot` clause to exclude the input document from results\n>   by its `_id` value. Note that the `_id` value used in the query\n>   matches the `_id` value in the results of the preceding\n>   `find()` query.\n>\n> The query limits the output to `5` results. The query uses\n> a [$project](manual/reference/operator/aggregation/project) stage to include the `_id`, `title`,\n> `released`, and `genres` fields in the results.\n>\n> > **Note:** Before you run this query, replace the value of the `_id` field\n> > on line 13 with the value of the `_id` field in your query\n> > results.\n>\n> **Input:**\n>\n> ```json\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>        \"compound\":{\n>           \"must\":[{\n>             \"moreLikeThis\": {\n>               \"like\": movie\n>             }\n>           }],\n>           \"mustNot\":[{\n>             \"equals\": {\n>                \"path\": \"_id\",\n>                \"value\": ObjectId (\"573a1396f29313caabce4a9a\")\n>             }\n>           }]\n>          }\n>        }\n>      },\n> {\"$limit\": 5},\n> {\n>  \"$project\": {\n>    \"_id\": 1,\n>    \"title\": 1,\n>    \"released\": 1,\n>    \"genres\": 1\n>   }\n>  }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```json\n> [\n>  {\n>   _id: ObjectId(\"573a13acf29313caabd27afc\"),\n>   genres: [ 'Comedy', 'Drama', 'Romance' ],\n>   title: 'Godfather'\n>  },\n>  {\n>   _id: ObjectId(\"573a1396f29313caabce557f\"),\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather: Part II',\n>   released: ISODate(\"1974-12-20T00:00:00.000Z\")\n>  },\n>  {\n>   _id: ObjectId(\"573a1398f29313caabcebf7b\"),\n>   genres: [ 'Crime', 'Drama' ],\n>   title: 'The Godfather: Part III',\n>   released: ISODate(\"1990-12-26T00:00:00.000Z\")\n>  },\n>  {\n>   _id: ObjectId(\"573a1399f29313caabceed8d\"),\n>   genres: [ 'Action' ],\n>   title: 'The Defender',\n>   released: ISODate(\"1994-07-28T00:00:00.000Z\")\n>  },\n>  {\n>   _id: ObjectId(\"573a139af29313caabcef2a0\"),\n>   genres: [ 'Action' ],\n>   title: 'The Enforcer',\n>   released: ISODate(\"1995-03-02T00:00:00.000Z\")\n>  }\n> ]\n> ```\n>\n> MongoDB Search results include documents that are similar to the query term\n> `The Godfather` in the  `action` genre. However, the results\n> don't include the document that was excluded by its `_id`, which\n> is `ObjectId(\"573a1396f29313caabce4a9a\")`.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      },\n      \"genres\": {\n        \"type\": \"string\"\n      },\n      \"_id\": {\n        \"type\": \"objectId\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "javascript",
+      "content": "movie = db.movies.find( { title: \"The Godfather\" }, { genres: 1, title: 1} ).toArray()",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "content": "[\n {\n  _id: ObjectId(\"573a1396f29313caabce4a9a\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather'\n }\n]",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n       \"compound\":{\n          \"must\":[{\n            \"moreLikeThis\": {\n              \"like\": movie\n            }\n          }],\n          \"mustNot\":[{\n            \"equals\": {\n               \"path\": \"_id\",\n               \"value\": ObjectId (\"573a1396f29313caabce4a9a\")\n            }\n          }]\n         }\n       }\n     },\n{\"$limit\": 5},\n{\n \"$project\": {\n   \"_id\": 1,\n   \"title\": 1,\n   \"released\": 1,\n   \"genres\": 1\n  }\n }\n])",
+      "tokenEstimate": 128
+    },
+    {
+      "language": "json",
+      "content": "[\n {\n  _id: ObjectId(\"573a13acf29313caabd27afc\"),\n  genres: [ 'Comedy', 'Drama', 'Romance' ],\n  title: 'Godfather'\n },\n {\n  _id: ObjectId(\"573a1396f29313caabce557f\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part II',\n  released: ISODate(\"1974-12-20T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a1398f29313caabcebf7b\"),\n  genres: [ 'Crime', 'Drama' ],\n  title: 'The Godfather: Part III',\n  released: ISODate(\"1990-12-26T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a1399f29313caabceed8d\"),\n  genres: [ 'Action' ],\n  title: 'The Defender',\n  released: ISODate(\"1994-07-28T00:00:00.000Z\")\n },\n {\n  _id: ObjectId(\"573a139af29313caabcef2a0\"),\n  genres: [ 'Action' ],\n  title: 'The Enforcer',\n  released: ISODate(\"1995-03-02T00:00:00.000Z\")\n }\n]",
+      "tokenEstimate": 295
+    }
+  ]
+}

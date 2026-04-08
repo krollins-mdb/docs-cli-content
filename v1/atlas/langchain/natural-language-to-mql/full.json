@@ -1,0 +1,89 @@
+{
+  "path": "atlas/langchain/natural-language-to-mql",
+  "product": "atlas",
+  "title": "Query MongoDB with Natural Language Using LangChain and LangGraph",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "- Have a MongoDB cluster and user.\n\n- Add the [Restaurants](sample-restaurants) sample dataset to your MongoDB cluster.\n\n- Have an OpenAI API key.\n\n- Run the following to install required dependencies:\n\n  ```\n  pip install langchain-mongodb langchain-openai langgraph\n  ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "pip install langchain-mongodb langchain-openai langgraph",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Conceptual Overview",
+      "headingLevel": 2,
+      "body": "This agent leverages a predefined set of tools with which it executes a\nstep-by-step plan defined by a LLM. When a user submits a prompt to the agent,\nthe agent sends a request to the LLM that details its available tools and the\nuser's desired outcome. With that information, the LLM generates a specific\nseries of steps that leverage the agent's available toolset to achieve the\nuser's desired outcome.\n\nThe agent then executes the steps and confirms success, or executes updated\nsteps as needed, by sending intermediate results back to the LLM for analysis.\nAnd finally, the system's results are returned to the user.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Build the Agent",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Set the required environment variable.",
+      "headingLevel": 3,
+      "body": "In your terminal, populate and run the following command to set the\nrequired environment variable.\n\n```\nexport OPENAI_API_KEY=<your-openai-api-key>\n```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "export OPENAI_API_KEY=<your-openai-api-key>",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Save the example as a local Python file.",
+      "headingLevel": 3,
+      "body": "Copy and paste the following into a local file called\n`natural_language_to_mql.py`.\n\n**Key Points**\n\n- `self.toolkit`, the tools that the agent can use, is an instance of the [MongoDB Toolkit](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/agent_toolkit/langchain_mongodb.agent_toolkit.toolkit.MongoDBDatabaseToolkit.html#langchain_mongodb.agent_toolkit.toolkit.MongoDBDatabaseToolkit).\n\n- `self.agent`, the agent itself, is an instance of the [ReAct Agent framework](https://langchain-ai.github.io/langgraph/agents/agents/), which takes `self.toolkit` as a parameter.\n\n```python\nimport os\nfrom langchain_openai import ChatOpenAI\nfrom langgraph.prebuilt import create_react_agent\nfrom langchain_mongodb.agent_toolkit import (\n    MONGODB_AGENT_SYSTEM_PROMPT,\n    MongoDBDatabase,\n    MongoDBDatabaseToolkit,\n)\n\nMONGODB_URI = '<connection-string>'\nDB_NAME = 'sample_restaurants'\nNATURAL_LANGUAGE_QUERY = 'Find all restaurants that serve hamburgers.'\n\nclass NaturalLanguageToMQL:\n    def __init__(self):\n        self.llm = ChatOpenAI(model=\"gpt-4o-mini\", timeout=60)\n        self.system_message = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)\n        self.db_wrapper = MongoDBDatabase.from_connection_string(\n                            MONGODB_URI, \n                            database=DB_NAME)\n        self.toolkit = MongoDBDatabaseToolkit(db=self.db_wrapper, llm=self.llm)\n        self.agent = create_react_agent(\n                        self.llm, \n                        self.toolkit.get_tools(), \n                        state_modifier=self.system_message)\n        self.messages = []\n\n    def convert_to_mql_and_execute_query(self, query):\n        # Start the agent with the agent.stream() method\n        events = self.agent.stream(\n            {\"messages\": [(\"user\", query)]},\n            stream_mode=\"values\",\n        )\n        # Add output (events) from the agent to the self.messages list\n        for event in events:\n            self.messages.extend(event[\"messages\"])\n    \n    def print_results(self):\n        # Print the the end-user's expected output from \n        # the final message produced by the agent.\n        print(self.messages[-1].content)\n\ndef main():\n    converter = NaturalLanguageToMQL()\n    converter.convert_to_mql_and_execute_query(NATURAL_LANGUAGE_QUERY)\n    converter.print_results()\n\nif __name__ == '__main__':\n    main()\n\n```",
+      "codeBlocks": [
+        {
+          "language": "python",
+          "content": "import os\nfrom langchain_openai import ChatOpenAI\nfrom langgraph.prebuilt import create_react_agent\nfrom langchain_mongodb.agent_toolkit import (\n    MONGODB_AGENT_SYSTEM_PROMPT,\n    MongoDBDatabase,\n    MongoDBDatabaseToolkit,\n)\n\nMONGODB_URI = '<connection-string>'\nDB_NAME = 'sample_restaurants'\nNATURAL_LANGUAGE_QUERY = 'Find all restaurants that serve hamburgers.'\n\nclass NaturalLanguageToMQL:\n    def __init__(self):\n        self.llm = ChatOpenAI(model=\"gpt-4o-mini\", timeout=60)\n        self.system_message = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)\n        self.db_wrapper = MongoDBDatabase.from_connection_string(\n                            MONGODB_URI, \n                            database=DB_NAME)\n        self.toolkit = MongoDBDatabaseToolkit(db=self.db_wrapper, llm=self.llm)\n        self.agent = create_react_agent(\n                        self.llm, \n                        self.toolkit.get_tools(), \n                        state_modifier=self.system_message)\n        self.messages = []\n\n    def convert_to_mql_and_execute_query(self, query):\n        # Start the agent with the agent.stream() method\n        events = self.agent.stream(\n            {\"messages\": [(\"user\", query)]},\n            stream_mode=\"values\",\n        )\n        # Add output (events) from the agent to the self.messages list\n        for event in events:\n            self.messages.extend(event[\"messages\"])\n    \n    def print_results(self):\n        # Print the the end-user's expected output from \n        # the final message produced by the agent.\n        print(self.messages[-1].content)\n\ndef main():\n    converter = NaturalLanguageToMQL()\n    converter.convert_to_mql_and_execute_query(NATURAL_LANGUAGE_QUERY)\n    converter.print_results()\n\nif __name__ == '__main__':\n    main()\n",
+          "tokenEstimate": 372
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Add your MongoDB connection string.",
+      "headingLevel": 3,
+      "body": "Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.<Tab tabid=\"cloud\">\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n</Tab>Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "text",
+          "content": "mongodb://localhost:<port-number>/?directConnection=true",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Run a Test Query",
+      "headingLevel": 2,
+      "body": "From the directory in which you saved the local file, run the following command.\nYour results might vary.\n\n**Input:**\n\n```bash\npython natural_language_to_mql.py\n```\n\n**Output:**\n\n```\nHere are some restaurants that serve hamburgers:\n\n1. **Wendy's**\n   - Address: 469 Flatbush Avenue, Brooklyn, NY 11225\n   - Borough: Brooklyn\n\n2. **White Castle**\n   - Address: 531 Myrtle Avenue, Brooklyn, NY 11205\n   - Borough: Brooklyn\n\n3. **McDonald's**\n   - Address: 75-50 101 Avenue, Queens, NY 11416\n   - Borough: Queens\n\n4. **McDonald's**\n   - Address: 943 Flatbush Avenue, Brooklyn, NY 11226\n   - Borough: Brooklyn\n\n5. **McDonald's**\n   - Address: 395 Flatbush Avenue Extension, Brooklyn, NY 11201\n   - Borough: Brooklyn\n\nLet me know if you'd like more details or additional results!\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "python natural_language_to_mql.py",
+          "tokenEstimate": 7
+        },
+        {
+          "language": "text",
+          "content": "Here are some restaurants that serve hamburgers:\n\n1. **Wendy's**\n   - Address: 469 Flatbush Avenue, Brooklyn, NY 11225\n   - Borough: Brooklyn\n\n2. **White Castle**\n   - Address: 531 Myrtle Avenue, Brooklyn, NY 11205\n   - Borough: Brooklyn\n\n3. **McDonald's**\n   - Address: 75-50 101 Avenue, Queens, NY 11416\n   - Borough: Queens\n\n4. **McDonald's**\n   - Address: 943 Flatbush Avenue, Brooklyn, NY 11226\n   - Borough: Brooklyn\n\n5. **McDonald's**\n   - Address: 395 Flatbush Avenue Extension, Brooklyn, NY 11201\n   - Borough: Brooklyn\n\nLet me know if you'd like more details or additional results!",
+          "tokenEstimate": 178
+        }
+      ]
+    }
+  ]
+}

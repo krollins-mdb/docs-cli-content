@@ -1,0 +1,27 @@
+{
+  "heading": "Overview",
+  "headingLevel": 2,
+  "body": "When you query documents in your data store, the Atlas Data Federation\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nvalue allows Data Federation to map the data inside your document to the\nfilename of the document.\n\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nsupports parsing filenames into your data stores into computed fields.\nData Federation can add the computed fields to each document\ngenerated from the parsed file. Data Federation can target\nqueries on those computed field values to only those files with\na matching file name. See [Supported Parsing Functions](supported-parsing-funcs) and\n[Examples](adf-path-syntax-egs) for more information.\n\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nalso supports creating partitions using partition attributes in the\npath to the file. Data Federation can target queries on the\nparameter defined in the partition attribute to only those files\nthat contain the query in the filename or partition prefix.\n\n> **Example:** Consider the following files in your S3 (Simple Storage Service) bucket:\n>\n> ```sh\n> /users/26/1234.json\n> /users/26/5678.json\n> ```\n>\n> The JSON (Javascript Object Notation) document `1234.json` contains the following:\n>\n> ```json\n> {\n>   \"name\": \"jane doe\",\n>   \"age\": 26,\n>   \"userID\": \"1234\"\n> }\n> ```\n>\n> your federated database instance configuration for the files in your S3 (Simple Storage Service) bucket defines\n> the following `path`:\n>\n> ```sh\n> \"path\": \"/users/{age int}/{userID string}\"\n> ```\n>\n> The following shows how Data Federation maps a query to the\n> partitions created from the `path` definition:\n>\n> ```json\n> db.users.findOne(                /users\n>   {                                /40\n>     \"age\": 26 ----------------->   /26\n>     \"userID\": \"1234\" ---------->     /1234.json\n>   }                                  /5678.json\n> )\n> ```\n\nIf the computed field for the partition attribute already exists\nin your document, Data Federation maps your query to the appropriate file.\nIf the computed field does not exist, Data Federation adds the computed\nfield to the document. For example, if the `age` field does not\nexist in `1234.json`, Data Federation adds the `age` field and value to\n`1234.json`.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "/users/26/1234.json\n/users/26/5678.json",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"name\": \"jane doe\",\n  \"age\": 26,\n  \"userID\": \"1234\"\n}",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "sh",
+      "content": "\"path\": \"/users/{age int}/{userID string}\"",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "content": "db.users.findOne(                /users\n  {                                /40\n    \"age\": 26 ----------------->   /26\n    \"userID\": \"1234\" ---------->     /1234.json\n  }                                  /5678.json\n)",
+      "tokenEstimate": 51
+    }
+  ]
+}

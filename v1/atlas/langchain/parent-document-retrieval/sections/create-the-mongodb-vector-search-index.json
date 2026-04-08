@@ -1,0 +1,17 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 2,
+  "body": "To enable vector search queries on the `langchain_db.parent_document`\ncollection, you must create a MongoDB Vector Search index. You can\nuse either the LangChain helper method or the\nPyMongo driver method. Run the following code in your notebook for\nyour preferred method:**Langchain:**LangChain```python\n# Get the vector store instance from the retriever\nvector_store = parent_doc_retriever.vectorstore\n\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The number of dimensions to index\n)\n```> **Tip:** [create\\_vector\\_search\\_index API reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)**Pymongo:**PyMongo```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[database_name][collection_name]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)\n```The index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# Get the vector store instance from the retriever\nvector_store = parent_doc_retriever.vectorstore\n\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The number of dimensions to index\n)",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[database_name][collection_name]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)",
+      "tokenEstimate": 128
+    }
+  ]
+}

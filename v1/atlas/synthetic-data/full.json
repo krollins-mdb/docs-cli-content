@@ -1,0 +1,61 @@
+{
+  "path": "atlas/synthetic-data",
+  "product": "atlas",
+  "title": "Step 4: Verify that the data generates successfully.",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To create synthetic data by using the steps in this tutorial, you must:\n\n- Create an Atlas cluster to load data into. To learn more,\n  see [Cluster Types](create-new-database-deployment).\n\n- [Install Node, NPM, and the MongoDB Node.js Driver](node/quick-start/download-and-install).\n\n- Install [faker.js](https://github.com/faker-js/faker):\n\n  ```\n  npm install --save-dev @faker-js/faker\n  ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "npm install --save-dev @faker-js/faker",
+          "tokenEstimate": 10
+        }
+      ]
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "Follow these steps to generate synthetic data in your cluster:\n\n- Run the following command to create and navigate to the\n  directory for the app:\n\n  ```\n  mkdir syntheticdata\n  cd syntheticdata\n  ```\n\n- Run the following command to initialize your project and link\n  it to `npm`.\n\n  ```\n  npm init\n  ```\n\n  Press Enter to accept all default values\n  **except** for `entry point: (index.js)`. When the terminal\n  returns `entry point: (index.js)`, enter this text and\n  press Enter:\n\n  ```\n  myapp.js\n  ```\n\n  Continue to accept all default values and type `Yes` when\n  prompted.\n\n- Run the following command to install `express`, a web\n  application framework:\n\n  ```\n  npm install express --save\n  ```\n\n- In the directory that you created, create a file named\n  `myapp.js`.\n\nIn the `myapp.js` file, add the following code. Replace the\nfollowing placeholder values with your values and save the\ncontents of the file:\n\n- `<YOUR-ATLAS-URI>`: the connection string for your\n  Atlas cluster. To learn how to find your connection\n  string, see [Find Your MongoDB Atlas Connection String](manual/reference/connection-string).\n\n- `<DATABASE-NAME>`: Name of the database to create\n  in Atlas.\n\n- `<COLLECTION-NAME>`: Name of the collection to create in\n  Atlas.\n\n```javascript\n// require the necessary libraries\nconst { faker } = require(\"@faker-js/faker\");\nconst MongoClient = require(\"mongodb\").MongoClient;\n\nfunction randomIntFromInterval(min, max) { // min and max included \n    return Math.floor(Math.random() * (max - min + 1) + min);\n}\n\nasync function seedDB() {\n    // Connection URL\n    const uri = \"<YOUR-ATLAS-URI>\";\n\n    const client = new MongoClient(uri);\n\n    try {\n        await client.connect();\n        console.log(\"Connected correctly to server\");\n\n        const collection = client.db(\"<DATABASE-NAME>\").collection(\"<COLLECTION-NAME>\");\n\n        // make a bunch of time series data\n        let timeSeriesData = [];\n\n        for (let i = 0; i < 5000; i++) {\n            const firstName = faker.person.firstName();\n            const lastName = faker.person.lastName();\n            let newDay = {\n                timestamp_day: faker.date.past(),\n                cat: faker.lorem.word(),\n                owner: {\n                    email: faker.internet.email({firstName, lastName}),\n                    firstName,\n                    lastName,\n                },\n                events: [],\n            };\n\n            for (let j = 0; j < randomIntFromInterval(1, 6); j++) {\n                let newEvent = {\n                    timestamp_event: faker.date.past(),\n                    weight: randomIntFromInterval(14,16),\n                }\n                newDay.events.push(newEvent);\n            }\n            timeSeriesData.push(newDay);\n        }\n        await collection.insertMany(timeSeriesData);\n\n        console.log(\"Database seeded with synthetic data! :)\");\n    } catch (err) {\n        console.log(err.stack);\n    }\n}\n\nseedDB();\n```\n\nFor example, your code may include the following lines that\nspecify a database named `synthetic-data-db` and\na collection named `synthetic-data-collection`:\n\n```javascript\nconst collection = client.db(\"synthetic-data-db\").collection(\"synthetic-data-collection\");\n```\n\nThis code creates a time series collection about cats, adds the\nfollowing fields to each document, and populates the fields with\nsynthetic data from [faker.js](https://github.com/faker-js/faker):\n\n- `timestamp_day`\n\n- `cat`\n\n- `owner.email`\n\n- `owner.firstName`\n\n- `owner.lastName`\n\n- `events`\n\nYou can replace the fields and values in the code with fields and\nvalues that align with your data. To learn more about available\nfields in [faker.js](https://github.com/faker-js/faker), see\nthe [Faker API Reference](https://fakerjs.dev/api/).\n\nRun the following code in the terminal to run your app:\n\n```\nnode myapp.js\n```\n\nThe app generates 5,000 documents that reflect the data pattern\nin `myapp.js`.\n\nAfter you run this code, you can press CTRL + C to\nexit the running application.\n\nExpand the name of the database you created and click the\nname of the collection you created. Your synthetic data\ndisplays.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mkdir syntheticdata\ncd syntheticdata",
+          "tokenEstimate": 7
+        },
+        {
+          "language": "text",
+          "content": "npm init",
+          "tokenEstimate": 2
+        },
+        {
+          "language": "text",
+          "content": "myapp.js",
+          "tokenEstimate": 3
+        },
+        {
+          "language": "text",
+          "content": "npm install express --save",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "javascript",
+          "content": "// require the necessary libraries\nconst { faker } = require(\"@faker-js/faker\");\nconst MongoClient = require(\"mongodb\").MongoClient;\n\nfunction randomIntFromInterval(min, max) { // min and max included \n    return Math.floor(Math.random() * (max - min + 1) + min);\n}\n\nasync function seedDB() {\n    // Connection URL\n    const uri = \"<YOUR-ATLAS-URI>\";\n\n    const client = new MongoClient(uri);\n\n    try {\n        await client.connect();\n        console.log(\"Connected correctly to server\");\n\n        const collection = client.db(\"<DATABASE-NAME>\").collection(\"<COLLECTION-NAME>\");\n\n        // make a bunch of time series data\n        let timeSeriesData = [];\n\n        for (let i = 0; i < 5000; i++) {\n            const firstName = faker.person.firstName();\n            const lastName = faker.person.lastName();\n            let newDay = {\n                timestamp_day: faker.date.past(),\n                cat: faker.lorem.word(),\n                owner: {\n                    email: faker.internet.email({firstName, lastName}),\n                    firstName,\n                    lastName,\n                },\n                events: [],\n            };\n\n            for (let j = 0; j < randomIntFromInterval(1, 6); j++) {\n                let newEvent = {\n                    timestamp_event: faker.date.past(),\n                    weight: randomIntFromInterval(14,16),\n                }\n                newDay.events.push(newEvent);\n            }\n            timeSeriesData.push(newDay);\n        }\n        await collection.insertMany(timeSeriesData);\n\n        console.log(\"Database seeded with synthetic data! :)\");\n    } catch (err) {\n        console.log(err.stack);\n    }\n}\n\nseedDB();",
+          "tokenEstimate": 346
+        },
+        {
+          "language": "javascript",
+          "content": "const collection = client.db(\"synthetic-data-db\").collection(\"synthetic-data-collection\");",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "text",
+          "content": "node myapp.js",
+          "tokenEstimate": 4
+        }
+      ]
+    }
+  ]
+}

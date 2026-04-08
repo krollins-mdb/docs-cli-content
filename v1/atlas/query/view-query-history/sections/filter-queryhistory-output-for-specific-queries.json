@@ -1,0 +1,22 @@
+{
+  "heading": "Filter $queryHistory Output for Specific Queries",
+  "headingLevel": 3,
+  "body": "In the following example, we run a query similar to the following\nagainst the `Database0.Collection0` collection described in the\n[Getting Started tutorial](adf-tutorials).\n\nThe query includes unique strings to help identify the query in the results\nreturned by  the $queryHistory stage. You can attach a comment to a query using the\n[aggregate](manual/reference/command/aggregate) command `comment`\noption.\n\n```shell\nuse Database0\ndb.Collection0.aggregate([ { $match: {\"account_id\": 557378}},{$sort: {\"transactions.symbol\": -1}} ],{\"comment\":\"exampleQuery\"})\n```\n\nTo retrieve the query history using the string value of the `comment`\noption of the [aggregate](manual/reference/command/aggregate) command,\nrun the following commands against the `admin` database:\n\n```json\nuse admin\ndb.aggregate([{$queryHistory: {}}, {$match: {\"comment\": \"exampleQuery\"}} ])\n```\n\n$queryHistory finds the query that included the specified string and returns results\nsimilar to the following example:\n\n```json\n[\n  {\n    \"_id\": ObjectId(\"61e1e4c29e62172566d8e9b6\"),\n    \"query\": [\n      { \"$match\": { \"account_id\": 557378} },\n      { \"$sort\": { \"transactions.symbol\": -1 } }\n    ],\n    \"comment\": \"exampleQuery\",\n    \"appName\": \"mongosh 1.1.8\",\n    \"user\": \"admin.user1\",\n    \"db\": \"Database0\",\n    \"collection\": \"Collection0\",\n    \"opid\": ObjectId(\"16ca3ed2577016e68d60358c\"),\n    \"startTime\": ISODate(\"2022-01-14T21:01:27.346Z\"),\n    \"endTime\": ISODate(\"2022-01-14T21:01:54.627Z\"),\n    \"ok\": 1,\n    \"error\": \"\",\n    \"background\": false,\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "use Database0\ndb.Collection0.aggregate([ { $match: {\"account_id\": 557378}},{$sort: {\"transactions.symbol\": -1}} ],{\"comment\":\"exampleQuery\"})",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "json",
+      "content": "use admin\ndb.aggregate([{$queryHistory: {}}, {$match: {\"comment\": \"exampleQuery\"}} ])",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    \"_id\": ObjectId(\"61e1e4c29e62172566d8e9b6\"),\n    \"query\": [\n      { \"$match\": { \"account_id\": 557378} },\n      { \"$sort\": { \"transactions.symbol\": -1 } }\n    ],\n    \"comment\": \"exampleQuery\",\n    \"appName\": \"mongosh 1.1.8\",\n    \"user\": \"admin.user1\",\n    \"db\": \"Database0\",\n    \"collection\": \"Collection0\",\n    \"opid\": ObjectId(\"16ca3ed2577016e68d60358c\"),\n    \"startTime\": ISODate(\"2022-01-14T21:01:27.346Z\"),\n    \"endTime\": ISODate(\"2022-01-14T21:01:54.627Z\"),\n    \"ok\": 1,\n    \"error\": \"\",\n    \"background\": false,\n  }\n]",
+      "tokenEstimate": 198
+    }
+  ]
+}

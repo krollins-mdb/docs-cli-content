@@ -1,0 +1,17 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "The following example query uses `span.contains` to find documents in\nwhich the term `train` appears with the terms `great` and\n`robbery`, where `great` and `robbery` can be up to 5 positions\napart in the `title` field.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"contains\": {\n          \"spanToReturn\": \"outer\",\n          \"little\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"train\"\n            }\n          },\n          \"big\": {\n            \"near\": {\n              \"clauses\": [\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"great\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"robbery\"\n                  }\n                }\n              ],\n              \"slop\": 5\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  { title: 'The Great Train Robbery' },\n  { title: 'The Great Train Robbery' },\n  { title: \"The Great St. Trinian's Train Robbery\" }\n]\n```\n\nMongoDB Search returns documents that *contain* the term `train` (specified\nusing `little`) inside the terms `great` and `robbery` (specified\nusing `big`). If you set `spanToReturn` on line 6 to `inner`, MongoDB Search\nreturns the same documents because the term `train` (specified using\n`little`) appears *within* the terms `great` and `robbery`\n(specified using `big`).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"contains\": {\n          \"spanToReturn\": \"outer\",\n          \"little\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"train\"\n            }\n          },\n          \"big\": {\n            \"near\": {\n              \"clauses\": [\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"great\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"robbery\"\n                  }\n                }\n              ],\n              \"slop\": 5\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 184
+    },
+    {
+      "language": "shell",
+      "content": "[\n  { title: 'The Great Train Robbery' },\n  { title: 'The Great Train Robbery' },\n  { title: \"The Great St. Trinian's Train Robbery\" }\n]",
+      "tokenEstimate": 44
+    }
+  ]
+}

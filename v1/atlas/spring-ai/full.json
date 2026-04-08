@@ -1,0 +1,161 @@
+{
+  "path": "atlas/spring-ai",
+  "product": "atlas",
+  "title": "Step 2: Access endpoints from within your terminal.",
+  "sections": [
+    {
+      "heading": "Background",
+      "headingLevel": 2,
+      "body": "Spring AI is an application framework from [Spring](https://spring.io/) that allows you to\ncombine various AI services and plugins with your applications.\nYou can use Spring AI for a variety of text-based AI use cases.\n\nYou can use MongoDB as a vector database and use MongoDB Vector Search to\nimplement RAG (Retrieval-Augmented Generation) by retrieving semantically similar documents\nfrom your data. To learn more about RAG (Retrieval-Augmented Generation),\nsee [Retrieval-Augmented Generation (RAG) with MongoDB](ai-key-concepts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n* [Java Development Kit (JDK)](https://www.oracle.com/java/technologies/downloads/) version 8 or later.\n\n* An environment to set up and run a Java application. We recommend\n  that you use an integrated development environment (IDE) such as\n  [IntelliJ IDEA](https://www.jetbrains.com/idea/) or [Eclipse IDE](https://eclipseide.org/) to configure Maven or Gradle to build and run\n  your project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set Up the Environment",
+      "headingLevel": 2,
+      "body": "You must first set up the environment for this tutorial, which includes\nadding the necessary dependencies and setting configuration properties.\n\n- Navigate to the [Spring Initializr](https://start.spring.io/)\n  and configure your project with the following settings:\n\n  - Project: Maven\n\n  - Language: Java\n\n  - Spring Boot: You can use the default version that is selected.\n\n  - Project Metadata:\n\n  - Java: 21\n\n  - You can use default values for all other fields.\n\n- On the right side of the Spring Initializr, click ADD\n  DEPENDENCIES, then search for and add the following dependencies:\n\n  - MongoDB Atlas Vector Database\n\n  - Spring Data MongoDB\n\n- Click GENERATE to download a zipped version of\n  your Spring project. Unzip the file and open it in your IDE.\n\n* Spring AI provides Spring Boot auto-configuration for MongoDB Vector Search.\n\n  Add the following dependencies to the `dependencies` array\n  in your project's `pom.xml` file. These dependencies add\n  Spring AI and the auto-configuration library to your\n  application:\n\n  ```xml\n  <dependency>\n      <groupId>org.springframework.ai</groupId>\n      <artifactId>spring-ai-openai-spring-boot-starter</artifactId>\n  </dependency>\n\n  <dependency>\n      <groupId>org.springframework.ai</groupId>\n      <artifactId>spring-ai-spring-boot-autoconfigure</artifactId>\n  </dependency>\n\n  <dependency>\n      <groupId>org.springframework.boot</groupId>\n      <artifactId>spring-boot-starter-web</artifactId>\n  </dependency>\n  ```\n\n* Next, ensure that your `pom.xml` file contains a\n  `dependencyManagement` entry for the Spring AI Bill of\n  Materials (BOM).\n\n  > **Important:** Set the `spring-ai.version` constant used for the Spring AI\n  > BOM to `1.0.0-SNAPSHOT` to implement the most recent Spring AI\n  > features into your application.\n\n  To learn more about the Spring AI BOM, see the [Dependency\n  Management](https://docs.spring.io/spring-ai/reference/getting-started.html#dependency-management)\n  section of the Spring AI documentation.\n\n* Finally, add the Spring AI Snapshot repository into the\n  `repositories` entry in the `pom.xml` file:\n\n  ```xml\n  <repository>\n    <id>spring-snapshots</id>\n    <name>Spring Snapshots</name>\n    <url>https://repo.spring.io/snapshot</url>\n    <releases>\n      <enabled>false</enabled>\n    </releases>\n  </repository>\n  ```\n\n  To learn more about these repositories, see the [Add Milestone and Snapshot Repositories](https://docs.spring.io/spring-ai/reference/getting-started.html#repositories)\n  section of the Spring AI documentation.\n\n  After you finish editing the `pom.xml` file, reload your\n  project to make sure your dependencies are installed.\n\nLocate the `src/main/resources/application.properties` file and\nreplace the contents of that file with the\nfollowing properties. Replace the placeholders with your OpenAI\nAPI key and your Atlas connection string:\n\n```none\nspring.application.name=springai-mongodb\nspring.ai.openai.api-key=<OpenAI API Key>\nspring.ai.openai.embedding.options.model=text-embedding-ada-002\n\nspring.data.mongodb.uri=<connection string>\nspring.data.mongodb.database=springai_test\nspring.ai.vectorstore.mongodb.indexName=vector_index\nspring.ai.vectorstore.mongodb.collection-name=vector_store\n```\n\n> **Note:** Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>\n> ```\n>\n> To learn more about retrieving your connection string, see the\n> [a connection string that specifies the MONGODB-AWS authentication mechanism](manual/reference/connection-string) guide.",
+      "codeBlocks": [
+        {
+          "language": "xml",
+          "content": "<dependency>\n    <groupId>org.springframework.ai</groupId>\n    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>\n</dependency>\n\n<dependency>\n    <groupId>org.springframework.ai</groupId>\n    <artifactId>spring-ai-spring-boot-autoconfigure</artifactId>\n</dependency>\n\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-web</artifactId>\n</dependency>",
+          "tokenEstimate": 98
+        },
+        {
+          "language": "xml",
+          "content": "<repository>\n  <id>spring-snapshots</id>\n  <name>Spring Snapshots</name>\n  <url>https://repo.spring.io/snapshot</url>\n  <releases>\n    <enabled>false</enabled>\n  </releases>\n</repository>",
+          "tokenEstimate": 58
+        },
+        {
+          "language": "none",
+          "content": "spring.application.name=springai-mongodb\nspring.ai.openai.api-key=<OpenAI API Key>\nspring.ai.openai.embedding.options.model=text-embedding-ada-002\n\nspring.data.mongodb.uri=<connection string>\nspring.data.mongodb.database=springai_test\nspring.ai.vectorstore.mongodb.indexName=vector_index\nspring.ai.vectorstore.mongodb.collection-name=vector_store",
+          "tokenEstimate": 74
+        },
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Create the MongoDB Vector Search Index",
+      "headingLevel": 2,
+      "body": "To enable vector search queries on your vector store,\nyou must create a MongoDB Vector Search index on the `springai_test.vector_store`\ncollection.\n\n> **Note:**&#x20;\n>\n> Required Access\n>\n> To create a MongoDB Vector Search index, you must have [Project Data Access Admin](<Project Data Access Admin>) or higher access to the MongoDB project.\n\nWhen you configure Atlas as the vector store in your\napplication, Spring AI can initialize the backend schema automatically.\nThis initialization includes creating a MongoDB Vector Search index on the collection\nthat contains your vector embeddings.\n\nTo enable schema initialization, add the following setting to your `application.properties` file:\n\n```\nspring.ai.vectorstore.mongodb.initialize-schema=true\n```\n\nSpecifying `initialize-schema=true` causes Spring AI to\nprogrammatically create a MongoDB Vector Search index on your cluster. To learn\nmore, see [Create a MongoDB Vector Search Index](avs-create-index).\n\n> **Note:**&#x20;\n>\n> Known Issue: Existing Index\n>\n> If you have an existing MongoDB Vector Search index called `vector_index` on the\n> `springai_test.vector_store` collection, Spring AI won't create an\n> additional index. Because of this, you might experience errors later\n> in the tutorial if the existing index was configured with incompatible\n> settings, such as a different number of dimensions.\n>\n> Ensure that your index has the following configuration:\n>\n> ```json\n> {\n>   \"fields\": [\n>     {\n>       \"numDimensions\": 1536,\n>       \"path\": \"embedding\",\n>       \"similarity\": \"cosine\",\n>       \"type\": \"vector\"\n>     }\n>   ]\n> }\n> ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "spring.ai.vectorstore.mongodb.initialize-schema=true",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1536,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Use MongoDB as a Vector Store",
+      "headingLevel": 2,
+      "body": "This section demonstrates how to configure MongoDB as a vector\ndatabase, also known as a vector store, so that you can store the vector\nembeddings of your custom data.\n\nLocate the\n`src/main/java/com/example/demo/DemoApplication.java`\nfile in your project. At the same level as this file, create a\ndirectory called `config`, then create a file in this directory called\n`Config.java` to set up your Spring App configuration.\n\nThe following steps demonstrate how to create the `Bean` objects\nneeded to prepare the vector store.\n\nPaste the following code into the `Config.java` file to\nimport the necessary classes:\n\n```java\nimport org.springframework.ai.embedding.EmbeddingModel;\nimport org.springframework.ai.openai.OpenAiEmbeddingModel;\nimport org.springframework.ai.openai.api.OpenAiApi;\nimport org.springframework.ai.vectorstore.MongoDBAtlasVectorStore;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.SpringBootConfiguration;\nimport org.springframework.boot.autoconfigure.EnableAutoConfiguration;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.mongodb.core.MongoTemplate;\n```\n\nPaste the following code into the `Config.java` file to\nreference the values that you set in your application properties file:\n\n```java\n@Configuration\n@SpringBootConfiguration\n@EnableAutoConfiguration\npublic class Config {\n\n    @Value(\"${spring.ai.openai.api-key}\")\n    private String openAiKey;\n\n    @Value(\"${spring.data.mongodb.database}\")\n    private String databaseName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.collection-name:vector_store}\")\n    private String collectionName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.indexName:vector_index}\")\n    private String indexName;\n\n    @Value(\"${spring.data.mongodb.uri}\")\n    private String mongoUri;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.initialize-schema}\")\n    private Boolean initSchema;\n\n    // Add beans here...\n\n}\n```\n\nNext, paste the following code to generate the `OpenAiEmbeddingModel` instance\nthat uses the OpenAI API to create vector embeddings:\n\n```java\n@Bean\npublic EmbeddingModel embeddingModel() {\n    return new OpenAiEmbeddingModel(new OpenAiApi(openAiKey));\n}\n```\n\nFinally, paste the following code to create bean that returns a\n`VectorStore` instance. The `VectorStore` instance uses the\n`MongoTemplate` that corresponds to your deployment and the\n`OpenAiEmbeddingModel` created in the preceding step.\n\n```java\n@Bean\npublic VectorStore mongodbVectorStore(MongoTemplate mongoTemplate, EmbeddingModel embeddingModel) {\n    return new MongoDBAtlasVectorStore(mongoTemplate, embeddingModel,\n            MongoDBAtlasVectorStore.MongoDBVectorStoreConfig.builder().build(), initSchema);\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import org.springframework.ai.embedding.EmbeddingModel;\nimport org.springframework.ai.openai.OpenAiEmbeddingModel;\nimport org.springframework.ai.openai.api.OpenAiApi;\nimport org.springframework.ai.vectorstore.MongoDBAtlasVectorStore;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.SpringBootConfiguration;\nimport org.springframework.boot.autoconfigure.EnableAutoConfiguration;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.mongodb.core.MongoTemplate;",
+          "tokenEstimate": 101
+        },
+        {
+          "language": "java",
+          "content": "@Configuration\n@SpringBootConfiguration\n@EnableAutoConfiguration\npublic class Config {\n\n    @Value(\"${spring.ai.openai.api-key}\")\n    private String openAiKey;\n\n    @Value(\"${spring.data.mongodb.database}\")\n    private String databaseName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.collection-name:vector_store}\")\n    private String collectionName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.indexName:vector_index}\")\n    private String indexName;\n\n    @Value(\"${spring.data.mongodb.uri}\")\n    private String mongoUri;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.initialize-schema}\")\n    private Boolean initSchema;\n\n    // Add beans here...\n\n}",
+          "tokenEstimate": 129
+        },
+        {
+          "language": "java",
+          "content": "@Bean\npublic EmbeddingModel embeddingModel() {\n    return new OpenAiEmbeddingModel(new OpenAiApi(openAiKey));\n}",
+          "tokenEstimate": 27
+        },
+        {
+          "language": "java",
+          "content": "@Bean\npublic VectorStore mongodbVectorStore(MongoTemplate mongoTemplate, EmbeddingModel embeddingModel) {\n    return new MongoDBAtlasVectorStore(mongoTemplate, embeddingModel,\n            MongoDBAtlasVectorStore.MongoDBVectorStoreConfig.builder().build(), initSchema);\n}",
+          "tokenEstimate": 53
+        }
+      ]
+    },
+    {
+      "heading": "Store Custom Data and Run a Semantic Search Query",
+      "headingLevel": 2,
+      "body": "In this section, you can learn how to create endpoints in your Java\napplication to store vector embeddings of custom data in MongoDB, then\nrun a semantic search query on that data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create Endpoints",
+      "headingLevel": 3,
+      "body": "At the same level as the `config` folder, create a\n`controller` folder, then create a `Controller.java` file to set up\nyour API endpoints. The following steps demonstrate how to create\n`GET` endpoints to add data to your vector store and run a semantic\nsearch query by using the `similaritySearch()` method.\n\nPaste the following code into the `Controller.java` file to\nimport the necessary classes:\n\n```java\nimport org.springframework.ai.document.Document;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.ai.vectorstore.SearchRequest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;\n```\n\nPaste the following code to perform the following tasks:\n\n- Annotate the `Controller` class to mark it as the application\n  controller.\n\n- Create a mapping to map requests to the `/tutorial` path.\n\n- Autowire the `VectorStore` bean.\n\n```java\n@RestController\n@RequestMapping(\"/tutorial\")\npublic class Controller {\n    @Autowired\n    private VectorStore vectorStore;\n\n    // Add endpoints here...\n}\n```\n\nPaste the following code into your controller to create a `GET`\nendpoint that creates sample documents and saves them to your vector store as vector embeddings:\n\n```java\n@GetMapping(\"/add\")\npublic String addDocuments() {\n    List<Document> docs = List.of(\n            new Document(\"Proper tuber planting involves site selection, proper timing, and exceptional care. Choose spots with well-drained soil and adequate sun exposure. Tubers are generally planted in spring, but depending on the plant, timing varies. Always plant with the eyes facing upward at a depth two to three times the tuber's height. Ensure 4 inch spacing between small tubers, expand to 12 inches for large ones. Adequate moisture is needed, yet do not overwater. Mulching can help preserve moisture and prevent weed growth.\", Map.of(\"author\", \"A\", \"type\",\"post\")),\n            new Document(\"Successful oil painting necessitates patience, proper equipment, and technique. Begin with a carefully prepared, primed canvas. Sketch your composition lightly before applying paint. Use high-quality brushes and oils to create vibrant, long-lasting artworks. Remember to paint 'fat over lean,' meaning each subsequent layer should contain more oil to prevent cracking. Allow each layer to dry before applying another. Clean your brushes often and avoid solvents that might damage them. Finally, always work in a well-ventilated space.\", Map.of(\"author\", \"A\")),\n            new Document(\"For a natural lawn, selection of the right grass type suitable for your climate is crucial. Balanced watering, generally 1 to 1.5 inches per week, is important; overwatering invites disease. Opt for organic fertilizers over synthetic versions to provide necessary nutrients and improve soil structure. Regular lawn aeration helps root growth and prevents soil compaction. Practice natural pest control and consider overseeding to maintain a dense sward, which naturally combats weeds and pest.\", Map.of(\"author\", \"B\", \"type\",\"post\"))\n    );\n\n    vectorStore.add(docs);\n    return \"Documents added successfully!\\n\";\n}\n```\n\nPaste the following code into your controller to create a `GET`\nendpoint that performs a semantic search query for the phrase `\"learn how to grow things\"` and\nreturns the two most relevant results:\n\n```java\n@GetMapping(\"/search\")\npublic List<Map<String, Object>> searchDocuments() {\n\n    List<Document> results = vectorStore.similaritySearch(\n            SearchRequest\n                    .query(\"learn how to grow things\")\n                    .withTopK(2)\n    );\n\n    return results.stream().map(doc -> Map.of(\n            \"content\", doc.getContent(),\n            \"metadata\", doc.getMetadata()\n    )).collect(Collectors.toList());\n}\n```\n\nTo perform a search with metadata filtering, you can use the\n`Filter.Expression` builder class from the Java Sync driver.\n\nYou can use an MQL (MongoDB Query Language)\nmatch expression to pre-filter for documents. This example filters\nfor documents in which the value of the `author` field is\n`\"A\"`. Then, it performs a semantic search query for the phrase\n`\"learn how to grow things\"`.\n\nIn the body of the `searchDocuments()` method defined in the\npreceding step, replace the code that calls the\n`similaritySearch()` method (lines 4-8\nin the preceding block) with the following code:\n\n```java\nFilterExpressionBuilder b = new FilterExpressionBuilder();\n\nList<Document> results = vectorStore.similaritySearch(\n        SearchRequest.defaults()\n                .withQuery(\"learn how to grow things\")\n                .withTopK(2)\n                .withSimilarityThreshold(0.5)\n                .withFilterExpression(b.eq(\"author\", \"A\").build())\n);\n```\n\n> **Note:** You must add the path for your metadata field to your MongoDB Vector Search\n> index. See the [pre-filtering](avs-types-filter) section of the How to\n> Index Fields for Vector Search tutorial to learn more.\n\nTo learn more about metadata pre-filtering, see\n[lexical prefilters](vectorSearch-agg-pipeline-filter).",
+      "codeBlocks": [
+        {
+          "language": "java",
+          "content": "import org.springframework.ai.document.Document;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.ai.vectorstore.SearchRequest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;",
+          "tokenEstimate": 56
+        },
+        {
+          "language": "java",
+          "content": "@RestController\n@RequestMapping(\"/tutorial\")\npublic class Controller {\n    @Autowired\n    private VectorStore vectorStore;\n\n    // Add endpoints here...\n}",
+          "tokenEstimate": 28
+        },
+        {
+          "language": "java",
+          "content": "@GetMapping(\"/add\")\npublic String addDocuments() {\n    List<Document> docs = List.of(\n            new Document(\"Proper tuber planting involves site selection, proper timing, and exceptional care. Choose spots with well-drained soil and adequate sun exposure. Tubers are generally planted in spring, but depending on the plant, timing varies. Always plant with the eyes facing upward at a depth two to three times the tuber's height. Ensure 4 inch spacing between small tubers, expand to 12 inches for large ones. Adequate moisture is needed, yet do not overwater. Mulching can help preserve moisture and prevent weed growth.\", Map.of(\"author\", \"A\", \"type\",\"post\")),\n            new Document(\"Successful oil painting necessitates patience, proper equipment, and technique. Begin with a carefully prepared, primed canvas. Sketch your composition lightly before applying paint. Use high-quality brushes and oils to create vibrant, long-lasting artworks. Remember to paint 'fat over lean,' meaning each subsequent layer should contain more oil to prevent cracking. Allow each layer to dry before applying another. Clean your brushes often and avoid solvents that might damage them. Finally, always work in a well-ventilated space.\", Map.of(\"author\", \"A\")),\n            new Document(\"For a natural lawn, selection of the right grass type suitable for your climate is crucial. Balanced watering, generally 1 to 1.5 inches per week, is important; overwatering invites disease. Opt for organic fertilizers over synthetic versions to provide necessary nutrients and improve soil structure. Regular lawn aeration helps root growth and prevents soil compaction. Practice natural pest control and consider overseeding to maintain a dense sward, which naturally combats weeds and pest.\", Map.of(\"author\", \"B\", \"type\",\"post\"))\n    );\n\n    vectorStore.add(docs);\n    return \"Documents added successfully!\\n\";\n}",
+          "tokenEstimate": 384
+        },
+        {
+          "language": "java",
+          "content": "@GetMapping(\"/search\")\npublic List<Map<String, Object>> searchDocuments() {\n\n    List<Document> results = vectorStore.similaritySearch(\n            SearchRequest\n                    .query(\"learn how to grow things\")\n                    .withTopK(2)\n    );\n\n    return results.stream().map(doc -> Map.of(\n            \"content\", doc.getContent(),\n            \"metadata\", doc.getMetadata()\n    )).collect(Collectors.toList());\n}",
+          "tokenEstimate": 85
+        },
+        {
+          "language": "java",
+          "content": "FilterExpressionBuilder b = new FilterExpressionBuilder();\n\nList<Document> results = vectorStore.similaritySearch(\n        SearchRequest.defaults()\n                .withQuery(\"learn how to grow things\")\n                .withTopK(2)\n                .withSimilarityThreshold(0.5)\n                .withFilterExpression(b.eq(\"author\", \"A\").build())\n);",
+          "tokenEstimate": 72
+        }
+      ]
+    },
+    {
+      "heading": "Access Endpoints",
+      "headingLevel": 3,
+      "body": "After you run your application, you can access the endpoints to first add\ndocuments to the vector store, then perform a semantic search query.\n\nBuild and run your application by using your IDE tools. If you are using\ndefault settings, your application runs locally on port `8080`.\n\nAfter you confirm that your application is running, run the following\ncommand in your terminal to access the `add` endpoint, which converts the\nsample data to vector embeddings and inserts the embeddings in Atlas:\n\n**Input:**\n\n```bash\ncurl -X GET http://localhost:8080/tutorial/add\n```\n\n**Output:**\n\n```none\nDocuments added successfully!\n```\n\n> **Tip:** After accessing the endpoint, if you're using Atlas, you can verify your vector embeddings\n> by navigating to the `springai_test.vector_store` namespace\n> [in the Atlas UI](atlas-ui-view-collections).\n\nThen, run the following\ncommand in your terminal to access the `search` endpoint to\nperform the semantic search:\n\n**Input:**\n\n```bash\ncurl -X GET http://localhost:8080/tutorial/search\n```\n\n**Output:**\n\n```none\n[{\"content\":\"For a natural lawn, selection of the right grass type\nsuitable for your climate is crucial. Balanced watering, generally 1 to\n1.5 inches per week, is important; overwatering invites disease. Opt for\norganic fertilizers over synthetic versions to provide necessary\nnutrients and improve soil structure. Regular lawn aeration helps root\ngrowth and prevents soil compaction. Practice natural pest control and\nconsider overseeding to maintain a dense sward, which naturally combats\nweeds and\npest.\",\"metadata\":{\"type\":\"post\",\"author\":\"B\"}},{\"content\":\"Proper tuber\nplanting involves site selection, proper timing, and exceptional care.\nChoose spots with well-drained soil and adequate sun exposure. Tubers\nare generally planted in spring, but depending on the plant, timing\nvaries. Always plant with the eyes facing upward at a depth two to three\ntimes the tuber's height. Ensure 4 inch spacing between small tubers,\nexpand to 12 inches for large ones. Adequate moisture is needed, yet do\nnot overwater. Mulching can help preserve moisture and prevent weed\ngrowth.\",\"metadata\":{\"type\":\"post\",\"author\":\"A\"}}]\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "curl -X GET http://localhost:8080/tutorial/add",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "none",
+          "content": "Documents added successfully!",
+          "tokenEstimate": 4
+        },
+        {
+          "language": "bash",
+          "content": "curl -X GET http://localhost:8080/tutorial/search",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "none",
+          "content": "[{\"content\":\"For a natural lawn, selection of the right grass type\nsuitable for your climate is crucial. Balanced watering, generally 1 to\n1.5 inches per week, is important; overwatering invites disease. Opt for\norganic fertilizers over synthetic versions to provide necessary\nnutrients and improve soil structure. Regular lawn aeration helps root\ngrowth and prevents soil compaction. Practice natural pest control and\nconsider overseeding to maintain a dense sward, which naturally combats\nweeds and\npest.\",\"metadata\":{\"type\":\"post\",\"author\":\"B\"}},{\"content\":\"Proper tuber\nplanting involves site selection, proper timing, and exceptional care.\nChoose spots with well-drained soil and adequate sun exposure. Tubers\nare generally planted in spring, but depending on the plant, timing\nvaries. Always plant with the eyes facing upward at a depth two to three\ntimes the tuber's height. Ensure 4 inch spacing between small tubers,\nexpand to 12 inches for large ones. Adequate moisture is needed, yet do\nnot overwater. Mulching can help preserve moisture and prevent weed\ngrowth.\",\"metadata\":{\"type\":\"post\",\"author\":\"A\"}}]",
+          "tokenEstimate": 248
+        }
+      ]
+    },
+    {
+      "heading": "Next Steps",
+      "headingLevel": 2,
+      "body": "You can view and download a [completed version of this app](https://github.com/mongodb-university/spring-ai-demo-app) from\nGitHub. You can use the full app to troubleshoot your own\napplication or to test the functionality quickly.\n\nMongoDB also provides the following developer resources:\n\n- [MongoDB Developer GitHub Repository](https://github.com//mongodb-developer)\n\n- [Spring AI MongoDB Atlas Demo](https://github.com/timotheekelly/springai-mongodb/tree/main)\n\n> **See Also:** [Spring AI Documentation](https://docs.spring.io/spring-ai/reference/index.html)\n>\n> [Spring AI MongoDB Atlas Reference](https://docs.spring.io/spring-ai/reference/api/vectordbs/mongodb.html)",
+      "codeBlocks": []
+    }
+  ]
+}

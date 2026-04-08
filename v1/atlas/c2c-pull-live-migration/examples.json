@@ -1,0 +1,107 @@
+{
+  "path": "atlas/c2c-pull-live-migration",
+  "product": "atlas",
+  "title": "Step 1: Request support.",
+  "summary": {
+    "total": 7,
+    "byLanguage": {
+      "sh": 4,
+      "javascript": 1,
+      "none": 2
+    },
+    "bySection": [
+      {
+        "heading": "Pre-Migration Validation",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "Source Cluster Security",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 113
+          }
+        ]
+      },
+      {
+        "heading": "Avoid Workloads on the Destination Cluster",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 21
+          }
+        ]
+      },
+      {
+        "heading": "Procedure",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 69
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 84
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 120
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 69
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Pre-Migration Validation",
+      "content": "db.runCommand({cleanupOrphaned: \"<database>.<collection>\"})",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "section": "Source Cluster Security",
+      "content": "use admin\ndb.getUser(\"admin\")\n{\n    \"_id\" : \"admin.admin\",\n    \"user\" : \"admin\",\n    \"db\" : \"admin\",\n    \"roles\" : [\n  {\n    \"role\" : \"backup\",\n    \"db\" : \"admin\"\n  },\n  {\n    \"role\" : \"readAnyDatabase\",\n    \"db\" : \"admin\"\n  }\n  ,\n  {\n    \"role\" : \"LiveMigrateWriteBlockingCustomRole\",\n    \"db\" : \"admin\"\n  }\n ]\n} ...",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "sh",
+      "section": "Avoid Workloads on the Destination Cluster",
+      "content": "db.adminCommand( {\n  setUserWriteBlockMode: 1,\n  global: false\n} )",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "section": "Procedure",
+      "content": "A migration to your Atlas cluster will expire in <number> hours!\nNavigate to your destination cluster to start the cutover process. If\nyou don't take any action within <number> hours, the migration will be\ncancelled and you will need to start again. You can also extend the\nmigration process if you need more time.",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "none",
+      "section": "Procedure",
+      "content": "mongodb://<db_username>:<db_password>@replica-shard-00-00.AA000.example.net:27017,replica-shard-00-01.AA000.example.net:27017,replica-shard-00-02.AA000.example.net:27017/?tls=true&replicaSet=atlas-example-shard-0&authSource=admin&appName=replica",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "none",
+      "section": "Procedure",
+      "content": "mongodb://<db_username>:<db_password>@sharded-config-00-00.AA000.example.net:27016,sharded-config-00-01.AA000.example.net:27016,sharded-config-00-02.AA000.example.net:27016,sharded-shard-00-00.AA000.example.net:27016,sharded-shard-00-01.AA000.example.net:27016,sharded-shard-00-02.AA000.example.net:27016/?tls=true&authSource=admin&appName=sharded",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "sh",
+      "section": "Procedure",
+      "content": "A migration to your Atlas cluster will expire in <number> hours!\nNavigate to your destination cluster to start the cutover process. If\nyou don't take any action within <number> hours, the migration will be\ncancelled and you will need to start again. You can also extend the\nmigration process if you need more time.",
+      "tokenEstimate": 69
+    }
+  ]
+}

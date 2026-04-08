@@ -1,0 +1,76 @@
+{
+  "path": "atlas/collections",
+  "product": "atlas",
+  "title": "Shard the collection that you want to shard.",
+  "sections": [
+    {
+      "heading": "Required Roles",
+      "headingLevel": 2,
+      "body": "The following table describes the roles required to manage the\ncollections in an Atlas project:\n\n| Action             | Required Roles                                                                                                        |\n| ------------------ | --------------------------------------------------------------------------------------------------------------------- |\n| Create Collections | One of the following roles:Project Owner or Organization OwnerProject Data Access AdminProject Data Access Read/Write |\n| View Collections   | At least the Project Data Access Read Only role.                                                                      |\n| Drop Collections   | One of the following roles:Project OwnerProject Data Access Admin                                                     |\n| Shard Collections  | One of the following roles:Project OwnerOrganization Owner                                                            |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create a Collection",
+      "headingLevel": 2,
+      "body": "> **Tip:** To create the first collection in a new database, see\n> [database names](atlas-ui-create-a-db).\n\n> **Important:** You cannot create new collections on the `config` and\n> `system` databases. Atlas will deprecate writing to existing\n> collections on these databases in the near future.\n\nTo create a collection in an existing database through the Atlas UI:\n\n- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Data Explorer under\n  the Database heading.\n\n  The [Data Explorer](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fmetrics%2FreplicaSet%2F%3Creplset%3E%2Fexplorer) displays.\n\nSelect or hover over the database, and click the  icon to\nopen the Create Collection dialog box.\n\nIn the Create Collection dialog box, enter the name of\nthe collection you want to create.\n\nAtlas also provides Additional preferences. You can choose\nfrom the following options:\n\n- [Create a Clustered Collection](atlas-ui-clustered-collection)\n\n- [Create a Collection with Collation](atlas-ui-collation-collection)\n\n> **Important:** Don't include [sensitive information](sensitive-info) in\n> your collection name.\n\nFor more information on MongoDB collection names, see\n[Naming Restrictions](manual/reference/limits).\n\nSelect whether the collection is a\n[time series collection](manual/core/timeseries-collections).\nIf you select to create a time series collection, specify the time\nfield and granularity. You can optionally specify the meta field and\nthe time for old data in the collection to expire.\n\nUpon successful creation, the collection appears underneath the\ndatabase in the Connections sidebar.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Collections",
+      "headingLevel": 2,
+      "body": "To view the databases and collections in the cluster through the\nAtlas UI:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: View the collections in a database.",
+      "headingLevel": 3,
+      "body": "Click on the name of the database.\n\n> **Note:** Atlas bases the document count that appears on this tab\n> on cached metadata using [collStats](manual/reference/command/collStats). This count might differ from\n> the actual document count in the collection. For example, an\n> [unexpected shutdown](manual/reference/command/collStats) can throw off the\n> count. Use the [db.collection.countDocuments()](manual/reference/method/db.collection.countDocuments) method for\n> the most accurate document count.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Visualize Collection Data",
+      "headingLevel": 3,
+      "body": "To launch MongoDB Charts to visualize data in your databases and collections.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Launch .",
+      "headingLevel": 4,
+      "body": "To visualize data in MongoDB Charts from the Atlas UI, click\nVisualize Your Data when viewing a specific database\nor collection. Charts loads the data source and you can\nstart building a chart in the Charts view. For detailed\nsteps, see [Build Charts](charts/build-charts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Drop a Collection",
+      "headingLevel": 2,
+      "body": "To drop a collection, including its documents and indexes, through the\nAtlas UI:\n\nIn the Connections sidebar, click the&#x20;\nicon next to the collection you want to drop. In the drop-down menu that\nappears, click Drop Collection.\n\nConfirm by typing the name of the collection, and click\nDrop Database.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Shard a Collection",
+      "headingLevel": 2,
+      "body": "If you have large data sets and perform high throughput operations, you\ncan [shard](manual/sharding) a collection to distribute data across\nthe shards.\n\nYou cannot shard a collection through the Atlas UI. To shard a\ncollection, first confirm that your cluster is a [Deploy a Sharded Cluster](create-cluster-sharding), then take the following steps to shard the\ncollection in [mongosh](mongodb-shell):\n\nSee Connect to a Cluster via mongosh.\n\nTo create an index on the shard key, run the following command:\n\n```sh\ndb.<collection-name>.createIndex({<shard_key_definition>})\n```\n\n> **Example:** To create an index on the shard key for the\n> `sample_analytics.customers` collection:\n>\n> ```sh\n> db.sample_analytics.createIndex( { \"username\": 1 } )\n> ```\n\nTo learn  more, see:\n\n- [Choose a Shard Key](manual/core/sharding-choose-a-shard-key)\n\n- [createIndexes](manual/reference/command/createIndexes)\n\nTo shard a collection, run the following command:\n\n```sh\nsh.shardCollection(\"<database>.<collection>\", { \"<indexed-field>\" : 1 } )\n```\n\n> **Example:** To shard the `sample_analytics.customers` collection:\n>\n> ```sh\n> sh.shardCollection(\"sample_analytics.customers\", { \"username\" : 1 } )\n> ```\n\nWARNING: If you shard a collection that already has a MongoDB Search\nindex, you might experience a brief period of incomplete search results\nwhile the index is building on a shard. Also, if you add a shard for\nan already sharded collection that contains a MongoDB Search index, your search\nqueries against that collection might return incomplete results until\nthe initial sync process completes on the added shards. To learn more,\nsee [initial sync process](troubleshoot-initial-sync).\n\nTo learn more, see [Shard a Collection](manual/tutorial/deploy-shard-cluster) in the MongoDB\nmanual.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "db.<collection-name>.createIndex({<shard_key_definition>})",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "db.sample_analytics.createIndex( { \"username\": 1 } )",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "sh.shardCollection(\"<database>.<collection>\", { \"<indexed-field>\" : 1 } )",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "sh",
+          "content": "sh.shardCollection(\"sample_analytics.customers\", { \"username\" : 1 } )",
+          "tokenEstimate": 20
+        }
+      ]
+    }
+  ]
+}

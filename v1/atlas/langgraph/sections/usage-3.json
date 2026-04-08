@@ -1,0 +1,17 @@
+{
+  "heading": "Usage",
+  "headingLevel": 3,
+  "body": "- To create a basic retrieval tool with MongoDB Vector Search and LangChain:\n\n  ```python\n  from langchain.tools.retriever import create_retriever_tool\n  from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n  from langchain_voyageai import VoyageAIEmbeddings\n\n  # Instantiate the vector store\n  vector_store = MongoDBAtlasVectorSearch.from_connection_string(\n    connection_string = \"<connection-string>\",        # MongoDB cluster URI\n    namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n    embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n    index_name = \"vector_index\",                      # Name of the vector search index\n    # Other optional parameters...\n  )\n\n  # Create a retrieval tool\n  retriever = vector_store.as_retriever()\n  retriever_tool = create_retriever_tool(\n      retriever,\n      \"vector_search_retriever\", # Tool name\n      \"Retrieve relevant documents from the collection\" # Tool description\n  )\n  ```\n\n- To add the tool as a node in LangGraph:\n\n  - Convert the tool into a node.\n\n  - Add the node to the graph.\n\n  ```python\n  from langgraph.graph import StateGraph\n  from langgraph.prebuilt import ToolNode\n\n  # Define the graph\n  workflow = StateGraph()\n\n  # Convert the retriever tool into a node\n  retriever_node = ToolNode([retriever_tool])\n\n  # Add the tool as a node in the graph\n  workflow.add_node(\"vector_search_retriever\", retriever_node)\n\n  graph = workflow.compile()\n  ```\n\n> **Note:**&#x20;\n>\n> - [Tutorial](langgraph-build-agents)\n>\n> - [LangChain](langchain)\n>\n> - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain.tools.retriever import create_retriever_tool\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Instantiate the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",        # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n  embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n  index_name = \"vector_index\",                      # Name of the vector search index\n  # Other optional parameters...\n)\n\n# Create a retrieval tool\nretriever = vector_store.as_retriever()\nretriever_tool = create_retriever_tool(\n    retriever,\n    \"vector_search_retriever\", # Tool name\n    \"Retrieve relevant documents from the collection\" # Tool description\n)",
+      "tokenEstimate": 187
+    },
+    {
+      "language": "python",
+      "content": "from langgraph.graph import StateGraph\nfrom langgraph.prebuilt import ToolNode\n\n# Define the graph\nworkflow = StateGraph()\n\n# Convert the retriever tool into a node\nretriever_node = ToolNode([retriever_tool])\n\n# Add the tool as a node in the graph\nworkflow.add_node(\"vector_search_retriever\", retriever_node)\n\ngraph = workflow.compile()",
+      "tokenEstimate": 80
+    }
+  ]
+}

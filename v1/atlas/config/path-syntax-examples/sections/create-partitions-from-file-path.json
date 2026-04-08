@@ -1,0 +1,17 @@
+{
+  "heading": "Create Partitions from File Path",
+  "headingLevel": 3,
+  "body": "You can specify parsing functions on any path leading up to the\nfilename. Each computed field is based on a parsing function along the\npath. When querying the data, Atlas Data Federation converts each computed field to a\npartition. Partitions, which are synonymous with subdirectories, are\nthen used to filter files with increasing precision.\n\nConsider a federated database instance store `accountingArchive` with the following\ndirectory structure:\n\n```text\ninvoices\n|--MONGO12345\n   |--2019\n      |--01\n         |--02\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates the\n`invoiceNumber`, `year`, `month`, and `day` partitions with\na small set of filtered files:\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}/{year int}/{month int:\\\\d{2}}/{day int:\\\\d{2}}/*\"\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\n> **See Also:** [Parsing Padded Numbers from Filenames](parse-padded-numeric-values)",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "invoices\n|--MONGO12345\n   |--2019\n      |--01\n         |--02",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "text",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}/{year int}/{month int:\\\\d{2}}/{day int:\\\\d{2}}/*\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+      "tokenEstimate": 95
+    }
+  ]
+}

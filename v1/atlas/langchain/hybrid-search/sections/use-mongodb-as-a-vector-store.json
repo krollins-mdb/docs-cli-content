@@ -1,0 +1,12 @@
+{
+  "heading": "Use MongoDB as a Vector Store",
+  "headingLevel": 2,
+  "body": "You must use MongoDB as a vector store for your data.\nYou can instantiate a vector store by using an\nexisting collection in MongoDB.\n\nIf you haven't already, complete the\nsteps to [Load Sample Data Into Atlas](sample-data).\n\n> **Note:** If you want to use your own data, see\n> [LangChain Get Started](langchain-ingest-data)\n> or [How to Create Vector Embeddings](create-embeddings) to learn how to\n> ingest vector embeddings into Atlas.\n\nPaste and run the following code in your notebook\nto create a vector store instance\nnamed `vector_store` from the `sample_mflix.embedded_movies`\nnamespace in Atlas. This code uses the\n`from_connection_string` method to create the `MongoDBAtlasVectorSearch`\nvector store and specifies the following parameters:\n\n- Your MongoDB cluster's connection string.\n\n- The `voyage-3-large` embedding model from Voyage AI to convert text into\n  vector embeddings.\n\n- `sample_mflix.embedded movies` as the namespace to use.\n\n- `plot` as the field that contains the text.\n\n- `plot_embedding_voyage_3_large` as the field that contains the embeddings.\n\n- `dotProduct` as the relevance score function.\n\n```python\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = VoyageAIEmbeddings(model = \"voyage-3-large\", output_dimension = 2048),\n   namespace = \"sample_mflix.embedded_movies\",\n   text_key = \"plot\",\n   embedding_key = \"plot_embedding_voyage_3_large\",\n   relevance_score_fn = \"dotProduct\"\n)\n```\n\n> **Tip:** [MongoDBAtlasVectorSearch API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/vectorstores/langchain_mongodb.vectorstores.MongoDBAtlasVectorSearch.html)",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = VoyageAIEmbeddings(model = \"voyage-3-large\", output_dimension = 2048),\n   namespace = \"sample_mflix.embedded_movies\",\n   text_key = \"plot\",\n   embedding_key = \"plot_embedding_voyage_3_large\",\n   relevance_score_fn = \"dotProduct\"\n)",
+      "tokenEstimate": 114
+    }
+  ]
+}

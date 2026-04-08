@@ -1,0 +1,12 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 2,
+  "body": "Use the [API](atlas/reference/api-resources-spec/v2)\nendpoint to\ncreate a new AWS (Amazon Web Services) IAM role. Atlas will use this role for\nauthentication with your AWS (Amazon Web Services) account.\n\nKeep the returned field values `atlasAWSAccountArn` and\n`atlasAssumedRoleExternalId` handy for use in the next step.\n\n- Log in to your AWS (Amazon Web Services) Management Console.\n\n- Navigate to the Identity and Access Management (IAM) service.\n\n- Select Roles from the left-side navigation.\n\n- Click on the existing IAM role you wish to use for Atlas access\n  from the list of roles.\n\n- Select the Trust Relationships tab.\n\n- Click the Edit trust relationship button.\n\n- Edit the Policy Document. Add a new `Statement` object\n  with the following content.\n\n  > **Note:** Replace the highlighted lines with values returned in the previous step.\n\n  ```json\n  {\n     \"Version\":\"2012-10-17\",\n     \"Statement\":[\n        {\n           \"Effect\":\"Allow\",\n           \"Principal\":{\n              \"AWS\":\"<atlasAWSAccountArn>\"\n           },\n           \"Action\":\"sts:AssumeRole\",\n           \"Condition\":{\n              \"StringEquals\":{\n                 \"sts:ExternalId\":\"<atlasAssumedRoleExternalId>\"\n              }\n           }\n        }\n     ]\n  }\n\n  ```\n\n- Click the Update Trust Policy button.\n\nUse the [API](atlas/reference/api-resources-spec/v2)\nendpoint to authorize and configure the new IAM Assumed Role ARN (Amazon Resource Name).\nIf the API call is successful, you can use the `roleId` value when\nconfiguring Atlas services that use AWS (Amazon Web Services).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n   \"Version\":\"2012-10-17\",\n   \"Statement\":[\n      {\n         \"Effect\":\"Allow\",\n         \"Principal\":{\n            \"AWS\":\"<atlasAWSAccountArn>\"\n         },\n         \"Action\":\"sts:AssumeRole\",\n         \"Condition\":{\n            \"StringEquals\":{\n               \"sts:ExternalId\":\"<atlasAssumedRoleExternalId>\"\n            }\n         }\n      }\n   ]\n}\n",
+      "tokenEstimate": 86
+    }
+  ]
+}

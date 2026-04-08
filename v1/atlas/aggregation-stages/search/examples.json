@@ -1,0 +1,65 @@
+{
+  "path": "atlas/aggregation-stages/search",
+  "product": "atlas",
+  "title": "$search",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "json": 4
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 147
+          }
+        ]
+      },
+      {
+        "heading": "Aggregation Variable",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 148
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 216
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": \"<index-name>\",\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    },\n    \"highlight\": {\n      <highlight-options>\n    },\n    \"concurrent\": true | false,\n    \"count\": {\n      <count-options>\n    },\n    \"searchAfter\"|\"searchBefore\": \"<encoded-token>\",\n    \"scoreDetails\": true| false,\n    \"sort\": {\n      <fields-to-sort>: 1 | -1\n    },\n    \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n    }\n    \"returnStoredSource\": true | false,\n  }\n}",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "json",
+      "section": "Aggregation Variable",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "json",
+      "section": "Aggregation Variable",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"near\": {\n        \"path\": \"released\",\n        \"origin\": ISODate(\"2011-09-01T00:00:00.000+00:00\"),\n        \"pivot\": 7776000000\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1\n    }\n  },\n  { \"$limit\": 5 },\n  {\n    \"$facet\": {\n      \"docs\": [],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  }\n])",
+      "tokenEstimate": 148
+    },
+    {
+      "language": "json",
+      "section": "Aggregation Variable",
+      "content": "{\n  \"docs\" : [\n    {\n      \"title\" : \"Submarino\",\n      \"released\" : ISODate(\"2011-09-01T00:00:00Z\")\n    },\n    {\n      \"title\" : \"Devil's Playground\",\n      \"released\" : ISODate(\"2011-09-01T00:00:00Z\")\n    },\n    {\n      \"title\" : \"Bag It\",\n      \"released\" : ISODate(\"2011-09-01T00:00:00Z\")\n    },\n    {\n      \"title\" : \"Dos\",\n      \"released\" : ISODate(\"2011-09-01T00:00:00Z\")\n    },\n    {\n      \"title\" : \"We Were Here\",\n      \"released\" : ISODate(\"2011-09-01T00:00:00Z\")\n    }\n  ],\n  \"meta\" : [\n    { \"count\" : { \"lowerBound\" : NumberLong(17373) } }\n  ]\n}",
+      "tokenEstimate": 216
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Migrate to vector Type",
+  "headingLevel": 2,
+  "body": "To migrate your MongoDB Search indexes to the [vector index type](bson-data-types-vector) type, replace the `knnVector` type in your\nindex definition for the vector field with the `vector` type.\n\n> **Example:** To use the `vector` type for the `plot_embedding` field in the\n> [sample index definition](knn-vector-egs) for the\n> `sample_mflix.embedded_movies` collection, replace the index\n> definition with the following:\n>\n> ```json\n> {\n>   \"mappings\": {\n>     \"dynamic\": true,\n>     \"fields\": {\n>       \"plot_embedding\": {\n>         \"type\": \"vector\",\n>         \"dimensions\": 1536,\n>         \"similarity\": \"euclidean\"\n>       }\n>     }\n>   }\n> }\n> ```\n\nTo run queries against the `vector` type field, you **must** use the\n[vectorSearch](fts-vectorSearch-ref) instead of the [knnBeta](knn-beta-ref).\n\n> **Note:** Your existing [knnBeta](knn-beta-ref) queries can continue to run against\n> the `vector` type index. After migrating the index, we recommend\n> immediately migrating your `knnBeta` operator queries to the\n> [vectorSearch](fts-vectorSearch-ref).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"plot_embedding\": {\n        \"type\": \"vector\",\n        \"dimensions\": 1536,\n        \"similarity\": \"euclidean\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 55
+    }
+  ]
+}

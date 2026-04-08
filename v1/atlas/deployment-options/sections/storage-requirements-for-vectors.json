@@ -1,0 +1,22 @@
+{
+  "heading": "Storage Requirements for Vectors",
+  "headingLevel": 3,
+  "body": "If you use [BinData](manual/reference/method/BinData) or quantized\nvectors, you significantly reduce resource requirements compared to not\nusing `binData` or quantized vectors. You will notice:\n\n- Disk storage of vectors on `mongod` reduce by 66% when using `binData`\n  vectors.\n\n- RAM usage of vectors on `mongot` reduce by 3.75x (scalar) or 24x\n  (binary) due to vector compression when using either automatic vector\n  quantization or quantized vector ingestion.\n\nWhen you use automatic quantization, Atlas stores the full-precision\nvectors for rescoring or exact search on disk, with minimal RAM and cache\nusage for rescoring.\n\nIf you enable [automatically quantize](avs-automatic-quantization)\nin your MongoDB Vector Search [index definition](avs-types-vector-search), you\nmust consider disk space also when sizing your cluster. This is\nbecause MongoDB Vector Search stores full-precision vectors also on disk for ENN (Exact Nearest Neighbor)\nsearch and for rescoring if you configured automatic quantization.\nTherefore, ensure that there is an appropriate disk to RAM ratio on the\nhardware that you use. Consider configuring search nodes that can\naccommodate roughly a 4:1 ratio of storage to RAM for scalar\nquantization or a 24:1 ratio of storage to RAM for binary quantization.\n\n> **Example:** This example demonstrates how to configure binary quantization for 10\n> million 1024-dimension embeddings from Voyage AI stored in the field\n> named `my-embeddings`:\n>\n> ```\n> {\n>   \"fields\":[\n>     {\n>       \"type\": \"vector\",\n>       \"path\": \"my-embeddings\",\n>       \"numDimensions\": 1024,\n>       \"similarity\": \"euclidean\",\n>       \"quantization\": \"binary\"\n>     }\n>   ]\n> }\n> ```\n\nUse the following formula to roughly calculate the disk space for\nyour binary quantization-enabled index with rescoring:\n\n```shell\nOriginal index size * (25/24)\n```\n\nHere, the `24` in the denominator represents the original index size\nsplit into `24` parts for easier fraction representation. The `25`\nin the numerator accounts for an additional space allocation, which is\napproximately 1/24 of the original index size, for additional data\nneeded to store binary vectors. Both the original index and the Hierarchical Navigable Small Worlds\ngraph are still stored on disk. The oversize factor is 1/24 rather than\n1/32 because the HNSW graph is not compressed.\n\n> **Example:** Suppose your original index size is 1 GB. You can calculate the\n> binary quantized index size with rescoring as shown below:\n>\n> ```shell\n> 1 GB * (25/24) = 1.042 GB\n> ```\n\n> **Important:** In the Atlas UI, Atlas displays the entire index size, which\n> might be large as Atlas doesn't show a break down of the data\n> structures within an index that are stored in RAM and on disk. The\n> MongoDB Search metrics show a much smaller index that is held in memory when\n> you enable automatic quantization.\n\nFor vectors for which you configured automatic quantization, we\nrecommend allocating free disk space equal to 125% of the estimated\nindex size.",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "{\n  \"fields\":[\n    {\n      \"type\": \"vector\",\n      \"path\": \"my-embeddings\",\n      \"numDimensions\": 1024,\n      \"similarity\": \"euclidean\",\n      \"quantization\": \"binary\"\n    }\n  ]\n}",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "shell",
+      "content": "Original index size * (25/24)",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "content": "1 GB * (25/24) = 1.042 GB",
+      "tokenEstimate": 14
+    }
+  ]
+}

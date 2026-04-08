@@ -1,0 +1,27 @@
+{
+  "heading": "Step 3: Create the index.",
+  "headingLevel": 2,
+  "body": "**Input:**```shell\npython create_index.py\n```**Output:**```\nNew index name: default\n```The MongoDB Search `date` type takes the following parameter:| Option | Type   | Necessity | Description                                                               |\n| ------ | ------ | --------- | ------------------------------------------------------------------------- |\n| type   | string | required  | Human-readable label that identifies this field type. Value must be date. |The following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.Basic ExampleThe following example index definition indexes the  `released`\nfield as the MongoDB Search `date` type to support queries against that\nfield using MongoDB Search operators such as [near](near-ref),\n[range](range-ref), and [equals](equals-ref).```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"released\":{\n                   \"type\": \"date\"\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```Multiple Types ExampleThe following example index definition indexes the  `released`\nfield as the `date` and `dateFacet` types to return the\nfollowing types of results for your queries:* Search results for queries using MongoDB Search operators like\n  [near](near-ref), [equals](equals-ref), and [range](range-ref).\n\n* Metadata results for queries using MongoDB Search [faceted navigation](fts-facet-ref).```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"released\": [\n                    {\n                        \"type\": \"date\"\n                    },\n                    {\n                        \"type\": \"dateFacet\"\n                    }\n                ]\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```To learn how to set up and run the following example code, see\nDefine the Index for the token Type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"released\":{\n                   \"type\": \"date\"\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+      "tokenEstimate": 135
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n                \"released\": [\n                    {\n                        \"type\": \"date\"\n                    },\n                    {\n                        \"type\": \"dateFacet\"\n                    }\n                ]\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+      "tokenEstimate": 153
+    }
+  ]
+}

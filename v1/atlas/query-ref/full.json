@@ -1,0 +1,61 @@
+{
+  "path": "atlas/query-ref",
+  "product": "atlas",
+  "title": "Query Reference",
+  "sections": [
+    {
+      "heading": "Pipeline Stages",
+      "headingLevel": 2,
+      "body": "MongoDB Search queries take the form of an [aggregation pipeline stage](manual/aggregation). MongoDB Search provides [$search](pipe.$search) and\n[$searchMeta](pipe.$searchMeta) stages, both of which must be the first stage\nin any query pipeline, including the [$lookup](manual/reference/operator/aggregation/lookup) and\n[$unionWith](manual/reference/operator/aggregation/unionWith) sub-pipelines. These stages can be used in\nconjunction with other [aggregation pipeline stages](manual/aggregation) in your query pipeline.\n\nBased on the pipeline stage that you choose, your\nquery returns either the search results of a full-text search or\nmetadata about your search results:\n\n| Aggregation Pipeline Stage | Purpose                                          |\n| -------------------------- | ------------------------------------------------ |\n| $search                    | Return the search results of a full-text search. |\n| $searchMeta                | Return metadata about your search results.       |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Operators and Collectors",
+      "headingLevel": 2,
+      "body": "MongoDB Search also provides query [MongoDB Search operators](operators-ref) and\n[collectors](collectors-ref) that you can use inside the\n[$search](pipe.$search) and [$searchMeta](pipe.$searchMeta) aggregation\npipeline stages. The MongoDB Search operators allow you to\nlocate and retrieve relevant data from the collection on your\ncluster. The collector returns a document representing the search\nmetadata results.\n\nYou can use MongoDB Search operators to query terms, phrases, geographic shapes\nand points, numeric values, similar documents, synonymous terms, and\nmore.\n\nYou can also search using regex and wildcard expressions. The MongoDB Search\n[compound](compound-ref) operator allows you to combine multiple operators\ninside your [$search](pipe.$search) stage to perform a complex search and\nfilter of data based on what *must*, *must not*, or *should* be present\nin the documents returned by MongoDB Search. You can use the [compound](compound-ref)\noperator to also match or filter documents in the [$search](pipe.$search)\nstage itself. Running [$match](manual/reference/operator/aggregation/match) after [$search](pipe.$search) is\nless performant than running [$search](pipe.$search) with the\n[compound](compound-ref) operator.\n\nTo learn more about operators and collectors, see [MongoDB Search operators](operators-ref).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Processing",
+      "headingLevel": 2,
+      "body": "`mongod` and `mongot` on the Same NodeWhen you run a query, MongoDB Search uses the [pre-defined replica set tags](replica-set-tags) to identify the node on which to run the query. The\nquery first goes to the MongoDB process, which is `mongod` for a\nreplica set cluster or `mongos` for a sharded cluster.For a replica set cluster, the MongoDB process routes the query to\nthe `mongot` on the same node. For sharded clusters, your cluster data\nis partitioned across `mongod` instances and each `mongot` knows\nabout the data on the `mongod` on the same node only. Therefore, you\ncan't run MongoDB Search queries that target a particular  shard. `mongos`\ndirects the queries to all shards, making these *scatter gather*\nqueries. If you use [zones](manual/core/zone-sharding) to\ndistribute a sharded collection over a subset of the shards in the\ncluster, MongoDB Search routes the query to the zone that contains the\nshards for the collection that you are querying and runs your\n[$search](pipe.$search) queries on just the shards where the collection is\nlocated.MongoDB Search performs the search and scoring and returns the document IDs and\nother search metadata for the matching results to `mongod`. The\n`mongod` then performs a full document lookup implicitly for the\nmatching results and returns the results to the client.`mongod` and `mongot` on Different NodesWhen you run a query, the query first goes to the `mongod` based on\nthe [pre-defined replica set tags](replica-set-tags). The\n`mongod` process routes the search query through a load balancer on\nthe same node, which distributes the requests across all of the\n`mongot` processes.The MongoDB Search `mongot` process performs the search and scoring and\nreturns the document IDs and metadata for the matching results to\n`mongod`. The `mongod` then performs a full document lookup for\nthe matching results and returns the results to the client. If you use\nthe [$search](pipe.$search) [Parallelize Query Execution Across Segments](concurrent-ref) option in\nyour query, MongoDB Search enables intra-query parallelism. To learn more, see\n[Parallelize Query Execution Across Segments](concurrent-ref).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scoring",
+      "headingLevel": 2,
+      "body": "MongoDB Search associates a relevance-based score with every document in the\nresult set. The relevance-based scoring allows MongoDB Search to return documents\nin the order from the highest score to the lowest. MongoDB Search scores\ndocuments higher if the query term appears frequently in a document and\nlower if the query term appears across many documents in the\ncollection. MongoDB Search also supports customizing the relevance-based default\nscore by boosting, decaying, or other modifying options. To learn more\nabout customizing the resulting scores, see [relevance scoring](scoring-ref).\n\n> **See Also:**&#x20;\n>\n> Learn by Watching\n>\n> Watch this video for an overview of searching and tracking your\n> queries with MongoDB Search. In this video, you can learn more about MongoDB Search\n> [MongoDB Search operators](operators-ref) and how MongoDB Search [relevance scoring](scoring-ref) documents in the results.\n>\n> *Duration: 15 Minutes*\n>\n> [https://youtu.be/U-hAo_TAi9c](https://youtu.be/U-hAo_TAi9c)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Supported Clients",
+      "headingLevel": 2,
+      "body": "You can create and run MongoDB Search queries using the following clients:\n\n- [Search Tester](atlas-search-queries)\n\n- [mongosh](mongodb-shell)\n\n- [Compass](compass)\n\n- [MongoDB drivers](drivers)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Troubleshoot Queries",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Empty Result Set",
+      "headingLevel": 3,
+      "body": "`mongot` doesn't return any errors, but returns an empty result set if\nyour [$search](pipe.$search) query:\n\n- References an index that doesn't exist. If you don't specify an index\n  by name in the query, MongoDB Search defaults to an index named `default`. If\n  you don't have an index named `default` or if the index that you\n  specified doesn't exist, MongoDB Search doesn't return an error and returns an\n  empty result set. You can specify a valid index by its name using the\n  `index` option.\n\n- Specifies a non-indexed field. If you run a query against a field that\n  isn't indexed, MongoDB Search doesn't return an error and returns an empty\n  result set. You must specify only indexed fields as values for the\n  `path` parameter. You can enable [dynamic mappings](static-dynamic-mappings) in your index definition for the collection\n  to ensure that all the [supported types](bson-data-chart) in the collection are automatically indexed. To\n  learn more, see [dynamic mappings](static-dynamic-mappings).\n\n- Uses the `text` operator on a field path which is not indexed as a\n  `string` type. If a field is indexed as a MongoDB Search field type other than\n  `string`, such as `stringFacet` or `autocomplete`, MongoDB Search doesn't\n  return an error and returns an empty result set. You *must* index the\n  fields with `string` BSON (Binary Javascript Object Notation) data type values as\n  [string](bson-data-types-string) type to query the fields using\n  the [text](text-ref) operator.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "PlanExecutor Error",
+      "headingLevel": 3,
+      "body": "`mongot` returns a `PlanExecutor` error if your [$search](pipe.$search) query:\n\n- Specifies a field that is indexed as an incorrect data type. In this\n  case, if you run a query, MongoDB Search returns an error message identifying the\n  field that was indexed incorrectly and its correct data type. For\n  example:\n\n  ```shell\n  PlanExecutor error during aggregation :: caused by :: Cannot facet on field \"genres\" because\n  it was not indexed as a \"stringFacet\" field.\n  ```\n\n  For example, to run [faceted navigation](fts-facet-ref) queries\n  against `string`, `number`, or `date` fields, create an index\n  for the fields using the corresponding MongoDB Search field type such as\n  `stringFacet`, `number`, and `date` respectively. To learn more,\n  see [supported types](bson-data-chart).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "PlanExecutor error during aggregation :: caused by :: Cannot facet on field \"genres\" because\nit was not indexed as a \"stringFacet\" field.",
+          "tokenEstimate": 31
+        }
+      ]
+    }
+  ]
+}

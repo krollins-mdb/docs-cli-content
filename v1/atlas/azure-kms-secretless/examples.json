@@ -1,0 +1,195 @@
+{
+  "path": "atlas/azure-kms-secretless",
+  "product": "atlas",
+  "title": "Step 8: Click .",
+  "summary": {
+    "total": 13,
+    "byLanguage": {
+      "sh": 13
+    },
+    "bySection": [
+      {
+        "heading": "Create an Atlas-managed Azure (Microsoft Azure) Service Principal",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Get your  tenant ID.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Create or locate the  Service Principal.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 32
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Register the Service Principal with .",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 66
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Assign the Reader role so  can read Key Vault metadata.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 67
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Assign a cryptographic role such as Key Vault Crypto User.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 70
+          }
+        ]
+      },
+      {
+        "heading": "Grant Access Using Key Vault Access Policies",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 61
+          }
+        ]
+      },
+      {
+        "heading": "Configure Encryption at Rest to Use Secretless Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 89
+          }
+        ]
+      },
+      {
+        "heading": "Verify Azure RBAC Role Assignments",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 48
+          }
+        ]
+      },
+      {
+        "heading": "Verify Key Vault Access Policies",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 34
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Create an Atlas-managed Azure (Microsoft Azure) Service Principal",
+      "content": "atlasAzureAppId: 9efedfcc-2eca-4b27-a613-0cad1e114cb7",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "sh",
+      "section": "Step 1: Get your  tenant ID.",
+      "content": "az account show --query tenantId -o tsv",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "sh",
+      "section": "Step 2: Create or locate the  Service Principal.",
+      "content": "az ad sp list --filter \"appId eq '9efedfcc-2eca-4b27-a613-0cad1e114cb7'\"",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "sh",
+      "section": "Step 2: Create or locate the  Service Principal.",
+      "content": "az ad sp create --id 9efedfcc-2eca-4b27-a613-0cad1e114cb7",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "sh",
+      "section": "Step 3: Register the Service Principal with .",
+      "content": "POST /api/atlas/v2/groups/{groupId}/cloudProviderAccess",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "sh",
+      "section": "Step 3: Register the Service Principal with .",
+      "content": "{\n  \"providerName\": \"AZURE\",\n  \"tenantId\": \"<azure-tenant-id>\",\n  \"servicePrincipalId\": \"<service-principal-object-id>\",\n  \"atlasAzureAppId\": \"9efedfcc-2eca-4b27-a613-0cad1e114cb7\"\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "sh",
+      "section": "Step 1: Assign the Reader role so  can read Key Vault metadata.",
+      "content": "az role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Reader\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+      "tokenEstimate": 67
+    },
+    {
+      "language": "sh",
+      "section": "Step 2: Assign a cryptographic role such as Key Vault Crypto User.",
+      "content": "az role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Key Vault Crypto User\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "sh",
+      "section": "Grant Access Using Key Vault Access Policies",
+      "content": "az keyvault set-policy \\\n  --subscription \"$SUBSCRIPTION_ID\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --key-permissions get encrypt decrypt wrapKey unwrapKey",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "sh",
+      "section": "Configure Encryption at Rest to Use Secretless Authentication",
+      "content": "PATCH /api/atlas/v2/groups/{groupId}/encryptionAtRest",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "sh",
+      "section": "Configure Encryption at Rest to Use Secretless Authentication",
+      "content": "{\n  \"azureKeyVault\": {\n    \"enabled\": true,\n    \"roleId\": \"<atlas-managed-roleId>\",\n    \"subscriptionID\": \"<subscription-id>\",\n    \"resourceGroupName\": \"<resource-group>\",\n    \"keyVaultName\": \"<key-vault-name>\",\n    \"keyIdentifier\": \"https://<vault>.vault.azure.net/keys/<key>/<version>\",\n    \"azureEnvironment\": \"AZURE\"\n  }\n}",
+      "tokenEstimate": 89
+    },
+    {
+      "language": "sh",
+      "section": "Verify Azure RBAC Role Assignments",
+      "content": "az role assignment list \\\n  --assignee \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "sh",
+      "section": "Verify Key Vault Access Policies",
+      "content": "az keyvault show \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --query \"properties.accessPolicies\"",
+      "tokenEstimate": 34
+    }
+  ]
+}

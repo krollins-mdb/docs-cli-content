@@ -1,0 +1,41 @@
+{
+  "path": "atlas/sizing-tier-selection",
+  "product": "atlas",
+  "title": "Atlas Cluster Sizing and Tier Selection",
+  "summary": {
+    "total": 2,
+    "byLanguage": {
+      "javascript": 1,
+      "none": 1
+    },
+    "bySection": [
+      {
+        "heading": "Example: The Atlas Sample Data Sets",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 203
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 75
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Example: The Atlas Sample Data Sets",
+      "content": "var totalIndexSize = 0;\nvar totalDataSize = 0;\nvar reservedDBs = [\"admin\",\"config\",\"local\"];\n\n// Switch to admin database and get list of databases.\ndb = db.getSiblingDB(\"admin\");\ndbs = db.runCommand({ \"listDatabases\": 1 }).databases;\n\n// Iterate through each database and get its stats.\ndbs.forEach(function(database) {\n   if (reservedDBs.includes(database.name))\n       return;\n\n   db = db.getSiblingDB(database.name);\n       print(\"Obtaining stats for \" + database.name);\n   var stats = db.stats();\n\n       totalIndexSize += (stats.indexSize / (1024*1024*1024)) ;\n       totalDataSize += (stats.dataSize / (1024*1024*1024)) ;\n});\n\nprint (\"Total data size in GB: \" + totalDataSize.toFixed(2));\nprint (\"Total index size in GB: \" + totalIndexSize.toFixed(2));",
+      "tokenEstimate": 203
+    },
+    {
+      "language": "none",
+      "section": "Example: The Atlas Sample Data Sets",
+      "content": "Obtaining stats for sample_airbnb\nObtaining stats for sample_geospatial\nObtaining stats for sample_mflix\nObtaining stats for sample_supplies\nObtaining stats for sample_training\nObtaining stats for sample_weatherdata\nTotal data size in GB: 0.32\nTotal index size in GB: 0.02",
+      "tokenEstimate": 75
+    }
+  ]
+}

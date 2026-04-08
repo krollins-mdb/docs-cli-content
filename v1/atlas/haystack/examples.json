@@ -1,0 +1,316 @@
+{
+  "path": "atlas/haystack",
+  "product": "atlas",
+  "title": "Step 2: Load sample data on your  cluster.",
+  "summary": {
+    "total": 26,
+    "byLanguage": {
+      "python": 18,
+      "text": 8
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 124
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 43
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Create the MongoDB Vector Search Index",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 90
+          }
+        ]
+      },
+      {
+        "heading": "Store Custom Data in MongoDB",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 222
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 59
+          }
+        ]
+      },
+      {
+        "heading": "Answer Questions on Your Data",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 319
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 5
+          }
+        ]
+      },
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 119
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Create the MongoDB Vector Search Index",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 90
+          }
+        ]
+      },
+      {
+        "heading": "Store Custom Data in MongoDB",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 224
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 82
+          }
+        ]
+      },
+      {
+        "heading": "Answer Questions on Your Data",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 320
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 5
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "pip install --quiet --upgrade mongodb-atlas-haystack voyage-embedders-haystack pymongo",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "import os\nfrom haystack import Pipeline, Document\nfrom haystack.document_stores.types import DuplicatePolicy\nfrom haystack.components.writers import DocumentWriter\nfrom haystack.components.generators import OpenAIGenerator\nfrom haystack.components.builders.prompt_builder import PromptBuilder\nfrom haystack_integrations.components.embedders.voyage_embedders import VoyageDocumentEmbedder, VoyageTextEmbedder\nfrom haystack_integrations.document_stores.mongodb_atlas import MongoDBAtlasDocumentStore\nfrom haystack_integrations.components.retrievers.mongodb_atlas import MongoDBAtlasEmbeddingRetriever\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel",
+      "tokenEstimate": 124
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "os.environ[\"VOYAGE_API_KEY\"] = \"<voyage-api-key>\"\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nos.environ[\"MONGO_CONNECTION_STRING\"]= \"<connection-string>\"",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "client = MongoClient(os.environ.get(\"MONGO_CONNECTION_STRING\"))",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Create your database and collection\ndb_name = \"haystack_db\"\ncollection_name = \"test\"\ndatabase = client[db_name]\ndatabase.create_collection(collection_name)\n\n# Define collection\ncollection = client[db_name][collection_name]",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n            \"type\": \"vector\",\n            \"path\": \"embedding\",\n            \"numDimensions\": 1024,\n            \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "python",
+      "section": "Store Custom Data in MongoDB",
+      "content": "document_store = MongoDBAtlasDocumentStore(\n   database_name=\"haystack_db\",\n   collection_name=\"test\",\n   vector_search_index=\"vector_index\",\n   full_text_search_index=\"search_index\" # Declared but not used in this example\n)",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "python",
+      "section": "Store Custom Data in MongoDB",
+      "content": "# Create some example documents\ndocuments = [\n   Document(content=\"My name is Jean and I live in Paris.\"),\n   Document(content=\"My name is Mark and I live in Berlin.\"),\n   Document(content=\"My name is Giorgio and I live in Rome.\"),\n]\n\n# Initializing a document embedder to convert text content into vectorized form.\ndoc_embedder = VoyageDocumentEmbedder()\n\n# Setting up a document writer to handle the insertion of documents into the MongoDB collection.\ndoc_writer = DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP)\n\n# Creating a pipeline for indexing documents. The pipeline includes embedding and writing documents.\nindexing_pipe = Pipeline()\nindexing_pipe.add_component(instance=doc_embedder, name=\"doc_embedder\")\nindexing_pipe.add_component(instance=doc_writer, name=\"doc_writer\")\n\n# Connecting the components of the pipeline for document flow.\nindexing_pipe.connect(\"doc_embedder.documents\", \"doc_writer.documents\")\n\n# Running the pipeline with the list of documents to index them in MongoDB.\nindexing_pipe.run({\"doc_embedder\": {\"documents\": documents}})",
+      "tokenEstimate": 222
+    },
+    {
+      "language": "text",
+      "section": "Store Custom Data in MongoDB",
+      "content": "Calculating embeddings: 100%|██████████| 1/1 [00:00<00:00,  4.42it/s]\n{'doc_embedder': {'meta': {'total_tokens': 32}},\n 'doc_writer': {'documents_written': 3}}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "python",
+      "section": "Answer Questions on Your Data",
+      "content": "# Template for generating prompts for a movie recommendation engine.\nprompt_template = \"\"\"\n    You are an assistant allowed to use the following context documents.\\nDocuments:\n    {% for doc in documents %}\n        {{ doc.content }}\n    {% endfor %}\n\n    \\nQuery: {{query}}\n    \\nAnswer:\n\"\"\"\n\n# Setting up a retrieval-augmented generation (RAG) pipeline for generating responses.\nrag_pipeline = Pipeline()\nrag_pipeline.add_component(\"text_embedder\", VoyageTextEmbedder())\n\n# Adding a component for retrieving related documents from MongoDB based on the query embedding.\nrag_pipeline.add_component(instance=MongoDBAtlasEmbeddingRetriever(document_store=document_store,top_k=15), name=\"retriever\")\n\n# Building prompts based on retrieved documents to be used for generating responses.\nrag_pipeline.add_component(\"prompt_builder\", PromptBuilder(template=prompt_template, required_variables=[\"query\", \"documents\"]))\n\n# Adding a language model generator to produce the final text output.\nrag_pipeline.add_component(\"llm\", OpenAIGenerator())\n\n# Connecting the components of the RAG pipeline to ensure proper data flow.\nrag_pipeline.connect(\"text_embedder.embedding\", \"retriever.query_embedding\")\nrag_pipeline.connect(\"retriever\", \"prompt_builder.documents\")\nrag_pipeline.connect(\"prompt_builder\", \"llm\")\n\n# Run the pipeline\nquery = \"Where does Mark live?\"\nresult = rag_pipeline.run(\n  {\n      \"text_embedder\": {\"text\": query},\n      \"prompt_builder\": {\"query\": query},\n  });\nprint(result['llm']['replies'][0])",
+      "tokenEstimate": 319
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions on Your Data",
+      "content": "Mark lives in Berlin.",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "pip install --quiet --upgrade mongodb-atlas-haystack pymongo",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "import os\nfrom haystack import Pipeline, Document\nfrom haystack.document_stores.types import DuplicatePolicy\nfrom haystack.components.writers import DocumentWriter\nfrom haystack.components.generators import OpenAIGenerator\nfrom haystack.components.builders.prompt_builder import PromptBuilder\nfrom haystack.components.embedders import OpenAITextEmbedder, OpenAIDocumentEmbedder\nfrom haystack_integrations.document_stores.mongodb_atlas import MongoDBAtlasDocumentStore\nfrom haystack_integrations.components.retrievers.mongodb_atlas import MongoDBAtlasEmbeddingRetriever\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "os.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nos.environ[\"MONGO_CONNECTION_STRING\"]= \"<connection-string>\"",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "client = MongoClient(os.environ.get(\"MONGO_CONNECTION_STRING\"))",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Create your database and collection\ndb_name = \"haystack_db\"\ncollection_name = \"test\"\ndatabase = client[db_name]\ndatabase.create_collection(collection_name)\n\n# Define collection\ncollection = client[db_name][collection_name]",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n            \"type\": \"vector\",\n            \"path\": \"embedding\",\n            \"numDimensions\": 1536,\n            \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "python",
+      "section": "Store Custom Data in MongoDB",
+      "content": "document_store = MongoDBAtlasDocumentStore(\n   database_name=\"haystack_db\",\n   collection_name=\"test\",\n   vector_search_index=\"vector_index\",\n   full_text_search_index=\"search_index\" # Declared but not used in this example\n)",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "python",
+      "section": "Store Custom Data in MongoDB",
+      "content": "# Create some example documents\ndocuments = [\n   Document(content=\"My name is Jean and I live in Paris.\"),\n   Document(content=\"My name is Mark and I live in Berlin.\"),\n   Document(content=\"My name is Giorgio and I live in Rome.\"),\n]\n\n# Initializing a document embedder to convert text content into vectorized form.\ndoc_embedder = OpenAIDocumentEmbedder()\n\n# Setting up a document writer to handle the insertion of documents into the MongoDB collection.\ndoc_writer = DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP)\n\n# Creating a pipeline for indexing documents. The pipeline includes embedding and writing documents.\nindexing_pipe = Pipeline()\nindexing_pipe.add_component(instance=doc_embedder, name=\"doc_embedder\")\nindexing_pipe.add_component(instance=doc_writer, name=\"doc_writer\")\n\n# Connecting the components of the pipeline for document flow.\nindexing_pipe.connect(\"doc_embedder.documents\", \"doc_writer.documents\")\n\n# Running the pipeline with the list of documents to index them in MongoDB.\nindexing_pipe.run({\"doc_embedder\": {\"documents\": documents}})",
+      "tokenEstimate": 224
+    },
+    {
+      "language": "text",
+      "section": "Store Custom Data in MongoDB",
+      "content": "Calculating embeddings: 100%|██████████| 1/1 [00:00<00:00,  4.16it/s]\n{'doc_embedder': {'meta': {'model': 'text-embedding-ada-002',\n   'usage': {'prompt_tokens': 32, 'total_tokens': 32}}},\n 'doc_writer': {'documents_written': 3}}",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "python",
+      "section": "Answer Questions on Your Data",
+      "content": "# Template for generating prompts for a movie recommendation engine.\nprompt_template = \"\"\"\n    You are an assistant allowed to use the following context documents.\\nDocuments:\n    {% for doc in documents %}\n        {{ doc.content }}\n    {% endfor %}\n\n    \\nQuery: {{query}}\n    \\nAnswer:\n\"\"\"\n\n# Setting up a retrieval-augmented generation (RAG) pipeline for generating responses.\nrag_pipeline = Pipeline()\nrag_pipeline.add_component(\"text_embedder\", OpenAITextEmbedder())\n\n# Adding a component for retrieving related documents from MongoDB based on the query embedding.\nrag_pipeline.add_component(instance=MongoDBAtlasEmbeddingRetriever(document_store=document_store,top_k=15), name=\"retriever\")\n\n# Building prompts based on retrieved documents to be used for generating responses.\nrag_pipeline.add_component(\"prompt_builder\", PromptBuilder(template=prompt_template, required_variables=[\"query\", \"documents\"]))\n\n# Adding a language model generator to produce the final text output.\nrag_pipeline.add_component(\"llm\", OpenAIGenerator())\n\n# Connecting the components of the RAG pipeline to ensure proper data flow.\nrag_pipeline.connect(\"text_embedder.embedding\", \"retriever.query_embedding\")\nrag_pipeline.connect(\"retriever\", \"prompt_builder.documents\")\nrag_pipeline.connect(\"prompt_builder\", \"llm\")\n\n# Run the pipeline\nquery = \"Where does Mark live?\"\nresult = rag_pipeline.run(\n  {\n      \"text_embedder\": {\"text\": query},\n      \"prompt_builder\": {\"query\": query},\n  });\nprint(result['llm']['replies'][0])",
+      "tokenEstimate": 320
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions on Your Data",
+      "content": "Mark lives in Berlin.",
+      "tokenEstimate": 5
+    }
+  ]
+}

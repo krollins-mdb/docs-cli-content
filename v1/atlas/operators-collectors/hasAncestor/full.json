@@ -1,0 +1,72 @@
+{
+  "path": "atlas/operators-collectors/hasAncestor",
+  "product": "atlas",
+  "title": "hasAncestor Operator",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "The `hasAncestor` operator has the following syntax:\n\n```javascript\n{\n  $search: {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"hasAncestor\": {\n      \"ancestorPath\": \"<embeddedDocuments-type-higher-level-field>\",\n      \"operator\": {\n        <operator-specification>\n      }\n    },\n    \"returnScope\": {\n      \"path\": \"<embeddedDocuments-type-field-to-retrieve>\"\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  $search: {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"hasAncestor\": {\n      \"ancestorPath\": \"<embeddedDocuments-type-higher-level-field>\",\n      \"operator\": {\n        <operator-specification>\n      }\n    },\n    \"returnScope\": {\n      \"path\": \"<embeddedDocuments-type-field-to-retrieve>\"\n    }\n  }\n}",
+          "tokenEstimate": 82
+        }
+      ]
+    },
+    {
+      "heading": "Fields",
+      "headingLevel": 2,
+      "body": "| Field        | Type   | Description                                                                                                                                                                                                                                                                                                                                         | Necessity |\n| ------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| ancestorPath | String | Name of the embeddedDocuments type field that is an intermediary ancestor of the nested field used in the query. This is the parent document that the operator evaluates.                                                                                                                                                                           | Required  |\n| operator     | Object | Operator to use to query the nested field inside the embeddedDocuments type field specified in the ancestorPath. The query path must be a child of the ancestorPath, regardless of the level of nesting. This specifies the search criteria to filter the parent document.You can't use the hasAncestor operator inside the operator specification. | Required  |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Requirements",
+      "headingLevel": 2,
+      "body": "To use this operator, you must:\n\n- Index the ancestor fields as the [embeddedDocuments](bson-data-types-embedded-documents) type. In the query, specify\n  `ancestorPath` as this field. If the field is on the root level, use\n  [hasRoot Operator](has-root-ref).\n\n- Specify [returnScope](fts-return-scope) to set the scope of the\n  document to query and retrieve.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The examples in this section use the `sample_training.companies`\ndataset. If you load the sample dataset and create the index on the\ncollection, you can try the sample queries demonstrated in this section.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 3,
+      "body": "The queries in this section use the following index. This index\ndefinition configures MongoDB Search to do the following:\n\n- Automatically index all the dynamically indexable fields in the collection.\n\n- Index the `funding_rounds` and `funding_rounds.investments`\n  fields as the [embeddedDocuments](bson-data-types-embedded-documents) type.\n\n- Store the following fields on `mongot`:\n\n  - `funding_rounds.investments.financial_org`\n\n  - `funding_rounds.investments.person`\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"funding_rounds\": {\n        \"dynamic\": true,\n        \"fields\": {\n          \"investments\": [\n            {\n              \"dynamic\": true,\n              \"storedSource\": {\n                \"include\": [\n                  \"financial_org\",\n                  \"person\"\n                ]\n              },\n              \"type\": \"embeddedDocuments\"\n            }\n          ]\n        },\n        \"type\": \"embeddedDocuments\"\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"funding_rounds\": {\n        \"dynamic\": true,\n        \"fields\": {\n          \"investments\": [\n            {\n              \"dynamic\": true,\n              \"storedSource\": {\n                \"include\": [\n                  \"financial_org\",\n                  \"person\"\n                ]\n              },\n              \"type\": \"embeddedDocuments\"\n            }\n          ]\n        },\n        \"type\": \"embeddedDocuments\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 104
+        }
+      ]
+    },
+    {
+      "heading": "Sample Query",
+      "headingLevel": 3,
+      "body": "The following query searches the `funding_rounds.founded_year` field\nfor companies that were founded in the year `2005` using the\n`equals` operator to retrieve investment details such as the financial\norganizations or individuals that invested in the companies.\n\n**Input:**\n\n```javascript\ndb.companies.aggregate([\n  { \n    \"$search\": { \n      \"returnStoredSource\": true, \n      \"returnScope\": { \"path\": \"funding_rounds.investments\" }, \n      \"hasAncestor\": { \n        \"ancestorPath\": \"funding_rounds\", \n        \"operator\": { \n          \"equals\": { \n            \"path\": \"funding_rounds.funded_year\", \n            \"value\": 2005 \n          } \n        } \n      } \n    } \n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    financial_org: {\n      name: 'Frazier Technology Ventures',\n      permalink: 'frazier-technology-ventures'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mark',\n      last_name: 'Pincus',\n      permalink: 'mark-pincus'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Reid',\n      last_name: 'Hoffman',\n      permalink: 'reid-hoffman'\n    }\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Ram',\n      last_name: 'Shriram',\n      permalink: 'ram-shriram'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mitch',\n      last_name: 'Kapor',\n      permalink: 'mitch-kapor'\n    }\n  },\n  {\n    financial_org: null,\n    person: { first_name: 'Ron', last_name: 'Conway', permalink: 'ron-conway' }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Silvio',\n      last_name: 'Scaglia',\n      permalink: 'silvio-scaglia'\n    }\n  },\n  {\n    financial_org: {\n      name: 'Shelter Capital Partners',\n      permalink: 'shelter-capital-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: {\n      name: 'Liberty Associated Partners',\n      permalink: 'liberty-associated-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Rose Tech Ventures', permalink: 'rose-tech-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Lead Dog Ventures', permalink: 'lead-dog-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Benchmark', permalink: 'benchmark-2' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Sequoia Capital', permalink: 'sequoia-capital' },\n    person: null\n  },\n  { financial_org: null, person: null }\n]\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.companies.aggregate([\n  { \n    \"$search\": { \n      \"returnStoredSource\": true, \n      \"returnScope\": { \"path\": \"funding_rounds.investments\" }, \n      \"hasAncestor\": { \n        \"ancestorPath\": \"funding_rounds\", \n        \"operator\": { \n          \"equals\": { \n            \"path\": \"funding_rounds.funded_year\", \n            \"value\": 2005 \n          } \n        } \n      } \n    } \n  }\n])",
+          "tokenEstimate": 112
+        },
+        {
+          "language": "javascript",
+          "content": "[\n  {\n    financial_org: {\n      name: 'Frazier Technology Ventures',\n      permalink: 'frazier-technology-ventures'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mark',\n      last_name: 'Pincus',\n      permalink: 'mark-pincus'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Reid',\n      last_name: 'Hoffman',\n      permalink: 'reid-hoffman'\n    }\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Ram',\n      last_name: 'Shriram',\n      permalink: 'ram-shriram'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mitch',\n      last_name: 'Kapor',\n      permalink: 'mitch-kapor'\n    }\n  },\n  {\n    financial_org: null,\n    person: { first_name: 'Ron', last_name: 'Conway', permalink: 'ron-conway' }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Silvio',\n      last_name: 'Scaglia',\n      permalink: 'silvio-scaglia'\n    }\n  },\n  {\n    financial_org: {\n      name: 'Shelter Capital Partners',\n      permalink: 'shelter-capital-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: {\n      name: 'Liberty Associated Partners',\n      permalink: 'liberty-associated-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Rose Tech Ventures', permalink: 'rose-tech-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Lead Dog Ventures', permalink: 'lead-dog-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Benchmark', permalink: 'benchmark-2' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Sequoia Capital', permalink: 'sequoia-capital' },\n    person: null\n  },\n  { financial_org: null, person: null }\n]\n",
+          "tokenEstimate": 660
+        }
+      ]
+    }
+  ]
+}

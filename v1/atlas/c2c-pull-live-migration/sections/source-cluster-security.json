@@ -1,0 +1,12 @@
+{
+  "heading": "Source Cluster Security",
+  "headingLevel": 3,
+  "body": "Various built-in roles provide sufficient privileges. For example:\n\nFor source replica set clusters, a MongoDB user must have the\n[readAnyDatabase](manual/reference/built-in-roles), [backup](manual/reference/built-in-roles) roles and the [BYPASS\\_USER\\_WRITE\\_BLOCK](manual/reference/privilege-actions) action.\n\nFor source sharded clusters a MongoDB user must have the [readAnyDatabase](manual/reference/built-in-roles),\n[backup](manual/reference/built-in-roles), [clusterMonitor](manual/reference/built-in-roles) roles and the [BYPASS\\_USER\\_WRITE\\_BLOCK](manual/reference/privilege-actions)\naction.\n\nThe [BYPASS\\_USER\\_WRITE\\_BLOCK](manual/reference/privilege-actions) should be added to a custom role that\nyou can apply to the MongoDB user being used for the migration. This can be added\non [Create a custom role](add-mongodb-roles) or [self-managed clusters](manual/tutorial/manage-users-and-roles).\n\nTo verify that the database user who will run the live migration process\nhas these roles, run the [db.getUser()](manual/reference/method/db.getUser)\ncommand on the `admin` database. For example, for a replica set, run:\n\n```javascript\nuse admin\ndb.getUser(\"admin\")\n{\n    \"_id\" : \"admin.admin\",\n    \"user\" : \"admin\",\n    \"db\" : \"admin\",\n    \"roles\" : [\n  {\n    \"role\" : \"backup\",\n    \"db\" : \"admin\"\n  },\n  {\n    \"role\" : \"readAnyDatabase\",\n    \"db\" : \"admin\"\n  }\n  ,\n  {\n    \"role\" : \"LiveMigrateWriteBlockingCustomRole\",\n    \"db\" : \"admin\"\n  }\n ]\n} ...\n```\n\nSpecify the username and password to Atlas when prompted by\nthe walk-through screen of the live migration procedure.\n\nAtlas only supports [SCRAM](manual/core/security-scram) for\nconnecting to source clusters that enforce authentication.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "use admin\ndb.getUser(\"admin\")\n{\n    \"_id\" : \"admin.admin\",\n    \"user\" : \"admin\",\n    \"db\" : \"admin\",\n    \"roles\" : [\n  {\n    \"role\" : \"backup\",\n    \"db\" : \"admin\"\n  },\n  {\n    \"role\" : \"readAnyDatabase\",\n    \"db\" : \"admin\"\n  }\n  ,\n  {\n    \"role\" : \"LiveMigrateWriteBlockingCustomRole\",\n    \"db\" : \"admin\"\n  }\n ]\n} ...",
+      "tokenEstimate": 113
+    }
+  ]
+}

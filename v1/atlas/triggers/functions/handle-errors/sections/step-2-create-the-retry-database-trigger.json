@@ -1,0 +1,42 @@
+{
+  "heading": "Step 2: Create the Retry Database Trigger",
+  "headingLevel": 4,
+  "body": "**Ui:**Atlas UI* In Atlas, go to the Triggers page.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Triggers under\n    the Streaming Data heading.\n\n  The [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n* Click **Add a Trigger**.\n\n* Create the Trigger with the following configuration:\n\n  | Field                    | Value                                                                                        |\n  | ------------------------ | -------------------------------------------------------------------------------------------- |\n  | Name                     | Name of your choosing (ex: retryOperation)                                                   |\n  | Enabled                  | Yes                                                                                          |\n  | Skip Events on Re-Enable | Yes                                                                                          |\n  | Event Ordering           | Yes                                                                                          |\n  | Cluster Name             | Name of your choosing (ex: mongodb-atlas)                                                    |\n  | Database Name            | Name of your choosing (ex: logs)                                                             |\n  | Collection Name          | Name of your choosing (ex: failed\\_execution\\_logs)                                          |\n  | Operation Type           | Insert                                                                                       |\n  | Full Document            | Yes                                                                                          |\n  | Document Preimage        | No                                                                                           |\n  | Select An Event Type     | Function                                                                                     |\n  | Function                 | Click + New Function. Refer to the following information about the contents of the function. |\n  | Advanced Configuration   | N/A - No advanced configuration necessary.                                                   |\n\n* Now add the code to the Function that the Trigger invokes.\n\n  The function `retryOperation` takes as a parameter `logEntry`, the document that the\n  retry handler posted to the failed execution tracker collection.\n  Then, `retryOperation` uses [context.functions.execute()](atlas/app-services/functions/context)\n  to invoke the main function with information from `logEntry`.\n\n  - In the field **Function Name**, add `retryOperationDbTrigger`.\n\n  - For the field **Function**, add the following code,\n    then save the Trigger:\n\n    ```js\n    async function retryOperation({ fullDocument: logEntry }) {\n      // parse values from log entry posted to database\n      const { args, retries, functionName, operationId } = logEntry;\n      // Re-execute the main function\n      await context.functions.execute(functionName, ...args, operationId, retries);\n    }\n\n    exports = retryOperation;\n\n    ```**Cli:**App Services CLI* Authenticate a MongoDB Atlas user:\n\n  Use your [API Access Lists endpoint](atlas-admin-api-access) to\n  log in to the App Services CLI:\n\n  ```shell\n  appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"\n  ```\n\n* Pull your App's latest configuration files:\n\n  Run the following command to get a local copy of your configuration files:\n\n  ```shell\n  appservices pull --remote=<App ID>\n  ```\n\n  By default, the command pulls files into the current working directory. You can\n  specify a directory path with the optional `--local` flag.\n\n* Add configuration for the Database Trigger. For more information,\n  refer to the [Trigger configuration reference](atlas/app-services/reference/config/triggers).\n\n  ```json\n  {\n    \"name\": \"retry\",\n    \"type\": \"DATABASE\",\n    \"config\": {\n      \"operation_types\": [\"INSERT\"],\n      \"database\": \"logs\",\n      \"collection\": \"failed_execution_logs\",\n      \"service_name\": \"mongodb-atlas\",\n      \"project\": {},\n      \"full_document\": true,\n      \"full_document_before_change\": false,\n      \"unordered\": false,\n      \"skip_catchup_events\": false\n    },\n    \"disabled\": false,\n    \"event_processors\": {\n      \"FUNCTION\": {\n        \"config\": {\n          \"function_name\": \"retryOperationDbTrigger\"\n        }\n      }\n    }\n  }\n\n  ```\n\n* Now add the code to the functions/config.json Function\n  that the Trigger invokes.\n\n  The function `retryOperation` takes as a parameter `logEntry`, the document that the\n  retry handler posted to the failed execution tracker collection.\n  Then, `retryOperation` uses [context.functions.execute()](atlas/app-services/functions/context)\n  to invoke the main function with information from `logEntry`.\n\n  ```js\n  [\n    // ...other configuration\n    {\n      \"name\": \"retryOperationDbTrigger\",\n      \"private\": true\n    }\n  ]\n  ```\n\n* Add the following code to the file functions/retryOperationDbTrigger.js:\n\n  ```js\n  async function retryOperation({ fullDocument: logEntry }) {\n    // parse values from log entry posted to database\n    const { args, retries, functionName, operationId } = logEntry;\n    // Re-execute the main function\n    await context.functions.execute(functionName, ...args, operationId, retries);\n  }\n\n  exports = retryOperation;\n\n  ```\n\n* Deploy your changes:\n\n  Run the following command to [deploy](atlas/app-services/apps/update) your changes:\n\n  ```shell\n  appservices push\n  ```",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "async function retryOperation({ fullDocument: logEntry }) {\n  // parse values from log entry posted to database\n  const { args, retries, functionName, operationId } = logEntry;\n  // Re-execute the main function\n  await context.functions.execute(functionName, ...args, operationId, retries);\n}\n\nexports = retryOperation;\n",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "shell",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"name\": \"retry\",\n  \"type\": \"DATABASE\",\n  \"config\": {\n    \"operation_types\": [\"INSERT\"],\n    \"database\": \"logs\",\n    \"collection\": \"failed_execution_logs\",\n    \"service_name\": \"mongodb-atlas\",\n    \"project\": {},\n    \"full_document\": true,\n    \"full_document_before_change\": false,\n    \"unordered\": false,\n    \"skip_catchup_events\": false\n  },\n  \"disabled\": false,\n  \"event_processors\": {\n    \"FUNCTION\": {\n      \"config\": {\n        \"function_name\": \"retryOperationDbTrigger\"\n      }\n    }\n  }\n}\n",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "js",
+      "content": "[\n  // ...other configuration\n  {\n    \"name\": \"retryOperationDbTrigger\",\n    \"private\": true\n  }\n]",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "js",
+      "content": "async function retryOperation({ fullDocument: logEntry }) {\n  // parse values from log entry posted to database\n  const { args, retries, functionName, operationId } = logEntry;\n  // Re-execute the main function\n  await context.functions.execute(functionName, ...args, operationId, retries);\n}\n\nexports = retryOperation;\n",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "shell",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    }
+  ]
+}

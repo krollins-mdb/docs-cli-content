@@ -1,0 +1,235 @@
+{
+  "path": "atlas/spring-ai",
+  "product": "atlas",
+  "title": "Step 2: Access endpoints from within your terminal.",
+  "summary": {
+    "total": 19,
+    "byLanguage": {
+      "xml": 2,
+      "none": 3,
+      "text": 2,
+      "json": 1,
+      "java": 9,
+      "bash": 2
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "xml",
+            "tokenEstimate": 98
+          },
+          {
+            "language": "xml",
+            "tokenEstimate": 58
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 74
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 25
+          }
+        ]
+      },
+      {
+        "heading": "Create the MongoDB Vector Search Index",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 8
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 45
+          }
+        ]
+      },
+      {
+        "heading": "Use MongoDB as a Vector Store",
+        "blocks": [
+          {
+            "language": "java",
+            "tokenEstimate": 101
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 129
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 27
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 53
+          }
+        ]
+      },
+      {
+        "heading": "Create Endpoints",
+        "blocks": [
+          {
+            "language": "java",
+            "tokenEstimate": 56
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 384
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 85
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 72
+          }
+        ]
+      },
+      {
+        "heading": "Access Endpoints",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 4
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 248
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "xml",
+      "section": "Set Up the Environment",
+      "content": "<dependency>\n    <groupId>org.springframework.ai</groupId>\n    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>\n</dependency>\n\n<dependency>\n    <groupId>org.springframework.ai</groupId>\n    <artifactId>spring-ai-spring-boot-autoconfigure</artifactId>\n</dependency>\n\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-web</artifactId>\n</dependency>",
+      "tokenEstimate": 98
+    },
+    {
+      "language": "xml",
+      "section": "Set Up the Environment",
+      "content": "<repository>\n  <id>spring-snapshots</id>\n  <name>Spring Snapshots</name>\n  <url>https://repo.spring.io/snapshot</url>\n  <releases>\n    <enabled>false</enabled>\n  </releases>\n</repository>",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "none",
+      "section": "Set Up the Environment",
+      "content": "spring.application.name=springai-mongodb\nspring.ai.openai.api-key=<OpenAI API Key>\nspring.ai.openai.embedding.options.model=text-embedding-ada-002\n\nspring.data.mongodb.uri=<connection string>\nspring.data.mongodb.database=springai_test\nspring.ai.vectorstore.mongodb.indexName=vector_index\nspring.ai.vectorstore.mongodb.collection-name=vector_store",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net/?<settings>",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "text",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "spring.ai.vectorstore.mongodb.initialize-schema=true",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1536,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "java",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "import org.springframework.ai.embedding.EmbeddingModel;\nimport org.springframework.ai.openai.OpenAiEmbeddingModel;\nimport org.springframework.ai.openai.api.OpenAiApi;\nimport org.springframework.ai.vectorstore.MongoDBAtlasVectorStore;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.boot.SpringBootConfiguration;\nimport org.springframework.boot.autoconfigure.EnableAutoConfiguration;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.mongodb.core.MongoTemplate;",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "java",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "@Configuration\n@SpringBootConfiguration\n@EnableAutoConfiguration\npublic class Config {\n\n    @Value(\"${spring.ai.openai.api-key}\")\n    private String openAiKey;\n\n    @Value(\"${spring.data.mongodb.database}\")\n    private String databaseName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.collection-name:vector_store}\")\n    private String collectionName;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.indexName:vector_index}\")\n    private String indexName;\n\n    @Value(\"${spring.data.mongodb.uri}\")\n    private String mongoUri;\n\n    @Value(\"${spring.ai.vectorstore.mongodb.initialize-schema}\")\n    private Boolean initSchema;\n\n    // Add beans here...\n\n}",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "java",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "@Bean\npublic EmbeddingModel embeddingModel() {\n    return new OpenAiEmbeddingModel(new OpenAiApi(openAiKey));\n}",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "java",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "@Bean\npublic VectorStore mongodbVectorStore(MongoTemplate mongoTemplate, EmbeddingModel embeddingModel) {\n    return new MongoDBAtlasVectorStore(mongoTemplate, embeddingModel,\n            MongoDBAtlasVectorStore.MongoDBVectorStoreConfig.builder().build(), initSchema);\n}",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "java",
+      "section": "Create Endpoints",
+      "content": "import org.springframework.ai.document.Document;\nimport org.springframework.ai.vectorstore.VectorStore;\nimport org.springframework.ai.vectorstore.SearchRequest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.web.bind.annotation.*;\n\nimport java.util.List;\nimport java.util.Map;\nimport java.util.stream.Collectors;",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "java",
+      "section": "Create Endpoints",
+      "content": "@RestController\n@RequestMapping(\"/tutorial\")\npublic class Controller {\n    @Autowired\n    private VectorStore vectorStore;\n\n    // Add endpoints here...\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "java",
+      "section": "Create Endpoints",
+      "content": "@GetMapping(\"/add\")\npublic String addDocuments() {\n    List<Document> docs = List.of(\n            new Document(\"Proper tuber planting involves site selection, proper timing, and exceptional care. Choose spots with well-drained soil and adequate sun exposure. Tubers are generally planted in spring, but depending on the plant, timing varies. Always plant with the eyes facing upward at a depth two to three times the tuber's height. Ensure 4 inch spacing between small tubers, expand to 12 inches for large ones. Adequate moisture is needed, yet do not overwater. Mulching can help preserve moisture and prevent weed growth.\", Map.of(\"author\", \"A\", \"type\",\"post\")),\n            new Document(\"Successful oil painting necessitates patience, proper equipment, and technique. Begin with a carefully prepared, primed canvas. Sketch your composition lightly before applying paint. Use high-quality brushes and oils to create vibrant, long-lasting artworks. Remember to paint 'fat over lean,' meaning each subsequent layer should contain more oil to prevent cracking. Allow each layer to dry before applying another. Clean your brushes often and avoid solvents that might damage them. Finally, always work in a well-ventilated space.\", Map.of(\"author\", \"A\")),\n            new Document(\"For a natural lawn, selection of the right grass type suitable for your climate is crucial. Balanced watering, generally 1 to 1.5 inches per week, is important; overwatering invites disease. Opt for organic fertilizers over synthetic versions to provide necessary nutrients and improve soil structure. Regular lawn aeration helps root growth and prevents soil compaction. Practice natural pest control and consider overseeding to maintain a dense sward, which naturally combats weeds and pest.\", Map.of(\"author\", \"B\", \"type\",\"post\"))\n    );\n\n    vectorStore.add(docs);\n    return \"Documents added successfully!\\n\";\n}",
+      "tokenEstimate": 384
+    },
+    {
+      "language": "java",
+      "section": "Create Endpoints",
+      "content": "@GetMapping(\"/search\")\npublic List<Map<String, Object>> searchDocuments() {\n\n    List<Document> results = vectorStore.similaritySearch(\n            SearchRequest\n                    .query(\"learn how to grow things\")\n                    .withTopK(2)\n    );\n\n    return results.stream().map(doc -> Map.of(\n            \"content\", doc.getContent(),\n            \"metadata\", doc.getMetadata()\n    )).collect(Collectors.toList());\n}",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "java",
+      "section": "Create Endpoints",
+      "content": "FilterExpressionBuilder b = new FilterExpressionBuilder();\n\nList<Document> results = vectorStore.similaritySearch(\n        SearchRequest.defaults()\n                .withQuery(\"learn how to grow things\")\n                .withTopK(2)\n                .withSimilarityThreshold(0.5)\n                .withFilterExpression(b.eq(\"author\", \"A\").build())\n);",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "bash",
+      "section": "Access Endpoints",
+      "content": "curl -X GET http://localhost:8080/tutorial/add",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "none",
+      "section": "Access Endpoints",
+      "content": "Documents added successfully!",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "bash",
+      "section": "Access Endpoints",
+      "content": "curl -X GET http://localhost:8080/tutorial/search",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "none",
+      "section": "Access Endpoints",
+      "content": "[{\"content\":\"For a natural lawn, selection of the right grass type\nsuitable for your climate is crucial. Balanced watering, generally 1 to\n1.5 inches per week, is important; overwatering invites disease. Opt for\norganic fertilizers over synthetic versions to provide necessary\nnutrients and improve soil structure. Regular lawn aeration helps root\ngrowth and prevents soil compaction. Practice natural pest control and\nconsider overseeding to maintain a dense sward, which naturally combats\nweeds and\npest.\",\"metadata\":{\"type\":\"post\",\"author\":\"B\"}},{\"content\":\"Proper tuber\nplanting involves site selection, proper timing, and exceptional care.\nChoose spots with well-drained soil and adequate sun exposure. Tubers\nare generally planted in spring, but depending on the plant, timing\nvaries. Always plant with the eyes facing upward at a depth two to three\ntimes the tuber's height. Ensure 4 inch spacing between small tubers,\nexpand to 12 inches for large ones. Adequate moisture is needed, yet do\nnot overwater. Mulching can help preserve moisture and prevent weed\ngrowth.\",\"metadata\":{\"type\":\"post\",\"author\":\"A\"}}]",
+      "tokenEstimate": 248
+    }
+  ]
+}

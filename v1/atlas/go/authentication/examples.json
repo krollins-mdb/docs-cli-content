@@ -1,0 +1,60 @@
+{
+  "path": "atlas/go/authentication",
+  "product": "atlas",
+  "title": "Authenticating with the Atlas Go SDK",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "go": 3
+    },
+    "bySection": [
+      {
+        "heading": "Using the Atlas Go SDK in Your Code with Digest Authentication",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 181
+          }
+        ]
+      },
+      {
+        "heading": "Admin API Authentication using Service Accounts",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 135
+          }
+        ]
+      },
+      {
+        "heading": "Revocation",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 45
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "go",
+      "section": "Using the Atlas Go SDK in Your Code with Digest Authentication",
+      "content": "package main\n\nimport (\n    \"context\"\n    \"fmt\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n    apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n\n    sdk, err := admin.NewClient(admin.UseDigestAuth(apiKey, apiSecret))\n    if err != nil {\n        log.Fatalf(\"Error instantiating new client: %v\", err)\n    }\n    projects, response, err := sdk.ProjectsApi.ListProjects(ctx).Execute()\n    if err != nil {\n        log.Fatalf(\"Could not fetch projects: %v\", err)\n    }\n    fmt.Printf(\"Response status: %v\\n\", response.Status)\n    fmt.Printf(\"Projects: %v\\n\", projects)\n}",
+      "tokenEstimate": 181
+    },
+    {
+      "language": "go",
+      "section": "Admin API Authentication using Service Accounts",
+      "content": "package main\n\nimport (\n    \"context\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    clientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n    clientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n    if clientID == \"\" || clientSecret == \"\" {\n        log.Fatal(\"Missing CLIENT_ID or CLIENT_SECRET environment variables\")\n    }\n\n    // Using ClientID and ClientSecret. No cache supported (nil).\n    sdk, err := admin.NewClient(admin.UseOAuthAuth(context.Background(), clientID, clientSecret))\n    // Make API calls\n}",
+      "tokenEstimate": 135
+    },
+    {
+      "language": "go",
+      "section": "Revocation",
+      "content": "// Sounding code omitted for brevity\nrevokeConfig := credentials.NewConfig(clientID, clientSecret)\nrevokeConfig.RevokeToken(context.Background(), &auth.Token{\n    AccessToken: \"yourTokenHere\"\n});",
+      "tokenEstimate": 45
+    }
+  ]
+}

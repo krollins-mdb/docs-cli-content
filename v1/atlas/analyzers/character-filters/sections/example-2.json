@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition example indexes the `message` field\nin the [sample collection](custom-analyzers-eg-coll) collection using a\ncustom analyzer named `normalizingAnalyzer`. The custom analyzer\nspecifies the following:* Normalize the text in the `message` field value using the\n  `icuNormalize` character filter.\n\n* Tokenize the words in the field based on occurrences of whitespace\n  between words using the [whitespace](whitespace-tokenizer-ref) tokenizer.**Atlas UI:**Atlas UI<Tab tabid=\"vib\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Character Filters and click\n    &#x20;Add character filter.\n\n  - Select mapping from the dropdown and click\n    Add character filter.\n\n  - Expand Tokenizer if it's collapsed and select\n    whitespace from the dropdown.\n\n  - Click Add to add the custom analyzer to your index.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on the\n    message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select the\n    whitespace from the Index Analyzer and\n    Search Analyzer dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following:```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"normalizingAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"normalizingAnalyzer\",\n      \"charFilters\": [\n        {\n          \"type\": \"icuNormalize\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": []\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"normalizingAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"normalizingAnalyzer\",\n      \"charFilters\": [\n        {\n          \"type\": \"icuNormalize\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": []\n    }\n  ]\n})\n\n```The following query searches for occurrences of the string\n`no` (for  number) in the `message` field of the `minutes`\ncollection.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Find:\n\n  **Input:**\n\n  ```json\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"no\",\n        \"path\": \"message\"\n      }\n    }\n  }\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 0.4923309087753296  _id:  “4”\n   message: \"write down your signature or phone №\"\n   page_updated_by: Object\n     last_name: \"LEVINSKI\"\n     first_name: \"François\"\n     email: \"levinski@example.com\"\n     phone: \"123-456-8907\"\n   text: Object\n     en_US: \"<body>This page has been updated with the items on the agenda.</body>\"\n     es_MX: \"La página ha sido actualizada con los puntos de la agenda.\"\n     pl_PL: \"Strona została zaktualizowana o punkty porządku obrad.\"\n  ```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"no\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1,\n      \"title\": 1\n    }\n  }\n])\n```**Output:**```js\n[\n  {\n    _id: 4,\n    title: 'The daily huddle on tHe StandUpApp2',\n    message: 'write down your signature or phone №'\n  }\n]\n```MongoDB Search matched document with `_id: 4` to the query term `no`\nbecause it normalized the numero symbol `№` in the field using the\n`icuNormalize` character filter and created the token `no` for\nthat typographic abbreviation of the word \"number\". MongoDB Search generates\nthe following tokens for the `message` field value in document\n`_id: 4` using the `normalizingAnalyzer`:| Document ID | Output Tokens                               |\n| ----------- | ------------------------------------------- |\n| \\_id: 4     | write, down, your, signature, or, phone, no |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"normalizingAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"normalizingAnalyzer\",\n      \"charFilters\": [\n        {\n          \"type\": \"icuNormalize\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": []\n    }\n  ]\n}",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"normalizingAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"normalizingAnalyzer\",\n      \"charFilters\": [\n        {\n          \"type\": \"icuNormalize\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": []\n    }\n  ]\n})\n",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"text\": {\n      \"query\": \"no\",\n      \"path\": \"message\"\n    }\n  }\n}",
+      "tokenEstimate": 30
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.4923309087753296  _id:  “4”\n message: \"write down your signature or phone №\"\n page_updated_by: Object\n   last_name: \"LEVINSKI\"\n   first_name: \"François\"\n   email: \"levinski@example.com\"\n   phone: \"123-456-8907\"\n text: Object\n   en_US: \"<body>This page has been updated with the items on the agenda.</body>\"\n   es_MX: \"La página ha sido actualizada con los puntos de la agenda.\"\n   pl_PL: \"Strona została zaktualizowana o punkty porządku obrad.\"",
+      "tokenEstimate": 141
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"no\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 4,\n    title: 'The daily huddle on tHe StandUpApp2',\n    message: 'write down your signature or phone №'\n  }\n]",
+      "tokenEstimate": 41
+    }
+  ]
+}

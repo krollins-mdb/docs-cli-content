@@ -1,0 +1,70 @@
+{
+  "path": "atlas/analyzers/custom",
+  "product": "atlas",
+  "title": "Custom Analyzers",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "A MongoDB Search analyzer prepares a set of documents to be indexed by\nperforming a series of operations to transform, filter, and group\nsequences of characters. You can define a custom analyzer to suit your\nspecific indexing needs from the Atlas UI.\n\nA custom MongoDB Search analyzer is made up of a [tokenizers](tokenizers-ref), an optional list of\n[character filter](character-filters), and an optional list of [token filters](token-filters-ref).\nWhen MongoDB Search analyzes text with a custom analyzer, the text passes through the character filters first, then the tokenizer,\nand then the token filters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "A custom analyzer has the following syntax:\n\n```json\n\"analyzers\": [\n  {\n    \"name\": \"<name>\",\n    \"charFilters\": [ <list-of-character-filters> ],\n    \"tokenizer\": {\n      \"type\": \"<tokenizer-type>\"\n    },\n    \"tokenFilters\": [ <list-of-token-filters> ]\n  }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"analyzers\": [\n  {\n    \"name\": \"<name>\",\n    \"charFilters\": [ <list-of-character-filters> ],\n    \"tokenizer\": {\n      \"type\": \"<tokenizer-type>\"\n    },\n    \"tokenFilters\": [ <list-of-token-filters> ]\n  }\n]",
+          "tokenEstimate": 60
+        }
+      ]
+    },
+    {
+      "heading": "Attributes",
+      "headingLevel": 2,
+      "body": "A custom analyzer has the following attributes:\n\n| Attribute    | Type            | Description                                                                                                                                                                                                                                                                                             | Required? |\n| ------------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| name         | string          | Name of the custom analyzer. Names must be unique within an index, and may not start with any of the following strings:lucene.builtin.mongodb.                                                                                                                                                          | yes       |\n| charFilters  | list of objects | Array containing zero or more character filters.Character filters examine text one character at a time and perform filtering operations.To learn more, see Character Filters.                                                                                                                           | no        |\n| tokenizer    | object          | Tokenizer to use to create tokens.An analyzer uses a tokenizer to split chunks of text into groups, or tokens, for indexing purposes.To learn more, see Tokenizers.                                                                                                                                     | yes       |\n| tokenFilters | list of objects | Array containing zero or more token filters.A token filter performs operations such as:Stemming, which reduces related words, such as \"talking\", \"talked\", and \"talks\" to their root word \"talk\".Redaction, which removes sensitive information from public documents.To learn more, see Token Filters. | no        |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Built-in Custom Analyzer Templates",
+      "headingLevel": 2,
+      "body": "The Atlas UI **Visual Editor** includes the option to choose between\nthe following common-use templates to help you get started with building your custom analyzer:\n\n- **Email Parser** - Use this to tokenize email addresses up to 200\n  characters using the [uaxUrlEmail](uaxUrlEmail-tokenizer-ref) tokenizer. For example, you can apply this analyzer on the\n  `page_updated_by.email` field in the [sample collection](custom-analyzers-eg-coll).\n\n- **Phone Numbers** - Use this to create a single token from a\n  US-formatted phone number using the [regexCaptureGroup](regexCaptureGroup-tokenizer-ref) tokenizer. For example, you can apply this analyzer\n  on the `page_updated_by.phone` field in the\n  [sample collection](custom-analyzers-eg-coll).\n\n- **Dash-Separated IDs** - Use this to create tokens from\n  hyphen-delimited text using the [regexSplit](regexSplit-tokenizer-ref) tokenizer. For example, you can apply this analyzer on\n  the `message` field in the [sample collection](custom-analyzers-eg-coll).\n\nYou can use these built-in custom analyzers or create your own custom\nanalyzer using the MongoDB Search **Visual Editor** or JSON (Javascript Object Notation) Editor.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example Collection",
+      "headingLevel": 2,
+      "body": "The [character filter](character-filters), [tokenizers](tokenizers-ref), and\n[token filters](token-filters-ref) pages contain sample index definitions and\nquery examples for character filters, tokenizers, and token filters.\nThese examples use a sample `minutes` collection with\nthe following documents:\n\n```json\n{\n  \"_id\": 1,\n  \"page_updated_by\": {\n    \"last_name\": \"AUERBACH\",\n    \"first_name\": \"Siân\",\n    \"email\": \"auerbach@example.com\",\n    \"phone\": \"(123)-456-7890\"\n  },\n  \"title\": \"The team's weekly meeting\",\n  \"message\": \"try to siGn-In\",\n  \"text\": {\n    \"en_US\": \"<head> This page deals with department meetings.</head>\",\n    \"sv_FI\": \"Den här sidan behandlar avdelningsmöten\",\n    \"fr_CA\": \"Cette page traite des réunions de département\"\n  }\n}\n```\n\n```json\n{\n  \"_id\": 2,\n  \"page_updated_by\": {\n    \"last_name\": \"OHRBACH\",\n    \"first_name\": \"Noël\",\n    \"email\": \"ohrbach@example.com\",\n    \"phone\": \"(123) 456 0987\"\n  },\n  \"title\": \"The check-in with sales team\",\n  \"message\": \"do not forget to SIGN-IN. See ① for details.\",\n  \"text\" : {\n    \"en_US\": \"The head of the sales department spoke first.\",\n    \"fa_IR\": \"ابتدا رئیس بخش فروش صحبت کرد\",\n    \"sv_FI\": \"Först talade chefen för försäljningsavdelningen\"\n  }\n}\n```\n\n```json\n{\n  \"_id\": 3,\n  \"page_updated_by\": {\n    \"last_name\": \"LEWINSKY\",\n    \"first_name\": \"Brièle\",\n    \"email\": \"lewinsky@example.com\",\n    \"phone\": \"(123).456.9870\"\n  },\n  \"title\": \"The regular board meeting\",\n  \"message\": \"try to sign-in\",\n  \"text\" : {\n    \"en_US\": \"<body>We'll head out to the conference room by noon.</body>\"\n  }\n}\n```\n\n```json\n{\n  \"_id\": 4,\n  \"page_updated_by\": {\n    \"last_name\": \"LEVINSKI\",\n    \"first_name\": \"François\",\n    \"email\": \"levinski@example.com\",\n    \"phone\": \"123-456-8907\"\n  },\n  \"title\": \"The daily huddle on tHe StandUpApp2\",\n  \"message\": \"write down your signature or phone №\",\n  \"text\" : {\n    \"en_US\": \"<body>This page has been updated with the items on the agenda.</body>\" ,\n    \"es_MX\": \"La página ha sido actualizada con los puntos de la agenda.\",\n    \"pl_PL\": \"Strona została zaktualizowana o punkty porządku obrad.\"\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 1,\n  \"page_updated_by\": {\n    \"last_name\": \"AUERBACH\",\n    \"first_name\": \"Siân\",\n    \"email\": \"auerbach@example.com\",\n    \"phone\": \"(123)-456-7890\"\n  },\n  \"title\": \"The team's weekly meeting\",\n  \"message\": \"try to siGn-In\",\n  \"text\": {\n    \"en_US\": \"<head> This page deals with department meetings.</head>\",\n    \"sv_FI\": \"Den här sidan behandlar avdelningsmöten\",\n    \"fr_CA\": \"Cette page traite des réunions de département\"\n  }\n}",
+          "tokenEstimate": 145
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 2,\n  \"page_updated_by\": {\n    \"last_name\": \"OHRBACH\",\n    \"first_name\": \"Noël\",\n    \"email\": \"ohrbach@example.com\",\n    \"phone\": \"(123) 456 0987\"\n  },\n  \"title\": \"The check-in with sales team\",\n  \"message\": \"do not forget to SIGN-IN. See ① for details.\",\n  \"text\" : {\n    \"en_US\": \"The head of the sales department spoke first.\",\n    \"fa_IR\": \"ابتدا رئیس بخش فروش صحبت کرد\",\n    \"sv_FI\": \"Först talade chefen för försäljningsavdelningen\"\n  }\n}",
+          "tokenEstimate": 169
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 3,\n  \"page_updated_by\": {\n    \"last_name\": \"LEWINSKY\",\n    \"first_name\": \"Brièle\",\n    \"email\": \"lewinsky@example.com\",\n    \"phone\": \"(123).456.9870\"\n  },\n  \"title\": \"The regular board meeting\",\n  \"message\": \"try to sign-in\",\n  \"text\" : {\n    \"en_US\": \"<body>We'll head out to the conference room by noon.</body>\"\n  }\n}",
+          "tokenEstimate": 109
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 4,\n  \"page_updated_by\": {\n    \"last_name\": \"LEVINSKI\",\n    \"first_name\": \"François\",\n    \"email\": \"levinski@example.com\",\n    \"phone\": \"123-456-8907\"\n  },\n  \"title\": \"The daily huddle on tHe StandUpApp2\",\n  \"message\": \"write down your signature or phone №\",\n  \"text\" : {\n    \"en_US\": \"<body>This page has been updated with the items on the agenda.</body>\" ,\n    \"es_MX\": \"La página ha sido actualizada con los puntos de la agenda.\",\n    \"pl_PL\": \"Strona została zaktualizowana o punkty porządku obrad.\"\n  }\n}",
+          "tokenEstimate": 165
+        }
+      ]
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "To learn more about creating your own custom analyzers, see the following reference pages:\n\n- [Character Filters](char-filters-ref)\n\n- [tokenizers](tokenizers-ref)\n\n- [token filters](token-filters-ref)\n\n> **Note:** When you add a custom analyzer using the Visual Editor in\n> the Atlas UI, the Atlas UI displays the following details\n> about the analyzer in the Custom Analyzers section.\n>\n> | Name              | Label that identifies the custom analyzer.                                                                                                                   |\n> | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n> | Used In           | Fields that use the custom analyzer. Value is None if custom analyzer isn't used to analyze any fields.                                                      |\n> | Character Filters | MongoDB Search character filters configured in the custom analyzer.                                                                                          |\n> | Tokenizer         | MongoDB Search tokenizer configured in the custom analyzer.                                                                                                  |\n> | Token Filters     | MongoDB Search token filters configured in the custom analyzer.                                                                                              |\n> | Actions           | Clickable icons that indicate the actions that you can perform on the custom analyzer.Click to edit the custom analyzer.Click to delete the custom analyzer. |",
+      "codeBlocks": []
+    }
+  ]
+}

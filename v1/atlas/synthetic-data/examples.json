@@ -1,0 +1,106 @@
+{
+  "path": "atlas/synthetic-data",
+  "product": "atlas",
+  "title": "Step 4: Verify that the data generates successfully.",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "text": 6,
+      "javascript": 2
+    },
+    "bySection": [
+      {
+        "heading": "Prerequisites",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 10
+          }
+        ]
+      },
+      {
+        "heading": "Procedure",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 7
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 2
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 3
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 5
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 346
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 4
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "text",
+      "section": "Prerequisites",
+      "content": "npm install --save-dev @faker-js/faker",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "mkdir syntheticdata\ncd syntheticdata",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "npm init",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "myapp.js",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "npm install express --save",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "section": "Procedure",
+      "content": "// require the necessary libraries\nconst { faker } = require(\"@faker-js/faker\");\nconst MongoClient = require(\"mongodb\").MongoClient;\n\nfunction randomIntFromInterval(min, max) { // min and max included \n    return Math.floor(Math.random() * (max - min + 1) + min);\n}\n\nasync function seedDB() {\n    // Connection URL\n    const uri = \"<YOUR-ATLAS-URI>\";\n\n    const client = new MongoClient(uri);\n\n    try {\n        await client.connect();\n        console.log(\"Connected correctly to server\");\n\n        const collection = client.db(\"<DATABASE-NAME>\").collection(\"<COLLECTION-NAME>\");\n\n        // make a bunch of time series data\n        let timeSeriesData = [];\n\n        for (let i = 0; i < 5000; i++) {\n            const firstName = faker.person.firstName();\n            const lastName = faker.person.lastName();\n            let newDay = {\n                timestamp_day: faker.date.past(),\n                cat: faker.lorem.word(),\n                owner: {\n                    email: faker.internet.email({firstName, lastName}),\n                    firstName,\n                    lastName,\n                },\n                events: [],\n            };\n\n            for (let j = 0; j < randomIntFromInterval(1, 6); j++) {\n                let newEvent = {\n                    timestamp_event: faker.date.past(),\n                    weight: randomIntFromInterval(14,16),\n                }\n                newDay.events.push(newEvent);\n            }\n            timeSeriesData.push(newDay);\n        }\n        await collection.insertMany(timeSeriesData);\n\n        console.log(\"Database seeded with synthetic data! :)\");\n    } catch (err) {\n        console.log(err.stack);\n    }\n}\n\nseedDB();",
+      "tokenEstimate": 346
+    },
+    {
+      "language": "javascript",
+      "section": "Procedure",
+      "content": "const collection = client.db(\"synthetic-data-db\").collection(\"synthetic-data-collection\");",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "node myapp.js",
+      "tokenEstimate": 4
+    }
+  ]
+}

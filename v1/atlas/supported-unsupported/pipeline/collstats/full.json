@@ -1,0 +1,80 @@
+{
+  "path": "atlas/supported-unsupported/pipeline/collstats",
+  "product": "atlas",
+  "title": "$collStats Stage (Atlas Data Federation)",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "In Atlas Data Federation, [$collStats](manual/reference/operator/aggregation/collStats) accepts an empty\ndocument. It supports the optional field `count` only and returns\nan error if an unsupported option is specified.\n\n```sh\ndb.<collection-name>|<view-name>.aggregate([{ \"$collStats\" : { \"count\" : {} } }])\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "db.<collection-name>|<view-name>.aggregate([{ \"$collStats\" : { \"count\" : {} } }])",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Fields",
+      "headingLevel": 2,
+      "body": "| Field | type     | Description                                                                  | Necessity |\n| ----- | -------- | ---------------------------------------------------------------------------- | --------- |\n| count | document | Adds the total number of documents in the partitions to the return document. | Optional  |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 2,
+      "body": "`$collStats` returns the following fields in the document for each\npartition:\n\n| Field                | Type     | Description                                                                                                                                                                                                                                     |\n| -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| count                | number   | The total number of documents in the partition. This is returned only if you specify the count option.                                                                                                                                          |\n| ns                   | string   | The namespace of the current collection or view in the format \\[database].\\[collection\\|view].                                                                                                                                                  |\n| partition            | document | The details about the partition such as the source, format, size, and partition attributes, if any.                                                                                                                                             |\n| partition.format     | string   | The format of the file. Value can be any of the Supported Data Formats for data in a cloud store or MONGO for data in the Atlas cluster.                                                                                                        |\n| partition.attributes | document | The partition attributes for this partition defined in the path for cloud storage partitions. An empty document indicates that there are no partition attributes in the partition's data source.                                                |\n| partition.size       | int      | The size of the partition.                                                                                                                                                                                                                      |\n| partition.source     | string   | The source for the partition. The value can be one of the following:The path to the file on cloud storage.The cluster name for partitions on Atlas.                                                                                             |\n| partition.version    | string   | MongoDB version of the Atlas cluster. The $collStats stage returns this field only for Atlas cluster data stores. The value has the following format:\\<major-version-number>.\\<minor-version-number>.\\<patch-version-number>For example, 7.0.1. |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "**Basic:**Basic ExampleThe following example shows [$collStats](manual/reference/operator/aggregation/collStats) syntax for\nretrieving the partitions from a `s3Db.abc` collection with 3\nfiles in a cloud storage federated database instance store:```sh\nuse s3Db\ndb.abc.aggregate([ {$collStats: {}} ])\n```The preceding command returns the following output:```json\n{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2018) }, \"size\" : 139, \"source\" : \"s3://my-bucket/s3Db/abc/2018/1.json?delimiter=%2F&region=us-east-1\" } }\n{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2017) }, \"size\" : 124, \"source\" : \"s3://my-bucket/s3Db/abc/2017/1.json?delimiter=%2F&region=us-east-1\" } }\n{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2017) }, \"size\" : 130, \"source\" : \"s3://my-bucket/s3Db/abc/2017/2.json?delimiter=%2F&region=us-east-1\" } }\n```The following example shows [$collStats](manual/reference/operator/aggregation/collStats) syntax for\nretrieving the partitions from the `atlasDb.sampleColl`\ncollection in the Atlas cluster named `mySandboxCluster`:```sh\nuse atlasDb\ndb.sampleColl.aggregate([ {$collStats: {}} ])\n```The preceding command returns the following output:```json\n{ \"ns\" : \"atlasDb.sampleColl\", \"partition\" : { \"format\" : \"MONGO\", \"attributes\" : {  }, \"size\" : 94362191, \"source\" : \"mySandboxCluster\" } }\n```**Count:**Count ExampleThe following example shows [$collStats](manual/reference/operator/aggregation/collStats) syntax for\nretrieving the total number of documents in the partitions.```sh\nuse s3Db\ndb.abc.aggregate([ {$collStats: {\"count\" : {} }} ])\n```The preceding command returns the following output:```json\n{ \"ns\" : \"atlasDb.sampleColl\", \"partition\" : { \"format\" : \"MONGO\", \"attributes\" : {  }, \"size\" : 94362191, \"source\" : \"mySandboxCluster\" }, \"count\" : 23530}\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "use s3Db\ndb.abc.aggregate([ {$collStats: {}} ])",
+          "tokenEstimate": 17
+        },
+        {
+          "language": "json",
+          "content": "{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2018) }, \"size\" : 139, \"source\" : \"s3://my-bucket/s3Db/abc/2018/1.json?delimiter=%2F&region=us-east-1\" } }\n{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2017) }, \"size\" : 124, \"source\" : \"s3://my-bucket/s3Db/abc/2017/1.json?delimiter=%2F&region=us-east-1\" } }\n{ \"ns\" : \"s3Db.abc\", \"partition\" : { \"format\" : \"JSON\", \"attributes\" : { \"year\" : NumberLong(2017) }, \"size\" : 130, \"source\" : \"s3://my-bucket/s3Db/abc/2017/2.json?delimiter=%2F&region=us-east-1\" } }",
+          "tokenEstimate": 252
+        },
+        {
+          "language": "sh",
+          "content": "use atlasDb\ndb.sampleColl.aggregate([ {$collStats: {}} ])",
+          "tokenEstimate": 16
+        },
+        {
+          "language": "json",
+          "content": "{ \"ns\" : \"atlasDb.sampleColl\", \"partition\" : { \"format\" : \"MONGO\", \"attributes\" : {  }, \"size\" : 94362191, \"source\" : \"mySandboxCluster\" } }",
+          "tokenEstimate": 53
+        },
+        {
+          "language": "sh",
+          "content": "use s3Db\ndb.abc.aggregate([ {$collStats: {\"count\" : {} }} ])",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "json",
+          "content": "{ \"ns\" : \"atlasDb.sampleColl\", \"partition\" : { \"format\" : \"MONGO\", \"attributes\" : {  }, \"size\" : 94362191, \"source\" : \"mySandboxCluster\" }, \"count\" : 23530}",
+          "tokenEstimate": 60
+        }
+      ]
+    },
+    {
+      "heading": "Errors",
+      "headingLevel": 2,
+      "body": "An error similar to the following is returned if the [collStats](manual/reference/operator/aggregation/collStats) argument document\ncontains any of the options allowed by the MongoDB server but not by\nAtlas Data Federation.\n\n```json\n{\n       \"ok\" : 0,\n       \"errmsg\" : \"$collStats param 'latencyStats' is not valid for Data Federation, correlationID = 1622929884a47d16f4888a1c\",\n       \"code\" : 9,\n       \"codeName\" : \"FailedToParse\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n       \"ok\" : 0,\n       \"errmsg\" : \"$collStats param 'latencyStats' is not valid for Data Federation, correlationID = 1622929884a47d16f4888a1c\",\n       \"code\" : 9,\n       \"codeName\" : \"FailedToParse\"\n}",
+          "tokenEstimate": 69
+        }
+      ]
+    }
+  ]
+}

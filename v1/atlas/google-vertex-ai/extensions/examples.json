@@ -1,0 +1,216 @@
+{
+  "path": "atlas/google-vertex-ai/extensions",
+  "product": "atlas",
+  "title": "Use Vertex AI Extensions for Natural Language MongoDB Queries",
+  "summary": {
+    "total": 17,
+    "byLanguage": {
+      "text": 5,
+      "python": 12
+    },
+    "bySection": [
+      {
+        "heading": "Step 3: Define the function code.",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 1056
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 15
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Set up the environment.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 259
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Download the Open API specification.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 71
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Create the Vertex AI extension.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 141
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Validate the extension.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 50
+          }
+        ]
+      },
+      {
+        "heading": "Run Natural Language Queries",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 210
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 189
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 53
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "text",
+      "section": "Step 3: Define the function code.",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Define the function code.",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Define the function code.",
+      "content": "import functions_framework\nimport os\nimport json\nfrom pymongo import MongoClient\nfrom bson import ObjectId\nimport traceback\nfrom datetime import datetime\n\n\ndef connect_to_mongodb():\n    client = MongoClient(\"<connection-string>\")\n    return client\n\n\ndef success_response(body):\n    return {\n        'statusCode': '200',\n        'body': json.dumps(body, cls=DateTimeEncoder),\n        'headers': {\n            'Content-Type': 'application/json',\n        },\n    }\n\n\ndef error_response(err):\n    error_message = str(err)\n    return {\n        'statusCode': '400',\n        'body': error_message,\n        'headers': {\n            'Content-Type': 'application/json',\n        },\n    }\n\n\n# Used to convert datetime object(s) to string\nclass DateTimeEncoder(json.JSONEncoder):\n    def default(self, o):\n        if isinstance(o, datetime):\n            return o.isoformat()\n        return super().default(o)\n\n\n@functions_framework.http\ndef mongodb_crud(request):\n    client = connect_to_mongodb()\n    payload = request.get_json(silent=True)\n    db, coll = payload['database'], payload['collection']\n    request_args = request.args\n    op = request.path\n    try:\n        if op == \"/findOne\":\n            filter_op = payload['filter'] if 'filter' in payload else {}\n            projection = payload['projection'] if 'projection' in payload else {}\n            result = {\"document\": client[db][coll].find_one(filter_op, projection)}\n            if result['document'] is not None:\n                if isinstance(result['document']['_id'], ObjectId):\n                    result['document']['_id'] = str(result['document']['_id'])\n\n        elif op == \"/find\":\n            agg_query = []\n\n            if 'filter' in payload and payload['filter'] != {}:\n                agg_query.append({\"$match\": payload['filter']})\n\n            if \"sort\" in payload and payload['sort'] != {}:\n                agg_query.append({\"$sort\": payload['sort']})\n\n            if \"skip\" in payload:\n                agg_query.append({\"$skip\": payload['skip']})\n\n            if 'limit' in payload:\n                agg_query.append({\"$limit\": payload['limit']})\n\n            if \"projection\" in payload and payload['projection'] != {}:\n                agg_query.append({\"$project\": payload['projection']})\n\n            result = {\"documents\": list(client[db][coll].aggregate(agg_query))}\n            for obj in result['documents']:\n                if isinstance(obj['_id'], ObjectId):\n                    obj['_id'] = str(obj['_id'])\n\n        elif op == \"/insertOne\":\n            if \"document\" not in payload or payload['document'] == {}:\n                return error_response(\"Send a document to insert\")\n            insert_op = client[db][coll].insert_one(payload['document'])\n            result = {\"insertedId\": str(insert_op.inserted_id)}\n\n        elif op == \"/insertMany\":\n            if \"documents\" not in payload or payload['documents'] == {}:\n                return error_response(\"Send a document to insert\")\n            insert_op = client[db][coll].insert_many(payload['documents'])\n            result = {\"insertedIds\": [str(_id) for _id in insert_op.inserted_ids]}\n\n        elif op in [\"/updateOne\", \"/updateMany\"]:\n            payload['upsert'] = payload['upsert'] if 'upsert' in payload else False\n            if \"_id\" in payload['filter']:\n                payload['filter']['_id'] = ObjectId(payload['filter']['_id'])\n            if op == \"/updateOne\":\n                update_op = client[db][coll].update_one(payload['filter'], payload['update'], upsert=payload['upsert'])\n            else:\n                update_op = client[db][coll].update_many(payload['filter'], payload['update'], upsert=payload['upsert'])\n            result = {\"matchedCount\": update_op.matched_count, \"modifiedCount\": update_op.modified_count}\n\n        elif op in [\"/deleteOne\", \"/deleteMany\"]:\n            payload['filter'] = payload['filter'] if 'filter' in payload else {}\n            if \"_id\" in payload['filter']:\n                payload['filter']['_id'] = ObjectId(payload['filter']['_id'])\n            if op == \"/deleteOne\":\n                result = {\"deletedCount\": client[db][coll].delete_one(payload['filter']).deleted_count}\n            else:\n                result = {\"deletedCount\": client[db][coll].delete_many(payload['filter']).deleted_count}\n\n        elif op == \"/aggregate\":\n            if \"pipeline\" not in payload or payload['pipeline'] == []:\n                return error_response(\"Send a pipeline\")\n            docs = list(client[db][coll].aggregate(payload['pipeline']))\n            for obj in docs:\n                if isinstance(obj['_id'], ObjectId):\n                    obj['_id'] = str(obj['_id'])\n            result = {\"documents\": docs}\n\n        else:\n            return error_response(\"Not a valid operation\")\n\n        return success_response(result)\n\n    except Exception as e:\n        print(traceback.format_exc())\n        return error_response(e)\n\n    finally:\n        if client:\n            client.close()\n",
+      "tokenEstimate": 1056
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Define the function code.",
+      "content": "functions-framework==3.*\npymongo\npymongo[srv]",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Set up the environment.",
+      "content": "from google.colab import auth\nauth.authenticate_user(\"GCP project id\")\n!gcloud config set project {\"GCP project id\"}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Set up the environment.",
+      "content": "!pip install --force-reinstall --quiet google_cloud_aiplatform\n!pip install --force-reinstall --quiet langchain==0.0.298\n!pip install --upgrade google-auth\n!pip install bigframes==0.26.0",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Set up the environment.",
+      "content": "import IPython\napp = IPython.Application.instance()\napp.kernel.do_shutdown(True)",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Set up the environment.",
+      "content": "import os\n# These are sample values; replace them with the correct values that correspond to your project\nos.environ['PROJECT_ID'] = 'gcp project id'  # GCP Project ID\nos.environ['REGION'] = \"us-central1\" # Project Region\nos.environ['STAGING_BUCKET'] = \"gs://vertexai_extensions\" # GCS Bucket location\nos.environ['EXTENSION_DISPLAY_HOME'] = \"MongoDb Vertex API Interpreter\" # Extension Config Display Name\nos.environ['EXTENSION_DESCRIPTION'] = \"This extension makes api call to mongodb to do all crud operations\" # Extension Config Description\nos.environ['MANIFEST_NAME'] = \"mdb_crud_interpreter\" # OPEN API Spec Config Name\nos.environ['MANIFEST_DESCRIPTION'] = \"This extension makes api call to mongodb to do all crud operations\" # OPEN API Spec Config Description\nos.environ['OPENAPI_GCS_URI'] = \"gs://vertexai_extensions/mongodbopenapispec.yaml\" # OPEN API GCS URI\nos.environ['API_SECRET_LOCATION'] = \"projects/787220387490/secrets/mdbapikey/versions/1\" # API KEY secret location\nos.environ['LLM_MODEL'] = \"gemini-1.5-pro\" # LLM Config",
+      "tokenEstimate": 259
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Download the Open API specification.",
+      "content": "from google.cloud import aiplatform\nfrom google.cloud.aiplatform.private_preview import llm_extension\n\nPROJECT_ID = os.environ['PROJECT_ID']\nREGION = os.environ['REGION']\nSTAGING_BUCKET = os.environ['STAGING_BUCKET']\n\naiplatform.init(\n  project=PROJECT_ID,\n  location=REGION,\n  staging_bucket=STAGING_BUCKET,\n)",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Create the Vertex AI extension.",
+      "content": "from google.cloud import aiplatform\nfrom vertexai.preview import extensions\n\nmdb_crud = extensions.Extension.create(\n   display_name = os.environ['EXTENSION_DISPLAY_HOME'],\n   # Optional.\n   description = os.environ['EXTENSION_DESCRIPTION'],\n   manifest = {\n     \"name\": os.environ['MANIFEST_NAME'],\n     \"description\": os.environ['MANIFEST_DESCRIPTION'],\n     \"api_spec\": {\n     \"open_api_gcs_uri\": (\n       os.environ['OPENAPI_GCS_URI']\n     ),\n     },\n     \"authConfig\": {\n      \"authType\": \"OAUTH\",\n      \"oauthConfig\": {\"service_account\": \"<service-account>\"}\n    },\n   },\n )\nmdb_crud",
+      "tokenEstimate": 141
+    },
+    {
+      "language": "python",
+      "section": "Step 4: Validate the extension.",
+      "content": "print(\"Name:\", mdb_crud.gca_resource.name)\nprint(\"Display Name:\", mdb_crud.gca_resource.display_name)\nprint(\"Description:\", mdb_crud.gca_resource.description)\nimport pprint\npprint.pprint(mdb_crud.operation_schemas())",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "text",
+      "section": "Run Natural Language Queries",
+      "content": "Find the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "python",
+      "section": "Run Natural Language Queries",
+      "content": "## Please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_ONE_OP_ID'] = \"findone_mdb\"\n\n## NL Queries\nos.environ['FIND_ONE_NL_QUERY'] = \"Find the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\n\n### Test data setup\nos.environ['TITLE_FILTER_CLAUSE'] = \"A Corner in Wheat\"\n\nfrom vertexai.preview.generative_models import GenerativeModel, Tool\n\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindOneResponse = fc_chat.send_message(os.environ['FIND_ONE_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findOneResponse)",
+      "tokenEstimate": 210
+    },
+    {
+      "language": "python",
+      "section": "Run Natural Language Queries",
+      "content": "response = mdb_crud.execute(\n  operation_id = findOneResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findOneResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "text",
+      "section": "Run Natural Language Queries",
+      "content": "give me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "python",
+      "section": "Run Natural Language Queries",
+      "content": "## This is just a sample values please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_MANY_OP_ID'] = \"findmany_mdb\"\n\n## NL Queries\nos.environ['FIND_MANY_NL_QUERY'] = \"give me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\nos.environ['YEAR'] = 1924\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindmanyResponse = fc_chat.send_message(os.environ['FIND_MANY_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findmanyResponse)",
+      "tokenEstimate": 189
+    },
+    {
+      "language": "python",
+      "section": "Run Natural Language Queries",
+      "content": "response = mdb_crud.execute(\n  operation_id = findmanyResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findmanyResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)",
+      "tokenEstimate": 53
+    }
+  ]
+}

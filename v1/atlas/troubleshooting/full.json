@@ -1,0 +1,67 @@
+{
+  "path": "atlas/troubleshooting",
+  "product": "atlas",
+  "title": "Troubleshooting",
+  "sections": [
+    {
+      "heading": "Cannot use the $vectorSearch stage on cluster",
+      "headingLevel": 2,
+      "body": "To use the `$vectorSearch` pipeline stage to query your cluster,\nyour cluster must run MongoDB 7.0.2+. If you invoke\n`$vectorSearch` on an incompatible version of MongoDB, you might see\nthe following error:\n\n```sh\nOperationFailure: $vectorSearch is not allowed with the current\nconfiguration. You may need to enable the corresponding feature\nflag.\n```\n\nTo check the MongoDB version of your cluster:",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "OperationFailure: $vectorSearch is not allowed with the current\nconfiguration. You may need to enable the corresponding feature\nflag.",
+          "tokenEstimate": 26
+        }
+      ]
+    },
+    {
+      "heading": "Step 1",
+      "headingLevel": 3,
+      "body": "Locate the information pane of the cluster you want\nto use `$vectorSearch` on.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2",
+      "headingLevel": 3,
+      "body": "Consult the **Version** number in the bottom section\nof the information pane.\n\nIf your cluster runs a version of MongoDB earlier than 6.0.11 or\n7.0.2, you must [modifying the cluster](scale-cluster-version).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Slow queries",
+      "headingLevel": 2,
+      "body": "For recommendations on improving query performance, see\n[Benchmark for MongoDB Vector Search](avs-performance-tuning).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "$vectorSearch returns no results",
+      "headingLevel": 2,
+      "body": "If `$vectorSearch` queries return no results, perform\nthe following actions:\n\n- Ensure that you're using the same embedding model\n  for both your data and your query. If you embed your\n  query using a different model than you use to embed\n  your data, `$vectorSearch` can't identify matches.\n\n- Ensure that your MongoDB Vector Search has finished building.\n  When you create or update a MongoDB Vector Search index, the index\n  the index is in an [initial sync process](troubleshoot-initial-sync)\n  state. When it finishes building, you can start querying the data\n  in your collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Error during document retrieval when using filtering with LangChain",
+      "headingLevel": 2,
+      "body": "When you use LangChain to perform RAG (Retrieval-Augmented Generation) with pre-filtering, you might\nencounter the following error:\n\n```js\nError during the document retrieval or generation process:\nMongoServerError: PlanExecutor error during aggregation :: caused\nby :: Path 'field' needs to be indexed as token\n```\n\nIf an index on `field` exists, ensure you have created this index as\na MongoDB Vector Search index, not a MongoDB Search index. If no index on `field`\nexists, [Create a MongoDB Vector Search Index](avs-create-index). To learn more about\nimplementing RAG (Retrieval-Augmented Generation) with MongoDB Vector Search and LangChain, see\n[Answer Questions on Your Data](langchain-rag).",
+      "codeBlocks": [
+        {
+          "language": "js",
+          "content": "Error during the document retrieval or generation process:\nMongoServerError: PlanExecutor error during aggregation :: caused\nby :: Path 'field' needs to be indexed as token",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Command not found when creating MongoDB Vector Search index",
+      "headingLevel": 2,
+      "body": "When you attempt to create a MongoDB Vector Search index programmatically, you\nmight encounter a `Command not found` error. This error occurs for\none of two reasons:\n\n- You run the command against a cluster running\n  a version of MongoDB earlier than 6.0.11 or 7.0.2. In this case,\n  you must [modifying the cluster](scale-cluster-version) to enable MongoDB Vector Search for the cluster.\n\n- You run the command against a Free cluster (formerly known as `M0`). In this\n  case, as long as the cluster is running a compatible MongoDB\n  version, you can [create a MongoDB Vector Search index with the Atlas UI](avs-create-index-procedure).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Unable to filter on a given field",
+      "headingLevel": 2,
+      "body": "MongoDB Vector Search currently supports filtering only\non fields with boolean, date, number, objectId, string, and\nUUID values. To learn more, see [pre-filtering](avs-types-filter).",
+      "codeBlocks": []
+    }
+  ]
+}

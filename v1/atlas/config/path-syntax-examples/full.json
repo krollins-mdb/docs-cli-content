@@ -1,0 +1,260 @@
+{
+  "path": "atlas/config/path-syntax-examples",
+  "product": "atlas",
+  "title": "Define Path File Syntax",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "When you query documents in your data store, the Atlas Data Federation\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nvalue allows Data Federation to map the data inside your document to the\nfilename of the document.\n\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nsupports parsing filenames into your data stores into computed fields.\nData Federation can add the computed fields to each document\ngenerated from the parsed file. Data Federation can target\nqueries on those computed field values to only those files with\na matching file name. See [Supported Parsing Functions](supported-parsing-funcs) and\n[Examples](adf-path-syntax-egs) for more information.\n\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nalso supports creating partitions using partition attributes in the\npath to the file. Data Federation can target queries on the\nparameter defined in the partition attribute to only those files\nthat contain the query in the filename or partition prefix.\n\n> **Example:** Consider the following files in your S3 (Simple Storage Service) bucket:\n>\n> ```sh\n> /users/26/1234.json\n> /users/26/5678.json\n> ```\n>\n> The JSON (Javascript Object Notation) document `1234.json` contains the following:\n>\n> ```json\n> {\n>   \"name\": \"jane doe\",\n>   \"age\": 26,\n>   \"userID\": \"1234\"\n> }\n> ```\n>\n> your federated database instance configuration for the files in your S3 (Simple Storage Service) bucket defines\n> the following `path`:\n>\n> ```sh\n> \"path\": \"/users/{age int}/{userID string}\"\n> ```\n>\n> The following shows how Data Federation maps a query to the\n> partitions created from the `path` definition:\n>\n> ```json\n> db.users.findOne(                /users\n>   {                                /40\n>     \"age\": 26 ----------------->   /26\n>     \"userID\": \"1234\" ---------->     /1234.json\n>   }                                  /5678.json\n> )\n> ```\n\nIf the computed field for the partition attribute already exists\nin your document, Data Federation maps your query to the appropriate file.\nIf the computed field does not exist, Data Federation adds the computed\nfield to the document. For example, if the `age` field does not\nexist in `1234.json`, Data Federation adds the `age` field and value to\n`1234.json`.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "/users/26/1234.json\n/users/26/5678.json",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"name\": \"jane doe\",\n  \"age\": 26,\n  \"userID\": \"1234\"\n}",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "sh",
+          "content": "\"path\": \"/users/{age int}/{userID string}\"",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "json",
+          "content": "db.users.findOne(                /users\n  {                                /40\n    \"age\": 26 ----------------->   /26\n    \"userID\": \"1234\" ---------->     /1234.json\n  }                                  /5678.json\n)",
+          "tokenEstimate": 51
+        }
+      ]
+    },
+    {
+      "heading": "Supported Parsing Functions",
+      "headingLevel": 2,
+      "body": "| You can specify a single parsing function on the filename.                          | /path/to/files/\\{\\<fieldA> \\<data-type>}                                               |\n| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |\n| You can specify multiple parsing functions on the filename.                         | /path/to/files/\\{\\<fieldA> \\<data-type>}-\\{\\<fieldB> \\<data-type>}                     |\n| You can specify parsing functions alongside static strings in the filename:         | /path/to/files/prefix-\\{\\<fieldA> \\<data-type>}-suffix                                 |\n| You can specify dot (i.e. .) along the path to the filename.                        | /path/to/files/\\{\\<fieldA>.\\<fieldB> \\<data-type>}                                     |\n| You can specify ObjectIds in the path to the files to create partitions.            | /path/to/files/\\{objid objectid}                                                       |\n| You can specify a range of ObjectIds in the path to the files to create partitions. | /path/to/files/\\{min(obj) objectid}-\\{max(obj) objectid}                               |\n| You can specify parsing functions along the path to the filename.                   | /path/\\{\\<fieldA> \\<data-type>}/\\{\\<fieldB> \\<data-type>}/\\{\\<fieldC> \\<data-type>}/\\* |\n| You can specify regex for ISODate along the path to the filename.                   | /path/to/files/\\{\\<field-name> isodate(\"\\<date-format>\"):\\\\\\\\\\<regex>}                 |\n\n> **Note:**&#x20;\n>\n> When specifying the\n> [path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path):\n>\n> - Specify the data type for the partition attribute.\n>\n> - Ensure that the partition attribute type matches the data type to parse.\n>\n> - Use the delimiter specified in [delimiter](datalakeconf-aws.stores.\\[n].delimiter).\n>\n> When specifying attributes of the same type, do any of the following:\n>\n> - Add a constant separator between the attributes.\n>\n> - Use regular expressions to describe the search pattern. To learn more,\n>   see [Unsupported Parsing Functions](unsupported-parsing-funcs).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Parsing Null Values from Filenames",
+      "headingLevel": 3,
+      "body": "Data Federation automatically parses an empty string (`\"\"`) in the place of an\nattribute in the file path as the BSON null value for all the Atlas Data Federation\nattribute types except `string`. With a `string`, empty string\ncould either represent a BSON null value or a BSON empty string value.\nAtlas Data Federation does not parse any BSON value for `string` attribute type.\nThis avoids adding a BSON value with a conflicting type to documents\nread from your data store.\n\n> **Example:** Consider the following S3 (Simple Storage Service) federated database instance store:\n\n```none\n/records/january/1.json\n/records/february/1.json\n/records//1.json\n\nFor the path ``/records/{month string}/*``, Data Federation does not add any\ncomputed fields for the ``month`` attribute to documents generated\nfrom the third record in the above store.\n```\n\n> **Note:** When writing files to S3 (Simple Storage Service), write BSON (Binary Javascript Object Notation) null values as empty\n> strings in filenames for all Atlas Data Federation attribute types.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "/records/january/1.json\n/records/february/1.json\n/records//1.json\n\nFor the path ``/records/{month string}/*``, Data Federation does not add any\ncomputed fields for the ``month`` attribute to documents generated\nfrom the third record in the above store.",
+          "tokenEstimate": 64
+        }
+      ]
+    },
+    {
+      "heading": "Parsing Padded Numbers from Filenames",
+      "headingLevel": 3,
+      "body": "File path can include numeric values that are padded with leading\nzeros. For Data Federation to correctly parse padded numeric values for\nattribute types like `int`, `epoch_millis`, and `epoch_secs`,\nspecify the number of digits in the value using regular expressions.\n\n> **Example:** Consider a S3 (Simple Storage Service) store with the following files:\n>\n> ```text\n> |--users\n>    |--001.json\n>    |--002.json\n>    ...\n> ```\n>\n> The following `path` syntax uses a regular expression to specify\n> the number of digits in the filename. Data Federation identifies the portion\n> of the path that corresponds to the partition attribute and then\n> maps that partition attribute to a type `int`:\n>\n> ```sh\n> /users/{user_id int:\\\\d{3}}\n> ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "|--users\n   |--001.json\n   |--002.json\n   ...",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "/users/{user_id int:\\\\d{3}}",
+          "tokenEstimate": 10
+        }
+      ]
+    },
+    {
+      "heading": "Unsupported Parsing Functions",
+      "headingLevel": 2,
+      "body": "Specifying consecutive parsing functions on the same filename with\nno way of differentiating them could lead to inconsistent results.\n\n> **Example:** Consider a S3 (Simple Storage Service) store with the following files:\n>\n> ```shell\n> |--food\n>    |--icecream\n>    |--peanutbutter\n> ```\n>\n> Now consider the following path to the files in the `food` directory:\n>\n> ```shell\n> /food/{first string}{second string}/\n> ```\n>\n> There is no way to determine which part of the filename substring\n> should match the `first` versus `second` string attributes.\n> Therefore, Atlas Data Federation matches everything to `first`.\n>\n> Consider using attributes with regex similar to the following\n> instead:\n>\n> - ```shell\n>   /food/{first string:\\\\D{3}}{second string:\\\\D{5}}\n>   ```\n>\n>   The preceding path specifies that `first` matches 3 non-digit\n>   characters and `second` matches the next 5 non-digit characters.\n>\n> - ```shell\n>   /food/{first string:[A-Z]{3}}{second string:[a-z]{5}}\n>   ```\n>\n>   The preceding path matches `first` to 3 uppercase letters and\n>   `second` to 5 lowercase letters.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "|--food\n   |--icecream\n   |--peanutbutter",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "shell",
+          "content": "/food/{first string}{second string}/",
+          "tokenEstimate": 9
+        },
+        {
+          "language": "shell",
+          "content": "/food/{first string:\\\\D{3}}{second string:\\\\D{5}}",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "shell",
+          "content": "/food/{first string:[A-Z]{3}}{second string:[a-z]{5}}",
+          "tokenEstimate": 20
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following examples demonstrate how to parse filenames into\ncomputed fields:\n\n- [Parse Single Field from Filename](adf-advanced-path-parse-single)\n\n- [Parse Multiple Fields from Filename](adf-advanced-path-parse-multiple)\n\n- [Use Regular Expression to Parse Fields from Filename](adf-advanced-path-parse-regex)\n\n- [Identify Ranges of Queryable Data from Filename](adf-advanced-path-parse-range)\n\n- [Identify Nested Fields from Filename](adf-advanced-parse-nested-fields)\n\n- [Create Partitions from ObjectIds](adf-advanced-path-objectids)\n\n- [Create Partitions from File Path](adf-advanced-path-create-partition)\n\n- [Create Partitions from ISODate](adf-advanced-path-isodate)\n\n- [Generate Dynamic Collection Names from File Path](adf-advanced-path-generate-collection)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Parse Single Field from Filename",
+      "headingLevel": 3,
+      "body": "Consider a federated database instance store `accountingArchive` containing files\nwhere the filename describes an invoice date. For  example, the filename\n`/invoices/1564671291998.json` contains the invoices for the UNIX\ntimestamp `1564671291998`.\n\nThe following [defaultFormat](adf-aws-databases-reference) object generates a\nfield `invoiceDate` by parsing the filename as a UNIX timestamp:\n\n```none\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nData Federation adds the computed field and value to each\ndocument generated from the filename. Documents generated from the\nexample filename includes a field\n`invoiceDate: ISODate(\"2019-08-01T14:54:51Z\")`. Queries on the\n`invoiceDate` field can be targeted to only those files\nthat match the specified value.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 77
+        }
+      ]
+    },
+    {
+      "heading": "Parse Multiple Fields from Filename",
+      "headingLevel": 3,
+      "body": "Consider a federated database instance store `accountingArchive` containing files\nwhere the filename describes an invoice number and invoice date. For\nexample, the filename `/invoices/MONGO12345-1564671291998.json`\ncontains the invoice `MONGODB12345` for the UNIX timestamp\n`1564671291998`.\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates:\n\n- A field `invoiceNumber` by parsing the first segment of the filename\n  as a string.\n\n- A field `invoiceDate` by parsing the second segment of the filename\n  as a UNIX timestamp.\n\n```none\n\"databases\" : [\n  {\n    \"name\": \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nData Federation adds the computed fields and values to each\ndocument generated from the filename. Documents generated from the\nexample filename include the following fields:\n\n- `invoiceNumber : \"MONGODB12345\"`\n\n- `invoiceDate : ISODate(\"2019-08-01T14:54:51Z\")`\n\nQueries that include *both* the `invoiceNumber` and `invoiceDate`\nfields can be targeted to only those files that match the\nspecified values.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "\"databases\" : [\n  {\n    \"name\": \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 80
+        }
+      ]
+    },
+    {
+      "heading": "Use Regular Expression to Parse Fields from Filename",
+      "headingLevel": 3,
+      "body": "Consider a federated database instance store `accountingArchive` containing files\nwhere the filename describes an invoice number and invoice date. For\nexample, the filename `/invoices/MONGODB12345-20190102.json` contains\nthe invoice `MONGODB12345` for the date `20190102`.\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates:\n\n- A field `invoiceNumber` by parsing the first segment of the filename\n  as a string\n\n- A field `year` by using a regular expression to parse only the\n  first 4 digits of the second segment of the filename as an int.\n\n- A field `month` by using a regular expression to parse only the\n  next 2 digits of the second segment of the filename as an int.\n\n- A field `day` by using a regular expression to parse only the\n  next 2 digits of the second segment of the filename as an int.\n\n```none\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{year int:\\\\d{4}}{month int:\\\\d{2}}{day int:\\\\d{2}}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nData Federation adds the computed fields and values to each\ndocument generated from the filename. Documents generated from the\nexample filename include the following fields:\n\n- `invoiceNumber : \"MONGODB12345\"`\n\n- `year : 2019`\n\n- `month: 01`\n\n- `day: 02`\n\n> **Important:** You must escape the regex string specified in the `path`. For\n> example, if the regex string includes double quotes, you must\n> escape those values. Data Federation supports the [Package Syntax](https://golang.org/pkg/regexp/syntax/) for regular expressions\n> in the storage configuration.\n\nQueries that include *all* generated fields can be targeted to only\nthose files that match the specified values.\n\n> **See Also:** [Parsing Padded Numbers from Filenames](parse-padded-numeric-values)",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{year int:\\\\d{4}}{month int:\\\\d{2}}{day int:\\\\d{2}}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 98
+        }
+      ]
+    },
+    {
+      "heading": "Identify Ranges of Queryable Data from Filename",
+      "headingLevel": 3,
+      "body": "Consider a federated database instance store `accountingArchive`  containing files\nwhere the filename describes the range of data contained in the file.\nFor example, the filename\n`/invoices/1546367712000-1549046112000.json` contains invoices for\nthe time period between 2019-01-01 and 2019-01-02 with the date range\nrepresented as milliseconds elapsed since the UNIX epoch.\n\nThe following  [defaultFormat](adf-aws-databases-reference) object identifies\nthe minimum time range as the first segment of the filename and the\nmaximum time range as the second segment of the filename:\n\n```none\n\"databases\" : [\n  {\n    \"name: \"accounting\",\n    \"collections\" : [\n      {\n        \"name: \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(invoiceDate) epoch_millis}-{max(invoiceDate) epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Data Federation receives a query on the `\"invoiceDate\"` field, it uses\nthe specified path to identify which files contain the data that\nmatches the query.\n\nQueries on the `invoiceDate` field can be targeted to only those\nfiles whose range captures the specified value, including the `min`\nand `max` date.\n\n> **Important:** The field specified for the min and max ranges *must* exist in\n> every document contained in the file to avoid unexpected or\n> undesired behavior. Data Federation does *not* perform any\n> validation that the underlying data conforms to this constraint.\n\n> **See Also:** [Parsing Padded Numbers from Filenames](parse-padded-numeric-values)",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "\"databases\" : [\n  {\n    \"name: \"accounting\",\n    \"collections\" : [\n      {\n        \"name: \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(invoiceDate) epoch_millis}-{max(invoiceDate) epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 87
+        }
+      ]
+    },
+    {
+      "heading": "Identify Nested Fields from Filename",
+      "headingLevel": 3,
+      "body": "Data Federation supports querying nested data when the nested data\nvalue is also the filename. You can use the dot operator (i.e. `.`)\nin your\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nto map the partitions attributes in your storage configuration to\nnested fields in your documents.\n\nConsider a federated database instance store `accountingArchive`. The federated database instance store\ncontains files with names that match values of nested fields in the\ndocuments. For example:\n\n```text\naccountingArchive\n|--invoices\n   |--January.json\n   |--February.json\n   ...\n```\n\nSuppose the `January.json` file contains a document with the\nfollowing fields:\n\n```text\n{\n  \"invoice\": {\n     \"invoiceNumber\" : \"MONGODB12345\",\n     \"year\" : 2019,\n     \"month\": \"January\", //value matches filename\n     \"date\": 02\n  },\n  \"vendor\": \"MONGODB\",\n  ...\n}\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object identifies\n`month` as a nested field inside a document. The\n[defaultFormat](adf-aws-databases-reference) object also identifies the value of\n`month` as the name of the file that contains the document.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoice.month string}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Atlas Data Federation receives a query on a specific month such as\n`January`, it uses the specified path to identify which file\ncontains the data that matches the query.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "accountingArchive\n|--invoices\n   |--January.json\n   |--February.json\n   ...",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "text",
+          "content": "{\n  \"invoice\": {\n     \"invoiceNumber\" : \"MONGODB12345\",\n     \"year\" : 2019,\n     \"month\": \"January\", //value matches filename\n     \"date\": 02\n  },\n  \"vendor\": \"MONGODB\",\n  ...\n}",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "text",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoice.month string}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 75
+        }
+      ]
+    },
+    {
+      "heading": "Create Partitions from ObjectIds",
+      "headingLevel": 3,
+      "body": "You can specify [ObjectIds](manual/reference/bson-types)\nin the path to the files. For files that contain `ObjectId` in the\nfilename, Atlas Data Federation creates partitions for each `ObjectId`.\n\nConsider the following federated database instance store, `accountingArchive`. This data\nstore contains files that include `ObjectId` in the filename:\n\n```text\naccountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011.json\n   |--507f1f77bcf86cd799439012.json\n   |--507f1f77bcf86cd799439013.json\n   |--507f1f77bcf86cd799439014.json\n   |--507f1f77bcf86cd799439015.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the `ObjectIds`.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{objid objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nOr, suppose the federated database instance store `accountingArchive` contains\nfiles that include a range of `ObjectIds` in the filename. For\nexample:\n\n```text\naccountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011-507f1f77bcf86cd799439020.json\n   |--507f1f77bcf86cd799439021-507f1f77bcf86cd799439030.json\n   |--507f1f77bcf86cd799439031-507f1f77bcf86cd799439040.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the given range of `ObjectIds`.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(obj) objectid}-{max(obj) objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Data Federation receives a query on the `ObjectId`, it uses the\nspecified path to identify which file contains the data that matches\nthe query.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011.json\n   |--507f1f77bcf86cd799439012.json\n   |--507f1f77bcf86cd799439013.json\n   |--507f1f77bcf86cd799439014.json\n   |--507f1f77bcf86cd799439015.json",
+          "tokenEstimate": 86
+        },
+        {
+          "language": "text",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{objid objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 76
+        },
+        {
+          "language": "text",
+          "content": "accountingArchive\n|--invoices\n   |--507f1f77bcf86cd799439011-507f1f77bcf86cd799439020.json\n   |--507f1f77bcf86cd799439021-507f1f77bcf86cd799439030.json\n   |--507f1f77bcf86cd799439031-507f1f77bcf86cd799439040.json",
+          "tokenEstimate": 93
+        },
+        {
+          "language": "text",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(obj) objectid}-{max(obj) objectid}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 83
+        }
+      ]
+    },
+    {
+      "heading": "Create Partitions from File Path",
+      "headingLevel": 3,
+      "body": "You can specify parsing functions on any path leading up to the\nfilename. Each computed field is based on a parsing function along the\npath. When querying the data, Atlas Data Federation converts each computed field to a\npartition. Partitions, which are synonymous with subdirectories, are\nthen used to filter files with increasing precision.\n\nConsider a federated database instance store `accountingArchive` with the following\ndirectory structure:\n\n```text\ninvoices\n|--MONGO12345\n   |--2019\n      |--01\n         |--02\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates the\n`invoiceNumber`, `year`, `month`, and `day` partitions with\na small set of filtered files:\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}/{year int}/{month int:\\\\d{2}}/{day int:\\\\d{2}}/*\"\n          }\n        ]\n      }\n    ]\n  }\n}\n```\n\n> **See Also:** [Parsing Padded Numbers from Filenames](parse-padded-numeric-values)",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "invoices\n|--MONGO12345\n   |--2019\n      |--01\n         |--02",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "text",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}/{year int}/{month int:\\\\d{2}}/{day int:\\\\d{2}}/*\"\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "tokenEstimate": 95
+        }
+      ]
+    },
+    {
+      "heading": "Create Partitions from ISODate",
+      "headingLevel": 3,
+      "body": "You can specify [ISODate](manual/reference/glossary)\nin the path to the files. For files that contain `ISODate` in the\nfilename, Atlas Data Federation creates partitions for each `ISODate`.\n\nConsider the following federated database instance store, `accountingArchive`. This data\nstore contains files that include `ISODate` in the filename:\n\n```text\naccountingArchive\n|--invoices\n   |--01_02_2022_2301.json\n   |--02_02_2022_2301.json\n   |--03_02_2022_2301.json\n   |--04_02_2022_2301.json\n   |--05_02_2022_2301.json\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object creates\npartitions for the `ISODate`. The `path` demonstrates how to use\nregex for the date format if the date is not in [RFC 3339](https://tools.ietf.org/html/rfc3339) format.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/creationDate isodate('01_02_2006_1504'):\\\\d{2}_\\\\d{2}_\\\\d{4}_\\\\d{4}.json\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nTo learn more about other supported formats, see\n[isodate](adf-path-attribute-types).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "accountingArchive\n|--invoices\n   |--01_02_2022_2301.json\n   |--02_02_2022_2301.json\n   |--03_02_2022_2301.json\n   |--04_02_2022_2301.json\n   |--05_02_2022_2301.json",
+          "tokenEstimate": 71
+        },
+        {
+          "language": "text",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/creationDate isodate('01_02_2006_1504'):\\\\d{2}_\\\\d{2}_\\\\d{4}_\\\\d{4}.json\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 108
+        }
+      ]
+    },
+    {
+      "heading": "Generate Dynamic Collection Names from File Path",
+      "headingLevel": 3,
+      "body": "Consider a federated database instance store `accountingArchive`  with the\nfollowing directory structure:\n\n```text\ninvoices\n|--SuperSoftware\n|--UltraSoftware\n|--MegaSoftware\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates a dynamic collection name from the file path:\n\n```json\n\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{collectionName()}/\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen applied to the example directory structure, the path\nresults in the following collections:\n\n- SuperSoftware\n\n- UltraSoftware\n\n- MegaSoftware\n\nOr, consider a federated database instance store `accountingArchive`  with the\nfollowing files:\n\n```text\n/orders/MONGODB/invoices/January.json\n/orders/MONGODB/purchaseOrders/January.json\n/orders/MONGODB/invoices/February.json\n...\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates a dynamic collection name from the file path:\n\n```json\n\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/orders/MONGODB/{collectionName()}/{invoiceMonth string}.json/\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen applied to the example filenames, the path\nresults in the following collections:\n\n- `invoices`\n\n- `purchaseOrders`\n\n> **Note:** When you dynamically generate collections from filenames,\n> the number of collections is not accurately reported in the\n> Data Federation view.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "invoices\n|--SuperSoftware\n|--UltraSoftware\n|--MegaSoftware",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "json",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{collectionName()}/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 74
+        },
+        {
+          "language": "text",
+          "content": "/orders/MONGODB/invoices/January.json\n/orders/MONGODB/purchaseOrders/January.json\n/orders/MONGODB/invoices/February.json\n...",
+          "tokenEstimate": 29
+        },
+        {
+          "language": "json",
+          "content": "\"databases\" : [\n  {\n    \"name\" : \"invoices\",\n    \"collections\" : [\n      {\n        \"name\" : \"*\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/orders/MONGODB/{collectionName()}/{invoiceMonth string}.json/\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 81
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "path": "atlas/cluster-blocking-writes",
+  "product": "atlas",
+  "title": "Write-Blocking",
+  "sections": [
+    {
+      "heading": "Write-Blocking and Intelligent Workload Management",
+      "headingLevel": 2,
+      "body": "Cluster write-blocking behavior is part of Intelligent Workload Management (IWM)\nin MongoDB Atlas. IWM (Intelligent Workload Management) is\na dynamic resource manager that enables real-time workload monitoring and\nautomated safeguards to maintain high availability under load.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Write-Blocking Considerations",
+      "headingLevel": 2,
+      "body": "Write-blocking behavior has the following considerations:\n\n- Atlas currently blocks writes to the primary node on replica sets\n  (non-sharded clusters) on dedicated clusters running MongoDB 8.0+.\n\n- Atlas doesn't block writes on Free clusters and Flex clusters.\n\n- Atlas monitors disk utilization on the primary node only.\n\n- Atlas doesn't monitor disk utilization on secondary, read-only, search,\n  or analytics nodes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How Atlas Blocks Writes to the Primary Node",
+      "headingLevel": 2,
+      "body": "To block writes, Atlas uses the following process:\n\n- When the primary node's free disk space exceeds write-blocking\n  [write-blocking-thresholds](write-blocking-thresholds), Atlas blocks\n  writes to the primary node.\n\n  Even when the MongoDB database is not accepting writes, the cluster\n  remains available for reads. You can read from the primary and secondary\n  nodes as normal.\n\n- When Atlas blocks writes, it sends the following alert: [Writes have been blocked on your cluster due to critically low disk space](<Writes have been blocked on your cluster due to critically low disk space>).\n  The [Activity Feed](project-activity-feed) reflects this alert.\n\n  The top of the cluster page in the Atlas UI shows a banner that states:\n  `\"To maintain read availability during critically high disk utilization,\n  Atlas has blocked writes to the following clusters: <clusterName>.\n  Increase disk space or enable storage auto-scaling to unblock writes.\"`\n\n- When free disk space increases 50% over the blocking threshold,\n  Atlas unblocks writes to the primary node. When Atlas unblocks\n  writes, you receive this alert: [Writes have been unblocked on your cluster](<Writes have been unblocked on your cluster>).\n\n  The [Activity Feed](project-activity-feed) then reflects this alert. No further action is needed.\n  To avoid write-blocking behavior in the future, consider\n  [Preventing Write-Blocking](write-blocking-prevention).\n\n- If you manually increase the disk size of the cluster or enable\n  storage auto-scaling, Atlas automatically adjusts the write-blocking\n  thresholds based on the new disk size.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Write-Blocking Prevention",
+      "headingLevel": 2,
+      "body": "To prevent write-blocking behavior from occurring and bring the cluster\nbelow the Atlas write-blocking [write-blocking-thresholds](write-blocking-thresholds),\nwe recommend that you:\n\n- Enable [storage auto-scaling](howitworks-scale-cluster-storage),\n  which automatically scales your cluster storage when disk utilization\n  exceeds 90% and ensures consistent workload availability and performance.\n\n  To enable storage auto-scaling in the Atlas UI, navigate to\n  the **Cluster Tier** menu and check the **Storage Scaling**\n  checkbox in the **Auto-scale** section.\n\n  - For all new clusters that you create in the Atlas UI,\n    Atlas enables storage auto-scaling by default.\n\n  - If you [create clusters with the API](api/doc/atlas-admin-api-v2/operation/operation-creategroupcluster),\n    cluster auto-scaling isn't selected by default and you must explicitly enable it,\n    using the options in the `autoScaling` object of the [Update One Cluster in One Project](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) endpoint.\n\n- If you choose to opt out of storage auto-scaling and your disk utilization\n  is close to 90%, you can release existing disk space before Atlas\n  activates write-blocking behavior on your cluster:\n\n  - Remove unused data to free up disk space. [Delete the indexes](manual/core/indexes/drop-index),\n    or [delete collections or individual documents](manual/tutorial/remove-documents).\n\n  - Use the [autoCompact](manual/reference/command/autoCompact) command on each dedicated cluster node\n    to compact disk space.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Write-Blocking Policy Threshold Parameters",
+      "headingLevel": 2,
+      "body": "Atlas uses the following  write-blocking thresholds to accommodate\ndisk utilization scenarios with high write volume:\n\n| Disk size \\< 20 GB   | Atlas blocks writes when free disk space drops below 600 MB. Atlas unblocks writes when disk space exceeds 900 MB.                               |\n| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Disk size \\< 1.25 TB | Atlas blocks writes when free disk space drops below 4% of total disk size. Atlas unblocks writes when disk space exceeds 6% of total disk size. |\n| Disk size ≥ 1.25 TB  | Atlas blocks writes when free disk space drops below 50 GB. Atlas unblocks writes when free disk space exceeds 75 GB.                            |\n\nThe thresholds are not configurable. If the disk size increases due to\nauto-scaling, or if you manually increase the disk size, Atlas\nautomatically adjusts the thresholds based on cluster's disk size.\n\nOnce write-blocking behavior is active in your cluster, you:\n\n- Can increase cluster storage manually from the [modify all configuration options](scale-cluster)\n  page or enable storage auto-scaling in the Atlas UI to avoid any\n  future write-blocking behavior.\n\n- Cannot delete indexes or collections because Atlas blocks operations\n  that require writing to the database. To delete indexes and collections,\n  increase the cluster storage.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Write-Blocking and Storage Auto-Scaling",
+      "headingLevel": 2,
+      "body": "Atlas blocks writes when free disk space on the primary node reaches\napproximately 96% of total disk size, with the caveats for small and large\ndisks noted in the write-blocking [write-blocking-thresholds](write-blocking-thresholds).\n\nBy comparison, auto-scaling triggers when disk utilization reaches 90%\nof total disk size. This means that:\n\n- If you enable auto-scaling, your cluster has the opportunity to scale up\n  before write-blocking behavior activates.\n\n- If you disable auto-scaling, you must monitor disk utilization and take\n  action to prevent write-blocking behavior from activating.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Write-Blocking Troubleshooting",
+      "headingLevel": 2,
+      "body": "When Atlas blocks writes to the cluster, the following actions occur:\n\n- The top of the cluster page in the Atlas UI shows a banner indicating\n  that writes have been blocked. See [How Atlas Blocks Writes to the Primary Node](howitworks-block-writes).\n\n- Atlas issues [write-blocking alerts](alert-conditions-write-blocking)\n  that you can resolve by increasing cluster storage. See also [Fix Storage Issues](disk-space-used).\n\n- The project's [Project Activity Feed](view-activity-feed) reflects these\n  alerts.\n\n- Atlas logs return a `MongoServerError` similar to the following: `User writes blocked, reason: DiskUseThresholdExceeded`.\n\n- The `userWriteBlockMode` parameter in [serverStatus](manual/reference/command/serverStatus)\n  command reflects the cluster's current write-blocking status.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Unblocking Writes",
+      "headingLevel": 2,
+      "body": "Atlas unblocks writes when free disk space increases 50% over\nthe blocking threshold. The extra buffer to unblock writes ensures that:\n\n- Atlas doesn't enable and disable write-blocking behavior in quick succession.\n\n- The cluster remains in a good state as it begins accepting writes again.\n\nFor the exact parameters, see [write-blocking-thresholds](write-blocking-thresholds).",
+      "codeBlocks": []
+    }
+  ]
+}

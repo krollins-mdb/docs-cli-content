@@ -1,0 +1,55 @@
+{
+  "path": "atlas/go/error_handling",
+  "product": "atlas",
+  "title": "Error Handling",
+  "sections": [
+    {
+      "heading": "Fetching Error Object",
+      "headingLevel": 2,
+      "body": "To fetch the error object, execute the following:\n\n```go\n// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nfmt.Println(apiError)\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nfmt.Println(apiError)",
+          "tokenEstimate": 41
+        }
+      ]
+    },
+    {
+      "heading": "Checking for the Existence of a Specific Error Code",
+      "headingLevel": 2,
+      "body": "To check for the existence of a specific error code (e.g. `MAXIMUM_INDEXES_FOR_TENANT_EXCEEDED` ), execute the following:\n\n```go\n// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\nif admin.IsErrorCode(err, \"code\"){\n // Do something\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\nif admin.IsErrorCode(err, \"code\"){\n // Do something\n}",
+          "tokenEstimate": 40
+        }
+      ]
+    },
+    {
+      "heading": "Checking for the Existence of a Specific Response Status Code",
+      "headingLevel": 2,
+      "body": "To check for the existence of a specific HTTP response error code, execute the following:\n\n```go\n// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nif ok && apiError.GetError() == 404 {\n // Do something\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nif ok && apiError.GetError() == 404 {\n // Do something\n}",
+          "tokenEstimate": 53
+        }
+      ]
+    },
+    {
+      "heading": "Mocking Errors",
+      "headingLevel": 2,
+      "body": "SDK errors can be mocked by creating instance of `GenericOpenAPIError` struct.\n\n```go\n// Surrounding code omitted for brevity\n\napiError := admin.GenericOpenAPIError{}\napiError.SetModel(admin.ApiError{\n    Detail: admin.PtrString(\"Error when listing clusters\"),\n    Error: admin.PtrInt(400),\n    ErrorCode: admin.PtrString(\"CLUSTERS_UNREACHABLE\"),\n    Reason: admin.PtrString(\"Clusters unreachable\"),\n\n})\napiError.SetError(\"Mocked error\")\n```\n\nStruct can be passed as `error` for the all SDK mocked methods.",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Surrounding code omitted for brevity\n\napiError := admin.GenericOpenAPIError{}\napiError.SetModel(admin.ApiError{\n    Detail: admin.PtrString(\"Error when listing clusters\"),\n    Error: admin.PtrInt(400),\n    ErrorCode: admin.PtrString(\"CLUSTERS_UNREACHABLE\"),\n    Reason: admin.PtrString(\"Clusters unreachable\"),\n\n})\napiError.SetError(\"Mocked error\")",
+          "tokenEstimate": 83
+        }
+      ]
+    }
+  ]
+}

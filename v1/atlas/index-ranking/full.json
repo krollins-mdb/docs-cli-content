@@ -1,0 +1,54 @@
+{
+  "path": "atlas/index-ranking",
+  "product": "atlas",
+  "title": "Review Index Ranking",
+  "sections": [
+    {
+      "heading": "How Performance Advisor Suggests and Ranks Indexes",
+      "headingLevel": 2,
+      "body": "The Performance Advisor monitors queries that take longer than `100` milliseconds to\nexecute and groups these queries into common [query shape](manual/reference/glossary). The Performance Advisor calculates the inefficiency of each query shape by\nconsidering the following aggregated metrics from queries which match\nthe shape:\n\n- Amount of time spent executing the query.\n\n- Number of documents scanned.\n\n- Number of documents returned.\n\n- Average object size.\n\nTo establish recommended indexes, the Performance Advisor uses these metrics in a\nformula to calculate the **Impact**, or performance improvement\nthat creating an index matching that query shape would cause. When the\nPerformance Advisor suggests indexes, it ranks the indexes by their\n**Impact**. The **Impact** is determined by the total\nwasted bytes read.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Index Field Order",
+      "headingLevel": 2,
+      "body": "The type of query operation in the query shape affects the order of the\nfields used to construct the index. In general, the Performance Advisor ranks fields by\ntheir [cardinality](manual/reference/glossary).\n\nThe following table shows how the Performance Advisor ranks various operation types by\norder of relative importance:\n\n| Rank | Operation Type      | Example Operator |\n| ---- | ------------------- | ---------------- |\n| 1    | Equality match      | $eq              |\n| 2    | Array query         | $in              |\n| 3    | Range query         | $gte             |\n| 4    | Type query          | $type            |\n| 5    | Exists              | $exists          |\n| 6    | All other operators | $nearSphere      |\n| 7    | Sort                | sort()           |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limiting Proposed Indexes",
+      "headingLevel": 2,
+      "body": "The Performance Advisor doesn't suggest indexes that have more than 16 fields.\n\nAlso, the Performance Advisor suggests the index only if the difference between\nscanned documents and returned documents is greater than 500 for\nimpacted queries.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Index De-Duplication",
+      "headingLevel": 3,
+      "body": "The Performance Advisor de-duplicates overlapping indexes before it makes suggestions.\nFor example, consider if the Performance Advisor calculates the following potential\nsuggested indexes:\n\n```json\n{ a : 1 }\n{ a : 1, b : 1 }\n```\n\nSince `{ a : 1 }` is a prefix of `{ a : 1, b : 1 }`, Performance Advisor\nsuggests only `{ a : 1, b : 1 }`. To learn more about index prefixes,\nsee [Prefixes](manual/core/index-compound).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ a : 1 }\n{ a : 1, b : 1 }",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Example: New York City Taxi Data",
+      "headingLevel": 2,
+      "body": "This example uses a database named `cab-db` that contains information\nabout New York City taxi rides, with fields for the times of pickup and\ndropoff, ride distance, and a breakdown of ride costs. A typical\ndocument in the collection `yellow` looks like the following example:\n\n```json\n{\n     \"_id\" : ObjectId(\"5db9daab0b2a17b7706cd6a3\"),\n     \"pickup_datetime\" : \"2014-06-30 02:09:23\",\n     \"dropoff_datetime\" : \"2014-06-30 02:20:36\",\n     \"passenger_count\" : 2,\n     \"trip_distance\" : 3,\n     \"fare_amount\" : 12,\n     \"tip_amount\" : 2.6,\n     \"total_amount\" : 15.6\n}\n```\n\nThe collection contains more than 10 million documents, so an\napplication that needs to run queries based on specific field data will\ngenerate some very inefficient operations unless you properly index the\ncollection.\n\nTypical queries for this application search for documents that contain\na specific dropoff time, combined with one or more other fields. For\nexample:\n\n```javascript\ndb.yellow.find({ \"dropoff_datetime\": \"2014-06-19 21:45:00\",\n                 \"passenger_count\": 1,\n                 \"trip_distance\": {\"$gt\": 3 }\n               })\n```\n\nThe Performance Advisor recommends the following indexes to improve performance:\n\n![Screen shot of suggested indexes](/performance-advisor/images/suggested-indexes.png)\n\n> **Note:** By default, the Performance Advisor shows index recommendations for all collections\n> in your cluster. To narrow the recommendations down to a specific\n> collection, select one from the **Collection** dropdown\n> menu.\n\nThe Performance Advisor lists recommended indexes in order of performance impact, from\ngreatest to least.\n\nThe first recommendation is for an index on three fields:\n\n- `passenger_count`\n\n- `dropoff_datetime`\n\n- `trip_distance`\n\nClick the **Create Index** button to create the index with\nany desired additional options. To learn more about creating an index\nin the Performance Advisor, see [Create Suggested Indexes](pa-create-suggested-indexes).\n\nIf you create this index, you remove the need for the database engine\nto scan the entire collection to find documents that match the query,\nwhich improves performance. Queries with the shape shown in the\n[example](taxi-example-query) return results in 50 milliseconds\nor less on the indexed collection, as opposed to several seconds on the\nunindexed collection.\n\n> **Note:** You can also create indexes with the [Atlas UI](atlas-ui-indexes).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n     \"_id\" : ObjectId(\"5db9daab0b2a17b7706cd6a3\"),\n     \"pickup_datetime\" : \"2014-06-30 02:09:23\",\n     \"dropoff_datetime\" : \"2014-06-30 02:20:36\",\n     \"passenger_count\" : 2,\n     \"trip_distance\" : 3,\n     \"fare_amount\" : 12,\n     \"tip_amount\" : 2.6,\n     \"total_amount\" : 15.6\n}",
+          "tokenEstimate": 118
+        },
+        {
+          "language": "javascript",
+          "content": "db.yellow.find({ \"dropoff_datetime\": \"2014-06-19 21:45:00\",\n                 \"passenger_count\": 1,\n                 \"trip_distance\": {\"$gt\": 3 }\n               })",
+          "tokenEstimate": 46
+        }
+      ]
+    }
+  ]
+}

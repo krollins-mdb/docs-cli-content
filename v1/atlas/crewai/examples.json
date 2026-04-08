@@ -1,0 +1,81 @@
+{
+  "path": "atlas/crewai",
+  "product": "atlas",
+  "title": "Integrate MongoDB with CrewAI",
+  "summary": {
+    "total": 5,
+    "byLanguage": {
+      "shell": 2,
+      "python": 3
+    },
+    "bySection": [
+      {
+        "heading": "Installation",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 8
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 116
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 156
+          }
+        ]
+      },
+      {
+        "heading": "Methods",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 165
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Installation",
+      "content": "pip install 'crewai-tools[mongodb]'",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "section": "Installation",
+      "content": "uv add crewai-tools --extra mongodb",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from crewai_tools import MongoDBVectorSearchTool\n\ntool = MongoDBVectorSearchTool(\n  connection_string=\"<connection-string>\",\n  database_name=\"<database-name>\",\n  collection_name=\"<collection-name>\",\n  # Other optional parameters...\n)\n\n# To test the tool\nprint(tool.run(query=\"<test-query>\"))\n\n# To use the tool in an agent\nrag_agent = Agent(\n    name=\"rag_agent\",\n    role=\"You are a helpful assistant that can answer questions with the help of the MongoDBVectorSearchTool.\",\n    goal=\"...\",\n    backstory=\"...\",\n    tools=[tool],\n)",
+      "tokenEstimate": 116
+    },
+    {
+      "language": "python",
+      "section": "Usage",
+      "content": "from crewai_tools import MongoDBVectorSearchConfig, MongoDBVectorSearchTool\n\n# Custom query configuration\nquery_config = MongoDBVectorSearchConfig(\n  limit = 10,\n  oversampling_factor = 2,\n  )\n\ntool = MongoDBVectorSearchTool(\n    database_name=\"example_database\",\n    collection_name=\"example_collection\",\n    connection_string=\"<connection_string>\",\n    query_config=query_config,\n    # Other optional parameters...\n)\n\n# To test the tool\nprint(tool.run(query=\"<test-query>\"))\n\n# To use the tool in an agent\nrag_agent = Agent(\n    name=\"rag_agent\",\n    role=\"You are a helpful assistant that can answer questions with the help of the MongoDBVectorSearchTool.\",\n    goal=\"...\",\n    backstory=\"...\",\n    tools=[tool],\n)",
+      "tokenEstimate": 156
+    },
+    {
+      "language": "python",
+      "section": "Methods",
+      "content": "import os\nfrom crewai_tools import MongoDBVectorSearchTool\n\ntool = MongoDBVectorSearchTool(\n  connection_string=\"<connection-string>\",\n  database_name=\"<database-name>\",\n  collection_name=\"<collection-name>\"\n)\n\n# Example of loading text content from a local folder\ntexts = []\nfor fname in os.listdir(\"knowledge\"):\n    path = os.path.join(\"knowledge\", fname)\n    if os.path.isfile(path):\n        with open(path, \"r\", encoding=\"utf-8\") as f:\n            texts.append(f.read())\n\n# Method to add documents to the vector store\ntool.add_texts(texts)\n\n# Method to create the vector search index\ntool.create_vector_search_index(dimensions=<number-of-dimensions>)\n\n# Method to test the tool by running a vector search query\ntool.run(query=\"<search-query>\")",
+      "tokenEstimate": 165
+    }
+  ]
+}

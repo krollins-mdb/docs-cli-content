@@ -1,0 +1,170 @@
+{
+  "path": "atlas/cloud-backup/import-archive",
+  "product": "atlas",
+  "title": "Step 3",
+  "summary": {
+    "total": 15,
+    "byLanguage": {
+      "shell": 15
+    },
+    "bySection": [
+      {
+        "heading": "Procedure",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 80
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 312
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 16
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 312
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 82
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 312
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 16
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "aws s3 cp s3://<bucketName>/<prefix> <downloadFolder> --recursive\ngunzip -r <downloadFolder>",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "aws s3 cp\ns3://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\nmybucket --recursive\ngunzip -r mybucket",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+      "tokenEstimate": 312
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "azcopy copy \"https://<storageAccountName>.blob.core.windows.net/<containerName>/<prefix>/*\" \"<downloadFolder>\" --recursive",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "azcopy copy \"https://mystorageaccount.blob.core.windows.net/mycontainer/myTextFile.txt\" \"~/downloads\" --recursive",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+      "tokenEstimate": 312
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh \"~/downloads\" \"mongodb+srv://<myConnString>\"",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "gsutil -m cp -r \"gs://<bucketName>/<prefix> <downloadFolder>\" --recursive\ngunzip -r <downloadFolder>",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "gsutil -m cp -r\ngs://export-test-bucket/exported_snapshots/1ab2cdef3a5e5a6c3bd12de4/12ab3456c7d89d786feba4e7/myCluster/2021-04-24T0013/1619224539\nmybucket --recursive\ngunzip -r mybucket",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "#!/bin/bash\n\nregex='/(.+)/(.+)/.+'\ndir=${1%/}\nconnstr=$2\n\n# iterate through the subdirectories of the downloaded and\n# extracted snapshot export and restore the docs with mongoimport\nfind $dir -type f -not -path '*/\\.*' -not -path '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mongoimport --uri \"$connstr\" --mode=upsert -d $db_name -c $col_name --file $line --type json\ndone\n\n# create the required directory structure and copy/rename files\n# as needed for mongorestore to rebuild indexes on the collections\n# from exported snapshot metadata files and feed them to mongorestore\nfind $dir -type f -name '*metadata\\.json' | while read line ; do\n  [[ $line =~ $regex ]]\n  db_name=${BASH_REMATCH[1]}\n  col_name=${BASH_REMATCH[2]}\n  mkdir -p ${dir}/metadata/${db_name}/\n  cp $line ${dir}/metadata/${db_name}/${col_name}.metadata.json\ndone\nmongorestore \"$connstr\" ${dir}/metadata/\n\n# remove the metadata directory because we do not need it anymore and this returns\n# the snapshot directory in an identical state as it was prior to the import\nrm -rf ${dir}/metadata/",
+      "tokenEstimate": 312
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh <downloadFolder> \"mongodb+srv://<connectionString>\"",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "sh massimport.sh mybucket \"mongodb+srv://<myConnString>\"",
+      "tokenEstimate": 16
+    }
+  ]
+}

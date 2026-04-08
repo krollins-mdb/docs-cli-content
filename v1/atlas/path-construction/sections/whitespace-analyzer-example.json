@@ -1,0 +1,42 @@
+{
+  "heading": "Whitespace Analyzer Example",
+  "headingLevel": 4,
+  "body": "Suppose the `multi` object in the index definition for the `cars`\ncollection is the following:\n\n```json\n\"multi\": {\n  \"simpleAnalyzer\": {\n    \"analyzer\": \"lucene.whitespace\",\n    \"type\": \"string\"\n  }\n}\n```\n\nThe following example uses the `multi` named `simpleAnalyzer`\nin the index definition, which uses the [whitespace analyzer](ref-whitespace-analyzer).\n\n```json\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Three\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the following result:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to\n  four passengers.\"\n}\n```\n\nFor the above query on the term `Three`, MongoDB Search only returns documents\nmatching the term `Three` and not `three` becuase the\n[whitespace analyzer](ref-simple-analyzer) is case-sensitive. By\ncontrast, the default [standard analyzer](ref-standard-analyzer) is\nnot case-sensitive and returns all documents matching the term in the\nquery in the order that they are listed in the collection.\n\nNow, consider the following query:\n\n```json\ndb.cars.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"path\": \"description\",\n              \"query\": \"Three\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"Three\",\n              \"path\": { \"value\" : \"description\", \"multi\" : \"simpleAnalyzer\" },\n              score: { boost: { value: 2 }}\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"type\": 1,\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\nThe preceding query returns the following results:\n\n```json\n{\n  \"type\" : \"sedan\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four passengers seats.\",\n  \"score\" : 1.1092689037322998\n}\n{\n  \"type\" : \"SUV\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\",\n  \"score\" : 0.17812025547027588\n}\n```\n\nFor the above query, MongoDB Search returns documents with both `Three` and\n`three`. However, the score of the result with `Three` is higher\nbecause while the document with `three` was matched using the default\n[standard analyzer](ref-standard-analyzer), the document with\n`Three` was matched by both the specified `simpleAnalyzer` and the\ndefault [standard analyzer](ref-standard-analyzer).\n\nThe following example uses a collection called `posts` with the\nfollowing documents:\n\n```json\n {\n  \"_id\": 1,\n  \"username\": \"pinto\",\n  \"post\": {\n    \"date\": \"12-03-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Spicy Garlic Tofu cooks up crispy in 10 minutes or less.\n             Serve with broccoli and rice for a delicious vegetarian meal.\"\n  }\n}\n{\n  \"_id\": 2,\n  \"username\": \"paloma\",\n  \"post\": {\n    \"date\": \"12-08-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Crispy Tofu in Shiitake Broth has flavors of citrus and\n             umami. Great as an appetizer or entree.\"\n  }\n}\n```\n\n[dynamic mappings](static-dynamic-mappings) allow\nyou to index all fields in a collection as needed.\n\nThe index definition for the `posts` collection is as follows:\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "\"multi\": {\n  \"simpleAnalyzer\": {\n    \"analyzer\": \"lucene.whitespace\",\n    \"type\": \"string\"\n  }\n}",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "json",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Three\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to\n  four passengers.\"\n}",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"path\": \"description\",\n              \"query\": \"Three\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"Three\",\n              \"path\": { \"value\" : \"description\", \"multi\" : \"simpleAnalyzer\" },\n              score: { boost: { value: 2 }}\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"type\": 1,\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 152
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"type\" : \"sedan\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four passengers seats.\",\n  \"score\" : 1.1092689037322998\n}\n{\n  \"type\" : \"SUV\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\",\n  \"score\" : 0.17812025547027588\n}",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "json",
+      "content": " {\n  \"_id\": 1,\n  \"username\": \"pinto\",\n  \"post\": {\n    \"date\": \"12-03-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Spicy Garlic Tofu cooks up crispy in 10 minutes or less.\n             Serve with broccoli and rice for a delicious vegetarian meal.\"\n  }\n}\n{\n  \"_id\": 2,\n  \"username\": \"paloma\",\n  \"post\": {\n    \"date\": \"12-08-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Crispy Tofu in Shiitake Broth has flavors of citrus and\n             umami. Great as an appetizer or entree.\"\n  }\n}",
+      "tokenEstimate": 161
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    }
+  ]
+}

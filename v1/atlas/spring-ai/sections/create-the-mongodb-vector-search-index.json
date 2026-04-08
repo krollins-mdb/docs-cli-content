@@ -1,0 +1,17 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 2,
+  "body": "To enable vector search queries on your vector store,\nyou must create a MongoDB Vector Search index on the `springai_test.vector_store`\ncollection.\n\n> **Note:**&#x20;\n>\n> Required Access\n>\n> To create a MongoDB Vector Search index, you must have [Project Data Access Admin](<Project Data Access Admin>) or higher access to the MongoDB project.\n\nWhen you configure Atlas as the vector store in your\napplication, Spring AI can initialize the backend schema automatically.\nThis initialization includes creating a MongoDB Vector Search index on the collection\nthat contains your vector embeddings.\n\nTo enable schema initialization, add the following setting to your `application.properties` file:\n\n```\nspring.ai.vectorstore.mongodb.initialize-schema=true\n```\n\nSpecifying `initialize-schema=true` causes Spring AI to\nprogrammatically create a MongoDB Vector Search index on your cluster. To learn\nmore, see [Create a MongoDB Vector Search Index](avs-create-index).\n\n> **Note:**&#x20;\n>\n> Known Issue: Existing Index\n>\n> If you have an existing MongoDB Vector Search index called `vector_index` on the\n> `springai_test.vector_store` collection, Spring AI won't create an\n> additional index. Because of this, you might experience errors later\n> in the tutorial if the existing index was configured with incompatible\n> settings, such as a different number of dimensions.\n>\n> Ensure that your index has the following configuration:\n>\n> ```json\n> {\n>   \"fields\": [\n>     {\n>       \"numDimensions\": 1536,\n>       \"path\": \"embedding\",\n>       \"similarity\": \"cosine\",\n>       \"type\": \"vector\"\n>     }\n>   ]\n> }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "spring.ai.vectorstore.mongodb.initialize-schema=true",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1536,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
+      "tokenEstimate": 45
+    }
+  ]
+}

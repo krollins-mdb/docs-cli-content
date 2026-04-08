@@ -1,0 +1,43 @@
+{
+  "path": "atlas/concurrent-query",
+  "product": "atlas",
+  "title": "Parallelize Query Execution Across Segments",
+  "sections": [
+    {
+      "heading": "concurrent Option Limitations",
+      "headingLevel": 2,
+      "body": "When you run queries with the `concurrent` option, MongoDB Search doesn't\nguarantee that each query will be executed concurrently. For example,\nwhen too many concurrent queries are queued, MongoDB Search might fallback to\nsingle-threaded execution.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "`concurrent` has the following syntax:\n\n```json\n{\n  \"$searchMeta\"|\"$search\": {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"<operator>\": {\n      <operator-specifications>\n    },\n    \"concurrent\": true | false,\n    ...\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"$searchMeta\"|\"$search\": {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"<operator>\": {\n      <operator-specifications>\n    },\n    \"concurrent\": true | false,\n    ...\n  }\n}",
+          "tokenEstimate": 54
+        }
+      ]
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "The `concurrent` boolean option allows you to request MongoDB Search to\nparallelize query execution across segments, which, in many cases,\nimproves the response time. You can set one of the following values for\nthe `concurrent` option:\n\n- `true` - to request MongoDB Search to run the query multi-threaded\n\n- `false` - to run the query single-threaded (default)\n\nMongoDB Search provides you control over this behavior on a per-query basis\nto enable concurrent execution only for heavy and long-running queries,\nwhich minimizes the contention and improves overall query throughput.\nConcurrent execution is especially efficient on large datasets, as there\nis a larger amount of segments.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "Consider the following query against the [Sample Mflix Dataset](sample-mflix) collection in the sample data. The query indicates a\nconcurrent search for movies that contain the term `new york` in the\n`title`.\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"new york\"\n      },\n      \"concurrent\": true\n    }\n  }\n])\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"new york\"\n      },\n      \"concurrent\": true\n    }\n  }\n])",
+          "tokenEstimate": 45
+        }
+      ]
+    }
+  ]
+}

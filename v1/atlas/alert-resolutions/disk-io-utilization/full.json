@@ -1,0 +1,49 @@
+{
+  "path": "atlas/alert-resolutions/disk-io-utilization",
+  "product": "atlas",
+  "title": "Fix IOPS Issues",
+  "sections": [
+    {
+      "heading": "Alert Conditions",
+      "headingLevel": 2,
+      "body": "You can configure the following alert conditions in the project-level\n[Configure Alert Settings](configure-alerts) page to trigger alerts.\n\nThe [Disk read IOPS on Data Partition is](<Disk read IOPS on Data Partition is>) alert condition is\nraised if the average number of disk read operations per second exceeds\nthe specified threshold.\n\nThe [Disk write IOPS on Data Partition is](<Disk write IOPS on Data Partition is>) alert condition is\nraised if the average number of disk write operations per second\nexceeds the specified threshold.\n\n[System: CPU (User) % is](<System: CPU (User) % is>) measures the CPU usage of the\nprocesses on the node, normalized by the number of CPUs. This value is\nscaled to a range of 0-100%.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Common Triggers",
+      "headingLevel": 2,
+      "body": "A few common events may trigger these alerts:\n\n- [Unoptimized queries](manual/core/query-optimization).\n\n- A one-time event, such as an [index build](manual/core/index-creation).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Fix the Immediate Problem",
+      "headingLevel": 2,
+      "body": "Consider a few possible actions to help resolve\nthese alerts:\n\n- [Optimize your queries](manual/core/query-optimization).\n\n- Use the Atlas Performance Advisor\n  to view slow queries and suggested [indexes](manual/indexes).\n\n- Review [Indexing Strategies](manual/applications/indexes) for\n  possible further indexing improvements.\n\n  > **Note:** You might need to temporarily increase your cluster IOPS (Input/Output Operations per Second) to\n  > create new indexes. Provisioned IOPS (Input/Output Operations per Second) is supported only for\n  > `M30+` tier AWS (Amazon Web Services) clusters.\n\nTo change a cluster's IOPS (Input/Output Operations per Second), go to the\n**Cluster Configuration** page and do the following possible\nactions:\n\n| Cloud Provider            | Tier          | Possible Actions                                                 |\n| ------------------------- | ------------- | ---------------------------------------------------------------- |\n| AWS (Amazon Web Services) | M10, M20      | Increase Storage CapacityScale Cluster Tier                      |\n| AWS (Amazon Web Services) | M30 or larger | Increase Cluster IOPSIncrease Storage CapacityScale Cluster Tier |\n| Google Cloud              | M10 or larger | Increase Storage CapacityScale Cluster Tier                      |\n| Azure                     | M10 or larger | Increase Storage CapacityScale Cluster Tier                      |\n\n- [Analyze Query Performance](manual/tutorial/analyze-query-plan)\n  to review how your queries are using your indexes.\n\n- Increase hardware resources, such as instance size and IOPS (Input/Output Operations per Second), in the\n  Cluster Configuration Page.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Implement a Long-Term Solution",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disk IOPS Burst Credits for Atlas Clusters on Azure (Microsoft Azure)",
+      "headingLevel": 3,
+      "body": "Atlas clusters deployed to Azure (Microsoft Azure) may use credit-based\nbursting, but the disk will burst only if it has burst credits\naccumulated in its credit bucket. Azure (Microsoft Azure) also offers an on-demand\nbursting model, where the disk bursts whenever its needs exceed its\ncurrent capacity.\n\nSee the Azure (Microsoft Azure) [Disk Bursting documentation](https://docs.microsoft.com/en-us/azure/virtual-machines/disk-bursting) for more information about how bursting\nfor Azure (Microsoft Azure) disks works.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Conserve Burst Credits",
+      "headingLevel": 3,
+      "body": "If you regularly exceed your configured IOPS (Input/Output Operations per Second) threshold, you can avoid\ndepleting your burst credits by increasing your configured IOPS (Input/Output Operations per Second) with\nany of the following actions:\n\n- [Modify a Cluster](scale-cluster-storage) to increase the\n  cluster's IOPS (Input/Output Operations per Second) threshold.\n\n- [Modify a Cluster](scale-cluster-storage). The\n  IOPS (Input/Output Operations per Second) threshold increases as you increase storage capacity. Clusters\n  configured to use at least 1 TB of storage have baseline IOPS (Input/Output Operations per Second)\n  performance that is equal to or greater than the maximum burst\n  performance. These volumes do not deplete burst credit balances.\n\n- [Modify the Cluster Tier](scale-cluster-instance). Larger cluster\n  tiers include higher IOPS (Input/Output Operations per Second) thresholds.\n\n  > **Note:** Cluster tiers `M140` and larger are deployed with at least 1 TB\n  > of storage capacity by default. Clusters with 1 TB or more of\n  > storage capacity do not deplete burst credit balances.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Monitor Your Progress",
+      "headingLevel": 2,
+      "body": "These are a few possible methods to observe high disk I/O:\n\n- The disk IOPS (Input/Output Operations per Second) use from the **Disk IOPS** graph in the\n  cluster metrics exceeds the\n  provisioned IOPS (Input/Output Operations per Second) from the Atlas cluster\n  configuration page.\n\n- The **Normalized System CPU**\n  metric\n  has a high **IOWait** curve. IOWait measures the percentage\n  of time the CPU is idle and waiting for an I/O operation to complete.\n  The **Normalized System CPU** chart is located under the\n  **Hardware Metrics** section of the **Metrics** tab.",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `title` field in the\n[sample collection](custom-analyzers-eg-coll) collection using a custom\nanalyzer named `englishPossessiveStemmer`. The custom analyzer\nspecifies the following:* Apply the [standard](standard-tokenizer-ref) tokenizer to\n  create tokens (search terms) based on word break rules.\n\n* Apply the [englishPossessive](englishPossessive-tf-ref)\n  token filter to remove possessives (trailing `'s`) from the\n  tokens.**Atlas UI:**Atlas UI<Tab tabid=\"visual-editor\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Tokenizer if it's collapsed.\n\n  - Select whitespace from the dropdown.\n\n  - Expand Token Filters and click&#x20;\n    Add token filter.\n\n  - Select wordDelimiterGraph from the dropdown.\n\n  - Click Add token filter to add the token filter to your\n    custom analyzer.\n\n  - Click Add to create the custom analyzer.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on\n    the message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select whitespace\n    from the Index Analyzer and Search Analyzer\n    dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following example:```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"englishPossessiveStemmer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"englishPossessiveStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"englishPossessive\"\n        }\n      ]\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"englishPossessiveStemmer\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"englishPossessiveStemmer\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"englishPossessive\"\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```The following query searches the `title` field in the\n[sample collection](custom-analyzers-eg-coll) collection for the term\n`team`.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Search:**Input:**```json\n{\n  \"$search\": {\n    \"index\": \"default\",\n    \"text\": {\n      \"query\": \"team\",\n      \"path\": \"title\"\n    }\n  }\n}\n```**Output:**```js\nSCORE: 0.34314215183258057  _id:  \"1\"\n  message: \"try to siGn-In\"\n  page_updated_by: Object\n  text: Object\n\nSCORE: 0.29123833775520325  _id:  \"2\"\n  message: \"do not forget to SIGN-IN. See ① for details.\"\n  page_updated_by: Object\n  text: Object\n```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"team\",\n        \"path\": \"title\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])\n```**Output:**```js\n[\n  {\n    _id: 1,\n    title: 'The team's weekly meeting'\n  },\n  {\n    _id: 2,\n    title: 'The check-in with sales team'\n  }\n]\n```MongoDB Search returns results that contain the term `team` in the\n`title` field. MongoDB Search returns the document with `_id: 1` because\nMongoDB Search transforms `team's` in the `title` field to the token\n`team` during analysis. Specifically, MongoDB Search creates the following\ntokens (searchable terms) for the documents in the results, which it\nthen matches to the query term:| Document ID | Output Tokens                     |\n| ----------- | --------------------------------- |\n| \"\\_id\": 1   | The, team, weekly, meeting        |\n| \"\\_id\": 2   | The, check, in, with, sales, team |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"englishPossessiveStemmer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"englishPossessiveStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"englishPossessive\"\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"englishPossessiveStemmer\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"englishPossessiveStemmer\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"englishPossessive\"\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"index\": \"default\",\n    \"text\": {\n      \"query\": \"team\",\n      \"path\": \"title\"\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.34314215183258057  _id:  \"1\"\n  message: \"try to siGn-In\"\n  page_updated_by: Object\n  text: Object\n\nSCORE: 0.29123833775520325  _id:  \"2\"\n  message: \"do not forget to SIGN-IN. See ① for details.\"\n  page_updated_by: Object\n  text: Object",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"team\",\n        \"path\": \"title\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 1,\n    title: 'The team's weekly meeting'\n  },\n  {\n    _id: 2,\n    title: 'The check-in with sales team'\n  }\n]",
+      "tokenEstimate": 45
+    }
+  ]
+}

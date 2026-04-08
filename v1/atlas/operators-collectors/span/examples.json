@@ -1,0 +1,267 @@
+{
+  "path": "atlas/operators-collectors/span",
+  "product": "atlas",
+  "title": "span (MongoDB Search Operator)",
+  "summary": {
+    "total": 19,
+    "byLanguage": {
+      "javascript": 7,
+      "json": 11,
+      "shell": 1
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 52
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 23
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 65
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 184
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 44
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 60
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 104
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 138
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 51
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 64
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 132
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 14
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 57
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 115
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 47
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 55
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 167
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 45
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n   $search: {\n     \"index\": <index name>, // optional, defaults to \"default\"\n     \"span\": {\n       \"term\" | <positional-operator>\": {\n         <operator-specification>\n       }\n     }\n   }\n}",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "\"term\": {\n  \"path\": \"<path-to-field>\",\n  \"query\": \"<terms-to-search>\"\n}",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"span\": {\n      \"contains\": {\n        \"spanToReturn\": \"inner\"|\"outer\",\n        \"little\": { <positional-or-term-operator-specification> },\n        \"big\": { <positional-or-term-operator-specification> }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"contains\": {\n          \"spanToReturn\": \"outer\",\n          \"little\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"train\"\n            }\n          },\n          \"big\": {\n            \"near\": {\n              \"clauses\": [\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"great\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"path\": \"title\",\n                    \"query\": \"robbery\"\n                  }\n                }\n              ],\n              \"slop\": 5\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 184
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "[\n  { title: 'The Great Train Robbery' },\n  { title: 'The Great Train Robbery' },\n  { title: \"The Great St. Trinian's Train Robbery\" }\n]",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"span\": {\n      \"first\": {\n        \"endPositionLte\": <term-position>,\n        \"operator\": { <span-positional-or-term-operator-specification> },\n        \"score\": { <score-options> }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 60
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"dance\"\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 138
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"span\": {\n      \"near\": {\n        \"clauses\": [\n          { <span-positional-or-term-operator-specification> },\n          ...\n        ],\n        \"slop\": <distance-number>,\n        \"inOrder\": true|false\n      }\n    }\n  }\n}",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\" : {\n      \"span\": {\n        \"near\": {\n          \"clauses\": [\n            { \"term\": { \"path\": \"title\", \"query\": \"prince\" } },\n            { \"term\": { \"path\": \"title\", \"query\": \"pauper\" } }\n          ],\n          \"slop\": 4,\n          \"inOrder\": false\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 132
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[ { title: 'The Prince and the Pauper' } ]",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"span\": {\n      \"or\": {\n        \"clauses\": [\n          { <span-positional-or-term-operator-specification> },\n          ...\n        ],\n        \"score\": { <scoring-options> }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 57
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\" : {\n      \"span\": {\n        \"or\": {\n          \"clauses\": [\n            { \"term\": { \"path\": \"title\", \"query\": \"city\" } },\n            { \"term\": { \"path\": \"title\", \"query\": \"country\" } }\n          ],\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 115
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[\n  { title: 'Country' },\n  { title: 'City Lights' },\n  { title: 'King & Country' },\n  { title: 'Fat City' },\n  { title: 'Atlantic City' }\n]",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"span\": {\n      \"subtract\": {\n        \"include\": { <span-positional-or-term-operator-specification> },\n        \"exclude\": { <span-positional-or-term-operator-specification> }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\" : {\n      \"span\": {\n        \"subtract\": {\n          \"include\": {\n            \"near\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"father\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"son\" } }\n              ],\n              \"inOrder\": false,\n              \"slop\": 3\n            }\n          },\n          \"exclude\": { \"term\": { \"path\": \"title\", \"query\": \"like\" } }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 167
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[\n  { title: 'Father, Son & Holy Cow' },\n  { title: 'My Father and My Son' },\n  { title: 'Jimmy Rosenberg: The Father, the Son & the Talent' }\n]",
+      "tokenEstimate": 45
+    }
+  ]
+}

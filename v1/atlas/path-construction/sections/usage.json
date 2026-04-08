@@ -1,0 +1,37 @@
+{
+  "heading": "Usage",
+  "headingLevel": 2,
+  "body": "**To search only a single indexed field**, use a quoted string in the\n`path` parameter. The following example searches a field named\n`description`.\n\n```javascript\n\"path\": \"description\"\n```\n\n**To search multiple indexed fields**, use an array of quoted strings\nin the `path` parameter. Documents which match on any of the\nspecified fields are included in the result set. The following\nexample searches the `description` and `type` fields.\n\n```javascript\n\"path\": [ \"description\", \"type\" ]\n```\n\n> **Note:** The `multi` path option is available only to fields of\n> type [string](bson-data-types-string).\n\nIf your [index definition](index-config-example) contains a field\nwith multiple analyzers, you can specify which one to use. The `path`\nparameter can take an object with the following fields:\n\n| Field    | Description                                                                                                                                                                                                                                                                                                                                                                                                                      |\n| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| value    | The name of the field to search.                                                                                                                                                                                                                                                                                                                                                                                                 |\n| multi    | The name of the alternate analyzer specified in a multi object in an index definition. To learn more, see Multi Analyzer.                                                                                                                                                                                                                                                                                                        |\n| wildcard | The object containing the wildcard character \\* to match any character in the name of the field to search, including nested fields. A wildcard path:Must be defined as an object.Cannot contain the value or multi option.Cannot contain multiple consecutive wildcard characters such as \\*\\*.Wildcard path is only accepted by the following operators:phraseregextextwildcardWildcard path is also accepted for highlighting. |\n\nIn the following index definition, fields named `names` and `notes`\nuse the [standard analyzer](ref-standard-analyzer) analyzer.\nA field named `comments` uses `standard` as its default analyzer,\nand it also specifies a `multi` named `mySecondaryAnalyzer` which\nuses the [whitespace analyzer](ref-whitespace-analyzer) analyzer.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"names\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"notes\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"comments\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"mySecondaryAnalyzer\": {\n            \"analyzer\": \"lucene.whitespace\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nThe following `path` example searches the `comments` field using\nthe `multi` named `mySecondaryAnalyzer` in the index definition.\n\n```javascript\n\"path\": { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }\n```\n\n**To search a combination of indexed fields and fields with multiple\nanalyzers**, use an array. The following example searches the\n`names` and `notes` fields with the default analyzer, and the\n`comments` field using the `multi` named\n`mySecondaryAnalyzer` in the index definition.\n\n```javascript\n\"path\": [ \"names\", \"notes\", { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" } ]\n```\n\nThe following `path` example searches all the fields that contain the\nletter `n` followed by any characters, and the `comments` field\nusing the `multi` named `mySecondaryAnalyzer` in the index\ndefinition.\n\n```javascript\n\"path\": [{ \"wildcard\": \"n*\" }, { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "\"path\": \"description\"",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "\"path\": [ \"description\", \"type\" ]",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"names\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"notes\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"comments\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"mySecondaryAnalyzer\": {\n            \"analyzer\": \"lucene.whitespace\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "javascript",
+      "content": "\"path\": { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "content": "\"path\": [ \"names\", \"notes\", { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" } ]",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "javascript",
+      "content": "\"path\": [{ \"wildcard\": \"n*\" }, { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }]",
+      "tokenEstimate": 27
+    }
+  ]
+}

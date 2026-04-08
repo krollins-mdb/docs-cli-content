@@ -1,0 +1,19 @@
+{
+  "path": "atlas/manage-connections-azure-functions",
+  "product": "atlas",
+  "title": "Manage Connections with Azure Functions",
+  "sections": [
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "Use the following best practices to properly manage connections\nbetween [Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/) and Atlas:\n\n- Define the client to the MongoDB server outside the `Run` method of\n  your [Azure function handler](https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-csharp/).\n\n  Don't define a new client object each time that you invoke your\n  function. Doing so causes the driver to create a new database\n  connection with each function call. This can be expensive and\n  can result in your application exceeding database connection limits.\n  For best performance, follow these guidelines:\n\n  - Create the client object once.\n\n  - Store the object so your function can reuse the client\n    across function invocations.\n\n  The [Connection Example](azure-functions-example) reuses existing database\n  connections to speed up communication with the database and keep\n  connection counts to the database at a reasonable level with respect\n  to application traffic.\n\n- Restrict network access to your Atlas cluster from your Azure\n  Functions.\n\n  Connect to your Atlas cluster over private networking using a\n  Network Peering connection\n  between your Atlas cluster and your Azure Functions, or,\n  alternatively, a private endpoint,\n  so that you can allow only private IP addresses from your\n  IP access list.\n\n  > **Note:** This configuration requires an\n  > [Azure Functions Premium Plan](https://docs.microsoft.com/en-us/azure/azure-functions/functions-premium-plan) with a\n  > [Virtual Network (VNet) Integration](https://docs.microsoft.com/en-us/azure/azure-functions/functions-networking-options?tabs=azure-cli#virtual-network-integration) configured.\n\n  If you don't use private networking, consider connecting to your\n  Atlas cluster using a [NAT gateway](https://docs.microsoft.com/en-us/azure/nat-gateway/nat-overview). Review\n  [outbound IP address changes](https://docs.microsoft.com/en-us/azure/azure-functions/ip-addresses#outbound-ip-address-changes) and\n  [strategies for ensuring static outbound IP addresses](https://docs.microsoft.com/en-us/azure/azure-functions/ip-addresses#dedicated-ip-addresses).\n\n* Set [maxIdleTimeMS](manual/reference/connection-string)\n  to `60000` to automatically close your connections after 1 minute\n  of idle time. Tuning your `maxIdleTimeMS` can help reduce the\n  occurrence of timeout errors from your serverless functions.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connection Example",
+      "headingLevel": 2,
+      "body": "The [Azure Functions Example](https://github.com//mongodb-developer/csharp-atlas-azure-functions-example) in the\n`mongodb-developer` repository contains example code that shows how\nto work with the MongoDB C# driver and Azure Functions using Atlas\nclusters.\n\nTo learn more about using Azure Functions with Visual Studio Code, see\n[Quickstart: Create a C# function in Azure using Visual Studio Code](https://docs.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-csharp)\n\nTo learn more about using Azure Functions with Visual Studio, see\n[Quickstart: Create your first C# function in Azure using Visual Studio](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-your-first-function-visual-studio).",
+      "codeBlocks": []
+    }
+  ]
+}

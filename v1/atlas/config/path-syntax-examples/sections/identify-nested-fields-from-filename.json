@@ -1,0 +1,22 @@
+{
+  "heading": "Identify Nested Fields from Filename",
+  "headingLevel": 3,
+  "body": "Data Federation supports querying nested data when the nested data\nvalue is also the filename. You can use the dot operator (i.e. `.`)\nin your\n[path](datalakeconf-aws.databases.\\[n].collections.\\[n].dataSources.\\[n].path)\nto map the partitions attributes in your storage configuration to\nnested fields in your documents.\n\nConsider a federated database instance store `accountingArchive`. The federated database instance store\ncontains files with names that match values of nested fields in the\ndocuments. For example:\n\n```text\naccountingArchive\n|--invoices\n   |--January.json\n   |--February.json\n   ...\n```\n\nSuppose the `January.json` file contains a document with the\nfollowing fields:\n\n```text\n{\n  \"invoice\": {\n     \"invoiceNumber\" : \"MONGODB12345\",\n     \"year\" : 2019,\n     \"month\": \"January\", //value matches filename\n     \"date\": 02\n  },\n  \"vendor\": \"MONGODB\",\n  ...\n}\n```\n\nThe following [defaultFormat](adf-aws-databases-reference) object identifies\n`month` as a nested field inside a document. The\n[defaultFormat](adf-aws-databases-reference) object also identifies the value of\n`month` as the name of the file that contains the document.\n\n```text\n\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoice.month string}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Atlas Data Federation receives a query on a specific month such as\n`January`, it uses the specified path to identify which file\ncontains the data that matches the query.",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "accountingArchive\n|--invoices\n   |--January.json\n   |--February.json\n   ...",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "text",
+      "content": "{\n  \"invoice\": {\n     \"invoiceNumber\" : \"MONGODB12345\",\n     \"year\" : 2019,\n     \"month\": \"January\", //value matches filename\n     \"date\": 02\n  },\n  \"vendor\": \"MONGODB\",\n  ...\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "text",
+      "content": "\"databases\" : [\n  {\n    \"name\" : \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoice.month string}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 75
+    }
+  ]
+}

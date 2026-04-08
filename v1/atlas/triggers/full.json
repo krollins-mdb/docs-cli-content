@@ -1,0 +1,43 @@
+{
+  "path": "atlas/triggers",
+  "product": "atlas",
+  "title": "Atlas Triggers",
+  "sections": [
+    {
+      "heading": "Trigger Types",
+      "headingLevel": 2,
+      "body": "Atlas supports these types of triggers:\n\n- Database triggers\n  respond to document insert, changes, or deletion. You can configure\n  Database Triggers for each linked MongoDB collection.\n\n- Scheduled triggers\n  execute functions according to a pre-defined schedule.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas Function Constraints Apply",
+      "headingLevel": 3,
+      "body": "Triggers invoke Atlas Functions. This means they have the same\nconstraints as all Atlas Functions.\n\nLearn more about [Atlas Function constraints](atlas-function-constraints).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Event Processing Throughput",
+      "headingLevel": 3,
+      "body": "Triggers process events when capacity becomes available. A Trigger's\ncapacity is determined by its event ordering configuration:\n\n- Ordered triggers process events from the change stream one at a time\n  in sequence. The next event begins processing only after the previous\n  event finishes processing.\n\n- Unordered triggers can process multiple events concurrently, up to\n  10,000 at once by default. If your Trigger data source is an M10+\n  Atlas cluster, you can configure individual unordered triggers to\n  exceed the 10,000 concurrent event threshold. To learn more, see\n  [Maximum Throughput Triggers](atlas-triggers-maximum-throughput).\n\nTrigger capacity is not a direct measure of throughput or a guaranteed\nexecution rate. Instead, it is a threshold for the maximum number of\nevents that a Trigger can process at one time. In practice, the rate at\nwhich a Trigger can process events depends on the Trigger function's run\ntime logic and the number of events that it receives in a given\ntimeframe.\n\nTo increase the throughput of a Trigger, you can try to:\n\n- Optimize the Trigger function's run time behavior. For example, you\n  might reduce the number of network calls that you make.\n\n- Reduce the size of each event object with the Trigger's\n  [projection filter](atlas-trigger-project-expression). For the best\n  performance, limit the size of each change event to 2KB or less.\n\n- Use a match filter to reduce the number of events that the Trigger\n  processes. For example, you might want to do something only if a\n  specific field changed. Instead of matching every update event and\n  checking if the field changed in your Function code, you can use the\n  Trigger's match filter to fire only if the field is included in the\n  event's `updateDescription.updatedFields` object.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Number of Triggers Cannot Exceed Available Change Streams",
+      "headingLevel": 3,
+      "body": "Atlas limits the total number of Database Triggers. The size of your\nAtlas cluster drives this limit.\n\nEach Atlas cluster tier has a maximum number of supported change\nstreams. A Database Trigger requires its own change stream. Database Triggers\nmay not exceed the number of available change streams.\n\nLearn more about the number of supported change streams for Atlas tiers on the\n[Service Limitations page](atlas-service-limitations-change-streams).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Diagnose Duplicate Events",
+      "headingLevel": 2,
+      "body": "During normal Trigger operation, Triggers do not send duplicate events.\nHowever, when some failure or error conditions occur, Triggers may deliver\nduplicate events. You may see a duplicate Trigger event when:\n\n- A server responsible for processing and tracking events experiences a\n  failure. This failure prevents the server from recording its progress in a\n  durable or long-term storage system, making it \"forget\" it has processed\n  some of the latest events.\n\n- Using unordered processing where events 1 through 10 are sent simultaneously.\n  If event 9 fails and leads to Trigger suspension, events like event 10 might\n  get processed again when the system resumes from event 9. This can lead to\n  duplicates, as the system doesn't strictly follow the sequence of events and\n  may reprocess already-handled events.\n\nIf you notice duplicate Trigger events, check the [Trigger logs](atlas-logs)\nfor suspended Triggers or server failures.",
+      "codeBlocks": []
+    }
+  ]
+}

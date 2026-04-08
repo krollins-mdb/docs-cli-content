@@ -1,0 +1,77 @@
+{
+  "path": "atlas/sp-agg-externalFunction",
+  "product": "atlas",
+  "title": "$externalFunction",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "text": 1,
+      "bash": 1,
+      "json": 2
+    },
+    "bySection": [
+      {
+        "heading": "Step 3: Add Trust Relationships to an Existing Role in the Atlas UI",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 71
+          }
+        ]
+      },
+      {
+        "heading": "Connect your Atlas Stream Processing Workspace to your AWS Lambda Function",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 119
+          }
+        ]
+      },
+      {
+        "heading": "Minimal request",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 40
+          }
+        ]
+      },
+      {
+        "heading": "Customized request",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 106
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "text",
+      "section": "Step 3: Add Trust Relationships to an Existing Role in the Atlas UI",
+      "content": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"lambda:InvokeFunction\"\n            ],\n            \"Resource\": \"arn:aws:lambda:us-east-1:257394458927:function:<function-name>\"\n        }\n    ]\n}\n",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "bash",
+      "section": "Connect your Atlas Stream Processing Workspace to your AWS Lambda Function",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n   --header \"Content-Type: application/json\" \\\n   --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n   --include \\\n   --data '{\"name\": \"TestAWSLambdaConnection\",\"type\": \"AWSLambda\",\"aws\": {\"roleArn\": \"arn:aws:iam::<aws_account>:role/<role_name>\"}}' \\\n   --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<group_id>/streams/<tenant_name>/connections\"",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "json",
+      "section": "Minimal request",
+      "content": "{ $externalFunction: {\n  connectionName: \"myLambdaConnection\",\n  functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n  as: \"response\",\n}}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "json",
+      "section": "Customized request",
+      "content": "{ $externalFunction: {\n        connectionName: \"myLambdaConnection\",\n        functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n        execution: \"sync\"\n        as: \"response\",\n        onError: \"fail\",\n        payload: [{$replaceRoot: { newRoot: \"$fullDocument.payloadToSend\" } }, { $addFields: { sum: { $sum: \"$randomArray\" }}}, { $project: { success: 1, sum: 1 }}],\n}}",
+      "tokenEstimate": 106
+    }
+  ]
+}

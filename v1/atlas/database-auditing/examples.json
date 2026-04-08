@@ -1,0 +1,106 @@
+{
+  "path": "atlas/database-auditing",
+  "product": "atlas",
+  "title": "Step 5: Click .",
+  "summary": {
+    "total": 6,
+    "byLanguage": {
+      "json": 4,
+      "sh": 2
+    },
+    "bySection": [
+      {
+        "heading": "Audit all authentication events for known users",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 9
+          }
+        ]
+      },
+      {
+        "heading": "Audit all authentication events for known users and authentication failures for unknown users",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 29
+          }
+        ]
+      },
+      {
+        "heading": "Audit authentication events for the \"myClusterAdministrator\" user",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 46
+          }
+        ]
+      },
+      {
+        "heading": "Audit unauthorized attempts at executing the selected commands",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 37
+          }
+        ]
+      },
+      {
+        "heading": "Update Auditing Configuration",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 8
+          }
+        ]
+      },
+      {
+        "heading": "View Auditing Configuration",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 8
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Audit all authentication events for known users",
+      "content": "{\n  \"atype\": \"authenticate\"\n}",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "section": "Audit all authentication events for known users and authentication failures for unknown users",
+      "content": "{\n  \"$or\": [\n    {\n      \"users\": []\n    },\n    {\n      \"atype\": \"authenticate\"\n    }\n  ]\n}",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "json",
+      "section": "Audit authentication events for the \"myClusterAdministrator\" user",
+      "content": "{\n  \"atype\": \"authenticate\",\n  \"param\": {\n    \"user\": \"myClusterAdministrator\",\n    \"db\": \"admin\",\n    \"mechanism\": \"SCRAM-SHA-256\"\n  }\n}",
+      "tokenEstimate": 46
+    },
+    {
+      "language": "json",
+      "section": "Audit unauthorized attempts at executing the selected commands",
+      "content": "{\n  \"atype\": \"authCheck\",\n  \"param.command\": {\n    \"$in\": [\n      \"insert\",\n      \"update\",\n      \"delete\"\n    ]\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "sh",
+      "section": "Update Auditing Configuration",
+      "content": "\natlas auditing update [options]\n",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "sh",
+      "section": "View Auditing Configuration",
+      "content": "\natlas auditing describe [options]\n",
+      "tokenEstimate": 8
+    }
+  ]
+}

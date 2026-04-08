@@ -1,0 +1,65 @@
+{
+  "path": "atlas/sp-agg-setStreamMeta",
+  "product": "atlas",
+  "title": "$setStreamMeta Aggregation Stage (Stream Processing)",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "json": 4
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 20
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 39
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 222
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $setStreamMeta: {\n    \"<metadata-field>\": <expression>\n  }\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  orderId: 1,\n  productId: \"A\",\n  qty: 2\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n  {_id: \"A\", name: \"Laptop\", category: \"tech\"},\n  {_id: \"B\", name: \"Shirt\", category: \"clothing\"}\n]",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  $source: {\n    documents: [\n      {\n        orderId: 1,\n        productId: \"A\",\n        qty: 2\n      },\n      {\n        orderId: 2,\n        productId: \"B\",\n        qty: 1\n      },\n      {\n        orderId: 3,\n        productId: \"A\",\n        qty: 5\n      }\n    ]\n  }\n},\n{\n  $lookup: {\n    from: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: \"products\"\n    },\n    localField: \"productId\",\n    foreignField: \"_id\",\n    as: \"product\"\n  }\n},\n{\n  $unwind: \"$product\"\n},\n{\n  $setStreamMeta: {\n    \"stream.coll\": \"$product.category\"\n  }\n},\n{\n  $unset: [\n    \"product\"\n  ]\n},\n{\n  $merge: {\n    into: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: {\n        $meta: \"stream.coll\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 222
+    }
+  ]
+}

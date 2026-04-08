@@ -1,0 +1,55 @@
+{
+  "path": "atlas/tier-guide",
+  "product": "atlas",
+  "title": "Atlas Stream Processing Tier Selection Guide",
+  "sections": [
+    {
+      "heading": "Resource Allocation",
+      "headingLevel": 2,
+      "body": "Each tier provides a fixed allocation of processing power, memory,\nbandwidth, parallelism, and—in the case of processors with [Apache Kafka](https://kafka.apache.org/)\nsources—partitions.\n\n| Tier | vCPU | RAM (GB) | Bandwidth (Mbps) | Maximum Parallelism | Source Kafka Partition Limit |\n| ---- | ---- | -------- | ---------------- | ------------------- | ---------------------------- |\n| SP2  | 0.25 | 0.5      | 50               | 1                   | 32                           |\n| SP5  | 0.5  | 1        | 125              | 2                   | 64                           |\n| SP10 | 1    | 2        | 200              | 8                   | Unlimited                    |\n| SP30 | 2    | 8        | 750              | 16                  | Unlimited                    |\n| SP50 | 8    | 32       | 2500             | 64                  | Unlimited                    |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Workload Selection",
+      "headingLevel": 2,
+      "body": "The differing resource allocations of each tier make them suitable for\ndifferent stages and scales of project.\n\n| Tier | Use Case                                                                                                                                                                                                                                                   |\n| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| SP2  | Development, Trial DeploymentThe lowest-cost option, capable of supporting simple workloads with limited resource requirements.                                                                                                                            |\n| SP5  | Development, Basic Production DeploymentA low-cost option suitable for production tasks with low throughput, even those employing more complex computation. SP5 processors can support basic filtering, projections, and change stream processing.         |\n| SP10 | Mainstream Production DeploymentA baseline for production workloads. SP10 and above are intended for pipelines that require higher levels of parallelism, unlimited Kafka partitioning, or data enrichment operations such as lookups and joins.           |\n| SP30 | Complex Production DeploymentA high-performance option designed for memory-intensive stateul operations. SP30 supports pipelines that use long-duration windows, multiple lookups, and stages that require large RAM buffers for data enrichment at scale. |\n| SP50 | Enterprise-Scale ProductionThe highest-performing option, designed for high-throughput streams and extensive transformation logic. SP50 processors are suitable for operations requiring massive parallelism or compute-intensive workflows.               |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "Consider the following factors when selecting an appropriate tier:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Initialization Surge",
+      "headingLevel": 3,
+      "body": "A stream processor might require more resources during its initial run\nthan during regular operations. For example, if the processor performs\nan `$initialSync` against a large Atlas collection, that\nprocessor needs to support heavy I/O and computation for the duration\nof the synchronization.\n\nTo absorb such elevated demand, select a higher tier temporarily, and\nscale the processor down when the synchronization is complete and the\nprocessor transitions to consuming only new change stream events.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Pipeline Logic",
+      "headingLevel": 3,
+      "body": "Aggregation pipeline logic is the primary driver of CPU and RAM\nconsumption.\n\n- *Windows*\n\n  : Long-lasting windows consume more RAM to hold in-flight\n\n  documents.\n\n- *Custom Logic*\n\n  : Javascript \n\n  `$function`\n\n   stages or complex grouping\n\n  logic increase the computational requirements of each message.\n\n- *Compounding Complexity*\n\n  : Additional stateful or computationally complex stages\n\n  introduce more potential variation in resource demand. Maintaining\n  surplus capacity ensures consistent throughput even during\n  consuption spikes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Infrastructure",
+      "headingLevel": 3,
+      "body": "Each point of network or storage contact increases a stream\nprocessor's overhead.\n\n- *Source or Sink Density*\n\n  : Reading from or writing to parallelized\n\n  sources or sinks—such as [Apache Kafka](https://kafka.apache.org/) topics with their\n  partitions—increases I/O requirements.\n\n- *Data Enrichment*\n\n  : \n\n  `$lookup`\n\n   and \n\n  `$https`\n\n   stages; and operations\n\n  against Atlas collections to enrich the data in a stream\n  require network bandwidth and connection pooling.\n\n- *Coordination*\n\n  : In complex deployments orchestrating many sources\n\n  and sinks, stream processors can serve as hubs that route the flow\n  of data between each of these nodes. Such processors benefit from\n  the higher throughput of the SP30 an SP50 tiers.\n\nConversely, high-throughput stream processing workloads can increase\ndemand on connected resources.\n\n- *Impact on Atlas*\n\n  : High-volume, parallelized I/O from a stream\n\n  processor can exceed the read or write capacity of source or sink\n  Atlas clusters. This can not only increase latency for the\n  processor, but also bottleneck other workloads dependent on those\n  clusters.\n\n  To ensure system-wide performance, scale your Atlas clusters\n  proportionally to the processors with which they interact.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Performance and Latency",
+      "headingLevel": 3,
+      "body": "Performance goals may require a higher-tier processor even when the\nprocessing logic is simple.\n\n- *High Throughput*\n\n  : Higher-tier processors better support streams\n\n  that produce events at a high rate.\n\n- *Low Latency SLAs*: The high parallelism offered by higher-tier\n  processors helps ensure that events don't accumulate in a queue when\n  speed matters. In particular, SP50 processors offer four times the\n  threads as SP30 processors.\n\n- *Data Enrichment and Caching*\n\n  : When using \n\n  `$cachedLookup`\n\n   to enrich\n\n  streams with large sets of static or slowly-changing reference data,\n  favor higher-tier processors to provide the necessary RAM for\n  caching.\n\n- *Complex Sinks*\n\n  : Certain sinks involve more expensive\n\n  transformations, transactions, and file management overhead. For\n  processors that interact with these sinks, higher tiers help ensure\n  consistent performance and latency.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scaling",
+      "headingLevel": 2,
+      "body": "Atlas Stream Processing scaling is vertical. You can scale a processor up or down\nby stopping it, selecting a new tier, and restarting it. Atlas Stream Processing\n[checkpoints](atlas-sp-checkpoints) ensure no data is lost\nduring the transition. Monitor the performance of your processors\nregularly, and adjust their tiers on the basis of the factors\ndescribed in this guide.",
+      "codeBlocks": []
+    }
+  ]
+}

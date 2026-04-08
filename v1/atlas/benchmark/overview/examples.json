@@ -1,0 +1,76 @@
+{
+  "path": "atlas/benchmark/overview",
+  "product": "atlas",
+  "title": "MongoDB Vector Search Benchmark Overview",
+  "summary": {
+    "total": 5,
+    "byLanguage": {
+      "javascript": 3,
+      "python": 2
+    },
+    "bySection": [
+      {
+        "heading": "Vector Dimensionality",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 91
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 245
+          }
+        ]
+      },
+      {
+        "heading": "Filtering",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 119
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 72
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 102
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Vector Dimensionality",
+      "content": "db.createView(\n  \"all_dims_amazon_dataset\",\n  \"2048d_amazon_dataset\",\n  [\n    {\n      $addFields: {\n        \"1024_embedding\": { $slice: [\"$embedding\", 1024] },\n        \"512_embedding\": { $slice: [\"$embedding\", 512] },\n        \"256_embedding\": { $slice: [\"$embedding\", 256] }\n      }\n    }\n  ]\n)",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "javascript",
+      "section": "Vector Dimensionality",
+      "content": "db.all_dims_amazon_dataset.createSearchIndex(\n  \"all_dims_vector_index\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\", // original 2048d embedding produced by voyage-3-large\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 1024,\n        \"path\": \"1024_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\", // sliced embeddings aren't normalized, so must use cosine\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 512,\n        \"path\": \"512_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      },\n      {\n        \"numDimensions\": 256,\n        \"path\": \"256_embedding\",\n        \"quantization\": \"scalar\",\n        \"similarity\": \"cosine\",\n        \"type\": \"vector\"\n      }\n    ]\n  }\n)",
+      "tokenEstimate": 245
+    },
+    {
+      "language": "javascript",
+      "section": "Filtering",
+      "content": "db.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "python",
+      "section": "Filtering",
+      "content": "# unfiltered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "python",
+      "section": "Filtering",
+      "content": "# filtered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n      \"filter\": {\"$and\": [{'price': {'$lte': 1000}}, {'category': {'$eq': \"Pet Supplies\"}}]}\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
+      "tokenEstimate": 102
+    }
+  ]
+}

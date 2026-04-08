@@ -1,0 +1,12 @@
+{
+  "heading": "AWS (Amazon Web Services) IAM Authentication",
+  "headingLevel": 3,
+  "body": "```ruby\n\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance using AWS IAM authentication.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new([ENV.fetch(\"MONGODB_HOST\")],\n                           auth_mech: :aws,\n                           user: ENV.fetch(\"AWS_ACCESS_KEY_ID\"),\n                           password: ENV.fetch(\"AWS_SECRET_ACCESS_KEY\"),\n                           auth_mech_properties: {\n                             aws_session_token: ENV.fetch(\"AWS_SESSION_TOKEN\"),\n                           },\n                           database: ENV.fetch(\"MONGODB_DATABASE\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n\n```",
+  "codeBlocks": [
+    {
+      "language": "ruby",
+      "content": "\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance using AWS IAM authentication.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new([ENV.fetch(\"MONGODB_HOST\")],\n                           auth_mech: :aws,\n                           user: ENV.fetch(\"AWS_ACCESS_KEY_ID\"),\n                           password: ENV.fetch(\"AWS_SECRET_ACCESS_KEY\"),\n                           auth_mech_properties: {\n                             aws_session_token: ENV.fetch(\"AWS_SESSION_TOKEN\"),\n                           },\n                           database: ENV.fetch(\"MONGODB_DATABASE\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n",
+      "tokenEstimate": 154
+    }
+  ]
+}

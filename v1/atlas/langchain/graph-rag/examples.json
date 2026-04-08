@@ -1,0 +1,151 @@
+{
+  "path": "atlas/langchain/graph-rag",
+  "product": "atlas",
+  "title": "GraphRAG with MongoDB and LangChain",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "python": 7,
+      "text": 3
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Install and import dependencies.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 19
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Define environment variables.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 58
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Initialize the language model.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 42
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Load the sample data.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 76
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Instantiate the graph store.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 53
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Add documents to the knowledge graph.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 8
+          }
+        ]
+      },
+      {
+        "heading": "Answer Questions about Your Data",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 35
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "python",
+      "section": "Step 1: Install and import dependencies.",
+      "content": "pip install --quiet --upgrade pymongo langchain_community wikipedia langchain_openai langchain_mongodb",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Define environment variables.",
+      "content": "import os\n\nos.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nMONGODB_URI = \"<connection-string>\"\nDB_NAME = \"langchain_db\"    # MongoDB database to store the knowledge graph\nCOLLECTION = \"wikipedia\"    # MongoDB collection to store the knowledge graph",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Define environment variables.",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Define environment variables.",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Initialize the language model.",
+      "content": "from langchain_openai import OpenAI\nfrom langchain.chat_models import init_chat_model\n\nchat_model = init_chat_model(\"gpt-4o\", model_provider=\"openai\", temperature=0)",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Load the sample data.",
+      "content": "from langchain_community.document_loaders import WikipediaLoader\nfrom langchain_text_splitters import TokenTextSplitter\n\nwikipedia_pages = WikipediaLoader(query=\"Sherlock Holmes\", load_max_docs=3).load()\n\ntext_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=0)\nwikipedia_docs = text_splitter.split_documents(wikipedia_pages)",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Instantiate the graph store.",
+      "content": "from langchain_mongodb.graphrag.graph import MongoDBGraphStore\n\ngraph_store = MongoDBGraphStore.from_connection_string(\n    connection_string = MONGODB_URI,\n    database_name = DB_NAME,\n    collection_name = COLLECTION,\n    entity_extraction_model = chat_model\n)",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "python",
+      "section": "Step 4: Add documents to the knowledge graph.",
+      "content": "graph_store.add_documents(wikipedia_docs)",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "python",
+      "section": "Answer Questions about Your Data",
+      "content": "query = \"Who inspired Sherlock Holmes?\"\nanswer = graph_store.chat_response(query)\nprint(answer.content)",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions about Your Data",
+      "content": "Sherlock Holmes was inspired by Dr. Joseph Bell, a physician known for his keen observation and deductive reasoning, as acknowledged by Sir Arthur Conan Doyle, Holmes' creator.",
+      "tokenEstimate": 35
+    }
+  ]
+}

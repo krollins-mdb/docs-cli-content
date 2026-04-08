@@ -1,0 +1,91 @@
+{
+  "path": "atlas/amazon-aws",
+  "product": "atlas",
+  "title": "Amazon Web Services (AWS)",
+  "sections": [
+    {
+      "heading": "Cluster Configuration Options",
+      "headingLevel": 2,
+      "body": "Each Atlas cluster tier comes with a default set of resources. Atlas\nprovides the following resource configuration options:Custom Storage SizeThe size of the server root volume. Atlas clusters deployed onto\nAWS (Amazon Web Services) use general purpose SSD (Solid State Disk)s [^amazon-disk-docs].> **Note:**&#x20;\n>\n> RAM Availability\n>\n> The actual amount of RAM available to each cluster tier might be\n> slightly less than the stated amount, due to memory that the kernel\n> reserves.The following cluster tiers are available:| Instance Size | Storage Range   | Default Storage | Default RAM |\n| ------------- | --------------- | --------------- | ----------- |\n| M0            | .5 GB           | .5 GB           | Shared      |\n| Flex          | 5 GB            | 5 GB            | Flex        |\n| M10           | 10 GB to 128 GB | 10 GB           | 2 GB        |\n| M20           | 10 GB to 255 GB | 20 GB           | 4 GB        |\n| M30           | 10 GB to 512 GB | 40 GB           | 8 GB        |\n| M40           | 10 GB to 1 TB   | 80 GB           | 16 GB       |\n| M40 Low-CPU   | 10 GB to 1 TB   | 80 GB           | 16 GB       |\n| M40\\_NVME     | 380 GB          | 380 GB          | 15.25 GB    |\n| M50           | 10 GB to 4 TB   | 160 GB          | 32 GB       |\n| M50 Low-CPU   | 10 GB to 4 TB   | 160 GB          | 32 GB       |\n| M50\\_NVME     | 760 GB          | 760 GB          | 30.5 GB     |\n| M60           | 10 GB to 4 TB   | 320 GB          | 64 GB       |\n| M60 Low-CPU   | 10 GB to 4 TB   | 320 GB          | 64 GB       |\n| M60\\_NVME     | 1.6 TB          | 1.6 TB          | 61 GB       |\n| M80           | 10 GB to 4 TB   | 750 GB          | 131 GB      |\n| M80 Low-CPU   | 10 GB to 4 TB   | 750 GB          | 122 GB      |\n| M80\\_NVME     | 1.6 TB          | 1.6 TB          | 122 GB      |\n| M140          | 10 GB to 4 TB   | 1 TB            | 192 GB      |\n| M200          | 10 GB to 4 TB   | 1.5 TB          | 256 GB      |\n| M200 Low-CPU  | 10 GB to 4 TB   | 1.5 TB          | 256 GB      |\n| M200\\_NVME    | 3.1 TB          | 3.1 TB          | 244 GB      |\n| M300          | 10 GB to 4 TB   | 2 TB            | 384 GB      |\n| M300 Low-CPU  | 10 GB to 4 TB   | 2 TB            | 384 GB      |\n| M400 Low-CPU  | 10 GB to 4 TB   | 3 TB            | 488 GB      |\n| M400\\_NVME    | 4 TB            | 4 TB            | 512 GB      |\n| M700 Low-CPU  | 10 GB to 4 TB   | 4 TB            | 768 GB      | Can use this tier for a multi-cloud cluster. Unavailable in the **AP\\_SOUTHEAST\\_2** region. Unavailable in the **AP\\_SOUTHEAST\\_6** and **AP\\_EAST\\_2** regions.> **Note:**&#x20;\n>\n> Cluster Tier & API Naming Conventions\n>\n> For purposes of management with the [Atlas Administration API](atlas-api), cluster tier names that are prepended with `R`\n> instead of an `M` (`R40` for example) run a [class](storage-class-ui) version of the cluster. When\n> [creating](api/doc/atlas-admin-api-v2/operation/operation-creategroupcluster) or\n> [modifying](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) a\n> cluster with the API, be sure to specify your desired cluster class\n> by name with the\n> `replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize`\n> attribute.> **Important:**&#x20;\n>\n> Multi-Cloud Low-CPU clusters\n>\n> Low-CPU cluster tiers (M40 Low-CPU, M50 Low-CPU, M60 Low-CPU, and so\n> on) are available in [Configure High Availability and Workload Isolation](create-cluster-multi-region) as long as the cluster tier is\n> available for all the regions that the cluster uses.Workloads typically require less than `2TB`.Custom Storage SpeedThe input/output operations per second (IOPS) the system can perform.Each cluster has a default IOPS (Input/Output Operations per Second) rate. You can also choose to\nprovision your tier's IOPS (Input/Output Operations per Second) rate to meet your particular needs.The selected cluster tier and custom storage size dictate the maximum\nIOPS (Input/Output Operations per Second) for each storage speed.Encrypted Storage VolumesEncrypts the root volume for data at rest inside the volume and all data\nmoving between the volume and the cluster. Atlas uses\n[Amazon EBS encryption](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Amazon Availability Zones",
+      "headingLevel": 2,
+      "body": "Each AWS (Amazon Web Services) region includes a set number of\nindependent availability zones. Availability Zones consist of one or more\ndiscrete data centers, each with redundant power, networking and connectivity,\nhoused in separate facilities. For regions that have at least three\navailability zones (3AZ), Atlas deploys clusters across three availability\nzones. For regions that only have two availability zones (2AZ), Atlas\ndeploys clusters across two availability zones.\n\nThe Atlas Add New Cluster form marks regions\nthat support at least three availability zones as **Recommended**, as\nthey provide higher availability.\n\nThe number of availability zones in a region has no effect on the number of MongoDB\nnodes Atlas can deploy. MongoDB Atlas clusters are always made of\nreplica sets with a minimum of three MongoDB nodes.\n\nFor more information on the number of availability zones in a\ngiven region, see the Amazon documentation on [global infrastructure](https://aws.amazon.com/about-aws/global-infrastructure/).\n\nFor more information on AWS (Amazon Web Services) regions and\navailability zones, see the Amazon documentation on [using regions and\navailability zones](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Regions with at Least Three Availability Zones",
+      "headingLevel": 3,
+      "body": "Atlas clusters deployed in regions with at least three availability zones\nare split across three availability zones. For example, a three node replica\nset cluster would have one node deployed onto each availability zone.\n\n![A 3-node replica set deployed across a 3-availability zone AWS region.](/reference/images/amazon-aws-3az.svg)\n\n3AZ (Three Availability Zone) clusters have higher availability\ncompared to 2AZ (Two Availability Zone) clusters. However, not all\nregions support 3AZ (Three Availability Zone) clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Regions with Only Two Availability Zones",
+      "headingLevel": 3,
+      "body": "Atlas clusters deployed in regions with two availability zones are split\nacross the two availability zones. For example, a three node replica set\ncluster would have two nodes deployed to one availability zone and the\nremaining node deployed to the other availability zone.\n\n![A 3-node replica set deployed across a 2-availability zone AWS region.](/reference/images/amazon-aws-2az.svg)\n\n2AZ (Two Availability Zone) clusters have a higher chance of loss of\navailability in the event of the loss of an availability zone than 3AZ\n(Three Availability Zone) clusters. However, where latency or location are a\npriority, a region that supports 2AZ (Two Availability Zone) clusters\nmay be preferred.\n\n[^amazon-disk-docs]: For detailed documentation on Amazon storage options, see\n    [Amazon EBS Volume Types](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Dedicated Search Nodes",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Supported Regions",
+      "headingLevel": 3,
+      "body": "Atlas supports deploying separate [Search Nodes](configure-search-nodes) for `M10` and higher\nclusters in the following AWS (Amazon Web Services) regions:**Americas:**Americas| AWS Region   | Location                 | Atlas Region   |\n| ------------ | ------------------------ | -------------- |\n| us-east-1    | Northern Virginia, USA   | US\\_EAST\\_1    |\n| us-west-2    | Oregon, USA              | US\\_WEST\\_2    |\n| ca-central-1 | Montreal, QC, Canada     | CA\\_CENTRAL\\_1 |\n| us-east-2    | Ohio, USA                | US\\_EAST\\_2    |\n| us-west-1    | Northern California, USA | US\\_WEST\\_1    |\n| sa-east-1    | Sao Paulo, Brazil        | SA\\_EAST\\_1    |**Asia-pacific:**Asia Pacific| AWS Region     | Location               | Atlas Region     |\n| -------------- | ---------------------- | ---------------- |\n| ap-southeast-1 | Singapore              | AP\\_SOUTHEAST\\_1 |\n| ap-southeast-2 | Sydney, NSW, Australia | AP\\_SOUTHEAST\\_2 |\n| ap-south-1     | Mumbai, India          | AP\\_SOUTH\\_1     |\n| ap-northeast-1 | Tokyo, Japan           | AP\\_NORTHEAST\\_1 |\n| ap-northeast-2 | Seoul, South Korea     | AP\\_NORTHEAST\\_2 |\n| ap-northeast-3 | Osaka, Japan           | AP\\_NORTHEAST\\_3 |**Europe:**Europe| AWS Region   | Location            | Atlas Region   |\n| ------------ | ------------------- | -------------- |\n| eu-west-1    | Ireland             | EU\\_WEST\\_1    |\n| eu-central-1 | Frankfurt, Germany  | EU\\_CENTRAL\\_1 |\n| eu-north-1   | Stockholm, Sweden   | EU\\_NORTH\\_1   |\n| eu-west-2    | London, England, UK | EU\\_WEST\\_2    |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Available Search Tiers",
+      "headingLevel": 3,
+      "body": "Atlas provides various [Search Tier](select-tiers-for-search-nodes) for Search Nodes deployed on AWS (Amazon Web Services).The following table lists the search tiers available for each class of\nhardware (low-CPU, high-CPU, storage-optimized), with default RAM and\nstorage measured in gibibytes (GiB):**Americas:**Americas**Low-cpu:**Low-CPU| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S30           | 8 GiB       | 49 GiB          | 1    |\n| S40           | 16 GiB      | 98 GiB          | 2    |\n| S50           | 32 GiB      | 198 GiB         | 4    |\n| S60           | 64 GiB      | 396 GiB         | 8    |\n| S80           | 128 GiB     | 796 GiB         | 16   |\n| S90           | 256 GiB     | 1592 GiB        | 32   |\n| S100          | 384 GiB     | 2387 GiB        | 48   |\n| S110          | 512 GiB     | 3185 GiB        | 64   |**High-cpu:**High-CPU| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S20           | 4 GiB       | 98 GiB          | 2    |\n| S30           | 8 GiB       | 198 GiB         | 4    |\n| S40           | 16 GiB      | 396 GiB         | 8    |\n| S50           | 32 GiB      | 796 GiB         | 16   |\n| S60           | 64 GiB      | 1592 GiB        | 32   |\n| S70           | 96 GiB      | 2387 GiB        | 48   |\n| S80           | 128 GiB     | 3815 GiB        | 64   |**Storage-optimized:**Storage-Optimized| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S40           | 16 GiB      | 392 GiB         | 2    |\n| S50           | 32 GiB      | 785 GiB         | 4    |\n| S60           | 64 GiB      | 1571 GiB        | 8    |\n| S80           | 128 GiB     | 3143 GiB        | 16   |\n| S90           | 256 GiB     | 6286 GiB        | 32   |**Asia-pacific:**Asia Pacific**Low-cpu:**Low-CPU| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S30           | 8 GiB       | 53 GiB          | 1    |\n| S40           | 16 GiB      | 106 GiB         | 2    |\n| S50           | 32 GiB      | 213 GiB         | 4    |\n| S60           | 64 GiB      | 426 GiB         | 8    |\n| S80           | 128 GiB     | 855 GiB         | 16   |\n| S90           | 256 GiB     | 1710 GiB        | 32   |\n| S100          | 384 GiB     | 2564 GiB        | 48   |\n| S110          | 512 GiB     | 3420 GiB        | 64   |**High-cpu:**High-CPU| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S20           | 4 GiB       | 106 GiB         | 2    |\n| S30           | 8 GiB       | 213 GiB         | 4    |\n| S40           | 16 GiB      | 426 GiB         | 8    |\n| S50           | 32 GiB      | 855 GiB         | 16   |\n| S60           | 64 GiB      | 1710 GiB        | 32   |\n| S70           | 96 GiB      | 2564 GiB        | 48   |\n| S80           | 128 GiB     | 3420 GiB        | 64   |**Europe:**Europe**Low-cpu:**Low-CPU| Instance Size | Default RAM | Default Storage | vCPU |\n| ------------- | ----------- | --------------- | ---- |\n| S30           | 8 GiB       | 53 GiB          | 1    |\n| S40           | 16 GiB      | 106 GiB         | 2    |\n| S50           | 32 GiB      | 213 GiB         | 4    |\n| S60           | 64 GiB      | 426 GiB         | 8    |\n| S80           | 128 GiB     | 855 GiB         | 16   |\n| S90           | 256 GiB     | 1710 GiB        | 32   |\n| S100          | 384 GiB     | 2564 GiB        | 48   |\n| S110          | 512 GiB     | 3420 GiB        | 64   |**High-cpu:**High-CPU| Instance Size | Default RAM | Default Storage | Location |\n| ------------- | ----------- | --------------- | -------- |\n| S20           | 4 GiB       | 106 GiB         | 2        |\n| S30           | 8 GiB       | 213 GiB         | 4        |\n| S40           | 16 GiB      | 426 GiB         | 8        |\n| S50           | 32 GiB      | 855 GiB         | 16       |\n| S60           | 64 GiB      | 1710 GiB        | 32       |\n| S70           | 96 GiB      | 2564 GiB        | 48       |\n| S80           | 128 GiB     | 3420 GiB        | 64       |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Stream Processing Workspaces",
+      "headingLevel": 2,
+      "body": "> **Important:** To request an unlisted region, add your feedback\n> to the [MongoDB Feedback Portal](https://feedback.mongodb.com/?category=7529546585152608284). Your\n> input helps prioritize future expansions of Atlas Stream Processing coverage.Atlas supports deploying [Stream Processing Workspaces](atlas-sp-manage-spi) in the follow AWS (Amazon Web Services) regions:**Americas:**Americas| AWS Region   | Location               | Atlas Region   |\n| ------------ | ---------------------- | -------------- |\n| us-east-1    | Northern Virginia, USA | US\\_EAST\\_1    |\n| us-east-2    | Ohio, USA              | US\\_EAST\\_2    |\n| us-west-2    | Oregon, USA            | US\\_WEST\\_2    |\n| ca-central-1 | Montreal, QC, Canada   | CA\\_CENTRAL\\_1 |\n| sa-east-1    | Sao Paulo, Brazil      | SA\\_EAST\\_1    |**Asia-pacific:**Asia Pacific| AWS Region     | Location               | Atlas Region     |\n| -------------- | ---------------------- | ---------------- |\n| ap-southeast-1 | Singapore              | AP\\_SOUTHEAST\\_1 |\n| ap-southeast-2 | Sydney, NSW, Australia | AP\\_SOUTHEAST\\_2 |\n| ap-south-1     | Mumbai, India          | AP\\_SOUTH\\_1     |\n| ap-northeast-1 | Tokyo, Japan           | AP\\_NORTHEAST\\_1 |**Europe:**Europe| AWS Region   | Location            | Atlas Region   |\n| ------------ | ------------------- | -------------- |\n| eu-west-1    | Ireland             | EU\\_WEST\\_1    |\n| eu-central-1 | Frankfurt, Germany  | EU\\_CENTRAL\\_1 |\n| eu-west-2    | London, England, UK | EU\\_WEST\\_2    |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Integrations",
+      "headingLevel": 2,
+      "body": "Along with [Amazon Web Services (AWS)](amazon-aws), the following\nproduct integrations enable applications running on AWS (Amazon Web Services), such as\nAmazon EC2, AWS Lambda, and Amazon Elastic Container Service (ECS),\nto use Atlas instances easily and securely.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Networking Services",
+      "headingLevel": 3,
+      "body": "- AWS PrivateLink: [private endpoint connections](private-endpoint)\n\n- AWS Virtual Private Cloud (VPC): [VPC/VNet peering](vpc-peering)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Security and Identity Services",
+      "headingLevel": 3,
+      "body": "- AWS Identity Access Management (IAM) [Configure Database Users](mongodb-users)\n\n- AWS Key Management Service (KMS):\n\n  - [Encryption at Rest using Customer Key Management](security-kms-encryption)\n\n  - [Configure client-side field level encryption with KMS](manual/core/csfle)\n\n- AWS SSO: [Configure federated authentication to the MongoDB UI](https://aws.amazon.com/blogs/apn/how-to-integrate-aws-single-sign-on-with-mongodb-atlas/)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Other AWS Services",
+      "headingLevel": 3,
+      "body": "- AWS CloudFormation: [Deploy and manage Atlas from CloudFormation](https://www.mongodb.com/blog/post/deploy-manage-mongodb-atlas-aws-cloud-formation)\n\n- Amazon EventBridge: [Atlas Triggers integration with Amazon EventBridge](atlas-aws-eventbridge)\n\n- Amazon Kinesis: [Send data to Atlas via Kinesis Data Firehose](https://aws.amazon.com/blogs/big-data/integrating-the-mongodb-cloud-with-amazon-kinesis-data-firehose/)\n\n- AWS S3: [Configure Atlas Data Federation to query data from S3](adf-configuration-file-aws)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procurement",
+      "headingLevel": 3,
+      "body": "- AWS Marketplace: [Pay for Atlas usage via AWS](https://aws.amazon.com/marketplace/seller-profile?id=c9032c7b-70dd-459f-834f-c1e23cf3d092)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "More Information",
+      "headingLevel": 2,
+      "body": "For more information on how to use AWS (Amazon Web Services) with Atlas most effectively,\nreview the following best practices, guides, and case studies:\n\n- AWS App Runner: [Build Applications and APIs Faster with MongoDB Atlas and AWS App Runner](https://www.mongodb.com/blog/post/build-applications-and-apis-faster-with-mongodb-atlas-and-aws-app-runner)\n\n- AWS Lambda: Best Practices Connecting from AWS Lambda",
+      "codeBlocks": []
+    }
+  ]
+}

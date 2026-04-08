@@ -1,0 +1,51 @@
+{
+  "path": "atlas/case-insensitive-regex",
+  "product": "atlas",
+  "title": "Use MongoDB Search Instead of Regex Queries",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "json": 2,
+      "javascript": 1
+    },
+    "bySection": [
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 142
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 158
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 79
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": [\n        {\n          \"type\": \"string\",\n          \"analyzer\": \"autocomplete-search\",\n          \"searchAnalyzer\": \"lucene.standard\"\n        }\n      ]\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"autocomplete-search\",\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"edgeGram\",\n          \"minGram\": 4,\n          \"maxGram\": 10\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 142
+    },
+    {
+      "language": "javascript",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"contains\",\n        \"searchAnalyzer\": \"lucene.standard\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"contains\",\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"reverse\"\n        },\n        {\n          \"type\": \"edgeGram\",\n          \"minGram\": 4,\n          \"maxGram\": 15\n        },\n        {\n          \"type\": \"reverse\"\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": [\n        {\n          \"type\": \"autocomplete\",\n          \"minGrams\": 4,\n          \"maxGrams\": 10,\n          \"analyzer\": \"lucene.keyword\",\n          \"tokenization\": \"rightEdgeGram\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 79
+    }
+  ]
+}

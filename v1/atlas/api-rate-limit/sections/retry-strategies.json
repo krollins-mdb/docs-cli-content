@@ -1,0 +1,12 @@
+{
+  "heading": "Retry Strategies",
+  "headingLevel": 2,
+  "body": "When you reach the rate limit, the Atlas Administration API returns a [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429) (Too Many Requests) HTTP (HyperText Transport Protocol) status\ncode. We recommend:\n\n- Waiting for at least the time specified by the `Retry-After` header\n  before retrying.\n\n- If the retry fails, waiting for a significantly longer period.\n\n> **Example:** Before the first retry, wait ten seconds. Before the second retry, wait\n> for twenty seconds. Before the third retry, wait for forty seconds, and\n> so on.\n\nEven if you wait for the same amount of time as specified by the `Retry-After`\nheader, you might still get rate limited. In this case, we recommend that you\ncontinue backing off using an exponential delay (*jitter*). To prevent\nrequests from failing due to simultaneous retry operations, we also recommend\nadding a random delay (*jitter*) to the calculated wait time.\n\n> **Example:** Suppose multiple clients are using the same endpoint for the same Atlas\n> project. The clients get rate limited at the same time and wait for the same\n> amount of time as specified by the `Retry-After` header. If one of the\n> clients successfully submits requests and depletes the token bucket again\n> before the other clients have retried their requests, the other clients\n> will still get rate limited.\n\nYou can also use the following to calculate when the bucket might be at full\ncapacity again (assuming no other requests consume the tokens during that time):\n\n```shell\n(capacity / refill rate) * refill interval\n```\n\n[MongoDB Support](request-support) if you require higher rate limits.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "(capacity / refill rate) * refill interval",
+      "tokenEstimate": 9
+    }
+  ]
+}

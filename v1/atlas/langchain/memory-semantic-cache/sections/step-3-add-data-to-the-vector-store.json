@@ -1,0 +1,12 @@
+{
+  "heading": "Step 3: Add data to the vector store.",
+  "headingLevel": 3,
+  "body": "Paste and run the following code in your notebook\nto ingest a sample PDF that contains a recent [MongoDB earnings report](https://investors.mongodb.com/node/12881/pdf) into the vector store.\n\nThis code uses a [text splitter](https://python.langchain.com/docs/how_to/#text-splitters/)\nto chunk the PDF data into smaller parent documents. It specifies the *chunk size*\n(number of characters) and *chunk overlap* (number of overlapping characters\nbetween consecutive chunks) for each document.\n\n```python\nfrom langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\n\n# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Add data to the vector store\nvector_store.add_documents(docs)\n```\n\n> **Tip:** After running this code, if you're using Atlas, you can verify your vector embeddings\n> by navigating to the `langchain_db.rag_with_memory` namespace\n> [in the Atlas UI](atlas-ui-view-collections).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\n\n# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Add data to the vector store\nvector_store.add_documents(docs)",
+      "tokenEstimate": 102
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Troubleshoot LDAP Connection Issues",
+  "headingLevel": 2,
+  "body": "> **Note:** In Okta, the bind user must have `Read Only Administrator`\n> privileges to perform LDAP searches. [Make sure that your bind\n> user has these privileges](#assign-privileges-to-the-bind-user)\n> before running `ldapsearch`.\n\nUse `ldapsearch` to determine if the query template you\nconfigured Atlas to use returns user DNs the way you expect. The\nquery template may not be returning the correct user DNs if LDAP (Lightweight Directory Access Protocol)\nauthentication works but LDAP (Lightweight Directory Access Protocol) authorization doesn't.\n\nUse the following `ldapsearch` template:\n\n```sh\nldapsearch -H 'ldaps://<okta-instance-id>.ldap.okta.com' -D \"<bind-user-dn>\" -w \"<bind-user-pwd>\" -b 'ou=groups,dc=<okta-instance-id>,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=<bind-user-dn or group-dn>))\n```\n\nFor example, if your `bind-user-dn` is\n`uid=jane@example.com,ou=users,dc=mdb-example,dc=okta,dc=com`\nand your `<okta-instance-id>` is `mdb-example`, use the\nfollowing command:\n\n```sh\nldapsearch -H 'ldaps://mdb-example.ldap.okta.com' -D \"uid=jane@example.com,dc=mdb-example,dc=okta,dc=com\" -w \"REDACTED\" -b 'ou=groups,dc=mdb-example,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=uid=jane@example.com,ou=users,dc=mdb-example,dc=okta,dc=com))'\n```\n\n> **Note:** Other query templates may also work. Using the default template of\n> `{USER}?memberOf?base` may result in longer search times.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://<okta-instance-id>.ldap.okta.com' -D \"<bind-user-dn>\" -w \"<bind-user-pwd>\" -b 'ou=groups,dc=<okta-instance-id>,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=<bind-user-dn or group-dn>))",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "sh",
+      "content": "ldapsearch -H 'ldaps://mdb-example.ldap.okta.com' -D \"uid=jane@example.com,dc=mdb-example,dc=okta,dc=com\" -w \"REDACTED\" -b 'ou=groups,dc=mdb-example,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=uid=jane@example.com,ou=users,dc=mdb-example,dc=okta,dc=com))'",
+      "tokenEstimate": 103
+    }
+  ]
+}

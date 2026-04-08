@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `text.pl_PL` field in\nthe [sample collection](custom-analyzers-eg-coll) collection using a\ncustom analyzer named `stempelStemmer`. The custom analyzer\nspecifies the following:* Apply the [standard](standard-tokenizer-ref) tokenizer to\n  create tokens based on word break rules.\n\n* Apply the following filters on the tokens:\n\n  - [lowercase](lowercase-tf-ref) token filter to convert the\n    words to lowercase.\n\n  - [stempel](stempel-tf-ref) token filter to stem the Polish\n    words.**Atlas UI:**Atlas UI<Tab tabid=\"visual-editor\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Tokenizer if it's collapsed.\n\n  - Select whitespace from the dropdown.\n\n  - Expand Token Filters and click&#x20;\n    Add token filter.\n\n  - Select lowercase from the dropdown and click\n    Add token filter to add the token filter to your\n    custom analyzer.\n\n  - Click  Add token filter to add\n    another token filter.\n\n  - Select spanishPluralStemming from the dropdown.\n\n  - Click Add token filter to add the token filter to your\n    custom analyzer.\n\n  - Click Add to create the custom analyzer.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on\n    the message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select whitespace\n    from the Index Analyzer and Search Analyzer\n    dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following example:```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"stempelAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"stempelAnalyzer\",\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"stempel\"\n        }\n      ]\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"stempelStemmer\", \n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"text.pl_PL\": {\n        \"analyzer\": \"stempelStemmer\",\n        \"searchAnalyzer\": \"stempelStemmer\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"stempelStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"stempel\"\n        }\n      ]\n    }\n  ]\n})\n\n```The following query searches the `text.pl_PL` field in the\n[sample collection](custom-analyzers-eg-coll) collection for the Polish\nterm `punkt`.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Search:\n\n  **Input:**\n\n  ```json\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"punkt\",\n        \"path\": \"text.pl_PL\"\n      }\n    }\n  }\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 0.5376965999603271 _id: \"4\"\n    text: Object\n      pl_PL: \"Strona została zaktualizowana o punkty porządku obrad.\"\n  ```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"punkt\",\n        \"path\": \"text.pl_PL\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.pl_PL\": 1\n    }\n  }\n])\n```**Output:**```js\n[\n  {\n    _id: 4,\n    text: {\n      pl_PL: 'Strona została zaktualizowana o punkty porządku obrad.'\n    }\n  }\n]\n```MongoDB Search returns the document with `_id: 4` because the `text.pl_PL`\nfield in the document contains the plural term `punkty`. MongoDB Search matches\nthis document for the query term `punkt` because MongoDB Search analyzes\n`punkty` as `punkt` by stemming the plural (`y`) from the term.\nSpecifically, MongoDB Search creates the following tokens (searchable terms) for\nthe document in the results, which it then matches to the query term:| Document ID | Output Tokens                                             |\n| ----------- | --------------------------------------------------------- |\n| \\_id: 4     | strona, zostać, zaktualizować, o, punkt, porządek, obrada |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\",\n        \"analyzer\": \"stempelAnalyzer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"stempelAnalyzer\",\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"stempel\"\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 99
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"stempelStemmer\", \n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"text.pl_PL\": {\n        \"analyzer\": \"stempelStemmer\",\n        \"searchAnalyzer\": \"stempelStemmer\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"stempelStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"stempel\"\n        }\n      ]\n    }\n  ]\n})\n",
+      "tokenEstimate": 164
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"index\": \"default\",\n    \"text\": {\n      \"query\": \"punkt\",\n      \"path\": \"text.pl_PL\"\n    }\n  }\n}",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.5376965999603271 _id: \"4\"\n  text: Object\n    pl_PL: \"Strona została zaktualizowana o punkty porządku obrad.\"",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"punkt\",\n        \"path\": \"text.pl_PL\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.pl_PL\": 1\n    }\n  }\n])",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 4,\n    text: {\n      pl_PL: 'Strona została zaktualizowana o punkty porządku obrad.'\n    }\n  }\n]",
+      "tokenEstimate": 44
+    }
+  ]
+}

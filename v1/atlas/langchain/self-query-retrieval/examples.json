@@ -1,0 +1,267 @@
+{
+  "path": "atlas/langchain/self-query-retrieval",
+  "product": "atlas",
+  "title": "Perform Self-Querying Retrieval with MongoDB and LangChain",
+  "summary": {
+    "total": 21,
+    "byLanguage": {
+      "shell": 1,
+      "python": 12,
+      "text": 8
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Set up the environment.",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 27
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 40
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Instantiate the vector store.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 99
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Add data to the vector store.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 428
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Create the MongoDB Vector Search index with filters.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 88
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Describe the documents and metadata fields.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 127
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Initialize the self-querying retriever.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 87
+          }
+        ]
+      },
+      {
+        "heading": "Run Queries with the Self-Querying Retriever",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 232
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 35
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 232
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 38
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 85
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 64
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 150
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 308
+          }
+        ]
+      },
+      {
+        "heading": "Use the Retriever in Your RAG Pipeline",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 279
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 243
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Step 1: Set up the environment.",
+      "content": "pip install --quiet --upgrade langchain-mongodb langchain-voyageai langchain-openai langchain langchain-core lark",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Set up the environment.",
+      "content": "import os\n\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-key>\"\nos.environ[\"VOYAGE_API_KEY\"] = \"<voyage-key>\"\nMONGODB_URI = \"<connection-string>\"",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "text",
+      "section": "Step 1: Set up the environment.",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Step 1: Set up the environment.",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Instantiate the vector store.",
+      "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Use the voyage-3-large embedding model\nembedding_model = VoyageAIEmbeddings(model=\"voyage-3-large\")\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = embedding_model,\n   namespace = \"langchain_db.self_query\",\n   text_key = \"page_content\"\n)",
+      "tokenEstimate": 99
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Add data to the vector store.",
+      "content": "from langchain_core.documents import Document\n\ndocs = [\n    Document(\n        page_content=\"A bunch of scientists bring back dinosaurs and mayhem breaks loose\",\n        metadata={\"year\": 1993, \"rating\": 7.7, \"genre\": \"action\"},\n    ),\n    Document(\n        page_content=\"A fight club that is not a fight club, but is a fight club\",\n        metadata={\"year\": 1994, \"rating\": 8.7, \"genre\": \"action\"},\n    ),\n    Document(\n        page_content=\"Leo DiCaprio gets lost in a dream within a dream within a dream within a ...\",\n        metadata={\"year\": 2010, \"genre\": \"thriller\", \"rating\": 8.2},\n    ),\n    Document(\n        page_content=\"A bunch of normal-sized women are supremely wholesome and some men pine after them\",\n        metadata={\"year\": 2019, \"rating\": 8.3, \"genre\": \"drama\"},\n    ),\n    Document(\n        page_content=\"Three men walk into the Zone, three men walk out of the Zone\",\n        metadata={\"year\": 1979, \"rating\": 9.9, \"genre\": \"science fiction\"},\n    ),\n    Document(\n        page_content=\"A psychologist / detective gets lost in a series of dreams within dreams within dreams and Inception reused the idea\",\n        metadata={\"year\": 2006, \"genre\": \"thriller\", \"rating\": 9.0},\n    ),\n    Document(\n        page_content=\"Toys come alive and have a blast doing so\",\n        metadata={\"year\": 1995, \"genre\": \"animated\", \"rating\": 9.3},\n    ),\n    Document(\n        page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\",\n        metadata={\"year\": 1997, \"genre\": \"animated\", \"rating\": 9.1},\n    ),\n]\n\n# Add data to the vector store, which automaticaly embeds the documents\nvector_store.add_documents(docs)",
+      "tokenEstimate": 428
+    },
+    {
+      "language": "python",
+      "section": "Step 4: Create the MongoDB Vector Search index with filters.",
+      "content": "# Use LangChain helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024, # The dimensions of the vector embeddings to be indexed\n   filters = [ \"genre\", \"rating\", \"year\" ], # The metadata fields to be indexed for filtering\n   wait_until_complete = 60 # Number of seconds to wait for the index to build (can take around a minute)\n)\n",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Describe the documents and metadata fields.",
+      "content": "from langchain.chains.query_constructor.schema import AttributeInfo\n\n# Define the document content description \ndocument_content_description = \"Brief summary of a movie\"\n\n# Define the metadata fields to filter on\nmetadata_field_info = [\n    AttributeInfo(\n        name=\"genre\",\n        description=\"The genre of the movie\",\n        type=\"string\",\n    ),\n    AttributeInfo(\n        name=\"year\",\n        description=\"The year the movie was released\",\n        type=\"integer\",\n    ),\n    AttributeInfo(\n        name=\"rating\", \n        description=\"A 1-10 rating for the movie\", \n        type=\"float\"\n    ),\n]\n",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Initialize the self-querying retriever.",
+      "content": "from langchain_mongodb.retrievers import MongoDBAtlasSelfQueryRetriever\nfrom langchain_openai import ChatOpenAI\n\nllm = ChatOpenAI(model=\"gpt-4o\")\nretriever = MongoDBAtlasSelfQueryRetriever.from_llm(\n    llm=llm,\n    vectorstore=vector_store,\n    metadata_field_info=metadata_field_info,\n    document_contents=document_content_description\n)\n",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "python",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "# This example specifies a filter (rating > 9)\nretriever.invoke(\"What are some highly rated movies (above 9)?\")",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "text",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "[Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]",
+      "tokenEstimate": 232
+    },
+    {
+      "language": "python",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "# This example specifies a semantic search and a filter (rating > 9)\nretriever.invoke(\"I want to watch a movie about toys rated higher than 9\")",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "text",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "[Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\"),\n Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone')]",
+      "tokenEstimate": 232
+    },
+    {
+      "language": "python",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "# This example specifies a composite filter (rating >= 9 and genre = thriller)\nretriever.invoke(\"What's a highly rated (above or equal 9) thriller film?\")",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "text",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "[Document(id='686e84de13668e4048bf9ff4', metadata={'_id': '686e84de13668e4048bf9ff4', 'year': 2006, 'genre': 'thriller', 'rating': 9.0}, page_content='A psychologist / detective gets lost in a series of dreams within dreams within dreams and Inception reused the idea')]",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "python",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "# This example specifies a query and composite filter (year > 1990 and year < 2005 and genre = action)\nretriever.invoke(\n    \"What's a movie after 1990 but before 2005 that's all about dinosaurs, \" +\n    \"and preferably has the action genre\"\n)",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "text",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff0', metadata={'_id': '686e84de13668e4048bf9ff0', 'year': 1994, 'rating': 8.7, 'genre': 'action'}, page_content='A fight club that is not a fight club, but is a fight club')]",
+      "tokenEstimate": 150
+    },
+    {
+      "language": "python",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "# This example only specifies a semantic search query\nretriever.invoke(\"What are some movies about dinosaurs\")",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "text",
+      "section": "Run Queries with the Self-Querying Retriever",
+      "content": "[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff1', metadata={'_id': '686e84de13668e4048bf9ff1', 'year': 2010, 'genre': 'thriller', 'rating': 8.2}, page_content='Leo DiCaprio gets lost in a dream within a dream within a dream within a ...'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]",
+      "tokenEstimate": 308
+    },
+    {
+      "language": "python",
+      "section": "Use the Retriever in Your RAG Pipeline",
+      "content": "import pprint\nfrom langchain_core.output_parsers import StrOutputParser\nfrom langchain_core.prompts import PromptTemplate\nfrom langchain_core.runnables import  RunnablePassthrough\nfrom langchain_openai import ChatOpenAI\n\nllm = ChatOpenAI(model=\"gpt-4o\")\n# Configure self-query retriever with a document limit\nretriever = MongoDBAtlasSelfQueryRetriever.from_llm(\n    llm,\n    vector_store,\n    document_content_description,\n    metadata_field_info,\n    enable_limit=True\n)\n\n# Define a prompt template\ntemplate = \"\"\"\n   Use the following pieces of context to answer the question at the end.\n   {context}\n   Question: {question}\n\"\"\"\nprompt = PromptTemplate.from_template(template)\n\n# Construct a chain to answer questions on your data\nchain = (\n   { \"context\": retriever, \"question\": RunnablePassthrough()}\n   | prompt   \n   | llm\n   | StrOutputParser()\n)\n\n# Prompt the chain\nquestion = \"What are two movies about toys after 1990?\" # year > 1990 and document limit of 2\nanswer = chain.invoke(question)\n\nprint(\"Question: \" + question)\nprint(\"Answer: \" + answer)\n\n# Return source documents\ndocuments = retriever.invoke(question)\nprint(\"\\nSource documents:\")\npprint.pprint(documents)\n",
+      "tokenEstimate": 279
+    },
+    {
+      "language": "text",
+      "section": "Use the Retriever in Your RAG Pipeline",
+      "content": "Question: What are two movies about toys after 1990?\nAnswer: The two movies about toys after 1990 are:\n\n1. The 1995 animated movie (rated 9.3) where toys come alive and have fun.\n2. The 1997 animated movie (rated 9.1) where toys work together to save their friend from a kid who doesn’t know how to play with them.\n\nSource documents:\n[Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]",
+      "tokenEstimate": 243
+    }
+  ]
+}

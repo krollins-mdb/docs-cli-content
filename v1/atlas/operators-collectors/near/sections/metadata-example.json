@@ -1,0 +1,17 @@
+{
+  "heading": "Metadata Example",
+  "headingLevel": 4,
+  "body": "The following query returns the metadata results for the search\ncriteria. That is, it uses the [$searchMeta](pipe.$searchMeta) stage to get the\nnumber of movies in the following buckets (years) that match the search\ncriteria:\n\n- 2000, inclusive lower bound for this bucket\n\n- 2005, exclusive upper bound for the 2000 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2005 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2010 bucket\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"near\": {\n            \"path\": \"runtime\",\n            \"origin\": 279,\n            \"pivot\": 2\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [2000, 2005, 2010, 2015 ]\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('20910') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3058') },\n          { _id: 2005, count: Long('4012') },\n          { _id: 2010, count: Long('4669') }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"near\": {\n            \"path\": \"runtime\",\n            \"origin\": 279,\n            \"pivot\": 2\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [2000, 2005, 2010, 2015 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    count: { lowerBound: Long('20910') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3058') },\n          { _id: 2005, count: Long('4012') },\n          { _id: 2010, count: Long('4669') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 90
+    }
+  ]
+}

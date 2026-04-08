@@ -1,0 +1,124 @@
+{
+  "path": "atlas/security-gcp-kms",
+  "product": "atlas",
+  "title": "Step 2: Update the GCP Key details.",
+  "sections": [
+    {
+      "heading": "Enable Customer-Managed Keys with Google Cloud KMS",
+      "headingLevel": 2,
+      "body": "Customer key management in Atlas follows a process called envelope encryption.\nThis process creates multiple layers of encryption by encrypting one key with another\nkey. To enable customer key management, Atlas uses the following encryption keys:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 3,
+      "body": "Consider the following encryption hierarchy for a three-node replica set.\nAtlas uses the CMK (customer-managed key) from Google Cloud KMS to encrypt a unique\nMongoDB Master Key for each node in the cluster. Each node also contains\nthree databases, each of which is encrypted with a unique\nper-database encryption key. When the cluster starts up,\nAtlas decrypts the MongoDB Master Key by using the CMK (customer-managed key) from\nGoogle Cloud KMS and supplies this to the MongoDB Server.\n\n> **Note:** If you revoke Atlas's access to the CMK (customer-managed key), Atlas shuts down the\n> nodes in your cluster and you can't access your data until\n> you restore access to the CMK (customer-managed key).\n\n![Diagram of CMK workflow with Google Cloud KMS and Atlas](/images/gcp-kms-cmk-diagram.png)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To configure customer key management, you must have [Project Owner](<Project Owner>)\naccess to the project.\n\nUsers with [Organization Owner](<Organization Owner>) access must add themselves to the\nproject as a `Project Owner`.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 3,
+      "body": "To enable customer-managed keys with Google Cloud KMS (Key Management Service) for a MongoDB\nproject, you must have:\n\n- Use an M10 or larger cluster.\n\n* Your Google Cloud Service Account Key.\n\n* Your symmetric Encryption Key in Google Cloud KMS.\n\n* The Key Version Resource ID associated with your Google Cloud KMS\n  Encryption Key.\n\n* A Google Cloud service account with credentials specified in your Service\n  Account Key with sufficient permissions to:\n\n  - Get the Google Cloud KMS Encryption Key version.\n\n  - Encrypt data with the Google Cloud KMS Encryption Key version.\n\n  - Decrypt data with the Google Cloud KMS Encryption Key.\n\n  > **Note:** The key, not the key version, handles decryption.\n\n* If your Google Cloud KMS (Key Management Service) configuration requires it, create [Access\n  Levels from GCP](https://cloud.google.com/vpc-service-controls/docs/use-access-levels)\n  for [Atlas IP addresses](atlas-add-inbound-ips) and the public\n  IP addresses or DNS hostnames of your cluster nodes so that Atlas\n  can communicate with your KMS (Key Management Service). If the node IP addresses\n  [Do Atlas cluster's public IPs ever change?](faq-public-ip-changes), you must update your\n  configuration to avoid connectivity interruptions.\n\n> **See Also:** See the Google Cloud documentation to learn how to:\n>\n> - [Create a service account key](https://cloud.google.com/docs/authentication/getting-started).\n>\n> - [Obtain a key version resource ID](https://cloud.google.com/kms/docs/object-hierarchy#key_version).\n>\n> - [Grant roles to service accounts](https://cloud.google.com/iam/docs/granting-roles-to-service-accounts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Enable Customer-Managed Keys for a Project",
+      "headingLevel": 3,
+      "body": "You must enable customer key management for a project before you can\nenable it on a cluster in that project.Enter the key version resource ID for the Google Cloud KMS key\nthat you want to use to encrypt your data at rest.Your key version resource ID is the fully-qualified resource name\nfor a [CryptoKeyVersion](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys.cryptoKeyVersions#CryptoKeyVersion).> **Important:** You must enter a valid ID before you can configure your\n> authentication method.Atlas supports two authentication methods for GCP KMS:* **Service Account (Recommended)**: Use an Atlas-managed\n  service account specific to your project to authenticate to GCP.\n\n* **Static Credentials**: Provide a customer-managed service account key.<Tab tabid=\"service-account-auth\">\n  Service Account\n\n  To grant access in a secure manner, Atlas uses\n  a [service account](https://cloud.google.com/iam/docs/service-account-impersonation)\n  specific to your Atlas project to authenticate to GCP.\n  You can then assign policies to the service\n  account to control access to your project's resources.\n\n  > **Note:** If you previously configured encryption at rest with static credentials\n  > and are now migrating to service account-based authentication,\n  > note that this migration is strictly one-way. Atlas does not\n  > support reverting back to the static credential authentication method.\n\n  If you have an existing Atlas GCP service account with the\n  required permissions already configured, select it from the\n  Connect Service Account dropdown menu. Otherwise,\n  complete the following steps:\n\n  <Tab tabid=\"first-time-setup\">\n    First-time Setup\n\n    If you have not yet set up a service account for your Atlas project:\n\n    - Click Authorize a new service account.\n      The Encrypt Data with GCP KMS dialog box appears.\n\n    - Click the Set Up button to create your GCP resources.\n      Atlas provisions the GCP [folder](https://cloud.google.com/resource-manager/docs/creating-managing-folders)\n      and creates the service account. The folder is required in order to\n      create service accounts.\n\n    - Select the Atlas service account from the dropdown menu\n      or [create a new one](create-org-api-key).\n\n    - Run the [gcloud](https://cloud.google.com/sdk/docs/install) commands\n      that appear to grant the service account the following\n      required permissions:\n\n      - Enable Encrypt/Decrypt operations\n\n        ```sh\n        gcloud kms keys add-iam-policy-binding \\\n          <key-name> \\\n            --location <location> \\\n            --keyring <keyring-name> \\\n            --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n            --role=\"roles/cloudkms.cryptoKeyEncrypterDecrypter\"\n        ```\n\n      - Enable GetPublicKey operations\n\n        ```sh\n        gcloud kms keys add-iam-policy-binding \\\n          <key-name> \\\n            --location <location> \\\n            --keyring <keyring-name> \\\n            --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n            --role=\"roles/cloudkms.viewer\"\n        ```\n\n    - Click Validate & Finish to confirm.\n  </Tab>\n\n  Existing Service Account\n\n  If you have an existing service account for your Atlas project:\n\n  - Click Authorize a new service account.\n    The Encrypt Data with GCP KMS dialog box appears.\n\n  - Select your existing\n    Atlas service account from the dropdown menu\n    or [create a new one](create-org-api-key).\n\n  - Run the [gcloud](https://cloud.google.com/sdk/docs/install) commands\n    that appear to grant the service account the following\n    required permissions:\n\n    - Enable Encrypt/Decrypt operations\n\n      ```sh\n      gcloud kms keys add-iam-policy-binding \\\n        <key-name> \\\n          --location <location> \\\n          --keyring <keyring-name> \\\n          --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n          --role=\"roles/cloudkms.cryptoKeyEncrypterDecrypter\"\n      ```\n\n    - Enable GetPublicKey operations\n\n      ```sh\n      gcloud kms keys add-iam-policy-binding \\\n        <key-name> \\\n          --location <location> \\\n          --keyring <keyring-name> \\\n          --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n          --role=\"roles/cloudkms.viewer\"\n      ```\n\n  - Click Validate & Finish to confirm.\n</Tab>Static CredentialsYou can manually specify a service account key by toggling\nAuthorize with static credentials to On. Then, enter your key\nformatted as a JSON object with the encryption credentials for\nyour GCP service account in the text box.> **Important:** Static credentials will be deprecated in a future release.\n> Use service account authentication for new projects\n> when possible. Existing projects using static credentials can\n> continue to use them but cannot switch back once migrated to\n> service account authentication.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "gcloud kms keys add-iam-policy-binding \\\n  <key-name> \\\n    --location <location> \\\n    --keyring <keyring-name> \\\n    --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n    --role=\"roles/cloudkms.cryptoKeyEncrypterDecrypter\"",
+          "tokenEstimate": 62
+        },
+        {
+          "language": "sh",
+          "content": "gcloud kms keys add-iam-policy-binding \\\n  <key-name> \\\n    --location <location> \\\n    --keyring <keyring-name> \\\n    --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n    --role=\"roles/cloudkms.viewer\"",
+          "tokenEstimate": 57
+        },
+        {
+          "language": "sh",
+          "content": "gcloud kms keys add-iam-policy-binding \\\n  <key-name> \\\n    --location <location> \\\n    --keyring <keyring-name> \\\n    --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n    --role=\"roles/cloudkms.cryptoKeyEncrypterDecrypter\"",
+          "tokenEstimate": 62
+        },
+        {
+          "language": "sh",
+          "content": "gcloud kms keys add-iam-policy-binding \\\n  <key-name> \\\n    --location <location> \\\n    --keyring <keyring-name> \\\n    --member <ATLAS_OWNED_SERVICE_ACCOUNT_EMAIL> \\\n    --role=\"roles/cloudkms.viewer\"",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Enable Customer Key Management for an Atlas Cluster",
+      "headingLevel": 3,
+      "body": "After you [Enable Customer-Managed Keys for a Project](gcp-kms-configure-project), you must enable customer key\nmanagement for each Atlas cluster that contains data that you want\nto encrypt.\n\n> **Note:** You must have the [Project Owner](<Project Owner>) role to\n> enable customer key management for clusters in that project.\n\nFor new clusters, toggle the\n[Manage Your Own Encryption Keys](create-cluster-enable-encryption)\nsetting to **Yes** when you create the cluster.\n\nFor existing clusters:\n\nFor the cluster that contains data that you want to encrypt, click the\n, then select Edit Configuration.\n\n- Expand the Additional Settings panel.\n\n- Toggle the Manage your own encryption keys setting to\n  Yes.\n\n- Verify the status of the Require Private Networking\n  setting for your cluster.\n\n  If you configured Encryption at Rest Using CMK (customer-managed key) (Over Private\n  Networking) for Atlas at the project level, the status is\n  Active. If you haven't configured any private\n  endpoint connection for your project, the status is\n  Inactive.\n\n* Click Review Changes.\n\n* Review your changes, then click Apply Changes to update\n  your cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Alerts",
+      "headingLevel": 3,
+      "body": "Atlas automatically creates an [encryption key rotation alert](<GCP encryption key elapsed time since last rotation is above (n) days>)\nonce you configure customer key management for a project. You can reset this alert at any time by\n[rotating your GCP Key Version Resource ID](gcp-kms-rotate-key).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Rotate your GCP Key Version Resource ID",
+      "headingLevel": 2,
+      "body": "> **Note:** This feature is not available for any of the following deployments:\n>\n> - Free clusters\n>\n> - Flex clusters\n>\n> To learn more, see [Limits](limits).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB Master Key - MongoDB Responsibility",
+      "headingLevel": 3,
+      "body": "When you use your own cloud provider KMS (Key Management Service), Atlas automatically rotates\nMongoDB Master Keys at least every 90 days. Your key rotation will begin\nduring a [Configure Maintenance Window](configure-maintenance-window),\nif you have one configured. Deferring maintenance (either manually or automatically)\nmay cause the key to be rotated past the 90-day mark.\nKeys are rotated on a\nrolling basis and the process does not require the data to be rewritten.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Your Google Cloud CMK (customer-managed key) - Your Responsibility",
+      "headingLevel": 3,
+      "body": "Atlas does *not* automatically rotate the Key Version Resource ID\nused for Google Cloud key management.\n\nAs a best practice, Atlas creates an [alert](<AWS encryption key elapsed time since last rotation is above (n) days>) to remind you\nto rotate your GCP Key Version Resource ID every 90 days by default when\nyou [Google Cloud Platform Key Management Service](security-gcp-kms) for the\nAtlas project. You can configure the time period of this alert.\n\nYou can [rotate](https://cloud.google.com/kms/docs/rotate-key) your\nGoogle Cloud CMK (customer-managed key) yourself or configure your Google Cloud KMS (Key Management Service) instance to\n[automatically rotate](https://cloud.google.com/kms/docs/rotate-key#automatic)\nyour CMK (customer-managed key). If you configure automatic Google Cloud CMK (customer-managed key) rotation, the default\ntime period for rotation is approximately 365 days.\n\nIf you have already set up an automatic CMK (customer-managed key) rotation in Google Cloud and\ndon't want to receive the Atlas alert to rotate your CMK (customer-managed key) every 90\ndays, you can [Configure Alert Settings](configure-alerts) the default alert period\nto be greater than 365 days.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 3,
+      "body": "You must create a new Service Account Key in the Google Cloud account\nassociated with your Atlas project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 3,
+      "body": "The following procedure documents how to rotate your Atlas project Key Identifier by specifying a new Key Version Resource ID in Atlas.\n\n- Click Google Cloud KMS if the\n  Google Cloud KMS tab is not already active.\n\n- Expand Encryption Key Credentials if the\n  Encryption Key Credentials dialog box is not already\n  displayed.\n\n- Enter the GCP Key Version Resource ID in the\n  Key Identifier entry.\n\n  Include the fully-qualified resource name for a\n  [CryptoKeyVersion](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys.cryptoKeyVersions#CryptoKeyVersion).\n\n  > **Example:**&#x20;\n  >\n  > ```sh\n  > projects/my-project-0/locations/us-east4/keyRings/my-key-ring-0/cryptoKeys/my-key-0/cryptoKeyVersions/1\n  > ```\n\n  The encryption key **must** belong to the Google Cloud Service Account Key\n  configured for your Atlas project. Click the Service\n  Account Key section to view the currently configured Service\n  Account Key for the project.\n\n- Click Update Credentials.\n\nAtlas displays a banner in the Atlas console during the\nKey Identifier rotation process.\n\n> **Warning:** Do not delete or disable the original Key Version Resource ID until\n> your changes have deployed.\n\nIf the cluster uses [Cloud Backup](backup-cloud-provider), do **not** delete\nor disable the original Key Version Resource ID until you\nensure that no snapshots used that key for encryption.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "projects/my-project-0/locations/us-east4/keyRings/my-key-ring-0/cryptoKeys/my-key-0/cryptoKeyVersions/1",
+          "tokenEstimate": 29
+        }
+      ]
+    },
+    {
+      "heading": "Alerts",
+      "headingLevel": 3,
+      "body": "Atlas resets the\n[encryption key rotation alert](<GCP encryption key elapsed time since last rotation is above (n) days>)\ntimer at the completion of this procedure.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Enable Customer-Managed Keys for Search Nodes",
+      "headingLevel": 3,
+      "body": "By default, MongoDB and [search processes](about-mongot) run on the same nodes.\nWith this architecture, customer-managed encryption applies to your database data,\nbut it does not apply to search indexes.\n\nWhen you enable [Search Nodes](what-is-search-node), search processes run on separate nodes. This allows\nyou to enable [Enable Customer Key Management for Search Nodes](enable-search-node-encryption),\nso you can encrypt both database data and search indexes with the same\ncustomer-managed keys for comprehensive encryption coverage.\n\n> **Note:** Database nodes and Search Nodes use different encryption methods\n> with the same customer-managed keys. Database nodes use the\n> [WiredTiger Encrypted Storage Engine](manual/core/security-encryption-at-rest),\n> while Search Nodes use encryption at the disk level.\n\n> **Important:**&#x20;\n>\n> This feature is available across KMS (Key Management Service) providers, but the\n> Search Nodes must be on AWS (Amazon Web Services).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Related Topics",
+      "headingLevel": 2,
+      "body": "- To enable Encryption at Rest using your Key Management when deploying\n  an Atlas cluster, see [Manage Your Own Encryption Keys](create-cluster-enable-encryption).\n\n- To enable Encryption at Rest using your Key Management for an\n  existing Atlas cluster, see\n  [Encryption at Rest](scale-cluster-enable-encryption).\n\n- To learn more about Encryption at Rest using your Key Management in\n  Atlas, see [Encryption at Rest using Customer Key Management](security-kms-encryption).\n\n- To learn more about MongoDB Encryption at Rest, see\n  [Encryption at Rest](manual/core/security-encryption-at-rest) in\n  the MongoDB server documentation.\n\n- To learn more about Encryption at Rest with Cloud Backups, see\n  [Storage Engine and Cloud Backup Encryption](encrypted-cloud-provider-snapshot).",
+      "codeBlocks": []
+    }
+  ]
+}

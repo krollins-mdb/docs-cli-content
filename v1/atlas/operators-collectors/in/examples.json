@@ -1,0 +1,135 @@
+{
+  "path": "atlas/operators-collectors/in",
+  "product": "atlas",
+  "title": "in Operator",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "json": 10
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 61
+          }
+        ]
+      },
+      {
+        "heading": "Sample Index",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 53
+          }
+        ]
+      },
+      {
+        "heading": "Sample Queries",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 134
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 71
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 79
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 41
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 168
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 76
+          }
+        ]
+      },
+      {
+        "heading": "Facet Query",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 137
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 141
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"in\": {\n      \"path\": \"<field-to-search>\",\n      \"score\": <options>,\n      \"value\": <single-or-array-of-values-to-search>\n    }\n  }\n}",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "json",
+      "section": "Sample Index",
+      "content": "{\n  \"mappings\": {\n    \"index\": \"default\",\n    \"dynamic\": true,\n    \"fields\": {\n      \"name\": {\n        \"normalizer\": \"lowercase\",\n        \"type\": \"token\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])",
+      "tokenEstimate": 134
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "json",
+      "section": "Sample Queries",
+      "content": "[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "json",
+      "section": "Facet Query",
+      "content": "db.customers.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"in\": {\n            \"path\": \"active\",\n            \"value\": null\n          }\n        },\n        \"facets\": {\n          \"birthdateFacet\": {\n            \"type\": \"date\",\n            \"path\": \"birthdate\",\n            \"boundaries\": [ISODate(\"1970-01-01\"), ISODate(\"1980-01-01\"), ISODate(\"1990-01-01\"), ISODate(\"2000-01-01\")],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 137
+    },
+    {
+      "language": "json",
+      "section": "Facet Query",
+      "content": "[\n  {\n    count: { lowerBound: Long('1') },\n    facet: {\n      birthdateFacet: {\n        buckets: [\n          {\n            _id: ISODate('1970-01-01T00:00:00.000Z'),\n            count: Long('1')\n          },\n          {\n            _id: ISODate('1980-01-01T00:00:00.000Z'),\n            count: Long('0')\n          },\n          {\n            _id: ISODate('1990-01-01T00:00:00.000Z'),\n            count: Long('0')\n          }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 141
+    }
+  ]
+}

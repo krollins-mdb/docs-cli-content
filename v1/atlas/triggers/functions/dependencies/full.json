@@ -1,0 +1,103 @@
+{
+  "path": "atlas/triggers/functions/dependencies",
+  "product": "atlas",
+  "title": "External Dependencies",
+  "sections": [
+    {
+      "heading": "Add an External Package",
+      "headingLevel": 2,
+      "body": "To import and use an external dependency, you first need to add the\ndependency to your application. You can either [add packages by name](atlas-dependencies-add-by-name) or [uploaded dependency directory](atlas-dependencies-upload-zip).\n\n> **Important:**&#x20;\n>\n> Override Existing Dependencies\n>\n> You can only use one method at a time to specify the external\n> packages your app can use. The most recent method that you used to\n> specify dependencies is the source of truth and overrides previous\n> specifications.\n>\n> For example, a package added by name through the UI overrides any\n> copies of the same package that you've added previously, including\n> those in an [uploaded dependency directory](atlas-dependencies-upload-zip).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add Packages by Name and Version",
+      "headingLevel": 3,
+      "body": "You can add packages from the [npm registry](https://www.npmjs.com/) to your app by\nname. You can either add a specific version or use the latest version.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Navigate to Dependencies in the Atlas UI",
+      "headingLevel": 4,
+      "body": "- Select the Trigger that you want to add the dependency to.\n\n- On the **Edit Trigger** page, go to the\n  **Function** section and click **Add Dependency**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Add Dependency Information",
+      "headingLevel": 4,
+      "body": "- In the **Add Dependency** modal window, include the following\n  information:\n\n  | Field                 | Description                                                                                                        |\n  | --------------------- | ------------------------------------------------------------------------------------------------------------------ |\n  | Define a Package Name | The name of the npm package.                                                                                       |\n  | Package Version       | Optional. Specific version of the dependency to use. By default, Atlas functions use the latest version available. |\n\n- Click **Add** to add the package.\n\nYou can track the status of adding the dependency in the progress tracker\nat the bottom of the window. The progress tracker provides a message letting\nyou know if the package succeeded or failed. Failure messages contain additional\ninformation about why the package could not be added.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Check Operation Success",
+      "headingLevel": 4,
+      "body": "When you successfully add the dependency, you'll see it on the\nlist of dependencies in the **Dependencies** tab on the main\n**Triggers** page.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Upload a Dependency Directory",
+      "headingLevel": 3,
+      "body": "You can upload a zipped `node_modules` directory of packages to your\napp. Zipped dependency directories may not exceed 15MB.\n\n> **Important:**&#x20;\n>\n> Existing Dependencies Overwritten\n>\n> When you import an archive, any existing dependencies will be removed.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Locally Install External Dependencies",
+      "headingLevel": 4,
+      "body": "To upload external dependencies, you first need a local\n`node_modules` folder containing at least one Node.js package. You\ncan use the following code snippet to install a dependency locally\nyou would like to upload:\n\n```shell\nnpm install <package name>\n```\n\nIf the `node_modules` folder does not already exist, this command\nautomatically creates it.\n\n> **Note:**&#x20;\n>\n> Alternative Methods of Installation\n>\n> You can also configure a `package.json` and run the\n> `npm install` command to install all packages (and their\n> dependencies) listed in your `package.json`.\n>\n> To learn more about npm and `node_modules`, consult the\n> [npm documentation](https://docs.npmjs.com/cli/install).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "npm install <package name>",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Create a Dependency Archive",
+      "headingLevel": 4,
+      "body": "Now that you've downloaded all of your npm modules, you need to\npackage them up in an archive so you can upload them to Atlas. Atlas\nsupports `.tar`, `.tar.gz`, `.tgz`, and `.zip` archive formats.\n\nCreate an archive containing the `node_modules` folder:\n\n```shell\ntar -czf node_modules.tar.gz node_modules/\n```\n\nAfter you create an archive containing your dependencies, you can\nupload your dependency archive using the Atlas UI.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "tar -czf node_modules.tar.gz node_modules/",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Upload the Dependency Archive",
+      "headingLevel": 4,
+      "body": "- Select the **Dependencies** tab.\n\n- Click **Upload Folder**.\n\n- In the modal, click **Upload Folder**, then select the\n  `node_modules.tar.gz` archive you\n  just created.\n\n- Click **Add**. Atlas uploads the\n  archive file, which may take several minutes depending on the\n  speed of your internet connection and the size of your dependency\n  archive.\n\n- Atlas displays a banner\n  indicating the success or failure of the operation.\n  If successful, the **Dependencies** tab displays a list of the\n  dependencies that you included in your dependency archive.\n\n  - If drafts are enabled, you must also click\n    **Review & Deploy** to apply these changes.\n\n  - If drafts are disabled, the change will take effect within 5 to 60\n    seconds, depending on the size of your dependency archive.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Import a Package in a Function",
+      "headingLevel": 2,
+      "body": "You can import built-in modules and external packages that you've added\nto your app and then use them in your functions. To import a package,\ncall `require()` with the package name from within the function body.\n\n> **Important:**&#x20;\n>\n> Where Do I Import Modules?\n>\n> Node.js projects commonly place `require()` calls in the global\n> scope of each file, but Atlas does not support this\n> pattern. You *must* place `require()` calls within a function scope.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Import a Full Module",
+      "headingLevel": 3,
+      "body": "```javascript\nexports = () => {\n   const R = require(\"ramda\");\n   return R.map(x => x*2, [1,2,3]);\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = () => {\n   const R = require(\"ramda\");\n   return R.map(x => x*2, [1,2,3]);\n}",
+          "tokenEstimate": 32
+        }
+      ]
+    },
+    {
+      "heading": "Import a Module Subfolder",
+      "headingLevel": 3,
+      "body": "```javascript\nexports = function(arg){\n   const cloneDeep = require(\"lodash/cloneDeep\");\n\n   var original = { name: \"Deep\" };\n   var copy = cloneDeep(original);\n   copy.name = \"John\";\n\n   console.log(`original: ${original.name}`);\n   console.log(`copy: ${copy.name}`);\n   return (original != copy);\n};\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function(arg){\n   const cloneDeep = require(\"lodash/cloneDeep\");\n\n   var original = { name: \"Deep\" };\n   var copy = cloneDeep(original);\n   copy.name = \"John\";\n\n   console.log(`original: ${original.name}`);\n   console.log(`copy: ${copy.name}`);\n   return (original != copy);\n};",
+          "tokenEstimate": 71
+        }
+      ]
+    }
+  ]
+}

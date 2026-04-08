@@ -1,0 +1,121 @@
+{
+  "path": "atlas/set-up-unified-aws-access",
+  "product": "atlas",
+  "title": "In Atlas, go to the Project Integrations page.",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Some Atlas features, including [federated database instances](atlas-data-federation) and [Amazon Web Services Key Management Service](security-aws-kms), authenticate with AWS (Amazon Web Services) [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html).\nWhen Atlas accesses AWS (Amazon Web Services) services,\n[assumes an IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_manage-assume.html).\n\nYou can set up an assumed IAM role for your Atlas account to use\nwith the Atlas Administration API or Atlas UI if you have the\n[Project Owner](<Project Owner>) role. Atlas supports unified access only\nfor AWS (Amazon Web Services).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To set up unified AWS (Amazon Web Services) access, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to\nthe project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "- An Atlas account.\n\n- The [AWS Command Line Interface (CLI)](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install/).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "Use the [API](atlas/reference/api-resources-spec/v2)\nendpoint to\ncreate a new AWS (Amazon Web Services) IAM role. Atlas will use this role for\nauthentication with your AWS (Amazon Web Services) account.\n\nKeep the returned field values `atlasAWSAccountArn` and\n`atlasAssumedRoleExternalId` handy for use in the next step.\n\n- Log in to your AWS (Amazon Web Services) Management Console.\n\n- Navigate to the Identity and Access Management (IAM) service.\n\n- Select Roles from the left-side navigation.\n\n- Click on the existing IAM role you wish to use for Atlas access\n  from the list of roles.\n\n- Select the Trust Relationships tab.\n\n- Click the Edit trust relationship button.\n\n- Edit the Policy Document. Add a new `Statement` object\n  with the following content.\n\n  > **Note:** Replace the highlighted lines with values returned in the previous step.\n\n  ```json\n  {\n     \"Version\":\"2012-10-17\",\n     \"Statement\":[\n        {\n           \"Effect\":\"Allow\",\n           \"Principal\":{\n              \"AWS\":\"<atlasAWSAccountArn>\"\n           },\n           \"Action\":\"sts:AssumeRole\",\n           \"Condition\":{\n              \"StringEquals\":{\n                 \"sts:ExternalId\":\"<atlasAssumedRoleExternalId>\"\n              }\n           }\n        }\n     ]\n  }\n\n  ```\n\n- Click the Update Trust Policy button.\n\nUse the [API](atlas/reference/api-resources-spec/v2)\nendpoint to authorize and configure the new IAM Assumed Role ARN (Amazon Resource Name).\nIf the API call is successful, you can use the `roleId` value when\nconfiguring Atlas services that use AWS (Amazon Web Services).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n   \"Version\":\"2012-10-17\",\n   \"Statement\":[\n      {\n         \"Effect\":\"Allow\",\n         \"Principal\":{\n            \"AWS\":\"<atlasAWSAccountArn>\"\n         },\n         \"Action\":\"sts:AssumeRole\",\n         \"Condition\":{\n            \"StringEquals\":{\n               \"sts:ExternalId\":\"<atlasAssumedRoleExternalId>\"\n            }\n         }\n      }\n   ]\n}\n",
+          "tokenEstimate": 86
+        }
+      ]
+    },
+    {
+      "heading": "Manage AWS IAM Roles",
+      "headingLevel": 2,
+      "body": "You can manage AWS (Amazon Web Services) IAM roles using the [API](api/doc/atlas-admin-api-v2/group/endpoint-cloud-provider-access).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deauthorize an Assumed IAM Role",
+      "headingLevel": 2,
+      "body": "Use the `DELETE` API endpoint described in the\n[API documentation](api/doc/atlas-admin-api-v2/operation/operation-deauthorizecloudprovideraccessrole).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Some Atlas features, including [federated database instances](atlas-data-federation) and [Amazon Web Services Key Management Service](security-aws-kms), authenticate with AWS (Amazon Web Services) [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html).\nWhen Atlas accesses AWS (Amazon Web Services) services,\n[assumes an IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_manage-assume.html).\n\nYou can set up an assumed IAM role for your Atlas account to use\nwith the Atlas Administration API or Atlas UI if you have the\n[Project Owner](<Project Owner>) role. Atlas supports unified access only\nfor AWS (Amazon Web Services).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To set up unified AWS (Amazon Web Services) access, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to\nthe project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "- An Atlas account.\n\n- The [AWS Command Line Interface (CLI)](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Set up AWS IAM Access.",
+      "headingLevel": 2,
+      "body": "- Click the Configure button in the\n  AWS IAM Role Access panel.\n\n  > **Note:** If you already have one or more roles configured, the\n  > button reads Edit.\n\n- Click the Authorize an AWS IAM Role button.\n\n- Read through the Overview instructions, then click\n  Next.\n\n- If you'd like to create a new AWS IAM role for use with\n  Atlas, use the\n  [Create New Role with the AWS CLI](create-new-role-aws-cli) procedure. If you have an\n  existing AWS IAM role you want to authorize for Atlas, use\n  the [Add Trust Relationships to an Existing Role](authorize-existing-aws-role) procedure.\n\n* Click Create New Role with the AWS CLI to expand\n  the next section.\n\n* Copy the JSON text and save it to a file named\n  `role-trust-policy.json`.\n\n* Enter a name for your new AWS IAM role in the text box.\n\n* If you don't already have the AWS Command Line Interface (CLI)\n  installed, see the [documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).\n  If you do have the AWS CLI installed, proceed to the next step.\n\n* Copy the CLI command and enter it at the command prompt.\n\n* If successful, the CLI command returns a JSON document with\n  information about the newly created AWS IAM role. Locate the\n  field named Arn and copy it into the text box\n  labelled Enter the Role ARN in the Atlas modal\n  window.\n\n* Click Validate and Finish.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add Trust Relationships to an Existing Role",
+      "headingLevel": 3,
+      "body": "- Click **Add Trust Relationships to an Existing Role**\n  to expand the next section.\n\n- Copy the JSON trust relationship text.\n\n- In your AWS web console, navigate to the **Roles**\n  section of the IAM dashboard.\n\n- Click on the role you want to authorize.\n\n- Select the **Trust relationships** tab.\n\n- Click the **Edit trust relationship** button.\n\n- Replace the existing text with the JSON text you copied in\n  step 2.\n\n- Click **Update Trust Policy**.\n\n- Copy the Role ARN and paste it in the Atlas modal window,\n  in the text box labelled **Enter the Role ARN**.\n\n- Click **Validate and Finish**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Manage AWS IAM Roles",
+      "headingLevel": 2,
+      "body": "To navigate to the Atlas AWS IAM Role Access screen:\n\nClick the Configure button in the AWS IAM Role Access panel.\n\n> **Note:** If you already have one or more roles configured, the button\n> reads Edit.\n\nYou can perform the following actions from the Atlas\nAWS IAM Role Access screen:\n\n- **View the list of authorized AWS IAM roles.**\n\n  The list of roles displays the role's ARN (Amazon Resource Name), its time of\n  creation, and any Atlas services configured to use the role.\n\n- **Authorize an AWS IAM role.**\n\n  Click the Authorize an AWS IAM Role button.\n\n  > **Note:** If you have an authorization in progress, the associated\n  > role has a Resume button next to it.\n\n  For detailed instructions, see [Set Up Unified AWS Access](set-up-unified-aws-access).\n\n- **Deauthorize an AWS IAM role.**\n\n  Click the Delete button next to the role.\n\n  > **Note:** Be sure to remove any associated Atlas services from the\n  > IAM role before you deauthorize it.\n\n- **View the details of an AWS IAM role.**\n\n  Click the ellipsis (...) icon next to the role and\n  select View Role Details.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deauthorize an Assumed IAM Role",
+      "headingLevel": 2,
+      "body": "- If it's not already displayed, select the organization that\n  contains your desired project from the Organizations menu in the\n  navigation bar.\n\n- If it's not already displayed, select your desired project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Project Settings.\n\nThe [Project Settings](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsettings%2FgroupSettings) page\ndisplays.\n\nClick the Integrations tab.\n\nThe [Project Integrations](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fintegrations) page\ndisplays.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deauthorize the assumed IAM Role.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deauthorize the assumed IAM Role.",
+      "headingLevel": 3,
+      "body": "- Click the **Edit** button in the\n  **AWS IAM Role Access** panel.\n\n- Click the **Delete** button next to the IAM role\n  you want to deauthorize.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Resume an Authorization Procedure",
+      "headingLevel": 2,
+      "body": "If you cancel a procedure to authorize an AWS IAM role for use with\nAtlas, you can resume it where you left off.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Resume authorization.",
+      "headingLevel": 3,
+      "body": "- Click the **Configure** button in the\n  **AWS IAM Role Access** panel.\n\n  > **Note:** If you already have one or more roles configured, the\n  > button reads **Edit**.\n\n- Any roles with an ongoing authorization procedure are listed\n  with an `in progress` status. Click the **Resume**\n  button to resume the authorization process.\n\n  To cancel an in-progress role authorization completely, click\n  the **Delete** icon next to the in-progress role.",
+      "codeBlocks": []
+    }
+  ]
+}

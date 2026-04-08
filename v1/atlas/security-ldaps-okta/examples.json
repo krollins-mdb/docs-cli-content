@@ -1,0 +1,145 @@
+{
+  "path": "atlas/security-ldaps-okta",
+  "product": "atlas",
+  "title": "Step 2: After connecting to your cluster, run commands to verify the user has the read or write privileges you assigned them.",
+  "summary": {
+    "total": 11,
+    "byLanguage": {
+      "sh": 11
+    },
+    "bySection": [
+      {
+        "heading": "Configure OneLogin for LDAP Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 22
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 23
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 22
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authorization",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 23
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 37
+          }
+        ]
+      },
+      {
+        "heading": "Troubleshoot LDAP Connection Issues",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 80
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 103
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "https://<okta-instance-id>.admin.okta.com",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "uid=<bind-user-email>,dc=<okta-instance-id>,dc=okta,dc=com",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "uid=bind@example.com,ou=users,dc=mdb-example,dc=okta,dc=com",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"uid={0},ou=users,dc=<okta_instance_id>,dc=okta,dc=com\"\n   }\n]",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "uid=<user-name>,ou=users,dc=<okta-instance-id>,dc=okta,dc=com",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "uid=jane@example.com,ou=users,dc=mdb-example,dc=okta,dc=com",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "cn=<group-name>,ou=groups,dc=<okta-instance-id>,dc=okta,dc=com",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "cn=db-read,ou=groups,dc=mdb-example,dc=okta,dc=com",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "ou=groups,dc=<okta-instance-id>,dc=okta,dc=com?dn?sub?(&(objectClass=groupofUniqueNames)(uniqueMember={USER}))",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://<okta-instance-id>.ldap.okta.com' -D \"<bind-user-dn>\" -w \"<bind-user-pwd>\" -b 'ou=groups,dc=<okta-instance-id>,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=<bind-user-dn or group-dn>))",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://mdb-example.ldap.okta.com' -D \"uid=jane@example.com,dc=mdb-example,dc=okta,dc=com\" -w \"REDACTED\" -b 'ou=groups,dc=mdb-example,dc=okta,dc=com' '(&(objectClass=groupofUniqueNames)(uniqueMember=uid=jane@example.com,ou=users,dc=mdb-example,dc=okta,dc=com))'",
+      "tokenEstimate": 103
+    }
+  ]
+}

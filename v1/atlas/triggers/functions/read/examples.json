@@ -1,0 +1,350 @@
+{
+  "path": "atlas/triggers/functions/read",
+  "product": "atlas",
+  "title": "Snippet Setup",
+  "summary": {
+    "total": 27,
+    "byLanguage": {
+      "javascript": 27
+    },
+    "bySection": [
+      {
+        "heading": "Find a Single Document (findOne())",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 103
+          }
+        ]
+      },
+      {
+        "heading": "Find One or More Documents (find())",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 95
+          }
+        ]
+      },
+      {
+        "heading": "Count Documents in the Collection (count())",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 51
+          }
+        ]
+      },
+      {
+        "heading": "Find by Document ID",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 8
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 24
+          }
+        ]
+      },
+      {
+        "heading": "Find by Date",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 24
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 55
+          }
+        ]
+      },
+      {
+        "heading": "Match a Root-Level Field",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 9
+          }
+        ]
+      },
+      {
+        "heading": "Match Multiple Fields",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 21
+          }
+        ]
+      },
+      {
+        "heading": "Match an Embedded Document Field",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 17
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 14
+          }
+        ]
+      },
+      {
+        "heading": "Match an Array of Values",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Match an Array Element",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 37
+          }
+        ]
+      },
+      {
+        "heading": "Compare Values",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 19
+          }
+        ]
+      },
+      {
+        "heading": "Evaluate a Logical Expression",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 40
+          }
+        ]
+      },
+      {
+        "heading": "Evaluate a Regular Expression",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 22
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Find a Single Document (findOne())",
+      "content": "const query = { \"quantity\": { \"$gte\": 25 } };\nconst projection = {\n \"title\": 1,\n \"quantity\": 1,\n}\n\nreturn itemsCollection.findOne(query, projection)\n  .then(result => {\n    if(result) {\n      console.log(`Successfully found document: ${result}.`);\n    } else {\n      console.log(\"No document matches the provided query.\");\n    }\n    return result;\n  })\n  .catch(err => console.error(`Failed to find document: ${err}`));",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "javascript",
+      "section": "Find One or More Documents (find())",
+      "content": "const query = { \"reviews.0\": { \"$exists\": true } };\nconst projection = { \"_id\": 0 };\n\nreturn itemsCollection.find(query, projection)\n  .sort({ name: 1 })\n  .toArray()\n  .then(items => {\n    console.log(`Successfully found ${items.length} documents.`)\n    items.forEach(console.log)\n    return items\n  })\n  .catch(err => console.error(`Failed to find documents: ${err}`))",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "javascript",
+      "section": "Count Documents in the Collection (count())",
+      "content": "return itemsCollection.count({ \"reviews.0\": { \"$exists\": true } })\n  .then(numDocs => console.log(`${numDocs} items have a review.`))\n  .catch(err => console.error(\"Failed to count documents: \", err))",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "javascript",
+      "section": "Find by Document ID",
+      "content": "{ \"_id\": <ObjectId> }",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "section": "Find by Document ID",
+      "content": "{ \"_id\": BSON.ObjectId(\"5ad84b81b8b998278f773c1b\") }",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "javascript",
+      "section": "Find by Date",
+      "content": "{ \"<Date Field Name>\": <Date | Expression> }",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "section": "Find by Date",
+      "content": "{ \"createdAt\": new Date(\"2019-01-23T05:00:00.000Z\") }",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "javascript",
+      "section": "Find by Date",
+      "content": "{\n  \"createdAt\": {\n    \"$gte\": new Date(\"2019-01-01T00:00:00.000Z\"),\n    \"$lt\": new Date(\"2020-01-01T00:00:00.000Z\"),\n  }\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "javascript",
+      "section": "Match a Root-Level Field",
+      "content": "{ \"<Field Name>\": <Value | Expression> }",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "javascript",
+      "section": "Match a Root-Level Field",
+      "content": "{ \"name\": \"Basketball\" }",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "javascript",
+      "section": "Match Multiple Fields",
+      "content": "{\n  \"<Field Name 1>\": <Value | Expression>,\n  \"<Field Name 2>\": <Value | Expression>\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Match Multiple Fields",
+      "content": "{\n  \"name\": \"Basketball\",\n  \"quantity\": { \"$gt\": 0 }\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Embedded Document Field",
+      "content": "{ \"<Field Name>\": { \"<Nested Field Name>\": <Value | Expression> } }",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Embedded Document Field",
+      "content": "{ \"<Field Name>.<Nested Field Name>\": <Value | Expression> }",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Embedded Document Field",
+      "content": "{\n  \"reviews.0.username\": \"JoeMango\"\n}",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array of Values",
+      "content": "{ \"<Array Field Name>\": [<Value>, ...] }",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array of Values",
+      "content": "{\n  \"reviews\": [{ username: \"JoeMango\", comment: \"This rocks!\" }]\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array of Values",
+      "content": "{\n  \"reviews\": {\n    \"$all\": [{ username: \"JoeMango\", comment: \"This rocks!\" }]\n  }\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array Element",
+      "content": "{ \"<Array Field Name>\": <Value | Expression> }",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array Element",
+      "content": "{\n  \"reviews\": {\n    \"username\": \"JoeMango\",\n    \"comment\": \"This is a great product!\"\n  }\n}",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "section": "Match an Array Element",
+      "content": "{\n  \"reviews\": {\n    \"$elemMatch\": {\n      \"username\": \"JoeMango\",\n      \"comment\": \"This is a great product!\"\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "javascript",
+      "section": "Compare Values",
+      "content": "{ \"<Field Name>\": { \"<Comparison Operator>\": <Comparison Value> } }",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "section": "Compare Values",
+      "content": "{\n  \"quantity\": { \"$gt\": 0, \"$lte\": 10 }\n}",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "javascript",
+      "section": "Evaluate a Logical Expression",
+      "content": "{\n  \"<Field Name>\": {\n    \"<Logical Operator>\": [<Expression>, ...]\n  }\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "javascript",
+      "section": "Evaluate a Logical Expression",
+      "content": "{\n  \"$or\": [\n    { \"quantity\": { \"$gt\": 0 } },\n    { \"reviews\": { \"$size\": { \"$lte\": 5 } } }\n  ]\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "javascript",
+      "section": "Evaluate a Regular Expression",
+      "content": "{\n  \"<Field Name>\": {\n    \"$regex\": BSON.BSONRegExp(<RegEx String>, <RegEx Options>)\n  }\n}",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "section": "Evaluate a Regular Expression",
+      "content": "{\n  \"name\": { \"$regex\": BSON.BSONRegExp(\".+ball\", \"i\") }\n}",
+      "tokenEstimate": 22
+    }
+  ]
+}

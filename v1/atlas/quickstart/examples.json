@@ -1,0 +1,234 @@
+{
+  "path": "atlas/quickstart",
+  "product": "atlas",
+  "title": "Get Started with Atlas Stream Processing",
+  "summary": {
+    "total": 19,
+    "byLanguage": {
+      "json": 6,
+      "sh": 10,
+      "text": 1,
+      "sh\n :copyable: true": 1,
+      "shell": 1
+    },
+    "bySection": [
+      {
+        "heading": "Step 3: Verify that your streaming data source emits messages.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 74
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Create a persistent stream processor.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 125
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 43
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 221
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 86
+          },
+          {
+            "language": "sh\n :copyable: true",
+            "tokenEstimate": 40
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 16
+          }
+        ]
+      },
+      {
+        "heading": "Step 5: Start the stream processor.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          }
+        ]
+      },
+      {
+        "heading": "Step 6: Verify the output of the stream processor.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 6
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 40
+          }
+        ]
+      },
+      {
+        "heading": "Step 7: Drop the stream processor.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Step 3: Verify that your streaming data source emits messages.",
+      "content": "{\n  device_id: 'device_8',\n  group_id: 7,\n  timestamp: '2024-08-12T21:41:01.788+00:00',\n  max_watts: 450,\n  event_type: 0,\n  obs: {\n    watts: 252,\n    temp: 17\n  }\n}",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "sh",
+      "section": "Step 3: Verify that your streaming data source emits messages.",
+      "content": "mongosh \"mongodb://<atlas-stream-processing-url>/\"\n--tls --authenticationDatabase admin --username <username>\n--password <password>",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Verify that your streaming data source emits messages.",
+      "content": "sp.process([{\"$source\": {\n   \"connectionName\": \"sample_stream_solar\"\n}}])",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "{\n  \"$source\": {\n    \"connectionName\": \"sample_stream_solar\"\n  }\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "{\n  \"$tumblingWindow\": {\n    \"interval\": {\n       \"size\": 10,\n       \"unit\": \"second\"\n    },\n    \"pipeline\": [ {\n      \"$group\": {\n        \"_id\": \"$group_id\",\n        \"max_temp\": {\n          \"$max\": \"$obs.temp\"\n        },\n        \"max_watts\": {\n          \"$max\": \"$obs.watts\"\n        },\n        \"min_watts\": {\n          \"$min\": \"$obs.watts\"\n        },\n        \"avg_watts\": {\n          \"$avg\": \"$obs.watts\"\n        }\n      }\n    }]\n  }\n}",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "{\n  \"$merge\": {\n    \"into\": {\n       \"connectionName\": \"mongodb1\",\n       \"db\": \"solarDb\",\n       \"coll\": \"solarColl\"\n    }\n  }\n}",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "{\n  \"name\": \"solarDemo\",\n  \"pipeline\": [\n    {\n      \"$source\": {\n        \"connectionName\": \"sample_stream_solar\"\n      }\n    },\n    {\n      \"$tumblingWindow\": {\n        \"interval\": {\n          \"size\": 10,\n          \"unit\": \"second\"\n        },\n        \"pipeline\": [\n          {\n            \"$group\": {\n              \"_id\": \"$group_id\",\n              \"max_temp\": {\n                \"$max\": \"$obs.temp\"\n              },\n              \"max_watts\": {\n                \"$max\": \"$obs.watts\"\n              },\n              \"min_watts\": {\n                \"$min\": \"$obs.watts\"\n              },\n              \"avg_watts\": {\n                \"$avg\": \"$obs.watts\"\n              }\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"$merge\": {\n        \"into\": {\n          \"connectionName\": \"mongodb1\",\n          \"db\": \"Cluster0\",\n          \"coll\": \"solarColl\"\n        },\n        \"parallelism\":16,\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 221
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "mongosh \"mongodb://<atlas-stream-processing-url>/\"\n--tls --authenticationDatabase admin --username <username>\n--password <password>",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "let s = {\n  $source: {\n    connectionName: \"sample_stream_solar\"\n  }\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "let g = {\n  $group: {\n    _id: \"$group_id\",\n    max_temp: {\n      $max: \"$obs.temp\"\n    },\n    avg_watts: {\n       $avg: \"$obs.watts\"\n    },\n    max_watts: {\n      $max: \"$obs.watts\"\n    },\n    min_watts: {\n      $min: \"$obs.watts\"\n    }\n  }\n}",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "sh\n :copyable: true",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": " let t = {\n   $tumblingWindow: {\n     interval: {\n       size: NumberInt(10),\n       unit: \"second\"\n     },\n     pipeline: [g]\n  }\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "let m = {\n  $merge: {\n    into: {\n      connectionName: \"mongodb1\",\n      db: \"solarDb\",\n      coll: \"solarColl\"\n    }\n  }\n}",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create a persistent stream processor.",
+      "content": "sp.createStreamProcessor(\"solarDemo\", [s, t, m])",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "sh",
+      "section": "Step 5: Start the stream processor.",
+      "content": "sp.solarDemo.start()",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "sh",
+      "section": "Step 6: Verify the output of the stream processor.",
+      "content": "sp.solarDemo.stats()",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "shell",
+      "section": "Step 6: Verify the output of the stream processor.",
+      "content": "sp.solarDemo.sample()",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "json",
+      "section": "Step 6: Verify the output of the stream processor.",
+      "content": "{\n  _id: 10,\n  max_temp: 16,\n  avg_watts: 232,\n  max_watts: 414,\n  min_watts: 73\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "sh",
+      "section": "Step 7: Drop the stream processor.",
+      "content": "sp.solarDemo.drop()",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "sh",
+      "section": "Step 7: Drop the stream processor.",
+      "content": "sp.listStreamProcessors()",
+      "tokenEstimate": 6
+    }
+  ]
+}

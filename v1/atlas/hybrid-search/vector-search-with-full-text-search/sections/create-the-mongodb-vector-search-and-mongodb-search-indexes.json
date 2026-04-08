@@ -1,0 +1,247 @@
+{
+  "heading": "Create the MongoDB Vector Search and MongoDB Search Indexes",
+  "headingLevel": 3,
+  "body": "This section demonstrates how to create the following indexes on the\nfields in the `sample_mflix.embedded_movies` collection:* A MongoDB Vector Search index on the `plot_embedding_voyage_3_large` field for\n  running vector queries against that field.\n\n* A MongoDB Search index on the `title` field for running full-text search\n  against that field.Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).On the Database screen, click the name of the\ndatabase, then click the name of the collection.- In the Indexes tab, then select Search Indexes.\n\n- From the Create dropdown, select Search Index.\n\n- In the Name of Search Index field, enter `hybrid-vector-search`.\n\n  Your MongoDB Vector Search index is named `vector_index` by default. If you\n  use this name, then your index will be the default MongoDB Vector Search\n  index for any MongoDB Vector Search query that does not specify a different\n  index name in the pipeline. If you are creating multiple\n  indexes, we recommend that you maintain a consistent,\n  descriptive naming convention across your indexes.\n\n- Under Vector Search, specify the JSON (Javascript Object Notation) MongoDB Vector Search\n  index definition.\n\n  ```json\n  {\n    \"fields\": [{\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding_voyage_3_large\",\n      \"numDimensions\": 2048,\n      \"similarity\": \"dotProduct\"\n    }]\n  }\n  ```\n\n- Click Create Search Index.* In the Indexes tab, then select Search Indexes.\n\n* From the Create dropdown, select Search Index.\n\n* In the Name of Search Index field, enter `hybrid-full-text-search`.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n* Under Search, specify the JSON (Javascript Object Notation) MongoDB Vector Search\n  index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n  ```\n\n* Click Create Search Index.To learn more, see [MongoDB Shell](connect-mongo-shell).**Input:**```shell\nuse sample_mflix\n```**Output:**```shell\nswitched to db sample_mflix\n```Run the following command. This index definition indexes the\n`plot_embedding_voyage_3_large` field as the MongoDB Vector Search field when\nquerying the collection.```shell\ndb.embedded_movies.createSearchIndex(\n  \"hybrid-vector-search\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  }\n);\n```The following index definition automatically indexes all the\ndynamically indexable fields in the collection.```shell\ndb.embedded_movies.createSearchIndex(\n  \"hybrid-full-text-search\", \n  \"search\", \n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n);\n``````shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb\n```For detailed installation instructions, see the\n[MongoDB Node Driver documentation](node).The following index definition indexes the\n`plot_embedding_voyage_3_large` field as the MongoDB Vector Search field when\nquerying the collection.* Create a file named `vector-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your vector search index\n        const index = {\n            name: \"hybrid-vector-search\",\n            type: \"vectorSearch\",\n            definition: {\n              \"fields\": [\n                {\n                  \"type\": \"vector\",\n                  \"numDimensions\": 2048,\n                  \"path\": \"plot_embedding_voyage_3_large\",\n                  \"similarity\": \"dotProduct\"\n                }\n              ]\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n\n  ```\n\n* Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node vector-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-vector-search\n  ```\n\n  MongoDB Vector Search might take few minutes to create the index.The following index definition automatically indexes all\ndynamically indexable field types in the collection.* Create a file named `text-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your search index\n        const index = {\n            name: \"hybrid-full-text-search\",\n            type: \"search\",\n            definition: {\n              \"mappings\": {\n                \"dynamic\": true\n              }\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n  ```\n\n* Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node text-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-full-text-search\n  ```\n\n  MongoDB Search might take few minutes to create the index.```shell\n# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo\n```For detailed installation instructions, see\n[MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).Create a `create_vector_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).**Input:**```shell\npython create_vector_index.py\n```**Output:**```\nNew search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.\n```Create a `create_search_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).**Input:**```shell\npython create_search_index.py\n```**Output:**```\nNew search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.\n```Open [Compass](https://www.mongodb.com/try/download/compass) and connect to your cluster. For\ndetailed instructions, see [Compass](atlas-connect-via-compass).On the Database screen, click the name of the\ndatabase, then click the name of the collection.- In the Indexes tab, then select Search Indexes.\n\n- From the Create dropdown, select Search Index.\n\n- In the Name of Search Index field, enter `hybrid-vector-search`.\n\n  Your MongoDB Vector Search index is named `vector_index` by default. If you\n  use this name, then your index will be the default MongoDB Vector Search\n  index for any MongoDB Vector Search query that does not specify a different\n  index name in the pipeline. If you are creating multiple\n  indexes, we recommend that you maintain a consistent,\n  descriptive naming convention across your indexes.\n\n- Under Vector Search, specify the JSON (Javascript Object Notation) MongoDB Vector Search\n  index definition.\n\n  ```json\n  {\n    \"fields\": [{\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding_voyage_3_large\",\n      \"numDimensions\": 2048,\n      \"similarity\": \"dotProduct\"\n    }]\n  }\n  ```\n\n- Click Create Search Index.* In the Indexes tab, then select Search Indexes.\n\n* From the Create dropdown, select Search Index.\n\n* In the Name of Search Index field, enter `hybrid-full-text-search`.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n* Under Search, specify the JSON (Javascript Object Notation) MongoDB Vector Search\n  index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n  ```\n\n* Click Create Search Index.To learn more, see [MongoDB Shell](connect-mongo-shell).**Input:**```shell\nuse sample_mflix\n```**Output:**```shell\nswitched to db sample_mflix\n```Run the following command. This index definition indexes the\n`plot_embedding_voyage_3_large` field as the MongoDB Vector Search field when\nquerying the collection.```shell\ndb.embedded_movies.createSearchIndex(\n  \"hybrid-vector-search\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  }\n);\n```The following index definition automatically indexes all the\ndynamically indexable fields in the collection.```shell\ndb.embedded_movies.createSearchIndex(\n  \"hybrid-full-text-search\", \n  \"search\", \n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n);\n``````shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb\n```For detailed installation instructions, see the\n[MongoDB Node Driver documentation](node).The following index definition indexes the\n`plot_embedding_voyage_3_large` field as the MongoDB Vector Search field when\nquerying the collection.* Create a file named `vector-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your vector search index\n        const index = {\n            name: \"hybrid-vector-search\",\n            type: \"vectorSearch\",\n            definition: {\n              \"fields\": [\n                {\n                  \"type\": \"vector\",\n                  \"numDimensions\": 2048,\n                  \"path\": \"plot_embedding_voyage_3_large\",\n                  \"similarity\": \"dotProduct\"\n                }\n              ]\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n\n  ```\n\n* Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node vector-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-vector-search\n  ```\n\n  MongoDB Vector Search might take few minutes to create the index.The following index definition automatically indexes all\ndynamically indexable field types in the collection.* Create a file named `text-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your search index\n        const index = {\n            name: \"hybrid-full-text-search\",\n            type: \"search\",\n            definition: {\n              \"mappings\": {\n                \"dynamic\": true\n              }\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n  ```\n\n* Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node text-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-full-text-search\n  ```\n\n  MongoDB Search might take few minutes to create the index.```shell\n# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo\n```For detailed installation instructions, see\n[MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).Create a `create_vector_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).**Input:**```shell\npython create_vector_index.py\n```**Output:**```\nNew search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.\n```Create a `create_search_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).**Input:**```shell\npython create_search_index.py\n```**Output:**```\nNew search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"fields\": [{\n    \"type\": \"vector\",\n    \"path\": \"plot_embedding_voyage_3_large\",\n    \"numDimensions\": 2048,\n    \"similarity\": \"dotProduct\"\n  }]\n}",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"hybrid-vector-search\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"hybrid-full-text-search\", \n  \"search\", \n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n);",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your vector search index\n      const index = {\n          name: \"hybrid-vector-search\",\n          type: \"vectorSearch\",\n          definition: {\n            \"fields\": [\n              {\n                \"type\": \"vector\",\n                \"numDimensions\": 2048,\n                \"path\": \"plot_embedding_voyage_3_large\",\n                \"similarity\": \"dotProduct\"\n              }\n            ]\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 194
+    },
+    {
+      "language": "javascript",
+      "content": "node vector-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-vector-search",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your search index\n      const index = {\n          name: \"hybrid-full-text-search\",\n          type: \"search\",\n          definition: {\n            \"mappings\": {\n              \"dynamic\": true\n            }\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "javascript",
+      "content": "node text-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-full-text-search",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 267
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_vector_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_search_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"fields\": [{\n    \"type\": \"vector\",\n    \"path\": \"plot_embedding_voyage_3_large\",\n    \"numDimensions\": 2048,\n    \"similarity\": \"dotProduct\"\n  }]\n}",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"hybrid-vector-search\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"hybrid-full-text-search\", \n  \"search\", \n  {\n    \"mappings\": {\n      \"dynamic\": true\n    }\n  }\n);",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your vector search index\n      const index = {\n          name: \"hybrid-vector-search\",\n          type: \"vectorSearch\",\n          definition: {\n            \"fields\": [\n              {\n                \"type\": \"vector\",\n                \"numDimensions\": 2048,\n                \"path\": \"plot_embedding_voyage_3_large\",\n                \"similarity\": \"dotProduct\"\n              }\n            ]\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 194
+    },
+    {
+      "language": "javascript",
+      "content": "node vector-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-vector-search",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your search index\n      const index = {\n          name: \"hybrid-full-text-search\",\n          type: \"search\",\n          definition: {\n            \"mappings\": {\n              \"dynamic\": true\n            }\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "javascript",
+      "content": "node text-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-full-text-search",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 267
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_vector_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_search_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.",
+      "tokenEstimate": 39
+    }
+  ]
+}

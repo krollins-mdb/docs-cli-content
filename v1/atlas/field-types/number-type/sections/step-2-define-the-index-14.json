@@ -1,0 +1,22 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create_index.py` file in your project directory,\nand copy and paste the following code into the file.```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"<database>\"]\ncollection = database[\"<collection>\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True|False,\n            \"fields\": {\n                \"<field_name>\":{\n                   \"type\": \"number\",\n                   \"representation\": \"int64|double\",\n                   \"indexIntegers\": True|False,\n                   \"indexDoubles\": True|False\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"<database>\"]\ncollection = database[\"<collection>\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True|False,\n            \"fields\": {\n                \"<field_name>\":{\n                   \"type\": \"number\",\n                   \"representation\": \"int64|double\",\n                   \"indexIntegers\": True|False,\n                   \"indexDoubles\": True|False\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n",
+      "tokenEstimate": 171
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ]
+}

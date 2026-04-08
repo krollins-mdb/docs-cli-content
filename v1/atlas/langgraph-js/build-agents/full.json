@@ -1,0 +1,287 @@
+{
+  "path": "atlas/langgraph-js/build-agents",
+  "product": "atlas",
+  "title": "Build an AI Agent with LangGraph.js and MongoDB Atlas",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "Before you begin, ensure that you have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- [npm and Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)\n  installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n> **Note:** This tutorial uses models from OpenAI and Voyage AI, but\n> you can modify the code to use your models of choice.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set up the Environment",
+      "headingLevel": 2,
+      "body": "To set up the environment, complete the following steps:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Initialize the project and install dependencies.",
+      "headingLevel": 3,
+      "body": "Create a new project directory, then run the following commands\nin the project to install the required dependencies:\n\n```bash\nnpm init -y\nnpm i -D typescript ts-node @types/express @types/node\nnpx tsc --init\nnpm i langchain @langchain/langgraph @langchain/mongodb @langchain/community @langchain/langgraph-checkpoint-mongodb dotenv express mongodb zod\n```\n\n> **Note:** Your project uses the following structure:\n>\n> ```text\n> ├── .env\n> ├── index.ts\n> ├── agent.ts\n> ├── seed-database.ts\n> ├── package.json\n> ├── tsconfig.json\n> ```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "npm init -y\nnpm i -D typescript ts-node @types/express @types/node\nnpx tsc --init\nnpm i langchain @langchain/langgraph @langchain/mongodb @langchain/community @langchain/langgraph-checkpoint-mongodb dotenv express mongodb zod",
+          "tokenEstimate": 60
+        },
+        {
+          "language": "text",
+          "content": "├── .env\n├── index.ts\n├── agent.ts\n├── seed-database.ts\n├── package.json\n├── tsconfig.json",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Create the environment file.",
+      "headingLevel": 3,
+      "body": "Create a `.env` file in your project root and add your API keys and connection string:```env\nOPENAI_API_KEY = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\nVOYAGEAI_API_KEY = \"<voyage-api-key>\"\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.<Tab tabid=\"cloud\">\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n</Tab>Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).*Duration: 30 Minutes*[https://www.youtube.com/watch?v=qXDrWKVSx1w](https://www.youtube.com/watch?v=qXDrWKVSx1w)",
+      "codeBlocks": [
+        {
+          "language": "env",
+          "content": "OPENAI_API_KEY = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\nVOYAGEAI_API_KEY = \"<voyage-api-key>\"",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "text",
+          "content": "mongodb://localhost:<port-number>/?directConnection=true",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Configure your MongoDB Cluster",
+      "headingLevel": 2,
+      "body": "In this section, you configure\nand ingest sample data into your MongoDB cluster\nto enable vector search over your data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a file to connect to MongoDB.",
+      "headingLevel": 3,
+      "body": "Create an `index.ts` file that establishes a connection to your MongoDB cluster:\n\n```typescript\nimport { MongoClient } from \"mongodb\";\nimport 'dotenv/config';\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    // ... rest of the server setup\n  } catch (error) {\n    console.error(\"Error connecting to MongoDB:\", error);\n    process.exit(1);\n  }\n}\nstartServer();\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\nimport 'dotenv/config';\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    // ... rest of the server setup\n  } catch (error) {\n    console.error(\"Error connecting to MongoDB:\", error);\n    process.exit(1);\n  }\n}\nstartServer();",
+          "tokenEstimate": 108
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Seed sample data into your cluster.",
+      "headingLevel": 3,
+      "body": "Create a `seed-database.ts` script to generate and store\nsample employee records. This script performs the following actions:\n\n- Defines a schema for employee records.\n\n- Creates a function to generate sample employee data using the LLM.\n\n- Processes each record to create a text summary to use for embeddings.\n\n- Uses the LangChain MongoDB integration to initialize your MongoDB cluster\n  as a vector store. This component generates vector embeddings and stores the\n  documents in your `hr_database.employees` namespace.\n\n```typescript\nimport { ChatOpenAI } from \"@langchain/openai\";\nimport { StructuredOutputParser } from \"@langchain/core/output_parsers\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nconst llm = new ChatOpenAI({\n  modelName: \"gpt-4o-mini\",\n  temperature: 0.7,\n});\n\nconst EmployeeSchema = z.object({\n  employee_id: z.string(),\n  first_name: z.string(),\n  last_name: z.string(),\n  date_of_birth: z.string(),\n  address: z.object({\n    street: z.string(),\n    city: z.string(),\n    state: z.string(),\n    postal_code: z.string(),\n    country: z.string(),\n  }),\n  contact_details: z.object({\n    email: z.string().email(),\n    phone_number: z.string(),\n  }),\n  job_details: z.object({\n    job_title: z.string(),\n    department: z.string(),\n    hire_date: z.string(),\n    employment_type: z.string(),\n    salary: z.number(),\n    currency: z.string(),\n  }),\n  work_location: z.object({\n    nearest_office: z.string(),\n    is_remote: z.boolean(),\n  }),\n  reporting_manager: z.string().nullable(),\n  skills: z.array(z.string()),\n  performance_reviews: z.array(\n    z.object({\n      review_date: z.string(),\n      rating: z.number(),\n      comments: z.string(),\n    })\n  ),\n  benefits: z.object({\n    health_insurance: z.string(),\n    retirement_plan: z.string(),\n    paid_time_off: z.number(),\n  }),\n  emergency_contact: z.object({\n    name: z.string(),\n    relationship: z.string(),\n    phone_number: z.string(),\n  }),\n  notes: z.string(),\n});\n\ntype Employee = z.infer<typeof EmployeeSchema>;\nconst parser = StructuredOutputParser.fromZodSchema(z.array(EmployeeSchema));\n\nasync function generateSyntheticData(): Promise<Employee[]> {\n  \n  const prompt = `You are a helpful assistant that generates employee data. Generate 10 fictional employee records. Each record should include the following fields: employee_id, first_name, last_name, date_of_birth, address, contact_details, job_details, work_location, reporting_manager, skills, performance_reviews, benefits, emergency_contact, notes. Ensure variety in the data and realistic values.\n\n  ${parser.getFormatInstructions()}`;\n\n  console.log(\"Generating synthetic data...\");\n\n  const response = await llm.invoke(prompt);\n  return parser.parse(response.content as string);\n}\n\nasync function createEmployeeSummary(employee: Employee): Promise<string> {\n  return new Promise((resolve) => {\n    const jobDetails = `${employee.job_details.job_title} in ${employee.job_details.department}`;\n    const skills = employee.skills.join(\", \");\n    const performanceReviews = employee.performance_reviews\n      .map(\n        (review) =>\n          `Rated ${review.rating} on ${review.review_date}: ${review.comments}`\n      )\n      .join(\" \");\n    const basicInfo = `${employee.first_name} ${employee.last_name}, born on ${employee.date_of_birth}`;\n    const workLocation = `Works at ${employee.work_location.nearest_office}, Remote: ${employee.work_location.is_remote}`;\n    const notes = employee.notes;\n    const summary = `${basicInfo}. Job: ${jobDetails}. Skills: ${skills}. Reviews: ${performanceReviews}. Location: ${workLocation}. Notes: ${notes}`;\n    resolve(summary);\n  });\n}\n\nconst fetchEmbeddings = async (records: { pageContent: string }[]) => {\n  const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n  const apiKey = process.env.VOYAGEAI_API_KEY;\n  \n  const inputs = records.map(record => record.pageContent); \n  const requestBody = {  \n    input: inputs,\n    model: \"voyage-3.5\",  \n  };  \n  \n  try {  \n    const response = await fetch(apiUrl, {  \n      method: \"POST\",  \n      headers: {  \n        Authorization: `Bearer ${apiKey}`,  \n        \"Content-Type\": \"application/json\",  \n      },  \n      body: JSON.stringify(requestBody),  \n    });  \n  \n    if (!response.ok) {  \n      throw new Error(`Error: ${response.status} ${response.statusText}`);  \n    }  \n  \n    const data = await response.json();  \n    return data;\n  } catch (error) {  \n    console.error(\"Error while fetching embeddings:\", error);  \n  }  \n};\n\nasync function seedDatabase(): Promise<void> {\n  try {\n    const client = new MongoClient(process.env.MONGODB_URI as string);\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n\n    const db = client.db(\"hr_database\");\n    const collection = db.collection(\"employees\");\n    await collection.deleteMany({});\n    \n    const syntheticData = await generateSyntheticData();\n    const recordsWithSummaries = await Promise.all(\n      syntheticData.map(async (record) => ({\n        pageContent: await createEmployeeSummary(record),\n        metadata: {...record},\n      }))\n    );\n\n    for (const record of recordsWithSummaries ) {\n        const db = client.db(\"hr_database\");\n        const collection = db.collection(\"employees\");\n        const embedding = await fetchEmbeddings([record]);\n        const enrichedRecord = {\n            pageContent: record.pageContent,\n            metadata: record.metadata,\n            embedding: embedding.data[0].embedding\n        }\n        const result = await collection.insertOne(enrichedRecord);\n        console.log(\"Successfully added database record:\", result);\n    }\n    await client.close();\n  } catch (error) {\n    console.error(\"Error seeding database:\", error);\n}}\n\nseedDatabase().catch(console.error);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { ChatOpenAI } from \"@langchain/openai\";\nimport { StructuredOutputParser } from \"@langchain/core/output_parsers\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nconst llm = new ChatOpenAI({\n  modelName: \"gpt-4o-mini\",\n  temperature: 0.7,\n});\n\nconst EmployeeSchema = z.object({\n  employee_id: z.string(),\n  first_name: z.string(),\n  last_name: z.string(),\n  date_of_birth: z.string(),\n  address: z.object({\n    street: z.string(),\n    city: z.string(),\n    state: z.string(),\n    postal_code: z.string(),\n    country: z.string(),\n  }),\n  contact_details: z.object({\n    email: z.string().email(),\n    phone_number: z.string(),\n  }),\n  job_details: z.object({\n    job_title: z.string(),\n    department: z.string(),\n    hire_date: z.string(),\n    employment_type: z.string(),\n    salary: z.number(),\n    currency: z.string(),\n  }),\n  work_location: z.object({\n    nearest_office: z.string(),\n    is_remote: z.boolean(),\n  }),\n  reporting_manager: z.string().nullable(),\n  skills: z.array(z.string()),\n  performance_reviews: z.array(\n    z.object({\n      review_date: z.string(),\n      rating: z.number(),\n      comments: z.string(),\n    })\n  ),\n  benefits: z.object({\n    health_insurance: z.string(),\n    retirement_plan: z.string(),\n    paid_time_off: z.number(),\n  }),\n  emergency_contact: z.object({\n    name: z.string(),\n    relationship: z.string(),\n    phone_number: z.string(),\n  }),\n  notes: z.string(),\n});\n\ntype Employee = z.infer<typeof EmployeeSchema>;\nconst parser = StructuredOutputParser.fromZodSchema(z.array(EmployeeSchema));\n\nasync function generateSyntheticData(): Promise<Employee[]> {\n  \n  const prompt = `You are a helpful assistant that generates employee data. Generate 10 fictional employee records. Each record should include the following fields: employee_id, first_name, last_name, date_of_birth, address, contact_details, job_details, work_location, reporting_manager, skills, performance_reviews, benefits, emergency_contact, notes. Ensure variety in the data and realistic values.\n\n  ${parser.getFormatInstructions()}`;\n\n  console.log(\"Generating synthetic data...\");\n\n  const response = await llm.invoke(prompt);\n  return parser.parse(response.content as string);\n}\n\nasync function createEmployeeSummary(employee: Employee): Promise<string> {\n  return new Promise((resolve) => {\n    const jobDetails = `${employee.job_details.job_title} in ${employee.job_details.department}`;\n    const skills = employee.skills.join(\", \");\n    const performanceReviews = employee.performance_reviews\n      .map(\n        (review) =>\n          `Rated ${review.rating} on ${review.review_date}: ${review.comments}`\n      )\n      .join(\" \");\n    const basicInfo = `${employee.first_name} ${employee.last_name}, born on ${employee.date_of_birth}`;\n    const workLocation = `Works at ${employee.work_location.nearest_office}, Remote: ${employee.work_location.is_remote}`;\n    const notes = employee.notes;\n    const summary = `${basicInfo}. Job: ${jobDetails}. Skills: ${skills}. Reviews: ${performanceReviews}. Location: ${workLocation}. Notes: ${notes}`;\n    resolve(summary);\n  });\n}\n\nconst fetchEmbeddings = async (records: { pageContent: string }[]) => {\n  const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n  const apiKey = process.env.VOYAGEAI_API_KEY;\n  \n  const inputs = records.map(record => record.pageContent); \n  const requestBody = {  \n    input: inputs,\n    model: \"voyage-3.5\",  \n  };  \n  \n  try {  \n    const response = await fetch(apiUrl, {  \n      method: \"POST\",  \n      headers: {  \n        Authorization: `Bearer ${apiKey}`,  \n        \"Content-Type\": \"application/json\",  \n      },  \n      body: JSON.stringify(requestBody),  \n    });  \n  \n    if (!response.ok) {  \n      throw new Error(`Error: ${response.status} ${response.statusText}`);  \n    }  \n  \n    const data = await response.json();  \n    return data;\n  } catch (error) {  \n    console.error(\"Error while fetching embeddings:\", error);  \n  }  \n};\n\nasync function seedDatabase(): Promise<void> {\n  try {\n    const client = new MongoClient(process.env.MONGODB_URI as string);\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n\n    const db = client.db(\"hr_database\");\n    const collection = db.collection(\"employees\");\n    await collection.deleteMany({});\n    \n    const syntheticData = await generateSyntheticData();\n    const recordsWithSummaries = await Promise.all(\n      syntheticData.map(async (record) => ({\n        pageContent: await createEmployeeSummary(record),\n        metadata: {...record},\n      }))\n    );\n\n    for (const record of recordsWithSummaries ) {\n        const db = client.db(\"hr_database\");\n        const collection = db.collection(\"employees\");\n        const embedding = await fetchEmbeddings([record]);\n        const enrichedRecord = {\n            pageContent: record.pageContent,\n            metadata: record.metadata,\n            embedding: embedding.data[0].embedding\n        }\n        const result = await collection.insertOne(enrichedRecord);\n        console.log(\"Successfully added database record:\", result);\n    }\n    await client.close();\n  } catch (error) {\n    console.error(\"Error seeding database:\", error);\n}}\n\nseedDatabase().catch(console.error);\n",
+          "tokenEstimate": 1191
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Run the seeding script.",
+      "headingLevel": 3,
+      "body": "**Input:**\n\n```\nnpx ts-node seed-database.ts\n```\n\n**Output:**\n\n```\nPinged your deployment. You successfully connected to MongoDB!\nGenerating synthetic data...\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f0')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f1')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f2')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f3')\n}\n```\n\n> **Tip:** After running the script, you can view the seeded data in your MongoDB cluster\n> by navigating to the `hr_database.employees` namespace in the\n> [query your data](atlas-ui-view-documents).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "npx ts-node seed-database.ts",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "text",
+          "content": "Pinged your deployment. You successfully connected to MongoDB!\nGenerating synthetic data...\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f0')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f1')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f2')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f3')\n}",
+          "tokenEstimate": 143
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Create a MongoDB Vector Search index.",
+      "headingLevel": 3,
+      "body": "Follow the steps to [Create a MongoDB Vector Search Index](avs-create-index) for the `hr_database.employees`\nnamespace. Name the index `vector_index` and specify\nthe following index definition:\n\n```json\n{\n  \"fields\": [\n    {\n      \"numDimensions\": 1024,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1024,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "Build the Agent",
+      "headingLevel": 2,
+      "body": "In this section, you build a [graph](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#graphs)\nto orchestrate the agent's workflow. The graph defines the sequence of steps that\nthe agent takes to respond to a query.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create an  file.",
+      "headingLevel": 3,
+      "body": "Create a new file named `agent.ts` in your project,\nthen add the following code to begin setting up the agent.\nYou will add more code to the asynchronous function in the\nsubsequent steps.\n\n```typescript\nimport { ChatOpenAI } from \"@langchain/openai\";\nimport { AIMessage, BaseMessage, HumanMessage } from \"@langchain/core/messages\";\nimport { ChatPromptTemplate, MessagesPlaceholder } from \"@langchain/core/prompts\";\nimport { StateGraph } from \"@langchain/langgraph\";\nimport { Annotation } from \"@langchain/langgraph\";\nimport { tool } from \"@langchain/core/tools\";\nimport { ToolNode } from \"@langchain/langgraph/prebuilt\";\nimport { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nexport async function callAgent(client: MongoClient, query: string, thread_id: string) {\n  // Define the MongoDB database and collection\n  const dbName = \"hr_database\";\n  const db = client.db(dbName);\n  const collection = db.collection(\"employees\");\n  // ... (Add rest of code here)\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { ChatOpenAI } from \"@langchain/openai\";\nimport { AIMessage, BaseMessage, HumanMessage } from \"@langchain/core/messages\";\nimport { ChatPromptTemplate, MessagesPlaceholder } from \"@langchain/core/prompts\";\nimport { StateGraph } from \"@langchain/langgraph\";\nimport { Annotation } from \"@langchain/langgraph\";\nimport { tool } from \"@langchain/core/tools\";\nimport { ToolNode } from \"@langchain/langgraph/prebuilt\";\nimport { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nexport async function callAgent(client: MongoClient, query: string, thread_id: string) {\n  // Define the MongoDB database and collection\n  const dbName = \"hr_database\";\n  const db = client.db(dbName);\n  const collection = db.collection(\"employees\");\n  // ... (Add rest of code here)\n}",
+          "tokenEstimate": 214
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Define the agent state.",
+      "headingLevel": 3,
+      "body": "Add the following code to the file to define the graph\n[state](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#state):\n\n```typescript\nconst GraphState = Annotation.Root({\n  messages: Annotation<BaseMessage[]>({\n    reducer: (x, y) => x.concat(y),\n  }),\n});\n```\n\nThe state defines the data structure that flows through your agent workflow.\nHere, the state tracks conversation messages, with a [reducer](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#reducers) that\nconcatenates new messages to the existing conversation history.",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "const GraphState = Annotation.Root({\n  messages: Annotation<BaseMessage[]>({\n    reducer: (x, y) => x.concat(y),\n  }),\n});",
+          "tokenEstimate": 31
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Define tools.",
+      "headingLevel": 3,
+      "body": "Add the following code to define a tool and tool node\nthat uses MongoDB Vector Search to retrieve relevant employee information by\nquerying the vector store:\n\n```typescript\n  const executeQuery = async (embedding:[], n: number) => {\n    try {\n        const client = new MongoClient(process.env.MONGODB_URI as string);\n        const database = client.db(\"hr_database\");\n        const coll = database.collection(\"employees\");\n        const agg = [\n            {\n              '$vectorSearch': {\n                'index': 'vector_index',\n                'path': 'embedding',\n                'queryVector': embedding,\n                'numCandidates': 150,\n                'limit': n\n              }\n            }, {\n              '$project': {\n                '_id': 0,\n                'pageContent': 1,\n                'score': {\n                  '$meta': 'vectorSearchScore'\n                }\n              }\n            }\n          ];\n        const result = await coll.aggregate(agg).toArray();\n        return result\n\n    } catch(error) {\n        console.log(\"Error while querying:\", error)\n    }\n  }\n\n  const fetchEmbeddings = async (query: string) => {\n    const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n    const apiKey = process.env.VOYAGEAI_API_KEY;\n    const requestBody = {  \n      input: query,\n      model: \"voyage-3.5\",  \n    };  \n    \n    try {  \n      const response = await fetch(apiUrl, {  \n        method: \"POST\",  \n        headers: {  \n          Authorization: `Bearer ${apiKey}`,  \n          \"Content-Type\": \"application/json\",  \n        },  \n        body: JSON.stringify(requestBody),  \n      });  \n    \n      if (!response.ok) {  \n        throw new Error(`Error: ${response.status} ${response.statusText}`);  \n      }  \n    \n      const data = await response.json(); \n      return data.data[0].embedding;\n    } catch (error) {  \n      console.error(\"Error while fetching embedding:\", error);  \n    }  \n  };\n\n  const employeeLookupTool = tool(\n   async ({ query, n = 10 }) => {\n     console.log(\"Employee lookup tool called\");\n     const embedding = await fetchEmbeddings(query)\n     const response = await executeQuery(embedding, n)\n     const result = JSON.stringify(response)\n     return result;\n   },\n   {\n     name: \"employee_lookup\",\n     description: \"Gathers employee details from the HR database\",\n     schema: z.object({\n       query: z.string().describe(\"The search query\"),\n       n: z.number().optional().default(10).describe(\"Number of results to return\"),\n     }),\n   }\n  );\n\n  const tools = [employeeLookupTool];\n  const toolNode = new ToolNode<typeof GraphState.State>(tools);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "  const executeQuery = async (embedding:[], n: number) => {\n    try {\n        const client = new MongoClient(process.env.MONGODB_URI as string);\n        const database = client.db(\"hr_database\");\n        const coll = database.collection(\"employees\");\n        const agg = [\n            {\n              '$vectorSearch': {\n                'index': 'vector_index',\n                'path': 'embedding',\n                'queryVector': embedding,\n                'numCandidates': 150,\n                'limit': n\n              }\n            }, {\n              '$project': {\n                '_id': 0,\n                'pageContent': 1,\n                'score': {\n                  '$meta': 'vectorSearchScore'\n                }\n              }\n            }\n          ];\n        const result = await coll.aggregate(agg).toArray();\n        return result\n\n    } catch(error) {\n        console.log(\"Error while querying:\", error)\n    }\n  }\n\n  const fetchEmbeddings = async (query: string) => {\n    const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n    const apiKey = process.env.VOYAGEAI_API_KEY;\n    const requestBody = {  \n      input: query,\n      model: \"voyage-3.5\",  \n    };  \n    \n    try {  \n      const response = await fetch(apiUrl, {  \n        method: \"POST\",  \n        headers: {  \n          Authorization: `Bearer ${apiKey}`,  \n          \"Content-Type\": \"application/json\",  \n        },  \n        body: JSON.stringify(requestBody),  \n      });  \n    \n      if (!response.ok) {  \n        throw new Error(`Error: ${response.status} ${response.statusText}`);  \n      }  \n    \n      const data = await response.json(); \n      return data.data[0].embedding;\n    } catch (error) {  \n      console.error(\"Error while fetching embedding:\", error);  \n    }  \n  };\n\n  const employeeLookupTool = tool(\n   async ({ query, n = 10 }) => {\n     console.log(\"Employee lookup tool called\");\n     const embedding = await fetchEmbeddings(query)\n     const response = await executeQuery(embedding, n)\n     const result = JSON.stringify(response)\n     return result;\n   },\n   {\n     name: \"employee_lookup\",\n     description: \"Gathers employee details from the HR database\",\n     schema: z.object({\n       query: z.string().describe(\"The search query\"),\n       n: z.number().optional().default(10).describe(\"Number of results to return\"),\n     }),\n   }\n  );\n\n  const tools = [employeeLookupTool];\n  const toolNode = new ToolNode<typeof GraphState.State>(tools);\n",
+          "tokenEstimate": 541
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Configure the chat model.",
+      "headingLevel": 3,
+      "body": "Add the following code to the file to determine which\nmodel to use for the agent. This example uses\na model from OpenAI, but you can modify it to use\nyour preferred model:\n\n```typescript\nconst model = new ChatOpenAI({\n  model: \"gpt-4o\"\n  }).bindTools(tools);\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "const model = new ChatOpenAI({\n  model: \"gpt-4o\"\n  }).bindTools(tools);",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Step 5: Define additional functions.",
+      "headingLevel": 3,
+      "body": "Add the following code to define the functions\nthat the agent uses to process messages and determine\nwhether to continue the conversation:\n\n- This function configures how the agent uses the LLM:\n\n  - Constructs a prompt template with system instructions and conversation history.\n\n  - Formats the prompt with the current time, available tools, and messages.\n\n  - Invokes the LLM to generate the next response.\n\n  - Returns the model's response to be added to the conversation state.\n\n  ```typescript\n  async function callModel(state: typeof GraphState.State) {\n    const prompt = ChatPromptTemplate.fromMessages([\n      [\n        \"system\",\n        `You are a helpful AI assistant, collaborating with other assistants. Use the provided tools to progress towards answering the question. If you are unable to fully answer, that's OK, another assistant with different tools will help where you left off. Execute what you can to make progress. If you or any of the other assistants have the final answer or deliverable, prefix your response with FINAL ANSWER so the team knows to stop. You have access to the following tools: {tool_names}.\\n{system_message}\\nCurrent time: {time}.`,\n      ],\n      new MessagesPlaceholder(\"messages\"),\n    ]);\n    const formattedPrompt = await prompt.formatMessages({\n      system_message: \"You are helpful HR Chatbot Agent.\",\n      time: new Date().toISOString(),\n      tool_names: tools.map((tool) => tool.name).join(\", \"),\n      messages: state.messages,\n    });\n    const result = await model.invoke(formattedPrompt);\n    return { messages: [result] };\n  }\n  ```\n\n- This function determines whether the agent should continue\n  or end the conversation:\n\n  - If the message contains tool calls, route the flow to the tools node.\n\n  - Otherwise, end the conversation and return the final response.\n\n  ```typescript\n  function shouldContinue(state: typeof GraphState.State) {\n    const messages = state.messages;\n    const lastMessage = messages[messages.length - 1] as AIMessage;\n    if (lastMessage.tool_calls?.length) {\n      return \"tools\";\n    }\n    return \"__end__\";\n  }\n  ```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "async function callModel(state: typeof GraphState.State) {\n  const prompt = ChatPromptTemplate.fromMessages([\n    [\n      \"system\",\n      `You are a helpful AI assistant, collaborating with other assistants. Use the provided tools to progress towards answering the question. If you are unable to fully answer, that's OK, another assistant with different tools will help where you left off. Execute what you can to make progress. If you or any of the other assistants have the final answer or deliverable, prefix your response with FINAL ANSWER so the team knows to stop. You have access to the following tools: {tool_names}.\\n{system_message}\\nCurrent time: {time}.`,\n    ],\n    new MessagesPlaceholder(\"messages\"),\n  ]);\n  const formattedPrompt = await prompt.formatMessages({\n    system_message: \"You are helpful HR Chatbot Agent.\",\n    time: new Date().toISOString(),\n    tool_names: tools.map((tool) => tool.name).join(\", \"),\n    messages: state.messages,\n  });\n  const result = await model.invoke(formattedPrompt);\n  return { messages: [result] };\n}",
+          "tokenEstimate": 228
+        },
+        {
+          "language": "typescript",
+          "content": "function shouldContinue(state: typeof GraphState.State) {\n  const messages = state.messages;\n  const lastMessage = messages[messages.length - 1] as AIMessage;\n  if (lastMessage.tool_calls?.length) {\n    return \"tools\";\n  }\n  return \"__end__\";\n}",
+          "tokenEstimate": 60
+        }
+      ]
+    },
+    {
+      "heading": "Step 6: Define the agent's workflow.",
+      "headingLevel": 3,
+      "body": "Add the following code to define the sequence of steps that\nthe agent takes to respond to a query.\n\n```typescript\nconst workflow = new StateGraph(GraphState)\n  .addNode(\"agent\", callModel)\n  .addNode(\"tools\", toolNode)\n  .addEdge(\"__start__\", \"agent\")\n  .addConditionalEdges(\"agent\", shouldContinue)\n  .addEdge(\"tools\", \"agent\");\n```\n\nSpecifically, the agent performs the following steps:\n\n- The agent receives a user query.\n\n- In the **agent node**, the agent processes the query and\n  determines whether to use a tool or to end the conversation.\n\n- If a tool is needed, the agent routes to the **tools node**,\n  where it executes the selected tool.\n  The result from the tool are sent back to the **agent node**.\n\n- The agent interprets the tool's output and forms a response or decides on the next action.\n\n- This continues until the agent determines that no further action is needed\n  (`shouldContinue` function returns `end`).\n\n![Diagram that shows the workflow of the LangGraph-MongoDB agent.](/ai-integrations/images/avs/langgraph-agent-workflow.svg)\n\nFor this agent, you define two custom\n[nodes](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#nodes)\n:\n\n- **Agent node**: This node processes the messages in the current state,\n  invokes the LLM with these messages, and updates the state\n  with the LLM (Large Language Model)'s response, which includes any tool calls.\n\n- **Tools node**: This node processes tool calls, determines the appropriate tool\n  to use based on the current state, and updates the conversation history\n  with the results of the tool call.\n\nYou also define [edges](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#edges)\nto connect the nodes in the graph and define the flow of the agent.\nIn this code, you define the following edges:\n\n- The following [normal edges](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#normal-edges)\n  that route:\n\n  - Start node to agent node.\n\n  - Agent node to tools node.\n\n- A [conditional edge](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#conditional-edges)\n  that routes the flow based on the output of the agent node.\n  If the agent node determines that a tool is needed, it routes to the tools node.\n  Otherwise, it ends the conversation.",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "const workflow = new StateGraph(GraphState)\n  .addNode(\"agent\", callModel)\n  .addNode(\"tools\", toolNode)\n  .addEdge(\"__start__\", \"agent\")\n  .addConditionalEdges(\"agent\", shouldContinue)\n  .addEdge(\"tools\", \"agent\");",
+          "tokenEstimate": 61
+        }
+      ]
+    },
+    {
+      "heading": "Add Memory to the Agent",
+      "headingLevel": 2,
+      "body": "To improve the agent's performance, you can [persist](https://langchain-ai.github.io/langgraphjs/concepts/persistence/) its state\nby using the MongoDB Checkpointer. Persistence allows the agent to store information about previous interactions,\nwhich the agent can use in future interactions to provide more contextually\nrelevant responses.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Configure the MongoDB Checkpointer.",
+      "headingLevel": 3,
+      "body": "Add the following code to your `agent.ts` file\nto set up a persistence layer for your agent's state:\n\n```typescript\nconst checkpointer = new MongoDBSaver({ client, dbName });\nconst app = workflow.compile({ checkpointer });\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "const checkpointer = new MongoDBSaver({ client, dbName });\nconst app = workflow.compile({ checkpointer });",
+          "tokenEstimate": 22
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Complete the agent function.",
+      "headingLevel": 3,
+      "body": "Finally, add the following code to complete\nthe agent function to handle queries:\n\n```typescript\nconst finalState = await app.invoke(\n  {\n    messages: [new HumanMessage(query)],\n  },\n  { recursionLimit: 15, configurable: { thread_id: thread_id } }\n);\nconsole.log(finalState.messages[finalState.messages.length - 1].content);\nreturn finalState.messages[finalState.messages.length - 1].content;\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "const finalState = await app.invoke(\n  {\n    messages: [new HumanMessage(query)],\n  },\n  { recursionLimit: 15, configurable: { thread_id: thread_id } }\n);\nconsole.log(finalState.messages[finalState.messages.length - 1].content);\nreturn finalState.messages[finalState.messages.length - 1].content;",
+          "tokenEstimate": 71
+        }
+      ]
+    },
+    {
+      "heading": "Create the Server and Test the Agent",
+      "headingLevel": 2,
+      "body": "In this section, you create a server to\ninteract with your agent and test its functionality.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Configure the Express.js server.",
+      "headingLevel": 3,
+      "body": "Replace your `index.ts` file with the following code:\n\n```typescript\nimport 'dotenv/config';\nimport express, { Express, Request, Response } from \"express\";\nimport { MongoClient } from \"mongodb\";\nimport { callAgent } from './agent';\nconst app: Express = express();\napp.use(express.json());\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    app.get('/', (req: Request, res: Response) => {\n      res.send('LangGraph Agent Server');\n    });\n    app.post('/chat', async (req: Request, res: Response) => {\n      const initialMessage = req.body.message;\n      const threadId = Date.now().toString();\n      try {\n        const response = await callAgent(client, initialMessage, threadId);\n        res.json({ threadId, response });\n      } catch (error) {\n        console.error('Error starting conversation:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    app.post('/chat/:threadId', async (req: Request, res: Response) => {\n      const { threadId } = req.params;\n      const { message } = req.body;\n      try {\n        const response = await callAgent(client, message, threadId);\n        res.json({ response });\n      } catch (error) {\n        console.error('Error in chat:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    const PORT = process.env.PORT || 3000;\n    app.listen(PORT, () => {\n      console.log(`Server running on port ${PORT}`);\n    });\n  } catch (error) {\n    console.error('Error connecting to MongoDB:', error);\n    process.exit(1);\n  }\n}\nstartServer();\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import 'dotenv/config';\nimport express, { Express, Request, Response } from \"express\";\nimport { MongoClient } from \"mongodb\";\nimport { callAgent } from './agent';\nconst app: Express = express();\napp.use(express.json());\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    app.get('/', (req: Request, res: Response) => {\n      res.send('LangGraph Agent Server');\n    });\n    app.post('/chat', async (req: Request, res: Response) => {\n      const initialMessage = req.body.message;\n      const threadId = Date.now().toString();\n      try {\n        const response = await callAgent(client, initialMessage, threadId);\n        res.json({ threadId, response });\n      } catch (error) {\n        console.error('Error starting conversation:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    app.post('/chat/:threadId', async (req: Request, res: Response) => {\n      const { threadId } = req.params;\n      const { message } = req.body;\n      try {\n        const response = await callAgent(client, message, threadId);\n        res.json({ response });\n      } catch (error) {\n        console.error('Error in chat:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    const PORT = process.env.PORT || 3000;\n    app.listen(PORT, () => {\n      console.log(`Server running on port ${PORT}`);\n    });\n  } catch (error) {\n    console.error('Error connecting to MongoDB:', error);\n    process.exit(1);\n  }\n}\nstartServer();",
+          "tokenEstimate": 394
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Start the server.",
+      "headingLevel": 3,
+      "body": "Run the following command to start your server:\n\n```bash\nnpx ts-node index.ts\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "npx ts-node index.ts",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Test the agent.",
+      "headingLevel": 3,
+      "body": "Send sample requests to interact with your agent.\nYour responses vary depending on your data and the models you use.\n\n> **Note:** The request returns a response in JSON (Javascript Object Notation) format. You can also view\n> the plaintext output in your terminal where the server is running.\n\n**Input:**\n\n```\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"message\": \"Build a team to make a web app based on the employee data.\"}' http://localhost:3000/chat\n```\n\n**Output:**\n\n```text\n# Sample response\n{\"threadId\": \"1713589087654\", \"response\": \"To assemble a web app development team, we ideally need...\" (truncated)}\n\n# Plaintext output in the terminal\nTo assemble a web app development team, we ideally need the following roles:\n\n1. **Software Developer**: To handle the coding and backend.\n2. **UI/UX Designer**: To design the application's interface and user experience.\n3. **Data Analyst**: For managing, analyzing, and visualizing data if required for the app.\n4. **Project Manager**: To coordinate the project tasks and milestones, often providing communication across departments.\n\n### Suitable Team Members for the Project:\n\n#### 1. Software Developer\n- **John Doe**\n  - **Role**: Software Engineer\n  - **Skills**: Java, Python, AWS\n  - **Location**: Los Angeles HQ (Remote)\n  - **Notes**: Highly skilled developer with exceptional reviews (4.8/5), promoted to Senior Engineer in 2018.\n\n#### 2. Data Analyst\n- **David Smith**\n  - **Role**: Data Analyst\n  - **Skills**: SQL, Tableau, Data Visualization\n  - **Location**: Denver Office\n  - **Notes**: Strong technical analysis skills. Can assist with app data integration or dashboards.\n\n#### 3. UI/UX Designer\nNo specific UI/UX designer was identified in the current search. I will need to query this again or look for a graphic designer with some UI/UX skills.\n\n#### 4. Project Manager\n- **Emily Davis**\n  - **Role**: HR Manager\n  - **Skills**: Employee Relations, Recruitment, Conflict Resolution\n  - **Location**: Seattle HQ (Remote)\n  - **Notes**: Experienced in leadership. Can take on project coordination.\n\nShould I search further for a UI/UX designer, or do you have any other parameters for the team?\n```\n\nYou can continue the conversation by using the thread ID returned in your previous response.\nFor example, to ask a follow-up question, use the following command. Replace `<threadId>`\nwith the thread ID returned in the previous response.\n\n**Input:**\n\n```\ncurl -X POST -H \"Content-Type: application/json\" -d '{\"message\": \"Who should lead this project?\"}' http://localhost:3000/chat/<threadId>\n```\n\n**Output:**\n\n```\n# Sample response\n{\"response\": \"For leading this project, a suitable choice would be someone...\" (truncated)}\n\n# Plaintext output in the terminal\n### Best Candidate for Leadership:\n- **Emily Davis**:\n  - **Role**: HR Manager\n  - **Skills**: Employee Relations, Recruitment, Conflict Resolution\n  - **Experience**:\n    - Demonstrated leadership in complex situations, as evidenced by strong performance reviews (4.7/5).\n    - Mentored junior associates, indicating capability in guiding a team.\n  - **Advantages**:\n    - Remote-friendly, enabling flexible communication across team locations.\n    - Experience in managing people and processes, which would be crucial for coordinating a diverse team.\n\n**Recommendation:** Emily Davis is the best candidate to lead the project given her proven leadership skills and ability to manage collaboration effectively.\n\nLet me know if you'd like me to prepare a structured proposal or explore alternative options.\n```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "curl -X POST -H \"Content-Type: application/json\" -d '{\"message\": \"Build a team to make a web app based on the employee data.\"}' http://localhost:3000/chat",
+          "tokenEstimate": 41
+        },
+        {
+          "language": "text",
+          "content": "# Sample response\n{\"threadId\": \"1713589087654\", \"response\": \"To assemble a web app development team, we ideally need...\" (truncated)}\n\n# Plaintext output in the terminal\nTo assemble a web app development team, we ideally need the following roles:\n\n1. **Software Developer**: To handle the coding and backend.\n2. **UI/UX Designer**: To design the application's interface and user experience.\n3. **Data Analyst**: For managing, analyzing, and visualizing data if required for the app.\n4. **Project Manager**: To coordinate the project tasks and milestones, often providing communication across departments.\n\n### Suitable Team Members for the Project:\n\n#### 1. Software Developer\n- **John Doe**\n  - **Role**: Software Engineer\n  - **Skills**: Java, Python, AWS\n  - **Location**: Los Angeles HQ (Remote)\n  - **Notes**: Highly skilled developer with exceptional reviews (4.8/5), promoted to Senior Engineer in 2018.\n\n#### 2. Data Analyst\n- **David Smith**\n  - **Role**: Data Analyst\n  - **Skills**: SQL, Tableau, Data Visualization\n  - **Location**: Denver Office\n  - **Notes**: Strong technical analysis skills. Can assist with app data integration or dashboards.\n\n#### 3. UI/UX Designer\nNo specific UI/UX designer was identified in the current search. I will need to query this again or look for a graphic designer with some UI/UX skills.\n\n#### 4. Project Manager\n- **Emily Davis**\n  - **Role**: HR Manager\n  - **Skills**: Employee Relations, Recruitment, Conflict Resolution\n  - **Location**: Seattle HQ (Remote)\n  - **Notes**: Experienced in leadership. Can take on project coordination.\n\nShould I search further for a UI/UX designer, or do you have any other parameters for the team?",
+          "tokenEstimate": 390
+        },
+        {
+          "language": "text",
+          "content": "curl -X POST -H \"Content-Type: application/json\" -d '{\"message\": \"Who should lead this project?\"}' http://localhost:3000/chat/<threadId>",
+          "tokenEstimate": 37
+        },
+        {
+          "language": "text",
+          "content": "# Sample response\n{\"response\": \"For leading this project, a suitable choice would be someone...\" (truncated)}\n\n# Plaintext output in the terminal\n### Best Candidate for Leadership:\n- **Emily Davis**:\n  - **Role**: HR Manager\n  - **Skills**: Employee Relations, Recruitment, Conflict Resolution\n  - **Experience**:\n    - Demonstrated leadership in complex situations, as evidenced by strong performance reviews (4.7/5).\n    - Mentored junior associates, indicating capability in guiding a team.\n  - **Advantages**:\n    - Remote-friendly, enabling flexible communication across team locations.\n    - Experience in managing people and processes, which would be crucial for coordinating a diverse team.\n\n**Recommendation:** Emily Davis is the best candidate to lead the project given her proven leadership skills and ability to manage collaboration effectively.\n\nLet me know if you'd like me to prepare a structured proposal or explore alternative options.",
+          "tokenEstimate": 189
+        }
+      ]
+    }
+  ]
+}

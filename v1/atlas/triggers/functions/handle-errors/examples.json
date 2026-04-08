@@ -1,0 +1,197 @@
+{
+  "path": "atlas/triggers/functions/handle-errors",
+  "product": "atlas",
+  "title": "Handle Errors in Functions",
+  "summary": {
+    "total": 16,
+    "byLanguage": {
+      "js": 10,
+      "shell": 5,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Recursively Call Function in Error Handling Blocks",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 245
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Create the Handler Function",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 274
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 274
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Create the Retry Database Trigger",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 70
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 133
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 70
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Create the Main Function",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 246
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 246
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "js",
+      "section": "Recursively Call Function in Error Handling Blocks",
+      "content": "// Utility function to suspend execution of current process\nasync function sleep(milliseconds) {\n  await new Promise((resolve) => setTimeout(resolve, milliseconds));\n}\n\n// Set variables to be used by all calls to `mightFail`\n// Tip: You could also store `MAX_RETRIES` and `THROTTLE_TIME_MS`\n// in App Services Values\nconst MAX_RETRIES = 5;\nconst THROTTLE_TIME_MS = 5000;\nlet currentRetries = 0;\nlet errorMessage = \"\";\n\n\nasync function mightFail(...inputVars) {\n  if (currentRetries === MAX_RETRIES) {\n    console.error(\n      `Reached maximum number of retries (${MAX_RETRIES}) without successful execution.`\n    );\n    console.error(\"Error Message:\", errorMessage);\n    return;\n  }\n  let res;\n  try {\n    // operation that might fail\n    res = await callFlakyExternalService(...inputVars);\n  } catch (err) {\n    errorMessage = err.message;\n    // throttle retries\n    await sleep(THROTTLE_TIME_MS);\n    currentRetries++;\n    res = await mightFail(...inputVars);\n  }\n  return res;\n}\n\nexports = mightFail;\n",
+      "tokenEstimate": 245
+    },
+    {
+      "language": "js",
+      "section": "Step 1: Create the Handler Function",
+      "content": "\n// Tip: You could also put this in an App Services Value\nconst MAX_FUNC_RETRIES = 5;\n\nasync function handleRetry(\n  functionToRetry,\n  functionName,\n  operationId,\n  previousRetries,\n  ...args\n) {\n  try {\n    // Try to execute the main function\n    const response = await functionToRetry(...args);\n    return response;\n  } catch (err) {\n    // Evaluates if should retry function again.\n    // If no retry, throws error and stops retrying.\n    if (previousRetries === MAX_FUNC_RETRIES) {\n      throw new Error(\n        `Maximum number of attempts reached (${MAX_FUNC_RETRIES}) for function '${functionName}': ${err.message}`\n      );\n    }\n\n    // Build function execution log entry for insertion into database.\n    const logEntry = {\n      operationId,\n      errorMessage: err.message,\n      timestamp: new Date(),\n      retries: previousRetries + 1,\n      args,\n      functionName,\n    };\n\n    // Get reference to database collection\n    const executionLog = context.services\n      .get(\"mongodb-atlas\")\n      .db(\"logs\")\n      .collection(\"failed_execution_logs\");\n\n    // Add execution log entry to database\n    await executionLog.insertOne(logEntry);\n    return;\n  }\n}\n\nexports = handleRetry;\n",
+      "tokenEstimate": 274
+    },
+    {
+      "language": "js",
+      "section": "Step 1: Create the Handler Function",
+      "content": "[\n  {\n    \"name\": \"handleRetry\",\n    \"private\": true,\n    \"run_as_system\": true\n  }\n  // ...other configuration\n]",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "js",
+      "section": "Step 1: Create the Handler Function",
+      "content": "\n// Tip: You could also put this in an App Services Value\nconst MAX_FUNC_RETRIES = 5;\n\nasync function handleRetry(\n  functionToRetry,\n  functionName,\n  operationId,\n  previousRetries,\n  ...args\n) {\n  try {\n    // Try to execute the main function\n    const response = await functionToRetry(...args);\n    return response;\n  } catch (err) {\n    // Evaluates if should retry function again.\n    // If no retry, throws error and stops retrying.\n    if (previousRetries === MAX_FUNC_RETRIES) {\n      throw new Error(\n        `Maximum number of attempts reached (${MAX_FUNC_RETRIES}) for function '${functionName}': ${err.message}`\n      );\n    }\n\n    // Build function execution log entry for insertion into database.\n    const logEntry = {\n      operationId,\n      errorMessage: err.message,\n      timestamp: new Date(),\n      retries: previousRetries + 1,\n      args,\n      functionName,\n    };\n\n    // Get reference to database collection\n    const executionLog = context.services\n      .get(\"mongodb-atlas\")\n      .db(\"logs\")\n      .collection(\"failed_execution_logs\");\n\n    // Add execution log entry to database\n    await executionLog.insertOne(logEntry);\n    return;\n  }\n}\n\nexports = handleRetry;\n",
+      "tokenEstimate": 274
+    },
+    {
+      "language": "shell",
+      "section": "Step 1: Create the Handler Function",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "js",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "async function retryOperation({ fullDocument: logEntry }) {\n  // parse values from log entry posted to database\n  const { args, retries, functionName, operationId } = logEntry;\n  // Re-execute the main function\n  await context.functions.execute(functionName, ...args, operationId, retries);\n}\n\nexports = retryOperation;\n",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "{\n  \"name\": \"retry\",\n  \"type\": \"DATABASE\",\n  \"config\": {\n    \"operation_types\": [\"INSERT\"],\n    \"database\": \"logs\",\n    \"collection\": \"failed_execution_logs\",\n    \"service_name\": \"mongodb-atlas\",\n    \"project\": {},\n    \"full_document\": true,\n    \"full_document_before_change\": false,\n    \"unordered\": false,\n    \"skip_catchup_events\": false\n  },\n  \"disabled\": false,\n  \"event_processors\": {\n    \"FUNCTION\": {\n      \"config\": {\n        \"function_name\": \"retryOperationDbTrigger\"\n      }\n    }\n  }\n}\n",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "js",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "[\n  // ...other configuration\n  {\n    \"name\": \"retryOperationDbTrigger\",\n    \"private\": true\n  }\n]",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "js",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "async function retryOperation({ fullDocument: logEntry }) {\n  // parse values from log entry posted to database\n  const { args, retries, functionName, operationId } = logEntry;\n  // Re-execute the main function\n  await context.functions.execute(functionName, ...args, operationId, retries);\n}\n\nexports = retryOperation;\n",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Create the Retry Database Trigger",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "js",
+      "section": "Step 3: Create the Main Function",
+      "content": "// randomly generates 1, 2, or 3\nfunction getRandomOneTwoThree() {\n  return Math.floor(Math.random() * 3) + 1;\n}\n\nfunction additionOrFailure(num1, num2) {\n  // Throw error if getRandomOneTwoThree returns 1\n  const rand = getRandomOneTwoThree();\n  if (rand === 1) throw new Error(\"Uh oh!!\");\n  const sum = num1 + num2;\n  console.log(`Successful addition of ${num1} + ${num2}. Result: ${sum}`);\n\n  // Otherwise return the sum\n  return sum;\n}\n\nasync function additionWithRetryHandler(\n  inputVar1,\n  inputVar2,\n  // create a new `operation_id` if one not provided\n  operationId = new BSON.ObjectId(),\n  // count number of attempts\n  retries = 0\n) {\n  const res = await context.functions.execute(\n    \"handleRetry\",\n    additionOrFailure,\n    \"additionWithRetryHandler\", // MUST BE NAME OF FUNCTION\n    operationId,\n    retries,\n    inputVar1,\n    inputVar2\n  );\n  return res;\n}\n\nexports = additionWithRetryHandler;\n",
+      "tokenEstimate": 246
+    },
+    {
+      "language": "js",
+      "section": "Step 3: Create the Main Function",
+      "content": "[\n    // ...other configuration\n    {\n      \"name\": \"additionWithRetryHandler\",\n      \"private\": false\n    }\n]",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "js",
+      "section": "Step 3: Create the Main Function",
+      "content": "// randomly generates 1, 2, or 3\nfunction getRandomOneTwoThree() {\n  return Math.floor(Math.random() * 3) + 1;\n}\n\nfunction additionOrFailure(num1, num2) {\n  // Throw error if getRandomOneTwoThree returns 1\n  const rand = getRandomOneTwoThree();\n  if (rand === 1) throw new Error(\"Uh oh!!\");\n  const sum = num1 + num2;\n  console.log(`Successful addition of ${num1} + ${num2}. Result: ${sum}`);\n\n  // Otherwise return the sum\n  return sum;\n}\n\nasync function additionWithRetryHandler(\n  inputVar1,\n  inputVar2,\n  // create a new `operation_id` if one not provided\n  operationId = new BSON.ObjectId(),\n  // count number of attempts\n  retries = 0\n) {\n  const res = await context.functions.execute(\n    \"handleRetry\",\n    additionOrFailure,\n    \"additionWithRetryHandler\", // MUST BE NAME OF FUNCTION\n    operationId,\n    retries,\n    inputVar1,\n    inputVar2\n  );\n  return res;\n}\n\nexports = additionWithRetryHandler;\n",
+      "tokenEstimate": 246
+    },
+    {
+      "language": "shell",
+      "section": "Step 3: Create the Main Function",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    }
+  ]
+}

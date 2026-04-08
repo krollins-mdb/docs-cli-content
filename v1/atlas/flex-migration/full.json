@@ -1,0 +1,43 @@
+{
+  "path": "atlas/flex-migration",
+  "product": "atlas",
+  "title": "Migrate your Programmatic Tools from M2, M5, or Serverless Instances to Flex Clusters",
+  "sections": [
+    {
+      "heading": "Migrating API Configuration",
+      "headingLevel": 2,
+      "body": "The [Cluster](api/doc/atlas-admin-api-v2/group/endpoint-clusters) API endpoints listed in the table in this\nsection were compatible with `M2`/`M5` clusters.\nAs of January 2025, these endpoints managed Flex clusters. These API endpoints\nreached End of Life (EOL) on January 22, 2026.\n\nAs of January 2025, API endpoints for Serverless Instances\nmanaged Flex clusters. As of March 2025, Serverless instances\nare no longer supported. All existing Serverless instances were migrated\nto Free clusters, Flex clusters, or Dedicated clusters, according\nto usage. If your Serverless instance was migrated to a Free cluster\nor Dedicated cluster, use the [Cluster](api/doc/atlas-admin-api-v2/group/endpoint-clusters)\nAPI endpoint instead.\n\nSupport for creating `M2` and `M5` clusters using the [creategroupcluster](api/doc/atlas-admin-api-v2/operation/operation-creategroupcluster) and\nServerless instances using the [creategroupserverlessinstance](api/doc/atlas-admin-api-v2/operation/operation-creategroupserverlessinstance) endpoints\nended on January 22, 2026. These endpoints now only support Flex clusters.\n\nThe following changes also apply to the listed API endpoints:\n\n| Endpoint                                           | Impact                                                                                                                                                                                   |\n| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| listgroupprivateendpointserverlessinstanceendpoint | Deprecated. Returns an error because Serverless instances are no longer supported (as of May 2025).                                                                                      |\n| upgradegroupclustertenantupgrade                   | When used on Flex clusters, upgradeSharedCluster takes the value set by the user, but doesn't toggle Continuous Backup because Continuous Backup is not available for Flex clusters.     |\n| creategroupserverlessinstance                      | When used on Flex clusters, createServerlessInstance takes the value set by the user, but doesn't toggle Continuous Backup because Continuous Backup is not available for Flex clusters. |\n| updategroupserverlessinstance                      | When used on Flex clusters, updateServerlessInstance takes the value set by the user, but doesn't toggle Continuous Backup because Continuous Backup is not available for Flex clusters. |\n| setgroupserverlessperformanceadvisorautoindexing   | When used on Flex clusters, setServerlessAutoIndexing takes the value set by the user, but doesn't toggle Auto-Indexing because Auto-Indexing is not available for Flex clusters.        |\n| getgroupserverlessperformanceadvisorautoindexing   | When used on Flex clusters, getServerlessAutoIndexing takes the value set by the user, but doesn't toggle Auto-Indexing because Auto-Indexing is not available for Flex clusters.        |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Terraform Atlas Provider Migration",
+      "headingLevel": 2,
+      "body": "The [HashiCorp Terraform Provider](https://registry.terraform.io/providers/mongodb/mongodbatlas/latest/docs/resources/flex_cluster)\nsupports Flex clusters. General Terraform support for `M2`/`M5`\nclusters and Serverless instances ended on January 22, 2026.\n\nUpdate your Terraform configurations to operate on Flex clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Go SDK Migration",
+      "headingLevel": 2,
+      "body": "The Atlas Go SDK (Software Development Kit) supports Flex clusters. General SDK\nsupport for `M2`/`M5` clusters and Serverless instances\nended on January 22, 2026.\n\nUpdate your SDK scripts to operate on Flex clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas CLI Migration",
+      "headingLevel": 2,
+      "body": "The Atlas CLI supports Flex clusters. To learn more,\nsee [command reference](atlas/cli/current/command/atlas) and select the latest\nAtlas CLI version from the dropdown.\n\nAs of January 2025, continuous cloud backup is no longer supported on\nServerless instances. If you used continuous cloud backup on any of your\nServerless instances, remove Serverless Instance continuous cloud backup\nfrom your Atlas CLI workflows.\n\nGeneral Atlas CLI support for `M2`/`M5` clusters and\nServerless instances ended on January 22, 2026.\nRemove all `M2`/`M5` and Serverless Instance commands\nfrom your Atlas CLI workflows.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas Kubernetes Operator Migration",
+      "headingLevel": 2,
+      "body": "The [Atlas Kubernetes Operator](atlas/operator) supports Flex clusters.\n\nTo manage Flex clusters, you must use Atlas Kubernetes Operator 2.12.0 or later. This version is free of serverless dependencies.\n\n- You can create and manage Flex clusters using the `AtlasDeployment`\n  Custom Resources. To learn more, see\n  the [AtlasDeployment](atlas/operator/current/atlasdeployment-custom-resource) custom\n  resource in the Atlas Kubernetes Operator documentation.\n\n- Use `spec.flexSpec` in the `AtlasDeployment` Custom Resource\n  to configure Flex clusters.\n\n- `M2`/`M5` clusters and Serverless instances are no longer\n  supported. All existing instances have been migrated to Flex clusters\n  or other cluster types.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Atlas CloudFormation Migration",
+      "headingLevel": 2,
+      "body": "Atlas CloudFormation and Cloud Development Kit (CDK) support Flex clusters.\nGeneral support for `M2`/`M5` clusters ended on January 22, 2026.\n\nSupport for [Serverless Private Endpoints](https://github.com/mongodb/mongodbatlas-cloudformation-resources/tree/master/cfn-resources/serverless-private-endpoint)\nand the `Properties.ContinuousBackupEnabled` parameter of the\n[Serverless Instance](https://github.com/mongodb/mongodbatlas-cloudformation-resources/tree/master/cfn-resources/serverless-instance/docs#mongodbatlasserverlessinstance)\nresource ended when Atlas CloudFormation introduced Flex cluster\nsupport. These resources are no longer available in CloudFormation or CDK.\nRemove all `M2`/`M5` and Serverless instance features from your Atlas\nCloudFormation and CDK resources.\n\n> **Important:** Use the `MongoDB::Atlas::Cluster` resource in CloudFormation or the `CfnCluster` resource in CDK\n> instead of the `MongoDB::Atlas::FlexCluster` resource in CloudFormation or the `CfnFlexCluster` resource in CDK\n> to create and manage Flex clusters. `MongoDB::Atlas::Cluster` and `CfnCluster` support\n> Flex clusters, and future upgrades will be available only through these resources.\n> CloudFormation and CDK do not yet support migration between Flex clusters and other cluster types,\n> but support will be added in the future.\n\nFor more information, see:\n\n- [CloudFormation Flex Cluster README](https://github.com/mongodb/mongodbatlas-cloudformation-resources/blob/master/cfn-resources/flex-cluster/README.md)\n\n- [CloudFormation Cluster README](https://github.com/mongodb/mongodbatlas-cloudformation-resources/blob/master/cfn-resources/cluster/README.md)\n\n- [CDK Flex Cluster README](https://github.com/mongodb/awscdk-resources-mongodbatlas/blob/main/src/l1-resources/flex-cluster/README.md)\n\n- [CDK Cluster README](https://github.com/mongodb/awscdk-resources-mongodbatlas/blob/main/src/l1-resources/cluster/README.md)",
+      "codeBlocks": []
+    }
+  ]
+}

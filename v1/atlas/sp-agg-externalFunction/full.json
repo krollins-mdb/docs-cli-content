@@ -1,0 +1,91 @@
+{
+  "path": "atlas/sp-agg-externalFunction",
+  "product": "atlas",
+  "title": "$externalFunction",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "The [$externalFunction](pipe.$externalFunction) stage triggers processes in a specific AWS\nLambda resource. Your request to the AWS Lambda process can either be synchronous\nor asynchronous.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create an AWS Lambda and Authenticate with Unified AWS Access",
+      "headingLevel": 2,
+      "body": "In order to call an AWS Lambda resource from within your Atlas Stream Processing pipeline,\nyour AWS Lambda must be deployed to the same AWS region in which your Atlas Stream Processing\nis deployed. To learn more about deploying an AWS Lambda resource, see the\n[AWS documentation](https://docs.aws.amazon.com/lambda/).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create an AWS Lambda Function.",
+      "headingLevel": 3,
+      "body": "With either the AWS CLI or through the AWS UI, [create a lambda function](https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html).\n\n> **Note:**&#x20;\n>\n> - AWS Lambda resources must be created with an `AWS_IAM` authentication type,\n>   which requires that you create an AWS IAM [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html)\n>   and [Policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html).\n>\n> - Only the buffered, not streaming, response type is supported.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Configure Unified AWS Access.",
+      "headingLevel": 3,
+      "body": "> **Note:** The procedure described here only covers the basic setup flow in the Atlas UI.\n> To learn more, see the the [Set Up Unified AWS Access](set-up-unified-aws-access)\n> documentation.\n\n**Required Access**\n\nTo set up unified AWS (Amazon Web Services) access, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to\nthe project.\n\n**Prerequisites**\n\n- An Atlas account.\n\n- The [AWS Command Line Interface (CLI)](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).\n\n> **Note:**&#x20;\n>\n> - Your AWS IAM policy must include the `lambda:InvokeFunction` action.\n>\n> - You must replace the placeholder `ExternalId` and `Resource` values\n>   with your own, which are available through the Unified AWS Access\n>   configuration process. Note that the `ExternalId` in this example\n>   includes a wildcard that matches any Lambda Function with a name that\n>   begins with `function-`.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Add Trust Relationships to an Existing Role in the Atlas UI",
+      "headingLevel": 3,
+      "body": "Next, you must enable your self-managed AWS IAM role to execute your AWS\nLambda resource.\n\n`permission-policy.json`\n\n```\n{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"lambda:InvokeFunction\"\n            ],\n            \"Resource\": \"arn:aws:lambda:us-east-1:257394458927:function:<function-name>\"\n        }\n    ]\n}\n\n```\n\n- Navigate to the AWS IAM integration page in your Atlas project and click on the\n  **Authorize an AWS IAM role** button.\n\n- Create a new role (or modify an existing role) with the `role-trust-policy.json`\n  that is shown in the modal.\n\n- Once the role is created (or the existing role is updated with the new\n  trust policy), paste the role's ARN in the modal.\n\n- In the AWS console, go to **IAM** > **Roles** and\n  select your role.\n\n- In the **permissions** tab, add a new \"inline permission\" to\n  allow this role to invoke your lambda(s). The example `permission-policy.json`\n  provided above adds the permission to run any lambda with the name `<function-name>`.\n\n- Finally, navigate to your Atlas Stream Processing Workspace, add a new **AWS Lambda connection**\n  and choose the **AWS IAM Role ARN** that you configured in the previous step.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n        {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n                \"lambda:InvokeFunction\"\n            ],\n            \"Resource\": \"arn:aws:lambda:us-east-1:257394458927:function:<function-name>\"\n        }\n    ]\n}\n",
+          "tokenEstimate": 71
+        }
+      ]
+    },
+    {
+      "heading": "Connect your Atlas Stream Processing Workspace to your AWS Lambda Function",
+      "headingLevel": 2,
+      "body": "In order to send a request to your AWS Lambda resource from within your Atlas Stream Processing\npipeline, you must first add your AWS Lambda resource as a [Connection Registry](atlas-sp-manage-connections)\nin your Atlas Stream Processing resource.\n\nYou can add your AWS Lambda resource as a connection through the Atlas UI,\nthe Atlas CLI, or the Atlas API, as shown in the following example.\nYou can update the `roleArn` placeholder in the example with the `arn`\nfrom your [AWS IAM configuration](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns).\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n```bash\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n   --header \"Content-Type: application/json\" \\\n   --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n   --include \\\n   --data '{\"name\": \"TestAWSLambdaConnection\",\"type\": \"AWSLambda\",\"aws\": {\"roleArn\": \"arn:aws:iam::<aws_account>:role/<role_name>\"}}' \\\n   --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<group_id>/streams/<tenant_name>/connections\"\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n   --header \"Content-Type: application/json\" \\\n   --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n   --include \\\n   --data '{\"name\": \"TestAWSLambdaConnection\",\"type\": \"AWSLambda\",\"aws\": {\"roleArn\": \"arn:aws:iam::<aws_account>:role/<role_name>\"}}' \\\n   --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<group_id>/streams/<tenant_name>/connections\"",
+          "tokenEstimate": 119
+        }
+      ]
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Minimal request",
+      "headingLevel": 3,
+      "body": "The following example shows the required fields for a minimal request.\n\n```json\n{ $externalFunction: {\n  connectionName: \"myLambdaConnection\",\n  functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n  as: \"response\",\n}}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ $externalFunction: {\n  connectionName: \"myLambdaConnection\",\n  functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n  as: \"response\",\n}}",
+          "tokenEstimate": 40
+        }
+      ]
+    },
+    {
+      "heading": "Customized request",
+      "headingLevel": 3,
+      "body": "The following, customized example specifies error handling, synchronous execution\nand a preprocessed Atlas Stream Processing document as a payload in addition to the required\nfields illustrated above.\n\n```json\n{ $externalFunction: {\n        connectionName: \"myLambdaConnection\",\n        functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n        execution: \"sync\"\n        as: \"response\",\n        onError: \"fail\",\n        payload: [{$replaceRoot: { newRoot: \"$fullDocument.payloadToSend\" } }, { $addFields: { sum: { $sum: \"$randomArray\" }}}, { $project: { success: 1, sum: 1 }}],\n}}\n```\n\n> **Note:** The `onError` field defines behavior for API level errors for both\n> synchronous and asynchronous requests to your AWS Lambda resource as well as\n> AWS Lambda function errors for synchronous requests.\n\nThe `$externalFunction` stage takes a document with the following fields:\n\n| Field          | Type   | Necessity | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                      |\n| -------------- | ------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| connectionName | string | Required  | Label that identifies the connection in the Connection Registry, to which the request is sent.                                                                                                                                                                                                                                                                                                                                                                   |\n| functionName   | string | Required  | The full AWS ARN or the name of the AWS Lambda function to be triggered.                                                                                                                                                                                                                                                                                                                                                                                         |\n| execution      | enum   | Optional  | Parameter that specifies whether the AWS Lambda function should be called synchronously or asynchronously. Accepted values are:syncasyncDefaults to sync, which is required if remaining stages in your Atlas Stream Processing pipeline require the output from your AWS Lambda function.                                                                                                                                                                       |\n| as             | string | Optional  | Name of the field for the REST API response.If the endpoint returns 0 bytes, the operator doesn't set the as field.                                                                                                                                                                                                                                                                                                                                              |\n| onError        | string | Optional  | Behavior when the operator encounters an HTTPS Status Code or Lambda Runtime-related failure. Must be one of the following values:\"dlq\" : Pass the affected document to the dead letter queue.\"ignore\" : Do nothing with the affected document.\"fail\" : Terminate the stream processor on error.onError does not trigger on errors arising from incorrect configuration of the $externalFunction operator itself, such as invalid expressions.Defaults to \"dlq\". |\n| payload        | array  | Optional  | Custom inner pipeline that allows you to customize the request body sent to the API endpoint. payload supports the following expressions:$project$addFields$replaceRoot$set                                                                                                                                                                                                                                                                                      |",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ $externalFunction: {\n        connectionName: \"myLambdaConnection\",\n        functionName: \"arn:aws:lambda:region:account-id:function:function-name\",\n        execution: \"sync\"\n        as: \"response\",\n        onError: \"fail\",\n        payload: [{$replaceRoot: { newRoot: \"$fullDocument.payloadToSend\" } }, { $addFields: { sum: { $sum: \"$randomArray\" }}}, { $project: { success: 1, sum: 1 }}],\n}}",
+          "tokenEstimate": 106
+        }
+      ]
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "The [$externalFunction](pipe.$externalFunction) stage sends a request to the specified AWS Lambda\nresource. If the request is synchronous, the response is returned in the specified field\nand the pipeline continues processing. If the request is asynchronous, the\npipeline continues processing without waiting for the response.\n\nIf a synchronous request fails, the pipeline's error handling behavior is determined\nby the `onError` field. If the request is asynchronous, the `onError` field\nonly applied to AWS API errors, as opposed to AWS Lambda function errors. If the\n`onError` field is not specified, the default behavior is to send the affected\ndocument to the [dead letter queue](manual/reference/glossary).\n\n| onError Value | Behavior                                                |\n| ------------- | ------------------------------------------------------- |\n| \"dlq\"         | The affected document is sent to the dead letter queue. |\n| \"ignore\"      | The affected document is ignored.                       |\n| \"fail\"        | The stream processor is terminated on error.            |\n\nIf the pipeline can't convert the document to proper JSON, or the configured\npipeline does not create a valid bson object as a product of the final stage,\nthe document is sent to the [dead letter queue](manual/reference/glossary) regardless of the\n`onError` setting.\n\nErrors arising from incorrect configuration of the `$externalFunction` operator\nitself, such as invalid expressions, do not trigger the `onError` behavior.\nInstead, the stream processor fails with an error message. The Atlas Stream Processing pipeline\nretries failed requests that may be the result of transient errors.",
+      "codeBlocks": []
+    }
+  ]
+}

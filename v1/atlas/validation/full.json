@@ -1,0 +1,72 @@
+{
+  "path": "atlas/validation",
+  "product": "atlas",
+  "title": "Set Validation Rules for Your Schema",
+  "sections": [
+    {
+      "heading": "Validation Tab",
+      "headingLevel": 2,
+      "body": "The **Validation** tab allows you to manage\n[schema validation rules](manual/core/document-validation)\nfor a collection.\n\nSchema validation ensures that all documents in a\ncollection follow a defined set of rules, such as conforming to a\nspecific shape or only allowing a specified range of values in fields.\n\n![Validation view](/atlas-ui/images/atlas-ui/compass/validation-view.png)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View the Validation Tab",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Go to the  tab.",
+      "headingLevel": 3,
+      "body": "- Select the collection.\n\n- Click the **Validation** tab.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Validation Rules",
+      "headingLevel": 2,
+      "body": "The validation editor supports [JSON Schema validation](manual/core/schema-validation), and validation with query\nexpressions using [query operators](manual/reference/mql/query-predicates/comparison).\nAfter you click the **Update** button, Atlas updates to\ndisplay a document from your collection that passes the validation and a\ndocument that fails.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "JSON Schema Validation",
+      "headingLevel": 3,
+      "body": "To specify JSON Schema validation, use the\n[$jsonSchema](manual/reference/operator/query/jsonSchema)\noperator.\n\n```javascript\n{\n   $jsonSchema: {\n      required: ['name', 'borough'], // the name and borough fields are required\n      properties: {\n         cuisine: {\n            bsonType: \"string\",\n            description: \"must be a string\"\n         }\n      }\n   }\n}\n```\n\nThe [$jsonSchema](manual/reference/operator/query/jsonSchema)\noperator supports various keywords to specify validation rules. For\nexample:\n\n- The `required` array defines required fields in your document.\n\n- The `properties` object defines rules for specific document\n  fields.\n\nConsider the following example validation:\n\n```javascript\n{\n   $jsonSchema: {\n      bsonType: \"object\",\n      required: [ \"address\", \"borough\", \"name\" ],\n      properties: {\n         address: {\n            bsonType: \"object\",\n            properties: {\n               coord: {\n                  bsonType: \"array\",\n                  items: [\n                     {\n                        bsonType: \"double\",\n                        minimum: -180,\n                        maximum: 180,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -180, 180 ]\"\n                     },\n                     {\n                        bsonType: \"double\",\n                        minimum: -90,\n                        maximum: 90,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -90, 90 ]\"\n                     }\n                  ]\n               }\n            },\n            description: \"must be an object\"\n         },\n         borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n         }\n      }\n   }\n}\n```\n\nThis validation specifies:\n\n- The list of\n  [required](manual/reference/operator/query/jsonSchema)\n  fields.\n\n- The [bsonType](manual/reference/operator/query/jsonSchema) for\n  all required fields.\n\n- The [minimum](manual/reference/operator/query/jsonSchema)\n  and [maximum](manual/reference/operator/query/jsonSchema)\n  values in the `address.coord` array.\n\n- The acceptable values for the  `borough` field, using\n  [enum](manual/reference/operator/query/jsonSchema).\n\nFor all available `$jsonSchema` keywords, refer to the\n[$jsonSchema](manual/reference/operator/query/jsonSchema) page in\nthe MongoDB manual.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   $jsonSchema: {\n      required: ['name', 'borough'], // the name and borough fields are required\n      properties: {\n         cuisine: {\n            bsonType: \"string\",\n            description: \"must be a string\"\n         }\n      }\n   }\n}",
+          "tokenEstimate": 56
+        },
+        {
+          "language": "javascript",
+          "content": "{\n   $jsonSchema: {\n      bsonType: \"object\",\n      required: [ \"address\", \"borough\", \"name\" ],\n      properties: {\n         address: {\n            bsonType: \"object\",\n            properties: {\n               coord: {\n                  bsonType: \"array\",\n                  items: [\n                     {\n                        bsonType: \"double\",\n                        minimum: -180,\n                        maximum: 180,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -180, 180 ]\"\n                     },\n                     {\n                        bsonType: \"double\",\n                        minimum: -90,\n                        maximum: 90,\n                        exclusiveMaximum: false,\n                        description: \"must be a number in [ -90, 90 ]\"\n                     }\n                  ]\n               }\n            },\n            description: \"must be an object\"\n         },\n         borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n         }\n      }\n   }\n}",
+          "tokenEstimate": 227
+        }
+      ]
+    },
+    {
+      "heading": "Validation using Query Operators",
+      "headingLevel": 3,
+      "body": "You can also specify validation using\n[query operators](manual/reference/mql/query-predicates/comparison), with the\nexception of the following query operators: [$near](manual/reference/operator/query/near),\n[$nearSphere](manual/reference/operator/query/nearSphere), [$text](manual/reference/operator/query/text), and [$where](manual/reference/operator/query/where).\n\n```javascript\n{\n   $or: [\n      { name: { $type: \"string\" } },\n      { borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n      } }\n   ]\n}\n```\n\nUsing this validation, *one* of the following must be true:\n\n- The `name` field must be BSON type string.\n\n- The `borough` field must be one of the enum strings.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   $or: [\n      { name: { $type: \"string\" } },\n      { borough: {\n            bsonType: \"string\",\n            enum: [ \"Manhattan\", \"Brooklyn\", \"Queens\", \"Bronx\", \"Staten Island\" ],\n            description: \"must be one of the enum strings\"\n      } }\n   ]\n}",
+          "tokenEstimate": 75
+        }
+      ]
+    },
+    {
+      "heading": "Validation Actions and Levels",
+      "headingLevel": 2,
+      "body": "At the top, specify a **Validation Action** and\n**Validation Level**:\n\n- The validation action determines whether to `warn` but accept\n  invalid documents, or `error` and reject invalid documents.\n\n- The validation level determines how strictly MongoDB applies\n  validation rules to existing documents.\n\n  - `Strict` validation applies your rules to all document inserts\n    and updates.\n\n  - `Moderate` validation only applies your rules to new documents\n    and existing valid documents. Existing invalid documents are not\n    affected.\n\nFor details on validation actions and levels, see\n[Specify Validation Rules](manual/core/schema-validation) in the MongoDB\nmanual.\n\n> **See Also:**&#x20;\n>\n> - [Schema Validation](manual/core/schema-validation)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "The **Validation** tab is not available if you are connected to\n[Atlas Data Federation](atlas/data-federation).",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "path": "atlas/operators-collectors/hasAncestor",
+  "product": "atlas",
+  "title": "hasAncestor Operator",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "javascript": 3,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 82
+          }
+        ]
+      },
+      {
+        "heading": "Sample Index",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 104
+          }
+        ]
+      },
+      {
+        "heading": "Sample Query",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 112
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 660
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"hasAncestor\": {\n      \"ancestorPath\": \"<embeddedDocuments-type-higher-level-field>\",\n      \"operator\": {\n        <operator-specification>\n      }\n    },\n    \"returnScope\": {\n      \"path\": \"<embeddedDocuments-type-field-to-retrieve>\"\n    }\n  }\n}",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "json",
+      "section": "Sample Index",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"funding_rounds\": {\n        \"dynamic\": true,\n        \"fields\": {\n          \"investments\": [\n            {\n              \"dynamic\": true,\n              \"storedSource\": {\n                \"include\": [\n                  \"financial_org\",\n                  \"person\"\n                ]\n              },\n              \"type\": \"embeddedDocuments\"\n            }\n          ]\n        },\n        \"type\": \"embeddedDocuments\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Query",
+      "content": "db.companies.aggregate([\n  { \n    \"$search\": { \n      \"returnStoredSource\": true, \n      \"returnScope\": { \"path\": \"funding_rounds.investments\" }, \n      \"hasAncestor\": { \n        \"ancestorPath\": \"funding_rounds\", \n        \"operator\": { \n          \"equals\": { \n            \"path\": \"funding_rounds.funded_year\", \n            \"value\": 2005 \n          } \n        } \n      } \n    } \n  }\n])",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "javascript",
+      "section": "Sample Query",
+      "content": "[\n  {\n    financial_org: {\n      name: 'Frazier Technology Ventures',\n      permalink: 'frazier-technology-ventures'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mark',\n      last_name: 'Pincus',\n      permalink: 'mark-pincus'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Reid',\n      last_name: 'Hoffman',\n      permalink: 'reid-hoffman'\n    }\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Ram',\n      last_name: 'Shriram',\n      permalink: 'ram-shriram'\n    }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Mitch',\n      last_name: 'Kapor',\n      permalink: 'mitch-kapor'\n    }\n  },\n  {\n    financial_org: null,\n    person: { first_name: 'Ron', last_name: 'Conway', permalink: 'ron-conway' }\n  },\n  {\n    financial_org: null,\n    person: {\n      first_name: 'Silvio',\n      last_name: 'Scaglia',\n      permalink: 'silvio-scaglia'\n    }\n  },\n  {\n    financial_org: {\n      name: 'Shelter Capital Partners',\n      permalink: 'shelter-capital-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: {\n      name: 'Liberty Associated Partners',\n      permalink: 'liberty-associated-partners'\n    },\n    person: null\n  },\n  {\n    financial_org: { name: 'Rose Tech Ventures', permalink: 'rose-tech-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'First Round Capital', permalink: 'first-round-capital' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Lead Dog Ventures', permalink: 'lead-dog-ventures' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Benchmark', permalink: 'benchmark-2' },\n    person: null\n  },\n  {\n    financial_org: { name: 'Sequoia Capital', permalink: 'sequoia-capital' },\n    person: null\n  },\n  { financial_org: null, person: null }\n]\n",
+      "tokenEstimate": 660
+    }
+  ]
+}

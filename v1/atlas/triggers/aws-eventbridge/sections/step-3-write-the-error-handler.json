@@ -1,0 +1,12 @@
+{
+  "heading": "Step 3: Write the Error Handler",
+  "headingLevel": 4,
+  "body": "Follow the steps in [Define a Function](atlas/app-services/functions)\nto write your error handler source code and configuration file.\n\nSee the following template error handler as an example:\n\n```js\nexports = async function(error, changeEvent) {\n   // This sample function will log additional details if the error is not\n   // a DOCUMENT_TOO_LARGE error\n   if (error.code === 'DOCUMENT_TOO_LARGE') {\n      console.log('Document too large error');\n\n      // Comment out the line below in order to skip this event and not suspend the Trigger\n      throw new Error('Encountered error: ${error.code}');\n   }\n\n   console.log('Error sending event to EventBridge');\n   console.log('DB: ${changeEvent.ns.db}');\n   console.log('Collection: ${changeEvent.ns.coll}');\n   console.log('Operation type: ${changeEvent.operationType}');\n\n   // Throw an error in your Function to suspend the Trigger\n   // and stop processing additional events\n   throw new Error('Encountered error: ${error.message}');\n};\n```\n\nFor more information on creating Functions, see [Atlas Function](atlas-functions).",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "exports = async function(error, changeEvent) {\n   // This sample function will log additional details if the error is not\n   // a DOCUMENT_TOO_LARGE error\n   if (error.code === 'DOCUMENT_TOO_LARGE') {\n      console.log('Document too large error');\n\n      // Comment out the line below in order to skip this event and not suspend the Trigger\n      throw new Error('Encountered error: ${error.code}');\n   }\n\n   console.log('Error sending event to EventBridge');\n   console.log('DB: ${changeEvent.ns.db}');\n   console.log('Collection: ${changeEvent.ns.coll}');\n   console.log('Operation type: ${changeEvent.operationType}');\n\n   // Throw an error in your Function to suspend the Trigger\n   // and stop processing additional events\n   throw new Error('Encountered error: ${error.message}');\n};",
+      "tokenEstimate": 174
+    }
+  ]
+}

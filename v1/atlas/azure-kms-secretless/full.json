@@ -1,0 +1,178 @@
+{
+  "path": "atlas/azure-kms-secretless",
+  "product": "atlas",
+  "title": "Step 8: Click .",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To enable customer-managed keys with AKV (Azure Key Vault) for a MongoDB project, you\nmust have:\n\n- An M10 or larger cluster.\n\n- The Azure (Microsoft Azure) account, and the encryption key in your AKV (Azure Key Vault).\n\n  To learn how to configure these Azure components, see the\n  [Azure Documentation](https://docs.microsoft.com/en-us/azure/index).\n\n  Atlas uses these resources when enabling encryption at rest\n  for a cluster in the Atlas project.\n\n- Permissions in Azure (Microsoft Azure) to:\n\n  - Register an enterprise Service Principal in your tenant.\n    This prerequisite requires Microsoft Entra ID permissions to add or\n    manage Enterprise Applications, such as Application Administrator,\n    Cloud Application Administrator, or Global Administrator.\n\n    To learn more, see [Quickstart: Add an enterprise application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal).\n\n  - Access to the Key Vault key using one of the following\n    options:\n\n    - [Azure RBAC](access-azure-rbac) (at the Key Vault or key\n      scope)\n\n    - [Key Vault access policies](access-azure-policies)\n\n- Project Owner access in Atlas for the project for which you\n  want to enable Encryption at Rest.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "To use a customer-managed key stored in AKV (Azure Key Vault) for EAR, the\nAtlas-managed Service Principal must have permission to perform\ncryptographic operations on the specific Key Vault key.\n\nThe required key permissions include:\n\n- `get`\n\n- `encrypt`\n\n- `decrypt`\n\nYou should scope permissions as narrowly as possible and grant them\nusing one of the following options:\n\n- [Azure RBAC](access-azure-rbac) (at the Key Vault or key scope)\n\n- [Key Vault access policies](access-azure-policies)\n\nTo learn more, see [Quickstart: Add an enterprise application](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/add-application-portal).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set Up EAR AKV (Azure Key Vault) Secretless Authentication",
+      "headingLevel": 2,
+      "body": "To configure Encryption at Rest (EAR) with secretless authentication,\nyou must:\n\n- Create an Atlas-managed Azure (Microsoft Azure) Service Principal.\n\n- Grant the Service Principal access to your Key Vault key.\n\n- Configure EAR to use the Service Principal.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create an Atlas-managed Azure (Microsoft Azure) Service Principal",
+      "headingLevel": 3,
+      "body": "Create an Azure (Microsoft Azure) Service Principal in your tenant for the\nAtlas-owned Azure (Microsoft Azure) application and register it with Atlas\nusing the Cloud Provider Access API. Atlas returns a `roleId`\nthat you use when you enable EAR.\n\nAtlas uses the following Azure (Microsoft Azure) application identity:\n\n```sh\natlasAzureAppId: 9efedfcc-2eca-4b27-a613-0cad1e114cb7\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "atlasAzureAppId: 9efedfcc-2eca-4b27-a613-0cad1e114cb7",
+          "tokenEstimate": 28
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Get your  tenant ID.",
+      "headingLevel": 4,
+      "body": "Run the following command to retrieve the tenant ID for the\nresource in which the Service Principal will exist:\n\n```sh\naz account show --query tenantId -o tsv\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az account show --query tenantId -o tsv",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Create or locate the  Service Principal.",
+      "headingLevel": 4,
+      "body": "If a Service Principal already exists for the Atlas\napplication, run the following command to locate it:\n\n```sh\naz ad sp list --filter \"appId eq '9efedfcc-2eca-4b27-a613-0cad1e114cb7'\"\n```\n\nIf it doesn't exist, run the following command to create it:\n\n```sh\naz ad sp create --id 9efedfcc-2eca-4b27-a613-0cad1e114cb7\n```\n\nFrom the output, copy the `id` field, which is the Service\nPrincipal Object ID that Atlas requires.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az ad sp list --filter \"appId eq '9efedfcc-2eca-4b27-a613-0cad1e114cb7'\"",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "sh",
+          "content": "az ad sp create --id 9efedfcc-2eca-4b27-a613-0cad1e114cb7",
+          "tokenEstimate": 28
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Register the Service Principal with .",
+      "headingLevel": 4,
+      "body": "Use the [Cloud Provider Access API](atlas/reference/api-resources-spec/v2):\n\n**Endpoint:**\n\n```sh\nPOST /api/atlas/v2/groups/{groupId}/cloudProviderAccess\n```\n\n**Request body example:**\n\n```sh\n{\n  \"providerName\": \"AZURE\",\n  \"tenantId\": \"<azure-tenant-id>\",\n  \"servicePrincipalId\": \"<service-principal-object-id>\",\n  \"atlasAzureAppId\": \"9efedfcc-2eca-4b27-a613-0cad1e114cb7\"\n}\n```\n\nAtlas provisions and manages the Service Principal and\nreturns an `id` value, which is the `roleId` required when\nyou [configure EAR](config-ear-secretless).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "POST /api/atlas/v2/groups/{groupId}/cloudProviderAccess",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "sh",
+          "content": "{\n  \"providerName\": \"AZURE\",\n  \"tenantId\": \"<azure-tenant-id>\",\n  \"servicePrincipalId\": \"<service-principal-object-id>\",\n  \"atlasAzureAppId\": \"9efedfcc-2eca-4b27-a613-0cad1e114cb7\"\n}",
+          "tokenEstimate": 66
+        }
+      ]
+    },
+    {
+      "heading": "Grant AKV (Azure Key Vault) Permissions",
+      "headingLevel": 3,
+      "body": "Authorize the Atlas-managed Service Principal to perform\ncryptographic operations on the Key Vault key used for EAR.\n\nYou can grant access using either Azure RBAC or Key Vault access\npolicies.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Grant Access Using Azure (Microsoft Azure) RBAC",
+      "headingLevel": 4,
+      "body": "To grant access using Azure (Microsoft Azure) RBAC:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Assign the Reader role so  can read Key Vault metadata.",
+      "headingLevel": 5,
+      "body": "Run the following command:\n\n```sh\naz role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Reader\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Reader\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+          "tokenEstimate": 67
+        }
+      ]
+    },
+    {
+      "heading": "Step 2: Assign a cryptographic role such as Key Vault Crypto User.",
+      "headingLevel": 5,
+      "body": "Run the following command:\n\n```sh\naz role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Key Vault Crypto User\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"\n```\n\n> **Note:** You can also use a custom role, as long as it grants\n> equivalent key permissions.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az role assignment create \\\n  --assignee-object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --assignee-principal-type ServicePrincipal \\\n  --role \"Key Vault Crypto User\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+          "tokenEstimate": 70
+        }
+      ]
+    },
+    {
+      "heading": "Grant Access Using Key Vault Access Policies",
+      "headingLevel": 4,
+      "body": "If your Key Vault uses access policies, run the following command to\ngrant key permissions directly:\n\n```sh\naz keyvault set-policy \\\n  --subscription \"$SUBSCRIPTION_ID\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --key-permissions get encrypt decrypt wrapKey unwrapKey\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az keyvault set-policy \\\n  --subscription \"$SUBSCRIPTION_ID\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --object-id \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --key-permissions get encrypt decrypt wrapKey unwrapKey",
+          "tokenEstimate": 61
+        }
+      ]
+    },
+    {
+      "heading": "Configure Encryption at Rest to Use Secretless Authentication",
+      "headingLevel": 3,
+      "body": "After you register and authorize the Service Principal in Azure (Microsoft Azure),\nupdate your EAR configuration with the `roleId` that the\n[Cloud Provider Access API](atlas/reference/api-resources-spec/v2) returned.**Ui:**Atlas UIAtlas supports two authentication methods for AKV (Azure Key Vault):* **Service Principal (Recommended)**: Use an Atlas-managed\n  service principal specific to your project to authenticate to\n  AKV (Azure Key Vault) (secretless authentication covered here).\n\n* **Static Credentials**: Provide customer-managed credentials.\n  To learn more, see [Manage Customer Keys with Azure Key Vault Over a Public Network](security-azure-kms-public-network) or\n  [Manage Customer Keys with Azure Key Vault Over Private Endpoints](security-azure-kms-pvt-endpoint).| Subscription ID     | Enter the Subscription ID of the Key Vault.                                                                                       |\n| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |\n| Resource Group Name | Enter the Resource Group name of an Azure Resource Group containing the Key Vault.                                                |\n| Key Vault Name      | Enter the name of the Key Vault. Ensure that the Key Vault has the necessary Access Policies. To learn more, see Required Access. |> **Note:** You can't modify the AKV (Azure Key Vault) configuration here after you\n> [Enable and Set up Private Endpoint Connections for a Project](azure-kms-enable-pvt-endpoint) to your AKV (Azure Key Vault).| Key Identifier | Enter the full URL (Uniform Resource Locator) for the key created in the Key Vault.IMPORTANT: The key identifier must be provided in the full Azure general format:https\\://\\{keyvault-name}.vault.azure.net/\\{object-type}/\\{object-name}/\\{object-version} |\n| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |To learn more, see [Enable and Set up Private Endpoint Connections for a Project](azure-kms-enable-pvt-endpoint)If you configured Atlas using the Atlas Administration API to\ncommunicate with AKV (Azure Key Vault) using Azure Private Link to ensure that all traffic\nbetween Atlas and Key Vault takes place over Azure (Microsoft Azure)'s\nprivate network interfaces, Atlas sets the Require\nPrivate Networking status to Active. If the status is\nInactive, you can, optionally, complete the steps to\n[Enable and Set up Private Endpoint Connections for a Project](azure-kms-enable-pvt-endpoint) if you want Atlas to use\nprivate endpoint connections for your AKV (Azure Key Vault).Atlas displays a banner in the Atlas console during the\nencryption process.**Api:**Atlas Admin API**Endpoint:**```sh\nPATCH /api/atlas/v2/groups/{groupId}/encryptionAtRest\n```**Request body example:**```sh\n{\n  \"azureKeyVault\": {\n    \"enabled\": true,\n    \"roleId\": \"<atlas-managed-roleId>\",\n    \"subscriptionID\": \"<subscription-id>\",\n    \"resourceGroupName\": \"<resource-group>\",\n    \"keyVaultName\": \"<key-vault-name>\",\n    \"keyIdentifier\": \"https://<vault>.vault.azure.net/keys/<key>/<version>\",\n    \"azureEnvironment\": \"AZURE\"\n  }\n}\n```After this update, Atlas authenticates to AKV (Azure Key Vault) using short-lived\nAzure (Microsoft Azure) AD tokens instead of static credentials.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "PATCH /api/atlas/v2/groups/{groupId}/encryptionAtRest",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "sh",
+          "content": "{\n  \"azureKeyVault\": {\n    \"enabled\": true,\n    \"roleId\": \"<atlas-managed-roleId>\",\n    \"subscriptionID\": \"<subscription-id>\",\n    \"resourceGroupName\": \"<resource-group>\",\n    \"keyVaultName\": \"<key-vault-name>\",\n    \"keyIdentifier\": \"https://<vault>.vault.azure.net/keys/<key>/<version>\",\n    \"azureEnvironment\": \"AZURE\"\n  }\n}",
+          "tokenEstimate": 89
+        }
+      ]
+    },
+    {
+      "heading": "Migrate from Static Credentials",
+      "headingLevel": 2,
+      "body": "If your project already uses static credentials (`tenantId`,\n`clientId`, `secret`), you can migrate without cluster downtime.\n\n- Create an Atlas-managed Service Principal.\n\n- Grant Key Vault permissions.\n\n- Patch the EAR configuration with the new `roleId`.\n\nIf validation fails, Atlas continues using static credentials.\n\nIf validation succeeds, Atlas removes the stored static\ncredentials, and the `roleId` becomes the source of truth for\nauthentication.\n\nIf your cluster uses Private Networking, Atlas validates Key Vault\naccess asynchronously from the data nodes.\n\n- Validation is not completed immediately when the `PATCH` request is\n  accepted.\n\n- Data nodes validate Key Vault access after the configuration is\n  applied.\n\nBefore you patch EAR with `roleId`, ensure all Key Vault permissions\nare correctly configured. Misconfigured access can result in validation\nfailures on data nodes, which may eventually disrupt EAR operations and\nlead to cluster shutdown.\n\nBefore you patch EAR, verify that your Service Principal has the\nrequired Key Vault permissions.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Verify Azure RBAC Role Assignments",
+      "headingLevel": 3,
+      "body": "Run the following command:\n\n```sh\naz role assignment list \\\n  --assignee \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"\n```\n\nConfirm the assigned role grants key permissions such as `get`,\n`encrypt`, and `decrypt`.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az role assignment list \\\n  --assignee \"$SERVICE_PRINCIPAL_OBJECT_ID\" \\\n  --scope \"/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.KeyVault/vaults/$KEY_VAULT_NAME\"",
+          "tokenEstimate": 48
+        }
+      ]
+    },
+    {
+      "heading": "Verify Key Vault Access Policies",
+      "headingLevel": 3,
+      "body": "Run the following command:\n\n```sh\naz keyvault show \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --query \"properties.accessPolicies\"\n```\n\nConfirm the Service Principal is listed and includes the required key\npermissions.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "az keyvault show \\\n  --name \"$KEY_VAULT_NAME\" \\\n  --resource-group \"$RESOURCE_GROUP\" \\\n  --query \"properties.accessPolicies\"",
+          "tokenEstimate": 34
+        }
+      ]
+    }
+  ]
+}

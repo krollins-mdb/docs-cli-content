@@ -1,0 +1,68 @@
+{
+  "path": "atlas/return-stored-source",
+  "product": "atlas",
+  "title": "Return Stored Source Fields",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "`returnStoredSource` has the following syntax in your queries:\n\n```json\n{\n  $search: {\n    \"<operator>\": {\n      <operator-specification>\n    },\n    \"returnStoredSource\": true | false // optional, defaults to \"false\"\n  }\n}\n```\n\nTo learn more about query syntax, see [$search](pipe.$search).",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  $search: {\n    \"<operator>\": {\n      <operator-specification>\n    },\n    \"returnStoredSource\": true | false // optional, defaults to \"false\"\n  }\n}",
+          "tokenEstimate": 40
+        }
+      ]
+    },
+    {
+      "heading": "Behavior",
+      "headingLevel": 2,
+      "body": "The `returnStoredSource` boolean option specifies whether MongoDB Search must\nperform a full document lookup on the database or return the stored\nfields directly from MongoDB Search. You can use the `returnStoredSource`\noption only if your index definition includes the configuration for\nstoring fields on MongoDB Search. To learn more about storing fields on MongoDB Search,\nsee [index definitions](ref-index-definitions) and\n[storedSource](fts-stored-source-definition).\n\nYou can set one of the following values for the  `returnStoredSource`\noption:\n\n- `true` - to return only stored source fields directly from MongoDB Search\n\n- `false` - to do an implicit full document lookup on the backend\n  database (default)\n\nIf you run MongoDB Search queries with the `returnStoredSource` boolean option\nset to `true`:\n\n- MongoDB Search returns an empty document if the document doesn't include the\n  fields configured for storing.\n\n- MongoDB Search returns errors if the index definition doesn't include the\n  Stored Source configuration.\n\n- MongoDB Search might return stale data due to a replication lag.\n\n- MongoDB Search might return duplicate data on sharded clusters.\n\nIf you perform a high volume and rate of data insert and update\noperations for your collection on the backend database, MongoDB Search might\nreturn stale data because the data stored on `mongot` might not be\ncurrent due to a replication lag. You can view the approximate number\nof milliseconds that MongoDB Search is behind in replicating changes from the\n[oplog](manual/reference/glossary) of mongod in the Atlas UI. To learn more, see\n[MongoDB Search charts](review-atlas-search-metrics).\n\nIf there are [orphaned documents](manual/reference/glossary) during chunk migration,\nMongoDB Search might return duplicate documents for queries against sharded\ncluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Use",
+      "headingLevel": 2,
+      "body": "If your `$search` stage discards a lot of the results and you need to\nperform implicit document lookup on your database, we recommend using\nthe `returnStoredSource` option. You can store fields required for\nsorting or filtering and use `returnStoredSource` option at query\ntime to perform the following actions:\n\n- Intermediate operations on partial documents returned by MongoDB Search\n\n- [$lookup](manual/reference/operator/aggregation/lookup) at the end of the pipeline if full documents are\n  needed.\n\n> **Important:** For efficiency, configure only a minimum number of fields for\n> storage on MongoDB Search. Use this option if your documents are large enough\n> to cause issues during lookup.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The examples in this section use the `sample_mflix.movies`\ncollection. The examples show how to do a sort or match on the\ndocuments that MongoDB Search returns after the `$search` stage and then\nlookup documents on the database.**Sorteg:**Sort Example* Create the index using the following index definition. The\n  index definition for the collection specifies the following\n  fields:\n\n  - Index `title` field\n\n  - Store `year` and `title` fields\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"storedSource\": {\n      \"include\": [\n        \"year\",\n        \"title\"\n      ]\n    }\n  }\n  ```\n\n* Run the following query against the collection:\n\n  ```json\n  db.movies.aggregate([\n    {\n      // search and output documents\n      $search: {\n        \"text\": {\n          \"query\": \"baseball\",\n          \"path\": \"title\"\n        },\n        \"returnStoredSource\": true // return stored fields only\n      }\n    },\n    // fetch all matched dataset from $search stage and sort it\n    {\n      $sort: {\"year\": 1, \"title\": 1}\n    },\n    // discard everything except top 10 results\n    {\n      $limit: 10\n    },\n    // perform full document lookup for top 10 documents only\n    {\n      $lookup: {\n        from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n      }\n    }\n  ])\n  ```\n\n  The query returns the following documents:\n\n  ```json\n  [\n    {\n      _id: ObjectId(\"573a1399f29313caabced370\"),\n      title: 'Mr. Baseball',\n      year: 1992,\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    },\n    {\n      _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n      title: 'Baseball',\n      year: 1994,\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    }\n  ]\n  ```**Matcheg:**Match Example* Create the index using the following index definition. The\n  index definition for the collection specifies the following\n  fields:\n\n  - Index `title` field\n\n  - Store `imdb.rating` and `imdb.votes` fields\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"storedSource\": {\n      \"include\": [\n        \"imdb.rating\",\n        \"imdb.votes\"\n      ]\n    }\n  }\n  ```\n\n* Run the following query against the collection:\n\n  ```json\n  db.movies.aggregate([\n    {\n      // search and output documents\n      $search: {\n        \"text\": {\n          \"query\": \"baseball\",\n          \"path\": \"title\"\n        },\n        \"returnStoredSource\": true // return stored fields only\n      }\n    },\n    // filter dataset from $search stage using $match\n    {\n      $match: {$or: [ { \"imdb.rating\": { $gt: 8.2 } }, { \"imdb.votes\": { $gte: 4500 } } ]}\n    },\n    // perform full document lookup for matched documents only\n    {\n      $lookup: {\n        from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n      }\n    }\n  ])\n  ```\n\n  The query returns the following documents:\n\n  ```json\n  [\n    {\n      _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n      imdb: { rating: 9.1, votes: 2460 },\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    },\n    {\n      _id: ObjectId(\"573a1399f29313caabced370\"),\n      imdb: { rating: 5.8, votes: 7617 },\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    }\n  ]\n  ```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"storedSource\": {\n    \"include\": [\n      \"year\",\n      \"title\"\n    ]\n  }\n}",
+          "tokenEstimate": 54
+        },
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    // search and output documents\n    $search: {\n      \"text\": {\n        \"query\": \"baseball\",\n        \"path\": \"title\"\n      },\n      \"returnStoredSource\": true // return stored fields only\n    }\n  },\n  // fetch all matched dataset from $search stage and sort it\n  {\n    $sort: {\"year\": 1, \"title\": 1}\n  },\n  // discard everything except top 10 results\n  {\n    $limit: 10\n  },\n  // perform full document lookup for top 10 documents only\n  {\n    $lookup: {\n      from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n    }\n  }\n])",
+          "tokenEstimate": 160
+        },
+        {
+          "language": "json",
+          "content": "[\n  {\n    _id: ObjectId(\"573a1399f29313caabced370\"),\n    title: 'Mr. Baseball',\n    year: 1992,\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  },\n  {\n    _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n    title: 'Baseball',\n    year: 1994,\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  }\n]",
+          "tokenEstimate": 112
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"storedSource\": {\n    \"include\": [\n      \"imdb.rating\",\n      \"imdb.votes\"\n    ]\n  }\n}",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    // search and output documents\n    $search: {\n      \"text\": {\n        \"query\": \"baseball\",\n        \"path\": \"title\"\n      },\n      \"returnStoredSource\": true // return stored fields only\n    }\n  },\n  // filter dataset from $search stage using $match\n  {\n    $match: {$or: [ { \"imdb.rating\": { $gt: 8.2 } }, { \"imdb.votes\": { $gte: 4500 } } ]}\n  },\n  // perform full document lookup for matched documents only\n  {\n    $lookup: {\n      from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n    }\n  }\n])",
+          "tokenEstimate": 160
+        },
+        {
+          "language": "json",
+          "content": "[\n  {\n    _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n    imdb: { rating: 9.1, votes: 2460 },\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  },\n  {\n    _id: ObjectId(\"573a1399f29313caabced370\"),\n    imdb: { rating: 5.8, votes: 7617 },\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  }\n]",
+          "tokenEstimate": 117
+        }
+      ]
+    }
+  ]
+}

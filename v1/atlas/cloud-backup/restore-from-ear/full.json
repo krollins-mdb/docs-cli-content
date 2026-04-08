@@ -1,0 +1,61 @@
+{
+  "path": "atlas/cloud-backup/restore-from-ear",
+  "product": "atlas",
+  "title": "Restore from a Snapshot Using Encryption at Rest",
+  "sections": [
+    {
+      "heading": "Restore Considerations",
+      "headingLevel": 2,
+      "body": "In addition to the [prerequisites](restore-prereq), consider the\nfollowing requirements and limitations when restoring with\nEncryption at Rest using Customer Key Management.\n\n- If the `DefaultRWConcern` value on the source snapshot differs\n  from the `DefaultRWConcern` value on the target\n  cluster, Atlas overrides the value on the source\n  snapshot with the value on the target cluster. If\n  there is no value configured for the `DefaultRWConcern` on the\n  target cluster, Atlas keeps the value of\n  `DefaultRWConcern` from the snapshot without explicit\n  configuration. This may differ from the default value for that\n  MongoDB version.\n\n* This feature is only available for `M10+` dedicated clusters.\n\n* Atlas can only restore to a cluster that uses the same\n  encryption provider as the source cluster. Snapshots taken from\n  clusters without Encryption at Rest using Customer Key Management cannot be restored to a\n  cluster with it, or to a Cloud Manager project.\n\n* When you run an automated restore for an Atlas cluster from a\n  different project with Encryption at Rest, the AWS (Amazon Web Services) KMS (Key Management Service) key values\n  for both clusters can differ but they must be created in the same region.\n\n* If the target project doesn't have a cluster with Encryption at\n  Rest enabled, you can either [Manage Your Own Encryption Keys](create-cluster-enable-encryption) a cluster with\n  Encryption at Rest, or [Encryption at Rest](scale-cluster-enable-encryption)\n  in an existing cluster.\n\n* Clusters that use [Amazon Web Services Key Management Service](security-aws-kms) encrypt their\n  PIT (Point in Time) restore [oplog](manual/reference/glossary) data with the customer's CMK (customer-managed key). The\n  current CMK (customer-managed key) must be valid for the encrypted oplog data to perform\n  a restore from a snapshot.\n\n* Atlas deletes all existing data on the target cluster prior to\n  the restore. Depending on the type of restore taking place, the target\n  cluster may be unavailable for the duration of the restore.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "General Optimizations",
+      "headingLevel": 2,
+      "body": "To optimize performance and reduce the amount of time it takes to\nrestore, follow these principles where applicable:\n\n- Select a target cluster that isn't global or multi-cloud.\n\n- Select a multi-region target cluster only if copies of the snapshot\n  you plan to restore exist in every region of that cluster.\n\n- Select a target cluster that belongs to the same cloud provider region\n  as the snapshot.\n\n- Select a cluster tier with the same storage capacity as the\n  capacity of the original volume used by the source cluster.\n\n- If the target cluster runs on AWS (Amazon Web Services) with configured IOPS (Input/Output Operations per Second),\n  select the configured IOPS (Input/Output Operations per Second) to fall within the configured range.\n\n- Select a target cluster that is not configured to use NVMe (non-volatile memory express) storage.\n  NVMe (non-volatile memory express) storage degrades restore performance.\n\n- For AWS (Amazon Web Services) source clusters created before March 27, 2024, click the\n  Faster Restore button in the cluster's [Backup](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fbackup%2Fclusters)\n  details in Atlas UI to enable faster cross-project restores using\n  the direct attach restore method. The target cluster must meet all\n  conditions listed in this section to use this feature.\n\n  When you activate Faster Restore, Atlas replaces each\n  node in the source cluster one at a time during your next\n  [Configure Maintenance Window](configure-maintenance-window). If the\n  maintenance window ends before all nodes are replaced, Atlas\n  finishes replacing the current node, then waits for the next\n  maintenance window to start replacing the next node. Secondary reads\n  and analytic nodes are unavailable during the rolling replacement.\n\n  Faster cross-project restores are automatically enabled for AWS (Amazon Web Services)\n  clusters created after March 27, 2024, all Google Cloud and Microsoft Azure\n  clusters, and all clusters in MongoDB Atlas for Government. If this feature is enabled\n  for your cluster, the Faster Restore button doesn't\n  appear.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To restore an encrypted or unencrypted snapshot created in an Atlas\nproject to the same project, you require the [Project Backup Manager](<Project Backup Manager>) role.\n\nTo restore an encrypted or unencrypted snapshot created in a source\nAtlas project to a different target project, you require the\n[Project Owner](<Project Owner>) role in the target project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "To restore from a snapshot using Encryption at Rest:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Select the  action.",
+      "headingLevel": 3,
+      "body": "In the **Actions** column, expand the\nellipsis-v **Actions** menu, and click\n**Restore** for the snapshot that you want to restore.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Select the target  .",
+      "headingLevel": 3,
+      "body": "From the **Restore** dialog box, select the target Atlas\n**Project** to which you want to restore. You can restore\nto any Atlas project for which the authenticated Atlas\nuser has the [Project Owner](<Project Owner>) role.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Select the  to restore to.",
+      "headingLevel": 3,
+      "body": "You can only restore to an Atlas replica set running\nEncryption at Rest. The target cluster must run the same or\ngreater version of MongoDB as the **MongoDB Version** of\nthe snapshot.\n\nAfter the restoration procedure, Atlas triggers a key rotation\nfor MongoDB encryption key. Atlas then encrypts the new\nMongoDB encryption keys based on the configured Encryption at\nRest provider for the target cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Restart your application.",
+      "headingLevel": 3,
+      "body": "Ensure your application uses the new target cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Troubleshoot Encryption at Rest",
+      "headingLevel": 2,
+      "body": "If Atlas has an issue with the encryption of either the snapshot\nor the target cluster, it displays one of the following errors:\n\n| Error                                                                                        | Result                                                                                                                                                                                                 |\n| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Can't restore a non-encrypted snapshot to a cluster with Encryption at Rest enabled.         | The snapshot can't be restored to Atlas.                                                                                                                                                               |\n| Target cluster doesn't have encryption enabled.                                              | You can either deploy a new target cluster with Encryption at Rest, or enable Encryption at Rest on your desired target cluster.                                                                       |\n| Encryption provider of target cluster doesn't match selected snapshot's encryption provider. | The encryption provider for the snapshot and target cluster don't match. You can either:Create a new snapshot with the same encryption provider.Change the encryption provider for the target cluster. |\n| Encryption credentials on snapshot aren't present.                                           | Atlas can't restore a snapshot whose encryption key was deleted.                                                                                                                                       |",
+      "codeBlocks": []
+    }
+  ]
+}

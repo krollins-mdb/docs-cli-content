@@ -1,0 +1,61 @@
+{
+  "path": "atlas/restore-archived-data-with-merge",
+  "product": "atlas",
+  "title": "Step 4",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "json": 3,
+      "shell": 1
+    },
+    "bySection": [
+      {
+        "heading": "Procedure",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 190
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 92
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 135
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 24
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Procedure",
+      "content": "{\n   \"_id\" : 1,\n   \"item\": \"cucumber\",\n   \"source\": \"nepal\",\n   \"released\": ISODate(\"2016-05-18T16:00:00Z\")\n}\n{\n   \"_id\" : 2,\n   \"item\": \"miso\",\n   \"source\": \"canada\",\n   \"released\": ISODate(\"2016-05-18T16:00:00Z\")\n}\n{\n   \"_id\" : 3,\n   \"item\": \"oyster\",\n   \"source\": \"luxembourg\",\n   \"released\": ISODate(\"2016-05-18T16:00:00Z\")\n}\n{\n   \"_id\" : 4,\n   \"item\": \"mushroom\",\n   \"source\": \"ghana\",\n   \"released\": ISODate(\"2016-05-18T16:00:00Z\")\n}",
+      "tokenEstimate": 190
+    },
+    {
+      "language": "json",
+      "section": "Procedure",
+      "content": "db.<collection>.aggregate([\n   {\n      \"$merge\": {\n         \"into\": {\n            \"atlas\": {\n               \"clusterName\": \"<atlas-cluster-name>\",\n               \"db\": \"<db-name>\",\n               \"coll\": \"<collection-name>\"\n            }\n         },\n         \"on\": [ \"item\", \"source\" ],\n         \"whenMatched\": \"keepExisting\",\n         \"whenNotMatched\": \"insert\"\n      }\n   }\n])",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "json",
+      "section": "Procedure",
+      "content": "db.runCommand({\n   \"aggregate\": \"<collection>\", \"pipeline\": [\n      {\n         $sort: {\n            \"_id\": 1, \"released\": 1,\n         }\n      }, {\n         \"$merge\": {\n            \"into\": {\n               \"atlas\": {\n                  \"clusterName\": \"<atlas-cluster-name>\", \"db\": \"<db-name>\",\n                  \"coll\": \"<collection-name>\"\n               }\n            }, \"on\": [ \"item\", \"source\" ], \"whenMatched\": \"keepExisting\",\n            \"whenNotMatched\": \"insert\"\n         }\n      }\n   ], \"cursor\": { }\n}, { \"background\": true }\n)",
+      "tokenEstimate": 135
+    },
+    {
+      "language": "shell",
+      "section": "Procedure",
+      "content": "db.<collection>.createIndex( { item: 1, source: 1 }, { unique: true } )",
+      "tokenEstimate": 24
+    }
+  ]
+}

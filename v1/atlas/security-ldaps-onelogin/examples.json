@@ -1,0 +1,155 @@
+{
+  "path": "atlas/security-ldaps-onelogin",
+  "product": "atlas",
+  "title": "Step 2: After connecting to your cluster, run commands to verify the user has the read or write privileges you assigned them.",
+  "summary": {
+    "total": 12,
+    "byLanguage": {
+      "sh": 12
+    },
+    "bySection": [
+      {
+        "heading": "Configure OneLogin for LDAP Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 23
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 44
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 23
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authorization",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          }
+        ]
+      },
+      {
+        "heading": "Troubleshoot LDAP Connection Issues",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 54
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 72
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "https://<onelogin-instance-id>.onelogin.com",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "nslookup cluster0-shard-00-00-example.mongodb.net",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "cn=<bind-user-email>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for LDAP Authentication",
+      "content": "cn=bind@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"cn={0},ou=users,dc=<onelogin_instance_id>,dc=onelogin,dc=com\"\n   }\n]",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "cn=<user-name>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "cn=<group-name>,ou=groups,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "cn=db-read,ou=groups,dc=mdb-example,dc=onelogin,dc=com",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "{USER}?memberOf?base",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D '<bind_user_dn>' -w '<bind_user_pwd>' -b 'dc=<onelogin_instance_id>,dc=onelogin,dc=com' -s sub",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D 'cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com' -w '<REDACTED>' -b 'dc=mdb-example,dc=onelogin,dc=com' -s sub",
+      "tokenEstimate": 72
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Edit a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To edit a MongoDB Search index through the [Node Driver](node),\nuse the `updateSearchIndex` helper method.\n\nYou can use the following sample application named `update-index.js`\nto update an existing index definition. Specify the following values:\n\n- Your Atlas connection string. To learn more, see [Driver](connect-via-driver).\n\n- The database and collection where you created the search index.\n\n- The new index definition to replace the existing definition. In the example,\n  you update an index to use [dynamic mappings](static-dynamic-mappings).\n  You can alter this definition to suit your specific indexing needs. To learn more,\n  see [index definitions](ref-index-definitions).\n\n- The name of the index that you want to update.\n\n```javascript\nimport { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // define your MongoDB Search index\n    const index = {\n        /* updated search index definition */\n        \"mappings\": {\n            \"dynamic\": false,\n            \"fields\": {\n              \"<field-name>\": {\n                \"type\": \"<field-type>\"\n              }\n            }\n        }\n    }\n\n    // run the helper method\n    await collection.updateSearchIndex(\"<index-name>\", index);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\nTo run the sample application, use the following command:\n\n```\nnode update-index.js\n```\n\n> **Note:** The dropSearchIndex() method doesn't return an output. To view your\n> [index status](manual/reference/method/db.collection.getSearchIndexes), you can use the\n> Atlas CLI to list MongoDB Search indexes. To learn more, see\n> [atlas clusters search index list](atlas/cli/current/command/atlas-clusters-search-indexes-list) or [atlas\n> deployments search index list](atlas/cli/current/command/atlas-deployments-search-indexes-list).\n\n> **Note:** While your updated index is building, different nodes might update at\n> varying speeds. During this period, you might experience mixed query\n> results, reflecting both the new index definition and the previous\n> index definition.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // define your MongoDB Search index\n    const index = {\n        /* updated search index definition */\n        \"mappings\": {\n            \"dynamic\": false,\n            \"fields\": {\n              \"<field-name>\": {\n                \"type\": \"<field-type>\"\n              }\n            }\n        }\n    }\n\n    // run the helper method\n    await collection.updateSearchIndex(\"<index-name>\", index);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 155
+    },
+    {
+      "language": "text",
+      "content": "node update-index.js",
+      "tokenEstimate": 4
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Measure Overall Performance",
+  "headingLevel": 2,
+  "body": "Evaluate the overall performance of your RAG (Retrieval-Augmented Generation) application using\nthe best-performing models:\n\n```python\nfrom ragas.metrics import answer_similarity, answer_correctness\n\ndata = {\"question\": [], \"ground_truth\": [], \"answer\": []}\ndata[\"question\"] = QUESTIONS\ndata[\"ground_truth\"] = GROUND_TRUTH\n# Use the best embedding model from the retriever evaluation\nretriever = get_retriever(\"text-embedding-3-small\", 2)\n# Use the best completion model from the generator evaluation\nrag_chain = get_rag_chain(retriever, \"gpt-3.5-turbo\")\nfor question in tqdm(QUESTIONS):\n    data[\"answer\"].append(rag_chain.invoke(question))\n\ndataset = Dataset.from_dict(data)\nrun_config = RunConfig(max_workers=4, max_wait=180)\nresult = evaluate(\n    dataset=dataset,\n    metrics=[answer_similarity, answer_correctness],\n    run_config=run_config,\n    raise_exceptions=False,\n)\nprint(f\"Overall metrics: {result}\")\n```\n\nThis evaluation shows that the RAG (Retrieval-Augmented Generation) chain produces an answer\nsimilarity of **0.8873** and an answer correctness of **0.5922**\non the sample dataset.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from ragas.metrics import answer_similarity, answer_correctness\n\ndata = {\"question\": [], \"ground_truth\": [], \"answer\": []}\ndata[\"question\"] = QUESTIONS\ndata[\"ground_truth\"] = GROUND_TRUTH\n# Use the best embedding model from the retriever evaluation\nretriever = get_retriever(\"text-embedding-3-small\", 2)\n# Use the best completion model from the generator evaluation\nrag_chain = get_rag_chain(retriever, \"gpt-3.5-turbo\")\nfor question in tqdm(QUESTIONS):\n    data[\"answer\"].append(rag_chain.invoke(question))\n\ndataset = Dataset.from_dict(data)\nrun_config = RunConfig(max_workers=4, max_wait=180)\nresult = evaluate(\n    dataset=dataset,\n    metrics=[answer_similarity, answer_correctness],\n    run_config=run_config,\n    raise_exceptions=False,\n)\nprint(f\"Overall metrics: {result}\")",
+      "tokenEstimate": 194
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "path": "atlas/benchmark/results",
+  "product": "atlas",
+  "title": "MongoDB Vector Search Benchmark Results",
+  "sections": [
+    {
+      "heading": "Summary of Results",
+      "headingLevel": 2,
+      "body": "- At 15.3M vectors using `voyage-3-large` embeddings at 2048 dimensions,\n  MongoDB Vector Search with quantization configured retains 90-95%\n  accuracy with \\< 50ms query latency.\n\n- Binary quantization is slower when the number of candidates requested\n  is in the hundreds due to the additional cost of rescoring with full\n  fidelity vectors. However, at \\~1/4 the price of serving the index, it might\n  be a preferable option for many large scale workloads.\n\n- We recommend over 1024 dimensions when running\n  larger workloads with quantization.\n\n- Selective filters can improve or worsen performance depending on the value\n  selected for `numCandidates`.\n\n- The additional cost of rescoring for binary quantization shows up in\n  reduced throughput when running highly concurrent workloads.\n\n- Sharding slightly improves throughput, but we still recommend scaling\n  out number of Search Nodes or the number of available cores on a Search Node\n  to improve throughput.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Recall and Latency Analysis Across Multidimensional Benchmark",
+      "headingLevel": 2,
+      "body": "The first set of results shows the tests that we ran against a 5.5M document dataset\ncontaining multiple dimensionalities of vectors (256, 512, 1024, 2048),\nall produced using `voyage-3-large`, within each document.\n\n![MongoDB Vector Search Quantization Benchmark Results](/atlas-vector-search/images/avs/performance/quantization.png)\n\nTo view the full chart, see the [Claude artifact](https://claude.ai/public/artifacts/3a204871-ddcd-4010-a522-d8b03c98fdfd).\n\nThe scalar quantized results all start at higher levels\nthan the binary quantized results, but stay at their asymptotic level\neven as `numCandidates` increases. Conversely, binary quantized queries\nyield more accurate results as more `numCandidates` are requested,\napproaching the asymptote of scalar quantization, and in some cases\npassing it, at the cost of higher latency, particularly above\n`numCandidates` of 1000.\n\nGenerally lower values of `limit` are harder to get closer to 100% accuracy\ndue to the top results being harder to pinpoint, and often might\nrequire higher `numCandidates` to achieve better results. This is particularly\nobservable in the binary quantization plot. We can also observe that lower\ndimensional vectors 256d and 512d particularly suffer at a large scale with\neither form of quantization. 256d never exceeds 70% recall and 512d never\nexceeds 80% recall in the limit `10` tests, with limit `100` requiring higher\nvalues `numCandidates` to reach the 90-95% target zone.\n\nGiven this information, we determined that when working with a large\ndataset, we recommend having dimensionality of at least 1024d and applying\nquantization to scale than having lower dimensionality and not using\nquantization, with the amount of vectors requested for the use case playing\na factor as well.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Larger Benchmark Results",
+      "headingLevel": 2,
+      "body": "For the larger 15.3M vector dataset, we fixed the dimensionality to 2048d\nand examined the impact of quantization, filtering and concurrency on\nperformance. We chose to pin on 2048d based on the results from the previous\nset of tests showing that higher dimensions retained recall in a more\nfavorable manner, though 1024d would have likely served just as well to reach\nthe 90-95% recall target.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Recall and Latency Analysis",
+      "headingLevel": 3,
+      "body": "We observed that it takes significantly more `numCandidates` when using\nbinary quantization to achieve the 90-95% recall target compared\nto baseline. Higher `numCandidates` generally means higher latency,\nbut this might vary.\n\n![MongoDB Vector Search Concurrency Benchmark Results](/atlas-vector-search/images/avs/performance/recall-latency.png)\n\nTo view the full chart, see the [Claude artifact](https://claude.ai/public/artifacts/6459f0c6-e3b1-4e8e-99ca-9dde5439a93d).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Filtering",
+      "headingLevel": 3,
+      "body": "We observed what happens to recall and latency when using a selective filter on the dataset\nfor \\~500k items of the 15.3M items are in the Pet Supplies Category (\\~3% of the corpus):\n\n![MongoDB Vector Search Filtering Benchmark Results](/atlas-vector-search/images/avs/performance/filtering.png)\n\nTo view the full chart, see the [Claude artifact](https://claude.ai/public/artifacts/10af9b38-3aca-4a1f-ac55-17f151e850dd).\n\nWe can see that the 3% selective filter can cause queries to be significantly\nmore expensive. For binary quantization at lower `limit` values, this\nwas roughly 4x as expensive to achieve 90-95% recall compared to the unfiltered\nqueries.\n\nFuture improvements in Lucene 10, which support Acorn-1 search strategies for\nHierarchical Navigable Small Worlds, might improve this process. However, performing\nENN (Exact Nearest Neighbor) when the number of requested candidates exceeds the number of vectors\nmatching the metadata filter within a segment demonstrates that filter\nselectivity plays a large part in query performance, regardless of the\nselected quantization regime.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Concurrency",
+      "headingLevel": 3,
+      "body": "These tests scale concurrent requests between 1, 10, and 100 at the various\n`limit` values when using scalar and binary quantization. `numCandidates` are\nselected by choosing values that allow 90-95% recall to be achieved:\n\n![MongoDB Vector Search Concurrency Benchmark Results](/atlas-vector-search/images/avs/performance/concurrency.png)\n\nTo view the full chart, see the [Claude artifact](https://claude.ai/public/artifacts/a60b1ed9-1b87-4806-b6cc-63594def621b).\n\nWe observe that scalar quantization achieves substantially higher QPS (queries per second)\nat all values of limit, likely because less work is being done per query with\nlower `numCandidates` and because rescoring is not being performed. We\nobserve substantial CPU bottlenecks occurring, as indicated by the concurrency\n10 and concurrency 100 plots generally being very close to each other,\nindicating that higher latency would be observed.\n\nOne exceptional data point is limit `10`, concurrency `100` for scalar quantization\nyielding significantly higher QPS. This is likely because of the lack of\nrescoring and lower `limit` values means fewer comparisons are performed for this\nquery, allowing each request to return more quickly and make the cores\navailable to serve other queries.\n\nScaling out the number of available vCPUs to serve requests, either by scaling\nup the Search Node tier or scaling up the number of Search Nodes from the\nminimum of 2 up to 32 nodes might help resolve concurrency bottlenecks and allow\nyou to scale well into the thousands of QPS.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sharding",
+      "headingLevel": 3,
+      "body": "We also observed what would happen if the cluster and collection were sharded\n(on `_id`) and unfiltered queries were issued against a binary quantized index.\n\n![MongoDB Vector Search Concurrency Benchmark Results](/atlas-vector-search/images/avs/performance/sharding.png)\n\nTo view the full chart, see the [Claude artifact](https://claude.ai/public/artifacts/bc02a204-5741-47a4-a007-2f334ad7624f).\n\nHere, we see that the sharded results have a higher QPS at limit `10` as the\nlower value of `numCandidates` can be provided to produce results in the\n90-95% recall range. This is because the 15.3M dataset is split across three\nshards, each of which have their own indexes filled with 5.1M vectors spread\nacross segments containing HNSW graphs. We are functionally doing a less\nadvanced search where it is more likely that each query scatter gathered across\n3 shards simultaneously could find the closest `n` vectors. For this reason,\nthe QPS is slightly higher when sharding since you can reduce `numCandidates`\nand have more cores available to serve queries, but the difference is not as\nsignificant to justify the increased cost of sharding the cluster. Most often\nyou should shard your cluster for reasons related to your operational workload,\nnot because you need to scale throughput for vector search.\n\n> **Note:** The values are similar for limit `100`, numCandidates `200`.\n> We might expect this to perform better for filtered queries with an\n> intelligent shard key matching used as a filter.",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "path": "atlas/too-many-indexes",
+  "product": "atlas",
+  "title": "Remove Unnecessary Indexes",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "[Indexes](manual/indexes) support the efficient execution of queries\nin MongoDB. However, each index you create has a negative performance\nimpact on writes and requires some disk space.\n\nCreating unnecessary indexes leads to a bloated collection and slow\nwrites. Consider each query your application performs and whether it\njustifies an index. Remove indexes that are unused, either because the\nfield is not used to query the database or because the index is\nredundant.\n\nYou should\n[identify and drop unnecessary indexes](identify-unnecessary-indexes).\nUse the Atlas UI to manage\nindexes in Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "Consider a game that awards `coins` to players. When a player reaches\n20 `coins`, that player earns 1 `star` and their `coins` are\nreset to 0. The game has a `players` collection with documents such\nas the following:\n\n```javascript\n// players collection\n{\n  \"_id\": \"ObjectId(123)\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"coins\": 11,\n  \"stars\": 2\n}\n```\n\nThe `players` collection has an index for every field:\n\n- `_id` is indexed by default.\n\n- `{ last_name: 1 }`\n\n- `{ last_name: 1, first_name: 1 }`\n\n- `{ coins: -1 }`\n\n- `{ stars: -1 }`",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// players collection\n{\n  \"_id\": \"ObjectId(123)\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"coins\": 11,\n  \"stars\": 2\n}",
+          "tokenEstimate": 46
+        }
+      ]
+    },
+    {
+      "heading": "last_name Index",
+      "headingLevel": 3,
+      "body": "In this example, when the game queries the database for player\ninformation, it finds a single record using a player's full name. The\n[compound index](manual/core/index-compound) `{ last_name: 1,\nfirst_name: 1 }` covers this case, so the game should drop the index\n`{ last_name: 1 }` because it is redundant.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "coins Index",
+      "headingLevel": 3,
+      "body": "In this example, the `coins` field is never used to search the\ndatabase. The game should drop the index `{ coins: -1 }` because it\nis unused.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "stars Index",
+      "headingLevel": 3,
+      "body": "In this example, at the end of a game, the players' names are displayed\non a leaderboard in descending order by number of stars. The game\nshould maintain the index `{ stars: -1 }`, even if it is used\ninfrequently, to avoid scanning every document in the\n`players` collection.\n\nNow, the game uses the following indexes:\n\n- `_id` is indexed by default.\n\n- `{ last_name: 1, first_name: 1 }`\n\n- `{ stars: -1 }`\n\nAfter dropping unnecessary indexes, the `players` collection has\nmore free space and can perform faster writes. The most frequent reads\ndo not experience a drop in performance because the indexes supporting\nthose reads still exist in the collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Identify & Drop Unnecessary Indexes",
+      "headingLevel": 2,
+      "body": "To identify unnecessary indexes in Atlas,\n[View Indexes with the Atlas UI](atlas-ui-view-indexes).\n\nUnder the **Indexes** tab in Data Explorer, you can view\n**Size**, **Usage**, and other information for each of\nyour indexes. If an index is unused or covered by another index, you\nshould drop it.\n\nTo drop an index in Atlas,\n[Drop an Index with the Atlas UI](atlas-ui-drop-an-index).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- To learn more about indexes, see [Indexes](manual/indexes).\n\n- To learn more about indexing for your use case, see\n  [Indexing Strategies](manual/applications/indexes).\n\n- MongoDB also offers a free MongoDB University Course on improving\n  database performance, including optimizing indexes:\n  [Monitoring and Insights](https://learn.mongodb.com/courses/monitoring-and-insights).",
+      "codeBlocks": []
+    }
+  ]
+}

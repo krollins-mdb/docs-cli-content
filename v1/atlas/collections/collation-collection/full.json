@@ -1,0 +1,71 @@
+{
+  "path": "atlas/collections/collation-collection",
+  "product": "atlas",
+  "title": "Create a Collection with Collation",
+  "sections": [
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "The following restrictions apply when the parameter `numericOrdering`\nis set to `true`:\n\n- Only contiguous non-negative integer substrings of digits are\n  considered in the comparisons. `numericOrdering` does not support:\n\n  - `+`\n\n  - `-`\n\n  - exponents\n\n- Only Unicode code points in the Number or Decimal Digit (Nd) category\n  are treated as digits.\n\n- If the number length exceeds 254 characters, the excess characters are\n  treated as a separate number.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Click the  button.",
+      "headingLevel": 3,
+      "body": "From the **Collections** screen, click the\n**Create Collection** button.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Enter the collection name.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Click the  dropdown.",
+      "headingLevel": 3,
+      "body": "Check the **Use Custom Collaton** option.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Select a value for .",
+      "headingLevel": 3,
+      "body": "You are required to select a **locale** from the [MongoDB\nsupported languages](manual/reference/collation-locales-defaults).\n\nAll other collation options parameters are optional. For descriptions of\nthe fields, see [Collation](manual/reference/collation).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Click  to create the collection.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "Consider a collection with the following string number and decimal values:\n\n```javascript\n[\n  { \"n\": \"1\" },\n  { \"n\": \"2\" },\n  { \"n\": \"-2.1\" },\n  { \"n\": \"2.0\" },\n  { \"n\": \"2.20\" },\n  { \"n\": \"10\"},\n  { \"n\": \"20\" },\n  { \"n\": \"20.1\" },\n  { \"n\": \"-10\" },\n  { \"n\": \"3\" }\n]\n```\n\nThe following find query uses a collation document containing the\n`numericOrdering` parameter:\n\n```javascript\n db.c.find(\n  { }, { _id: 0 }\n ).sort(\n   { n: 1 }\n  ).collation( {\n   locale: 'en_US',\n   numericOrdering: true\n} )\n```\n\nFor more information on querying documents in Atlas, see\n[query bar](atlas-ui-query-bar).\n\nThe operations returns the following results:\n\n```javascript\n[\n   { \"n\": \"-2.1\" },\n   { \"n\": \"-10\" },\n   { \"n\": \"1\" },\n   { \"n\": \"2\" },\n   { \"n\": \"2.0\" }\n   { \"n\": \"2.20\" },\n   { \"n\": \"3\" },\n   { \"n\": \"10\" },\n   { \"n\": \"20\" },\n   {\"n\": \"20.1\" }\n]\n```\n\n- `numericOrdering: true` sorts the string values in ascending order as if\n  they were numeric values.\n\n- The two negative values `-2.1` and `-10` are not sorted in the\n  expected sort order because they have unsupported `-` characters.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "[\n  { \"n\": \"1\" },\n  { \"n\": \"2\" },\n  { \"n\": \"-2.1\" },\n  { \"n\": \"2.0\" },\n  { \"n\": \"2.20\" },\n  { \"n\": \"10\"},\n  { \"n\": \"20\" },\n  { \"n\": \"20.1\" },\n  { \"n\": \"-10\" },\n  { \"n\": \"3\" }\n]",
+          "tokenEstimate": 99
+        },
+        {
+          "language": "javascript",
+          "content": " db.c.find(\n  { }, { _id: 0 }\n ).sort(\n   { n: 1 }\n  ).collation( {\n   locale: 'en_US',\n   numericOrdering: true\n} )",
+          "tokenEstimate": 46
+        },
+        {
+          "language": "javascript",
+          "content": "[\n   { \"n\": \"-2.1\" },\n   { \"n\": \"-10\" },\n   { \"n\": \"1\" },\n   { \"n\": \"2\" },\n   { \"n\": \"2.0\" }\n   { \"n\": \"2.20\" },\n   { \"n\": \"3\" },\n   { \"n\": \"10\" },\n   { \"n\": \"20\" },\n   {\"n\": \"20.1\" }\n]",
+          "tokenEstimate": 99
+        }
+      ]
+    }
+  ]
+}

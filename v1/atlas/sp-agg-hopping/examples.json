@@ -1,0 +1,51 @@
+{
+  "path": "atlas/sp-agg-hopping",
+  "product": "atlas",
+  "title": "$hoppingWindow Stage (Stream Processing)",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "js": 1,
+      "json": 2
+    },
+    "bySection": [
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 183
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 163
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "js",
+      "section": "Examples",
+      "content": "pipeline = [\n { $source:\n     {\n         \"connectionName\": \"streamsExampleConnectionToKafka\",\n         \"topic\": \"my_weatherdata\"\n     }\n },\n { $hoppingWindow:\n     {\n       \"interval\": {\n         \"size\": 100,\n         \"unit\": \"second\"\n       },\n       \"hopSize\": {\n         \"size\": 20,\n         \"unit\": \"second\"\n       },\n       \"pipeline\" : [\n         {\n             $group: {\n                 _id: { $meta: \"stream.window.start\" },\n                 averagePrecipitation: { $avg: \"$liquidPrecipitation.depth\" }\n             }\n         }\n\n       ],\n     }\n },\n { $merge:\n     {\n         \"into\":\n         {\n             \"connectionName\":\"streamsExampleConnectionToAtlas\",\n             \"db\":\"streamDB\",\n             \"coll\":\"streamCollection\"\n         }\n     }\n  }\n]",
+      "tokenEstimate": 183
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "  db.getSiblingDB(\"sample_weatherstream\").stream.find()",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  _id: ISODate('2024-08-28T19:30:20.000Z'),\n  averagePrecipitation: 2264.3973214285716\n},\n{\n  _id: ISODate('2024-08-28T19:30:40.000Z'),\n  averagePrecipitation: 2285.7061611374406\n},\n{\n  _id: ISODate('2024-08-28T19:31:00.000Z'),\n  averagePrecipitation: 2357.6940154440153\n},\n{\n  _id: ISODate('2024-08-28T19:31:20.000Z'),\n  averagePrecipitation: 2378.374061433447\n}",
+      "tokenEstimate": 163
+    }
+  ]
+}

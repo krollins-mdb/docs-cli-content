@@ -1,0 +1,37 @@
+{
+  "heading": "Error Handling",
+  "headingLevel": 3,
+  "body": "Invalid commands, network outages, and network errors that are not\nhandled by [single default retry](resilient-retryable-writes-reads) return errors.\nRefer to your driver's API (Application Programming Interface) documentation for error details.For example, if an application tries to insert a document that contains an\n`_id` value that is already used in the database's collection, your driver\nreturns an error that includes:**Java-sync:**Java (Sync)```none\nUnable to insert due to an error: com.mongodb.MongoWriteException:\nE11000 duplicate key error collection: <db>.<collection> ...\n```**Nodejs:**Node.js```json\n{\n    \"name\": : \"MongoError\",\n    \"message\": \"E11000 duplicate key error collection on: <db>.<collection> ... \",\n    ...\n}\n```**Python:**Python```none\npymongo.errors.DuplicateKeyError: E11000 duplicate key error collection: <db>.<collection> ...\n```Without proper error handling, an error may block your application from\nprocessing requests until it is restarted.Your application should handle errors without crashing or side\neffects. In the previous example of an application inserting a\nduplicate `_id` into a collection, that application could handle errors as\nfollows:**Java-sync:**Java (Sync)```java\n// Declare a logger instance from java.util.logging.Logger\nprivate static final Logger LOGGER = ...\n...\ntry {\n    InsertOneResult result = collection.insertOne(new Document()\n        .append(\"_id\", 1)\n        .append(\"body\", \"I'm a goofball trying to insert a duplicate _id\"));\n\n    // Everything is OK\n    LOGGER.info(\"Inserted document id: \" + result.getInsertedId());\n\n// Refer to the API documentation for specific exceptions to catch\n} catch (MongoException me) {\n    // Report the error\n    LOGGER.severe(\"Failed due to an error: \" + me);\n}\n```**Nodejs:**Node.js```javascript\n...\ncollection.insertOne({\n    _id: 1,\n    body: \"I'm a goofball trying to insert a duplicate _id\"\n})\n.then(result => {\n    response.sendStatus(200) // send \"OK\" message to the client\n},\nerr => {\n    response.sendStatus(400); // send \"Bad Request\" message to the client\n});\n```**Python:**Python```python\n...\ntry:\n    collection.insert_one({\n        \"_id\": 1,\n        \"body\": \"I'm a goofball trying to insert a duplicate _id\"\n    })\n    return {\"message\": \"User successfully added!\"}\nexcept pymongo.errors.DuplicateKeyError as e:\n    print (\"The insert operation failed:\", e)\n```The insert operation in this example throws a \"duplicate key\"\nerror the second time it's invoked because the `_id` field must be\nunique. The error is caught, the client is notified, and the app\ncontinues to run. The insert operation fails, however, and it is\nup to you to decide whether to show the user a message, retry the\noperation, or do something else.You should always log errors. Common strategies for further processing\nerrors include:* Return the error to the client with an error message. This is a good\n  strategy when you cannot resolve the error and need to inform a user\n  that an action cannot be completed.\n\n* Write to a backup database. This is a good strategy when you cannot\n  resolve the error but don't want to risk losing the request data.\n\n* Retry the operation beyond the\n  [single default retry](resilient-retryable-writes-reads). This\n  is a good  strategy when you can solve the cause of an error\n  programmatically, then retry it.You must select the best strategies for your application context.> **Example:** In the example of a duplicate key error, you should log the error\n> but not retry the operation because it will never succeed. Instead,\n> you could write to a fallback database and review the contents of\n> that database at a later time to ensure that no information is lost.\n> The user doesn't need to do anything else and the data is recorded,\n> so you can choose not to send an error message to the client.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "Unable to insert due to an error: com.mongodb.MongoWriteException:\nE11000 duplicate key error collection: <db>.<collection> ...",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "json",
+      "content": "{\n    \"name\": : \"MongoError\",\n    \"message\": \"E11000 duplicate key error collection on: <db>.<collection> ... \",\n    ...\n}",
+      "tokenEstimate": 35
+    },
+    {
+      "language": "none",
+      "content": "pymongo.errors.DuplicateKeyError: E11000 duplicate key error collection: <db>.<collection> ...",
+      "tokenEstimate": 24
+    },
+    {
+      "language": "java",
+      "content": "// Declare a logger instance from java.util.logging.Logger\nprivate static final Logger LOGGER = ...\n...\ntry {\n    InsertOneResult result = collection.insertOne(new Document()\n        .append(\"_id\", 1)\n        .append(\"body\", \"I'm a goofball trying to insert a duplicate _id\"));\n\n    // Everything is OK\n    LOGGER.info(\"Inserted document id: \" + result.getInsertedId());\n\n// Refer to the API documentation for specific exceptions to catch\n} catch (MongoException me) {\n    // Report the error\n    LOGGER.severe(\"Failed due to an error: \" + me);\n}",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "javascript",
+      "content": "...\ncollection.insertOne({\n    _id: 1,\n    body: \"I'm a goofball trying to insert a duplicate _id\"\n})\n.then(result => {\n    response.sendStatus(200) // send \"OK\" message to the client\n},\nerr => {\n    response.sendStatus(400); // send \"Bad Request\" message to the client\n});",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "python",
+      "content": "...\ntry:\n    collection.insert_one({\n        \"_id\": 1,\n        \"body\": \"I'm a goofball trying to insert a duplicate _id\"\n    })\n    return {\"message\": \"User successfully added!\"}\nexcept pymongo.errors.DuplicateKeyError as e:\n    print (\"The insert operation failed:\", e)",
+      "tokenEstimate": 66
+    }
+  ]
+}

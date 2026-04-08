@@ -1,0 +1,43 @@
+{
+  "path": "atlas/recover-pit-continuous-cloud-backup",
+  "product": "atlas",
+  "title": "Recover a Point In Time with Continuous Cloud Backup",
+  "sections": [
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "- Enabling Continuous Cloud Backup increases the monthly cost of your\n  cluster.\n\n  To learn more about the cost implications, see\n  [billing](billing-backup-cloud-provider-snapshots).\n\n- Clusters with continuous cloud backups enabled store [oplog](manual/reference/glossary) data\n  in object storage according to your cloud provider:\n\n  - S3 (Simple Storage Service) for AWS (Amazon Web Services)\n\n  - Azure Blob Storage for Azure (Microsoft Azure)\n\n  - Google Cloud Storage for Google Cloud\n\n- If you disable Continuous Cloud Backup, Atlas will delete the\n  continuous cloud backup history.\n\n- You can't restore a continuous cloud backup snapshot to a cluster from a\n  continuous cloud backup snapshot that is different from a cluster's current\n  version. When attempted, Atlas displays the following error message:\n\n  `The specified snapshot and target project have mismatched versions of MongoDB error.`\n\n- You can't configure a restore window that is longer than the\n  [Hourly Snapshot Retention Time](creating-backup-policy).\n\n- If you select the **Date & Time** option, you can\n  specify the time of restore with one minute of granularity.\n\n- If you select the **Oplog Timestamp** option, you\n  can specify the time of restore with one second of\n  granularity.\n\n- You can restore a cluster from any time during its continuous cloud backup\n  window, **except** for times between when you initiate a restore and\n  when Atlas completes a snapshot after the restore. Recent writes\n  that do not fully persist to the [oplog](manual/reference/glossary) before a restore begins\n  may fall outside the recoverable window.\n\n- Atlas might create a host rollback alert due to\n  differences in the data between the source and target\n  clusters. You can ignore this alert.\n\n- After the restore completes, Atlas takes a snapshot of\n  the restored cluster. This snapshot has a retention period\n  equal to the cluster's continuous cloud backup window.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To monitor a backup restore job until it completes, you must have\n[Project Read Only](<Project Read Only>) access or higher to the specific project.\n\nTo start a restore job, you must have [Project Backup Recovery Operator](<Project Backup Recovery Operator>), [Project Backup Manager](<Project Backup Manager>), or [Project Owner](<Project Owner>) access to the project.\n\nFor cross-organization or cross-project restores, the required permissions\napply to both the source and target projects. You must have the necessary\npermissions: [Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\nin both projects to initiate or manage such restore operations.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "The following process outlines the steps for setting up Continuous Cloud Backup\nand recovering a point in time:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Enable .",
+      "headingLevel": 3,
+      "body": "- [Create a Cluster](create-new-cluster), or click the ellipsis\n  next to the name of your cluster and select\n  **Edit Configuration**.\n\n- Click **Additional Settings**.\n\n- Toggle **Turn on Cloud Backup** to **On**.\n\n- Toggle **Continuous Cloud Backup** to **On**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Configure your .",
+      "headingLevel": 3,
+      "body": "- Click **Backup Policy**.\n\n- In the **Point in Time Restore Policy** section,\n  specify a **Restore Window**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Recover a .",
+      "headingLevel": 3,
+      "body": "- Click the **Point in Time Restore** button on the far\n  right side of the screen.\n\n- Select either the **Date & Time** or **Oplog\n  Timestamp** tab.\n\n- Enter the desired point in time to restore from.\n\n- Click the **Next: Select Cluster** button.\n\n- Choose a project and cluster to restore to from the dropdown\n  menus.\n\n- Click the **Restore** button.",
+      "codeBlocks": []
+    }
+  ]
+}

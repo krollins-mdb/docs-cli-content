@@ -1,0 +1,22 @@
+{
+  "heading": "Example Configuration for Azure Blob Storage Data Store",
+  "headingLevel": 2,
+  "body": "> **Example:** Consider Azure Blob Storage container `datacenter-alpha` containing data\n> collected from a datacenter:\n>\n> ```none\n> |--metrics\n>   |--hardware\n> ```\n>\n> The `/metrics/hardware` path stores JSON files with metrics\n> derived from the datacenter hardware, where each filename is\n> the UNIX timestamp in milliseconds of the 24 hour period\n> covered by that file:\n>\n> ```none\n> /hardware/1564671291998.json\n> ```\n>\n> The following configuration:\n>\n> - Defines a federated database instance store on the `datacenter-alpha` Azure Blob Storage\n>   container in the `eastus2` Azure (Microsoft Azure) region. The federated database instance store is\n>   specifically restricted to include only data files in the\n>   `metrics` directory path.\n>\n> - Maps files from the `hardware` directory to a MongoDB database\n>   `datacenter-alpha-metrics` and collection `hardware`. The\n>   configuration mapping includes parsing logic for capturing the\n>   timestamp implied in the filename.\n>\n> ```json\n> {\n>   \"stores\" : [\n>     {\n>       \"name\" : \"datacenter\",\n>       \"provider\" : \"azure\",\n>       \"region\" : \"eastus2\",\n>       \"containerName\" : \"datacenter-alpha\",\n>       \"serviceURL\" : \"https://mystorageaccount.blob.core.windows.net/\"\n>     }\n>   ],\n>   \"databases\" : [\n>     {\n>       \"name\" : \"datacenter-alpha-metrics\",\n>       \"collections\" : [\n>         {\n>           \"name\" : \"hardware\",\n>           \"dataSources\" : [\n>             {\n>               \"storeName\" : \"datacenter\",\n>               \"path\" : \"/hardware/{date date}\"\n>             }\n>           ]\n>         }\n>       ]\n>     }\n>   ]\n> }\n> ```\n>\n> Atlas Data Federation parses the Azure Blob Storage container `datacenter-alpha` and\n> processes all files under `/metrics/hardware/`. The `collections`\n> uses the [definitions](adf-path-syntax) to map the\n> filename to the `date` field, which is an ISO-8601 date, in each\n> document. If a matching `date` field does not exist in a document,\n> Atlas Data Federation adds it.\n>\n> Users connected to the federated database instance can use the MongoDB Query Language\n> and supported aggregations to analyze data in the Azure Blob Storage container\n> through the `datacenter-alpha-metrics.hardware` collection.\n\nAtlas Data Federation supports Google Cloud Storage buckets as federated database instance stores. You must\ndefine mappings in your federated database instance to your Cloud Storage bucket to run\nqueries against your data.\n\n> **Note:** We refer to objects as files and delimiter-separated prefixes as\n> directories in this page. However, these object storage services\n> aren't actually file systems and don't have the same behaviors in\n> all cases as files on a hard drive.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "|--metrics\n  |--hardware",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "none",
+      "content": "/hardware/1564671291998.json",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"stores\" : [\n    {\n      \"name\" : \"datacenter\",\n      \"provider\" : \"azure\",\n      \"region\" : \"eastus2\",\n      \"containerName\" : \"datacenter-alpha\",\n      \"serviceURL\" : \"https://mystorageaccount.blob.core.windows.net/\"\n    }\n  ],\n  \"databases\" : [\n    {\n      \"name\" : \"datacenter-alpha-metrics\",\n      \"collections\" : [\n        {\n          \"name\" : \"hardware\",\n          \"dataSources\" : [\n            {\n              \"storeName\" : \"datacenter\",\n              \"path\" : \"/hardware/{date date}\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 149
+    }
+  ]
+}

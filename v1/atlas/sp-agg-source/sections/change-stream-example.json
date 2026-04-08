@@ -1,0 +1,27 @@
+{
+  "heading": "Change Stream Example",
+  "headingLevel": 3,
+  "body": "The following aggregation ingests data from the\n`cluster0-collection` source, which connects to an Atlas\ncluster loaded with the [Load Sample Data Into Atlas](sample-data).  To learn\nhow to create a stream processing workspace and add a connection to an\nAtlas cluster to the connection registry, see\n[Get Started with Atlas Stream Processing](atlas-sp-quickstart). This aggregation runs two stages to open a\nchange stream and record changes to the `data` collection in the\n`sample_weatherdata` database:\n\n- The [$source](pipe.$source) stage connects to the\n  `cluster0-collection` source and opens a change stream against\n  the `data` collection in the `sample_weatherdata` database.\n\n- The [$merge](manual/reference/operator/aggregation/merge) stage writes the filtered change stream\n  documents to an Atlas collection named `data_changes` in\n  the `sample_weatherdata` database.  If no such collection exists,\n  Atlas creates it.\n\n```json\n{\n  $source: {\n    connectionName: \"cluster0-connection\",\n    db : \"sample_weatherdata\",\n    coll : \"data\"\n  },\n  $merge: {\n    into: {\n      connectionName: \"cluster0-connection\",\n      db: \"sample_weatherdata\",\n      coll: \"data_changes\"\n    }\n  }\n}\n```\n\nThe following [mongosh](mongodb-shell) command deletes a `data` document:\n\n```json\ndb.getSiblingDB(\"sample_weatherdata\").data.deleteOne(\n   { _id: ObjectId(\"5553a99ae4b02cf715120e4b\") }\n)\n```\n\nAfter the `data` document is deleted, the stream processor writes the change stream event\ndocument to the `sample_weatherdata.data_changes` collection.\nTo view the documents in the resulting `sample_weatherdata.data_changes`\ncollection, use [mongosh](mongodb-shell) to connect to your Atlas cluster and run the following command:\n\n**Input:**\n\n```json\ndb.getSiblingDB(\"sample_weatherdata\").data_changes.find()\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: {\n      _data: '8267A3D7A3000000012B042C0100296E5A1004800951B8EDE4430AB5C1B254BB3C96D6463C6F7065726174696F6E54797065003C64656C6574650046646F63756D656E744B65790046645F696400645553A99AE4B02CF715120E4B000004'\n    },\n    clusterTime: Timestamp({ t: 1738790819, i: 1 }),\n    documentKey: { _id: ObjectId('5553a99ae4b02cf715120e4b') },\n    ns: { db: 'sample_weatherdata', coll: 'data' },\n    operationType: 'delete',\n    wallTime: ISODate('2025-02-05T21:26:59.313Z')\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  $source: {\n    connectionName: \"cluster0-connection\",\n    db : \"sample_weatherdata\",\n    coll : \"data\"\n  },\n  $merge: {\n    into: {\n      connectionName: \"cluster0-connection\",\n      db: \"sample_weatherdata\",\n      coll: \"data_changes\"\n    }\n  }\n}",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "json",
+      "content": "db.getSiblingDB(\"sample_weatherdata\").data.deleteOne(\n   { _id: ObjectId(\"5553a99ae4b02cf715120e4b\") }\n)",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "json",
+      "content": "db.getSiblingDB(\"sample_weatherdata\").data_changes.find()",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: {\n      _data: '8267A3D7A3000000012B042C0100296E5A1004800951B8EDE4430AB5C1B254BB3C96D6463C6F7065726174696F6E54797065003C64656C6574650046646F63756D656E744B65790046645F696400645553A99AE4B02CF715120E4B000004'\n    },\n    clusterTime: Timestamp({ t: 1738790819, i: 1 }),\n    documentKey: { _id: ObjectId('5553a99ae4b02cf715120e4b') },\n    ns: { db: 'sample_weatherdata', coll: 'data' },\n    operationType: 'delete',\n    wallTime: ISODate('2025-02-05T21:26:59.313Z')\n  }\n]",
+      "tokenEstimate": 209
+    }
+  ]
+}

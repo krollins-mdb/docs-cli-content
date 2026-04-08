@@ -1,0 +1,133 @@
+{
+  "path": "atlas/production-notes",
+  "product": "atlas",
+  "title": "Download the logs.",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "With MongoDB Atlas as your data platform, your operational focus\ncan shift away from the mundane operational tasks and workflows required\nto build and maintain database infrastructure, allowing you to focus on\nhelping engineers add value to the business. Instead of maintaining\nhardware and keeping up with operating system-level software patches,\nengineers can devote their time and energy to developing data models\nthat meet the current and future requirements of your enterprise.\n\nThis document outlines some best practices for establishing and\nmaintaining a successful MongoDB production deployment using\nMongoDB Atlas clusters.\n\nFor more Atlas best practices, see the\n[Atlas Architecture Center](atlas/architecture/current).\n\n> **See Also:**&#x20;\n>\n> - To learn about sizing considerations, see [cluster sizing guide](sizing).\n>\n> - To learn more about resilience, see [Build a Resilient Application with MongoDB Atlas](resilient-application).\n>\n> - To learn more about Continuous Cloud Backup. see\n>   [restoring a point in time with continuous cloud backup](recover-pit-continuous-cloud-backup).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Roles and Responsibilities",
+      "headingLevel": 2,
+      "body": "MongoDB manages and operates the infrastructure required to provide a\nMongoDB Database Service to the customer. MongoDB's responsibilities\ninclude the following:\n\n- Manage the database clusters and underlying infrastructure, ensuring\n  availability, stability, and performance of MongoDB, backed by a\n  99.995%\n  [Uptime Service Level Agreement (SLA)](https://www.mongodb.com/cloud/atlas/availability-sla?tck=docs)\n  for clusters of size `M10` and larger.\n\n- Ensure the health of the underlying compute nodes. Make sure they are\n  running, have network connectivity, and have all recommended OS-level\n  patches to maintain the\n  [Uptime SLA](https://www.mongodb.com/cloud/atlas/availability-sla?tck=docs).\n\n- Manage the MongoDB database configuration based on the customer's\n  specific design choices made via the Atlas user interface or\n  REST API.\n\n- Apply all MongoDB maintenance upgrades automatically to ensure the\n  latest bug fixes to the product are in use.\n\n- Manage the security profile, including\n  Role-Based Access Control,\n  adding IP addresses to an IP access list, and\n  peering to\n  maximize cluster security per the customer's direction.\n\n- Provide backup and restore services.\n\nThe customer continues to develop and deploy applications which access\nMongoDB, without having to directly manage the underlying database\nresources and/or infrastructure.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Cluster Management",
+      "headingLevel": 2,
+      "body": "> **Important:** Atlas doesn't support moving clusters from one project to\n> another. Instead, perform a [Migrate or Import Data](import-strategies).\n\nMongoDB Atlas abstracts away database operations so that you can\nfocus on high-value, high-level management decisions. You can manage\naccess to your Atlas clusters with Atlas User\nRoles. You can apply these permissions\n**only** on the [The Organization Level](org-level-best-practices) or [The Project Level](project-level-best-practices). So, you should carefully plan the\nhierarchy of your organizations and projects.\n\n> **Tip:** If you need to create more than the Atlas organization limit of\n> 250 projects, create more organizations to store them. To learn\n> more, see [Atlas Organization and Project Limits](org-project-limits).\n\nTo create a well-designed hierarchy of organizations and\nprojects within Atlas, break your\nclusters into projects that make sense for your use\ncases. This allows for maximum enterprise efficiency with minimum\noperational friction.\n\n> **Tip:** Use [Cross-Org Billing](cross-org-billing) to link\n> multiple Atlas organizations and receive a single invoice for\n> all of them. To learn more, see [Cross-Organization Billing Use Cases](cross-org-billing-use-cases).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "The Organization Level",
+      "headingLevel": 3,
+      "body": "At the Organization level, you\ncan implement security controls and create users which work across one\nor more Projects. Atlas\nbilling occurs at the Organization level.\n\nTo efficiently control user access and privileges, you can group users\ninto teams at the Organization\nlevel.\n\n> **Important:** Don't include [sensitive information](sensitive-info) in your\n> [Create an Atlas organization](create-organization).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "The Project Level",
+      "headingLevel": 3,
+      "body": "Projects offer a security isolation and authorization boundary, so they\nare typically allocated by application team and application\nenvironment. For example, within two application teams there might be\nsix projects: one for each team in the Development, Staging, and\nProduction environments.\n\nYou can create project-level Atlas\nusers and roles with appropriate\naccess to the different production and development application\nenvironments.\n\n- Users with the [Project Read Only](<Project Read Only>) role can access\n  project-level monitoring and system health metadata without having\n  access to any collection data or administrative operations.\n\n- Users with the [Project Cluster Manager](<Project Cluster Manager>) role can scale\n  clusters and perform other administrative operations, but have no\n  data-level access.\n\n> **Important:**&#x20;\n>\n> Features Unavailable in Flex Clusters\n>\n> Flex Clusters don't support most of\n> the following responsibilities. To learn more, see\n> [Atlas Flex Limitations](flex-cluster-limitations).\n\nOther project-level responsibilities include:\n\n- Configure [Termination Protection](create-cluster-termination-protection) to prevent users from\n  accidentally deleting your cluster.\n\n- Implement optional enterprise security features, including:\n\n  - Encryption with customer key management\n\n  - Database auditing\n\n  - LDAP\n\n- Set up network access configuration, including:\n\n  - VPC / VNet Peering\n\n  - Adding IP addresses to an IP access list\n\n- Define appropriate database alerts via the\n  Atlas interface or API and respond to any which require\n  attention.\n\n- Integrate with external monitoring/alerting systems, such as DataDog and New Relic.\n\n  > **Important:** Effective Wednesday, June 16th, 2021, New Relic no longer supports\n  > the plugin-based integration with MongoDB. We do not recommend\n  > that you sign up for the plugin-based integration.\n  >\n  > To learn more,\n  > see the [New Relic Plugin EOL Statement](https://discuss.newrelic.com/t/new-relic-plugin-eol-wednesday-june-16th-2021/127267).\n\n> **Important:** Don't include [sensitive information](sensitive-info) in your\n> [create a project](create-project).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Cluster Naming Conventions",
+      "headingLevel": 3,
+      "body": "Choosing the right naming convention for your Atlas clusters is a good\nfirst step towards running a successful production environment. Once you've\nnamed a cluster you can't rename it, so it's important to get it right the\nfirst time. The following suggestions can make it easier to parse logs and\ndifferentiate clusters.\n\n- Use descriptive, lowercase names.\n\n- Avoid special characters.\n\n- Join words with hyphens or underscores. Avoid blank spaces between words.\n\n- Use a convention which makes it clear whether a cluster is for production,\n  staging, or development purposes.\n\n- Don't include [sensitive information](sensitive-info) in your\n  [cluster names](create-new-cluster-procedure).\n\nSome examples of good cluster names:\n\n- `prod-aws-website`\n\n- `staging-gcp-internal`\n\n- `dev-azure-analytics`",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Single Region and Multi-Region Clusters",
+      "headingLevel": 3,
+      "body": "High availability and cluster durability depend on a cluster's\ngeographical deployment configuration. Clusters which are deployed\nwithin a single region are spread\nacross availability zones within that region, so they can withstand\npartial region outages without an interruption of read or write\navailability.\n\nYou can optionally choose to spread your clusters across two or\nmore regions for greater resilience and\nworkload isolation.\n\nThe order of regions determines the priority order for the location of\nthe [primary node](manual/core/replica-set-members).\nTherefore, if you wish to direct database write operations to a\nparticular region when that region is available, you should list that\nregion first. The second region on the list should be the second\nchoice for where writes should go if the first region is unavailable.\n\nThe following example from the Atlas\nCreate a Cluster UI shows a\nmulti-region cluster with electable nodes in three different regions,\narranged by priority from highest to lowest:\n\n![Screenshot of electable nodes across three regions](/images/multi-region-cluster.png)\n\nIf the **us-east-1** region becomes unavailable, a new primary\nwill be elected in the **us-west-1** region.\n\n> **Note:** Clusters must have an odd number of nodes to ensure primary\n> electability. To learn more, see\n> [Replica Set Elections](manual/core/replica-set-elections).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deployment in Two Regions",
+      "headingLevel": 4,
+      "body": "Deploying a cluster to two regions ensures that a copy of your data\nwill always be maintained in more than one region. However, a loss of\nthe region which contains a majority of the nodes in the cluster will\nleave the second region in a read-only state until an administrator\nintervenes or the original region becomes available.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deployment in Three or More Regions",
+      "headingLevel": 4,
+      "body": "Deploying a cluster to three or more regions ensures that the cluster\ncan withstand a full region-level outage while maintaining read and\nwrite availability, provided the application layer is fault-tolerant.\n\nIf maintaining write operations in your preferred region at all times\nis a high priority, it is recommended to deploy the cluster so that at\nleast two [electable members](manual/core/replica-set-architecture-geographically-distributed)\nare in at least two data centers within your preferred region.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Global Clusters",
+      "headingLevel": 4,
+      "body": "For the best database performance in a worldwide deployment, users can\nconfigure a global cluster which uses\nlocation-aware sharding to minimize read and write latency. Users with\ngeographical storage requirements can also ensure that data is stored\nin a particular geographical area.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sensitive Information",
+      "headingLevel": 3,
+      "body": "Don't provide sensitive information such as Personally Identifiable\nInformation (PII) or Protected Health Information (PHI) for the\nfollowing items:\n\n- [Create an Atlas organization](create-organization)\n\n- [create a project](create-project)\n\n- [cluster names](create-new-cluster-procedure)\n\n- [database names](atlas-ui-create-a-db)\n\n- [collection names](atlas-ui-create-a-collection)\n\n- [custom tags](configure-resource-tags)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Application Management",
+      "headingLevel": 2,
+      "body": "Application-level responsibilities include:\n\n- [Schema design](manual/core/data-modeling-introduction), including\n  query and index optimization.\n\n- Cluster tier and topology selection. Choosing the appropriate\n  cluster [Select Cluster Tier](create-cluster-instance) and topology\n  ([replica set](manual/reference/glossary) or [sharded cluster](manual/reference/glossary)), along with\n  storage capacity and IOPS is crucial for\n  optimal database performance.\n\n- Provisioning of non-production clusters. Production backups can be\n  restored into non-production clusters with the Atlas UI or the\n  API.\n\n- Capacity planning. Determining when additional computational capacity\n  is needed, typically using the\n  monitoring telemetry that Atlas\n  provides. Additional capacity can be added with no application\n  downtime, and you can optionally enable\n  auto-scaling to respond automatically\n  to spikes in usage.\n\n- Deciding when to implement a major database\n  version upgrade.\n\n- Implementing and testing a\n  backup and restoration plan.\n\n- Ensuring that applications gracefully handle cluster failover through\n  testing.\n\n- Configuring data analytics services with tools such as\n  [BI Connector](bi-connector) and [Charts](charts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scale Clusters",
+      "headingLevel": 3,
+      "body": "MongoDB Atlas offers two methods for scaling, vertical and horizontal.\n\n*Vertical scaling* involves increasing a clusters storage capacity,\ncomputing power, and/or IOPS (Input/Output Operations per Second) rate. Vertical scaling can be\naccomplished quickly and is useful for peak usage periods. Vertically\nscaling from Free clusters or Flex clusters requires a few minutes of downtime.\nScaling between [dedicated clusters](manual/reference/glossary) (`M10` and greater)\nhappens without downtime.\n\nWhen scaling vertically, `M30` and higher clusters are recommended for\nproduction environments. You can use the following cluster tiers as\nproduction environments for low-traffic applications, but these tiers\nare recommended for development environments:\n\n- \\{+Flex clusters+}\n\n- `M10` and `M20` \\{+Dedicated clusters+}\n\n*Horizontal scaling* involves implementing\n[sharding](manual/sharding) or adding shards in an\nexisting sharded cluster. Horizontal scaling requires careful planning\nand execution, and is part of a long-term growth strategy for `M30+`\nclusters. You can also reduce the number of shards in a sharded cluster.\n\nIMPORTANT: When you remove a shard in 8.0, Atlas uses the\n[moveCollection](manual/reference/command/moveCollection) command to move any unsharded collections in\nthat shard to a remaining shard. All unsharded collections remain online\nduring this process.\n\n- All sharded collections remain online and available during the shard removal\n  process. You must turn on the balancer to drain the sharded collections from\n  the removed shard.\n\n- Atlas moves any unsharded collections that can't be drained by `moveCollection` command\n  by using the [movePrimary](manual/reference/command/movePrimary) command. To learn more about\n  the limitations of `moveCollection`, see [Restrictions](manual/reference/command/moveCollection).\n  `movePrimary` is an offline operation.\n\n- For more information about shard removal, see\n  [Remove Shards from a Sharded Cluster](manual/tutorial/remove-shards-from-cluster).\n\nVertical and horizontal sharding can be combined in Atlas. For example,\na sharded cluster can be vertically scaled up for a peak period,\nincreasing the storage capacity and computing power of the individual\nsharded cluster members.\n\nBy default, Atlas vertically auto-scales cluster storage up to your configured cluster tier size limit.\n\nYou can configure Atlas to\nautomatically scale your cluster tier\nand cluster storage capacity in response to increased cluster usage,\nallowing for a rapid, automated response to a need for greater storage\ncomputing power.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Manage Maintenance Windows",
+      "headingLevel": 2,
+      "body": "Atlas performs regular maintenance operations to ensure your\nclusters remain secure, stable, and up-to-date. By default,\nmaintenance runs automatically in a rolling manner to preserve\ncontinuous availability. However, you can\n[Configure Maintenance Window](configure-maintenance-window)\nto gain more control over when these operations occur.\n\nMaintenance windows are particularly useful for:\n\n- **Aligning maintenance across environments**: Defer maintenance by one\n  or two weeks in some environments to test updates in development or\n  staging before they reach production.\n\n- **Controlling timing and notifications**: Schedule maintenance during\n  off-peak hours and receive advance notifications so you can plan\n  accordingly.\n\n- **Batching maintenance operations**: Use the [auto-defer](auto-defer-maintenance) feature to automatically consolidate\n  multiple maintenance operations, reducing the total number of\n  maintenance events your clusters experience.\n\nMaintenance windows apply to Dedicated clusters (`M10` and above)\nand are configured at the project level. To learn more about configuring\nmaintenance windows and using features like auto-defer, see\n[Configure Maintenance Window](configure-maintenance-window).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Multi-Tenancy",
+      "headingLevel": 2,
+      "body": "You can implement multi-tenancy with Atlas so that a single instance\nof an application serves multiple tenants. Your initial design\ndecisions for a multi-tenant architecture can have unintended effects\nover time as requirements evolve or scaling expectations change. To\nlearn more, see [Build a Multi-Tenant Architecture](build-multi-tenant-arch).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Offload and Query Archived Data",
+      "headingLevel": 2,
+      "body": "As part of the data lifecycle, if you need to move cold data to a\ndifferent storage tier, you can set up an Atlas [Online Archives](online-archive-overview) rule to move data based on a date or custom\ncriteria. Once Atlas archives your infrequently accessed data, you\nhave a unified view of your Atlas and Online Archive data through a\nread-only federated database instance.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Federated Data",
+      "headingLevel": 2,
+      "body": "You can use Atlas Data Federation to query data-in-place across diverse\ninfrastructure or to move data between various systems. You can use the\naggregation pipeline on data from multiple sources to extract insights\nfrom your data or to transform it for other purposes. For example, you\ncan use [$out](adf-out-stage) to S3 (Simple Storage Service) and [$out](adf-out-stage) to Atlas to move data between storage tiers. You\ncan also use [$out](adf-out-stage) to S3 (Simple Storage Service) to easily transform\ndata from your Atlas cluster into JSON (Javascript Object Notation), BSON (Binary Javascript Object Notation), CSV (Comma-Separated Values), TSV,\nAvro, Parquet, and ORC as well as land it in AWS (Amazon Web Services) S3 (Simple Storage Service) to feed\ndownstream systems that need access.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Audit Temporary Database Users",
+      "headingLevel": 2,
+      "body": "Enabling auditing for all database users, including application service\nusers, might severely affect cluster performance. If you need to audit\nthe actions of a temporary database user, you can create a custom role\ntargeted for auditing, create a temporary user with elevated privileges,\nand grant this user the custom role to audit their actions.\n\nTo audit the actions of a temporary database user:\n\n[Create a custom role](add-mongodb-roles) targeted for auditing.\n\nTo audit CRUD operations for the role you created,\n[enable database auditing](enable-auditing-atlas).\"\n\nTo audit their actions,\n[Configure Database Users](add-mongodb-users).\n\nAssign the user the custom role you created for auditing. When you\ncreate the user, select the Save as temporary user\noption, then select the period of time you want the user to exist.\nWhen this period elapses, Atlas deletes the user.\n\n[Add a temporary IP access list entry](add-to-ip-access-list-ui)\nto limit the temporary user's access to Atlas clusters.\n\nWhen you create the IP access list entry for the temporary user,\nselect the Save as temporary access list option, then\nselect the period of time you want the access list entry to exist.\nWhen this period elapses, Atlas deletes the access list entry.\n\nTo audit the actions of the temporary database user,\n[log data](mongodb-logs).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Optional Monitoring & Logging Integrations",
+      "headingLevel": 2,
+      "body": "To learn more about monitoring and logging integrations available in Atlas,\nsee [Monitor Your Clusters](monitoring-alerts).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Manage Cluster Data Volume",
+      "headingLevel": 2,
+      "body": "Atlas offers the following built-in tools to help you manage your\ncluster data volume:\n\n- [Cluster Auto-Scaling](sizing-auto-scaling) automatically\n  reacts to your application load and adjusts the cluster tier.\n\n- [Online Archive](archive-cold-data) automates the\n  archival of infrequently accessed data.\n\n- [Search Nodes](what-is-search-node) scale independently and\n  offload [MongoDB Search Overview](fts-top-ref) and [MongoDB Vector Search](fts-vector-search) index storage\n  from your cluster.\n\n- [TTL indexes](manual/core/index-ttl) automatically remove documents\n  from a time series collection to free up space.\n\nIn addition to these tools, see the [cluster sizing guide](sizing) to learn how to adjust your cluster's size up or down. You\ncan also [pause and resume a cluster](pause-terminate-cluster) to save\ncosts by temporarily shutting it down while preserving data for up to\n30 days.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Support",
+      "headingLevel": 2,
+      "body": "Different tiers of support are available, including\noptions for customers in development and for enterprise customers.\n\nPossible support areas include:\n\n- Issues and concerns with the MongoDB clusters under management.\n\n- Performance-related inquiries.\n\n- Application-side and [driver](drivers) consultation.",
+      "codeBlocks": []
+    }
+  ]
+}

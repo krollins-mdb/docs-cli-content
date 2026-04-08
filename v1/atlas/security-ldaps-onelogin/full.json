@@ -1,0 +1,125 @@
+{
+  "path": "atlas/security-ldaps-onelogin",
+  "product": "atlas",
+  "title": "Step 2: After connecting to your cluster, run commands to verify the user has the read or write privileges you assigned them.",
+  "sections": [
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "- You must deploy `M10` or larger Atlas clusters to enable LDAP (Lightweight Directory Access Protocol)\n  integration. LDAP (Lightweight Directory Access Protocol) integration is an Atlas Enterprise feature.\n\n- Atlas does not support authenticating and authorizing users\n  synchronized from existing LDAP directories.\n\n- Atlas does not support single sign-on integration for database\n  users. To learn about single-sign on integration for the Atlas\n  administrative web interface, see\n  [Configure Federated Authentication](atlas-federated-authentication).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To manage LDAP (Lightweight Directory Access Protocol) users or groups, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedures",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure OneLogin for LDAP Authentication",
+      "headingLevel": 3,
+      "body": "The following procedure configures OneLogin for authentication\nwith Atlas:\n\n- To learn more about setting up the OneLogin LDAP (Lightweight Directory Access Protocol) service, see the\n  [OneLogin documentation](https://onelogin.service-now.com/support/?id=kb_article\\&sys_id=7b3ad943db109700d5505eea4b9619db).\n\n  > **Important:** You may need to contact OneLogin support to enable\n  > the VLDAP service for your account.\n\n- Note your `<onelogin-instance-id>`. You must provide it\n  in several places during the configuration process.\n\n  The instance name is located in the URL you use to sign in to your OneLogin\n  account:\n\n  ```sh\n  https://<onelogin-instance-id>.onelogin.com\n  ```\n\nIn OneLogin, click Authentication, then click\nVLDAP. Add the following to the\nAllow access by IP address field to add them to the\nIP access list:\n\n- The IP address of each node in your Atlas cluster. Use\n  `nslookup` to get the IP address of each host in your cluster,\n  using hostnames that Atlas generates:\n\n  ```sh\n  nslookup cluster0-shard-00-00-example.mongodb.net\n  ```\n\n  > **Note:** If the [Do Atlas cluster's public IPs ever change?](faq-public-ip-changes), you must update the IP access list\n  > with the new IP addresses.\n\n- (**Optional**) The IP address of a machine you can run `ldapsearch`\n  commands from to [troubleshoot LDAP connection issues](ldaps-onelogin-troubleshooting).\n\n* [Create a new OneLogin user](https://onelogin.service-now.com/support/?id=kb_article\\&sys_id=8bf95543db109700d5505eea4b96198b\\&kb_category=fdf52dfcdbd45340d5505eea4b96192b)\n  to use as the Atlas bind user. The bind user is a OneLogin\n  user that you use to query the account and to authenticate database\n  users' credentials when they connect to an Atlas database.\n\n  The Email and Username fields are required\n  when you create the bind user. You should enter the same email\n  address in both of these fields.\n\n  > **Important:**&#x20;\n  >\n  > Don't use your own user account for the bind user.\n\n* Use the following template to determine the full Distinguished Name\n  (DN) of your bind user:\n\n  ```sh\n  cn=<bind-user-email>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com\n  ```\n\n  For example, if your `<bind-user-email>` is `bind@example.com` and\n  your `<onelogin-instance-id>` is `mdb-example`, your bind\n  user's DN is:\n\n  ```sh\n  cn=bind@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com\n  ```\n\nIn OneLogin, assign the bind user the `Manage users`,\n`Manage group`, or `Super user` privilege.\n\n> **Note:** If you grant the bind user the `Manage group` privilege, you must\n> select a group. Atlas can only authenticate and authorize\n> LDAP (Lightweight Directory Access Protocol) users who belong to this group.\n\n- Navigate to your OneLogin Users page.\n\n- Click the bind user.\n\n- Click Add Privilege.\n\n- Select the privilege  you want to grant the user, then click\n  Continue.\n\n- Click Save User.\n\nIf you have not done so already, set a password for the bind user in\nOneLogin:\n\n- Click More Actions, then click\n  Change Password.\n\n- Enter a password, then click Update.\n\nIf they don't exist already, create users in OneLogin that you want to\ngrant database access to:\n\n- Navigate to your OneLogin users page.\n\n- Click New User.\n\n- Enter the user's details.\n\n  The Email and Username fields are required\n  when you create database users. Enter the same email address in\n  both of these fields.\n\n  > **Note:** Avoid entering email addresses with plus symbols (`+`). The\n  > Atlas LDAP (Lightweight Directory Access Protocol) integration may encounter issues with email\n  > addresses containing plus symbols.\n\n- Click Save User.\n\nIf you have not done so already, set a password for each database user\nin OneLogin:\n\n- Navigate to your OneLogin users page.\n\n- Click the user you want to set a password for.\n\n- Click More Actions, then click\n  Change Password.\n\n- Enter a password, then click Update.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "https://<onelogin-instance-id>.onelogin.com",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "sh",
+          "content": "nslookup cluster0-shard-00-00-example.mongodb.net",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "sh",
+          "content": "cn=<bind-user-email>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "sh",
+          "content": "cn=bind@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "Configure Atlas for LDAP Authentication",
+      "headingLevel": 3,
+      "body": "The following procedure enables Atlas to authenticate database\nusers from OneLogin LDAP (Lightweight Directory Access Protocol):\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nAdd a User to DN mapping similar to the following example to allow\nclients to provide their email addresses instead of full DNs when they\nconnect to Atlas databases:\n\n```sh\n[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"cn={0},ou=users,dc=<onelogin_instance_id>,dc=onelogin,dc=com\"\n   }\n]\n```\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.\n\n> **Note:** [Skip this step](configure-onelogin-authz) if you want to\n> enable LDAP authorization.\n\nAdd users managed in the OneLogin LDAP (Lightweight Directory Access Protocol) to Atlas.\n\n- Click  Add New Database User.\n\n- Click LDAP User.\n\n- Perform one of the following:\n\n  - If you have not entered a User to DN Mapping, enter\n    the full DN of the LDAP (Lightweight Directory Access Protocol) user. Follow this template:\n\n    ```sh\n    cn=<user-name>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com\n    ```\n\n    For example, if your `<user-name>` is `jane@example.com` and\n    your `<onelogin-instance-id>` is `mdb-example`, your bind user's\n    DN is:\n\n    ```sh\n    cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com\n    ```\n\n  - If you entered a User to DN Mapping,\n    enter the username or email address that your mapping requires.\n\n- Select the database access level to grant to the user.\n\n- Click Add User.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "[\n   {\n       \"match\": \"(.+)\",\n       \"substitution\": \"cn={0},ou=users,dc=<onelogin_instance_id>,dc=onelogin,dc=com\"\n   }\n]",
+          "tokenEstimate": 44
+        },
+        {
+          "language": "sh",
+          "content": "cn=<user-name>,ou=users,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+          "tokenEstimate": 25
+        },
+        {
+          "language": "sh",
+          "content": "cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com",
+          "tokenEstimate": 23
+        }
+      ]
+    },
+    {
+      "heading": "Configure OneLogin for LDAP Authorization",
+      "headingLevel": 3,
+      "body": "> **Note:** Skip this section if you don't want to\n> enable LDAP (Lightweight Directory Access Protocol) authorization.\n\nThe following procedure configures Atlas to authorize users who\nbelong to OneLogin LDAP (Lightweight Directory Access Protocol) database access groups.\n\n> **Important:**&#x20;\n>\n> - You must enable authentication with LDAP (Lightweight Directory Access Protocol) before enabling\n>   authorization.\n>\n> - When you enable and configure LDAP (Lightweight Directory Access Protocol) authorization, database users\n>   who are only configured for LDAP (Lightweight Directory Access Protocol) authentication will no longer\n>   be able to access databases.\n\nAtlas LDAP (Lightweight Directory Access Protocol) authorization uses LDAP (Lightweight Directory Access Protocol) groups to determine if users\nare authorized to perform database actions.\n\nCreate separate OneLogin groups for each level of access that you want\nto grant to users. For example,\nyou create one group for read access to one database, another for read\nand write access, and so on.\n\n- Navigate to your OneLogin groups page.\n\n- Click New Group.\n\n- Enter a group name, for example `db-read`.\n\n- Click Save.\n\nAssign users to groups based on the level of access\neach user requires.\n\n- Navigate to your OneLogin Users page.\n\n- Click the user you want to add to a group.\n\n- Click the Authentication tab.\n\n- Select the group you want to add the user to.\n\n- Click Save User.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure Atlas for LDAP Authorization",
+      "headingLevel": 3,
+      "body": "> **Note:** Skip this section if you don't want to\n> enable LDAP (Lightweight Directory Access Protocol) authorization.\n\nThe following procedure adds the OneLogin database access\ngroups to Atlas and enables database user authorization in\nAtlas:\n\nAdd each of the OneLogin database groups you created to Atlas.\nMembers of groups that you add are authorized to perform database actions\ngranted to the group.\n\n- Click  Add New Database User.\n\n* Click LDAP Group, and then enter the full DN of the\n  group containing your database users, even if you enabled\n  User to DN Mapping. Follow this template:\n\n  ```sh\n  cn=<group-name>,ou=groups,dc=<onelogin-instance-id>,dc=onelogin,dc=com\n  ```\n\n  For example, if your `<group-name>` is `db-read` and your\n  `<onelogin-instance-id>` is `mdb-example`, your bind user's DN is:\n\n  ```sh\n  cn=db-read,ou=groups,dc=mdb-example,dc=onelogin,dc=com\n  ```\n\n- Select the database access level to grant to users in this group.\n\n- Click Add User.\n\nWhen a user attempts to perform an action, Atlas executes the\n[LDAP query template](manual/reference/configuration-options)\nto obtain the LDAP groups to which the authenticated user belongs.\nAtlas permits the action if the query returns at least one group\nthat is authorized to perform the action. Atlas does not permit\nthe action if the query returns no groups that are authorized to\nperform the action.\n\nAtlas substitutes the authenticated username in the `{USER}`\nplaceholder when it runs the query. The query is relative to the host\nspecified in Server Hostname.\n\nThe formatting for the query must conform to [RFC4515](https://www.rfc-editor.org/rfc/rfc4515)\nand [RFC 4516](https://tools.ietf.org/html/rfc4516).\n\nEnter the following Query Template:\n\n```sh\n{USER}?memberOf?base\n```\n\n> **Note:** Other query templates may also work.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nserver using the configuration details that you provide.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "cn=<group-name>,ou=groups,dc=<onelogin-instance-id>,dc=onelogin,dc=com",
+          "tokenEstimate": 25
+        },
+        {
+          "language": "sh",
+          "content": "cn=db-read,ou=groups,dc=mdb-example,dc=onelogin,dc=com",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "sh",
+          "content": "{USER}?memberOf?base",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "Connect to your Cluster Using mongosh",
+      "headingLevel": 3,
+      "body": "The following procedure verifies that LDAP (Lightweight Directory Access Protocol) authentication (and LDAP (Lightweight Directory Access Protocol)\nauthorization, if enabled) is configured correctly:\n\n> **Note:** When LDAP (Lightweight Directory Access Protocol) authentication is enabled, database users must override\n> the following parameters in the connection string for their\n> clients:\n>\n> - `authSource` must be `$external`\n>\n> - `authenticationMechanism` must be `PLAIN`\n\nUse [mongosh](mongodb-shell) to connect to your cluster. To copy the connection string:\n\n- Click Connect.\n\n- Click LDAP, and then click Copy.\n\n- Paste and edit the string with your User DN and password.\n\n> **Note:** Connect to your cluster with a user's full DN if User to DN\n> Mapping is not enabled.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Troubleshoot LDAP Connection Issues",
+      "headingLevel": 2,
+      "body": "> **Note:** [add the host](configure-onelogin-ldap) from which you're\n> running `ldapsearch` to your IP access list before you\n> troubleshoot OneLogin connection issues.\n\nUse `ldapsearch` to determine if the query template you\nconfigured Atlas to use returns user DNs the way you expect. The\nquery template may not be returning the correct user DNs if LDAP (Lightweight Directory Access Protocol)\nauthentication works but LDAP (Lightweight Directory Access Protocol) authorization doesn't.\n\nUse the following `ldapsearch` template:\n\n```sh\nldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D '<bind_user_dn>' -w '<bind_user_pwd>' -b 'dc=<onelogin_instance_id>,dc=onelogin,dc=com' -s sub\n```\n\nFor example, if your `bind-user-dn` is\n`cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com`\nand your `<onelogin-instance-id>` is `mdb-example`, use the\nfollowing command:\n\n```sh\nldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D 'cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com' -w '<REDACTED>' -b 'dc=mdb-example,dc=onelogin,dc=com' -s sub\n```\n\n> **Note:** Other query templates may also work.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D '<bind_user_dn>' -w '<bind_user_pwd>' -b 'dc=<onelogin_instance_id>,dc=onelogin,dc=com' -s sub",
+          "tokenEstimate": 54
+        },
+        {
+          "language": "sh",
+          "content": "ldapsearch -H 'ldaps://ldap.us.onelogin.com:636' -D 'cn=jane@example.com,ou=users,dc=mdb-example,dc=onelogin,dc=com' -w '<REDACTED>' -b 'dc=mdb-example,dc=onelogin,dc=com' -s sub",
+          "tokenEstimate": 72
+        }
+      ]
+    }
+  ]
+}

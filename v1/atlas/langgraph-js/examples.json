@@ -1,0 +1,71 @@
+{
+  "path": "atlas/langgraph-js",
+  "product": "atlas",
+  "title": "Integrate MongoDB with LangGraph.js",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "bash": 1,
+      "javascript": 3
+    },
+    "bySection": [
+      {
+        "heading": "MongoDB LangGraph Checkpointer (Short-Term Memory)",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 75
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 235
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 98
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "MongoDB LangGraph Checkpointer (Short-Term Memory)",
+      "content": "npm install @langchain/langgraph-checkpoint-mongodb",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "import { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoClient } from \"mongodb\";\n\n// Connect to your MongoDB cluster\nconst client = new MongoClient(\"<connection-string>\");\n\n// Initialize the MongoDB checkpointer\nconst checkpointer = new MongoDBSaver(client);\n\n// Instantiate the graph with the checkpointer\nconst app = graph.compile(checkpointer);",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "import { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\nimport { MongoClient } from \"mongodb\";\nimport { VoyageAIEmbeddings } from \"@langchain/community/embeddings/voyage\";\nimport { createRetrieverTool } from \"langchain/tools/retriever\";\n\n// Instantiate the vector store\nconst client = new MongoClient(\"<connection-string>\");\nconst collection = client.db(\"<databaseName>\").collection(\"<collectionName>\");\nconst embeddingModel = new VoyageAIEmbeddings();\n\nconst vectorStore = new MongoDBAtlasVectorSearch(embeddingModel, {\n  collection: collection,\n  indexName: \"vector_index\", // Name of the index\n  textKey: \"text\",           // Name of the collection field containing the raw content\n  embeddingKey: \"embedding\", // Name of the collection field containing the embedded text\n});\n\n// Create a retriever tool\nconst retriever = vectorStore.asRetriever();\nconst retrieverTool = createRetrieverTool(\n  retriever,\n  {\n    name: \"vector_search_retriever\", // Tool name\n    description:\n      \"Retrieve relevant documents from the collection\" // Tool description\n  },\n);",
+      "tokenEstimate": 235
+    },
+    {
+      "language": "javascript",
+      "section": "Usage",
+      "content": "import { StateGraph } from \"@langchain/langgraph\";\nimport { ToolNode } from \"@langchain/langgraph/prebuilt\";\n\n// Convert the retriever tool into a node\nconst retrieverNode = new ToolNode([retrieverTool]);\n\n// Define the graph\nconst workflow = new StateGraph(SomeGraphState)\n  // Add the tool as a node in the graph\n  .addNode(\"vector_search_retriever\", retrieverNode);\n\nconst graph = workflow.compile();",
+      "tokenEstimate": 98
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "heading": "Wildcard Usage Examples",
+  "headingLevel": 3,
+  "body": "These examples show how the wildcard `\"*\"` can be\nspecified with the `create` command.\n\nThe following example uses the `create` command to\ndynamically create collections for the files in the\npath `/json/` in the `egS3Store` federated database instance store.\nIt uses the `collectionName()` function to name the\ncollections after the filenames in the specified path.\n\n**Input:**\n\n```javascript\nuse sampleDB\ndb.runCommand({ \"create\" : \"*\", \"dataSources\" : [{ \"storeName\" : \"egS3Store\", \"path\": \"/json/{collectionName()}\"}]})\n```\n\n**Output:**\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following commands show that the collection was\nsuccessfully created:\n\n**Input:**\n\n```javascript\nshow collections\n```\n\n**Output:**\n\n```javascript\nairbnb\n```\n\n**Input:**\n\n```javascript\ndb.runCommand({\"storageGetConfig\" : 1 })\n```\n\n**Output:**\n\n```json\n{\n  \"ok\" : 1,\n  \"storage\" : {\n    \"stores\" : [{\n      \"name\" : \"egS3Store\",\n      \"provider\" : \"s3\",\n      \"region\" : \"us-east-2\",\n      \"bucket\" : \"test-data-federation\",\n      \"delimiter\" : \"/\",\n      \"prefix\" : \"\"\n    }],\n    \"databases\" : [{\n      \"name\" : \"sampleDB\",\n      \"collections\" : [{\n        \"name\" : \"*\",\n        \"dataSources\" : [{\n          \"storeName\" : \"egS3Store\",\n          \"path\" : \"/json/{collectionName()}\"\n        }]\n      }]\n    }]\n  }\n}\n```\n\nThe following example uses the `create` command to\ncreate a collection named `egCollection` that maps\nto a Atlas Data Federation store named `egS3Store`. The\n`egS3Store` contains the sample dataset, `airbnb`, in a folder named `json`.\n\n**Input:**\n\n```javascript\nuse sampleDB\ndb.runCommand({ \"create\" : \"egCollection\", \"dataSources\" : [{ \"storeName\" : \"egS3Store\", \"path\": \"/json/*\"}]}})\n```\n\n**Output:**\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following commands show that the collection was\nsuccessfully created:\n\n**Input:**\n\n```javascript\nshow collections\n```\n\n**Output:**\n\n```javascript\negCollection\n```\n\n**Input:**\n\n```javascript\ndb.runCommand({\"storageGetConfig\" : 1 })\n```\n\n**Output:**\n\n```json\n{\n     \"ok\" : 1,\n     \"storage\" : {\n            \"stores\" : [{\n              \"name\" : \"egS3Store\",\n              \"provider\" : \"s3\",\n              \"region\" : \"us-east-2\",\n              \"bucket\" : \"test-data-federation\",\n              \"delimiter\" : \"/\",\n              \"prefix\" : \"\"\n            }],\n            \"databases\" : [{\n              \"name\" : \"sample\",\n              \"collections\" : [{\n                     \"name\" : \"egCollection\",\n                     \"dataSources\" : [{\n                            \"storeName\" : \"egS3Store\",\n                            \"path\" : \"/json/*\"\n                          }]\n                   }]\n            }]\n     }\n}\n```\n\nThe following examples use the sample `airbnb` data on an\nAzure Blob Storage container with the following settings:\n\n| Store Name     | egAzureStore |\n| -------------- | ------------ |\n| Prefix         | sample       |\n| Delimiter      | /            |\n| Sample Dataset | airbnb       |",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "use sampleDB\ndb.runCommand({ \"create\" : \"*\", \"dataSources\" : [{ \"storeName\" : \"egS3Store\", \"path\": \"/json/{collectionName()}\"}]})",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "json",
+      "content": "{ \"ok\" : 1 }",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "content": "show collections",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "javascript",
+      "content": "airbnb",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "javascript",
+      "content": "db.runCommand({\"storageGetConfig\" : 1 })",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"ok\" : 1,\n  \"storage\" : {\n    \"stores\" : [{\n      \"name\" : \"egS3Store\",\n      \"provider\" : \"s3\",\n      \"region\" : \"us-east-2\",\n      \"bucket\" : \"test-data-federation\",\n      \"delimiter\" : \"/\",\n      \"prefix\" : \"\"\n    }],\n    \"databases\" : [{\n      \"name\" : \"sampleDB\",\n      \"collections\" : [{\n        \"name\" : \"*\",\n        \"dataSources\" : [{\n          \"storeName\" : \"egS3Store\",\n          \"path\" : \"/json/{collectionName()}\"\n        }]\n      }]\n    }]\n  }\n}",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "javascript",
+      "content": "use sampleDB\ndb.runCommand({ \"create\" : \"egCollection\", \"dataSources\" : [{ \"storeName\" : \"egS3Store\", \"path\": \"/json/*\"}]}})",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "json",
+      "content": "{ \"ok\" : 1 }",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "content": "show collections",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "javascript",
+      "content": "egCollection",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "javascript",
+      "content": "db.runCommand({\"storageGetConfig\" : 1 })",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "json",
+      "content": "{\n     \"ok\" : 1,\n     \"storage\" : {\n            \"stores\" : [{\n              \"name\" : \"egS3Store\",\n              \"provider\" : \"s3\",\n              \"region\" : \"us-east-2\",\n              \"bucket\" : \"test-data-federation\",\n              \"delimiter\" : \"/\",\n              \"prefix\" : \"\"\n            }],\n            \"databases\" : [{\n              \"name\" : \"sample\",\n              \"collections\" : [{\n                     \"name\" : \"egCollection\",\n                     \"dataSources\" : [{\n                            \"storeName\" : \"egS3Store\",\n                            \"path\" : \"/json/*\"\n                          }]\n                   }]\n            }]\n     }\n}",
+      "tokenEstimate": 145
+    }
+  ]
+}

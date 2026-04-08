@@ -1,0 +1,224 @@
+{
+  "path": "atlas/path-construction",
+  "product": "atlas",
+  "title": "Construct a Query Path",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "The `path` parameter is used by the MongoDB Search\n[operators](fts-operators) to specify the field or fields\nto be searched. It may contain:\n\n- A string\n\n- An array of strings\n\n- A [multi](ref-multi-analyzers) specification\n\n- An array containing a combination of strings and multi analyzer\n  specifications\n\n> **Note:** Not all operators can use all the different types of paths. See the\n> documentation for each individual operator for details on what types\n> of path it supports.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 2,
+      "body": "**To search only a single indexed field**, use a quoted string in the\n`path` parameter. The following example searches a field named\n`description`.\n\n```javascript\n\"path\": \"description\"\n```\n\n**To search multiple indexed fields**, use an array of quoted strings\nin the `path` parameter. Documents which match on any of the\nspecified fields are included in the result set. The following\nexample searches the `description` and `type` fields.\n\n```javascript\n\"path\": [ \"description\", \"type\" ]\n```\n\n> **Note:** The `multi` path option is available only to fields of\n> type [string](bson-data-types-string).\n\nIf your [index definition](index-config-example) contains a field\nwith multiple analyzers, you can specify which one to use. The `path`\nparameter can take an object with the following fields:\n\n| Field    | Description                                                                                                                                                                                                                                                                                                                                                                                                                      |\n| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| value    | The name of the field to search.                                                                                                                                                                                                                                                                                                                                                                                                 |\n| multi    | The name of the alternate analyzer specified in a multi object in an index definition. To learn more, see Multi Analyzer.                                                                                                                                                                                                                                                                                                        |\n| wildcard | The object containing the wildcard character \\* to match any character in the name of the field to search, including nested fields. A wildcard path:Must be defined as an object.Cannot contain the value or multi option.Cannot contain multiple consecutive wildcard characters such as \\*\\*.Wildcard path is only accepted by the following operators:phraseregextextwildcardWildcard path is also accepted for highlighting. |\n\nIn the following index definition, fields named `names` and `notes`\nuse the [standard analyzer](ref-standard-analyzer) analyzer.\nA field named `comments` uses `standard` as its default analyzer,\nand it also specifies a `multi` named `mySecondaryAnalyzer` which\nuses the [whitespace analyzer](ref-whitespace-analyzer) analyzer.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"names\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"notes\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"comments\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"mySecondaryAnalyzer\": {\n            \"analyzer\": \"lucene.whitespace\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nThe following `path` example searches the `comments` field using\nthe `multi` named `mySecondaryAnalyzer` in the index definition.\n\n```javascript\n\"path\": { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }\n```\n\n**To search a combination of indexed fields and fields with multiple\nanalyzers**, use an array. The following example searches the\n`names` and `notes` fields with the default analyzer, and the\n`comments` field using the `multi` named\n`mySecondaryAnalyzer` in the index definition.\n\n```javascript\n\"path\": [ \"names\", \"notes\", { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" } ]\n```\n\nThe following `path` example searches all the fields that contain the\nletter `n` followed by any characters, and the `comments` field\nusing the `multi` named `mySecondaryAnalyzer` in the index\ndefinition.\n\n```javascript\n\"path\": [{ \"wildcard\": \"n*\" }, { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }]\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "\"path\": \"description\"",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "javascript",
+          "content": "\"path\": [ \"description\", \"type\" ]",
+          "tokenEstimate": 10
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"names\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"notes\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"comments\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"mySecondaryAnalyzer\": {\n            \"analyzer\": \"lucene.whitespace\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}",
+          "tokenEstimate": 129
+        },
+        {
+          "language": "javascript",
+          "content": "\"path\": { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "javascript",
+          "content": "\"path\": [ \"names\", \"notes\", { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" } ]",
+          "tokenEstimate": 26
+        },
+        {
+          "language": "javascript",
+          "content": "\"path\": [{ \"wildcard\": \"n*\" }, { \"value\": \"comments\", \"multi\": \"mySecondaryAnalyzer\" }]",
+          "tokenEstimate": 27
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following examples use a collection named `cars` which has the\nfollowing documents:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three\n  to four passengers.\"\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\"\n}\n```\n\n[dynamic mappings](static-dynamic-mappings) allow you to\nspecify how individual fields within a collection should be indexed\nand searched.\n\nThe index definition for the `cars` collection is as follows:\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"make\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"description\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"simpleAnalyzer\": {\n            \"analyzer\": \"lucene.simple\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nThe preceding index definition specifies that the `make` field is\nindexed with the [standard analyzer](ref-standard-analyzer).\nThe `description` field uses the `standard` analyzer by\ndefault, but it can also use the [whitespace analyzer](ref-simple-analyzer) by specifying `simpleAnalyzer` with the\n`multi` parameter.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three\n  to four passengers.\"\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\"\n}",
+          "tokenEstimate": 137
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"make\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\"\n      },\n      \"description\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.standard\",\n        \"multi\": {\n          \"simpleAnalyzer\": {\n            \"analyzer\": \"lucene.simple\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  }\n}",
+          "tokenEstimate": 103
+        }
+      ]
+    },
+    {
+      "heading": "Single Field Search",
+      "headingLevel": 3,
+      "body": "The following example searches for the string `Ford` in the\n`make` field:\n\n```javascript\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Ford\",\n        \"path\": \"make\"\n      }\n    }\n  }\n])\n```\n\nThe preceding example returns the document with `_id: 3`.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Ford\",\n        \"path\": \"make\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "Multiple Field Search",
+      "headingLevel": 3,
+      "body": "The following example uses an array of fields in the `path`\nparameter to search for the string `blue` in either the `make`\nor the `description` field.\n\n```javascript\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"blue\",\n        \"path\": [ \"make\", \"description\" ]\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the following result:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four\n  passengers.\"\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"blue\",\n        \"path\": [ \"make\", \"description\" ]\n      }\n    }\n  }\n])",
+          "tokenEstimate": 43
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four\n  passengers.\"\n}",
+          "tokenEstimate": 50
+        }
+      ]
+    },
+    {
+      "heading": "Alternate Analyzer Search",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Simple Analyzer Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `multi` named `simpleAnalyzer`\nin the index definition, which uses the [whitespace analyzer](ref-simple-analyzer).\n\nThe query searches the `description` field for the string `driver`.\n\n```javascript\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"driver\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the following result:\n\n```json\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}\n```\n\nThe [whitespace analyzer](ref-simple-analyzer) indexes `driver's\nside airbag` as `[driver s side airbag`], so it matches on `driver`.\n\nBy contrast, the default [standard analyzer](ref-standard-analyzer)\nindexes `driver's side airbag` as `[driver's side airbag`], so it would\nmatch on `driver's` or `side` but not `driver`.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"driver\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 50
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Red two-door convertible, driver's-side airbag.\"\n}",
+          "tokenEstimate": 44
+        }
+      ]
+    },
+    {
+      "heading": "Whitespace Analyzer Example",
+      "headingLevel": 4,
+      "body": "Suppose the `multi` object in the index definition for the `cars`\ncollection is the following:\n\n```json\n\"multi\": {\n  \"simpleAnalyzer\": {\n    \"analyzer\": \"lucene.whitespace\",\n    \"type\": \"string\"\n  }\n}\n```\n\nThe following example uses the `multi` named `simpleAnalyzer`\nin the index definition, which uses the [whitespace analyzer](ref-whitespace-analyzer).\n\n```json\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Three\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the following result:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to\n  four passengers.\"\n}\n```\n\nFor the above query on the term `Three`, MongoDB Search only returns documents\nmatching the term `Three` and not `three` becuase the\n[whitespace analyzer](ref-simple-analyzer) is case-sensitive. By\ncontrast, the default [standard analyzer](ref-standard-analyzer) is\nnot case-sensitive and returns all documents matching the term in the\nquery in the order that they are listed in the collection.\n\nNow, consider the following query:\n\n```json\ndb.cars.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"path\": \"description\",\n              \"query\": \"Three\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"Three\",\n              \"path\": { \"value\" : \"description\", \"multi\" : \"simpleAnalyzer\" },\n              score: { boost: { value: 2 }}\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"type\": 1,\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\nThe preceding query returns the following results:\n\n```json\n{\n  \"type\" : \"sedan\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four passengers seats.\",\n  \"score\" : 1.1092689037322998\n}\n{\n  \"type\" : \"SUV\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\",\n  \"score\" : 0.17812025547027588\n}\n```\n\nFor the above query, MongoDB Search returns documents with both `Three` and\n`three`. However, the score of the result with `Three` is higher\nbecause while the document with `three` was matched using the default\n[standard analyzer](ref-standard-analyzer), the document with\n`Three` was matched by both the specified `simpleAnalyzer` and the\ndefault [standard analyzer](ref-standard-analyzer).\n\nThe following example uses a collection called `posts` with the\nfollowing documents:\n\n```json\n {\n  \"_id\": 1,\n  \"username\": \"pinto\",\n  \"post\": {\n    \"date\": \"12-03-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Spicy Garlic Tofu cooks up crispy in 10 minutes or less.\n             Serve with broccoli and rice for a delicious vegetarian meal.\"\n  }\n}\n{\n  \"_id\": 2,\n  \"username\": \"paloma\",\n  \"post\": {\n    \"date\": \"12-08-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Crispy Tofu in Shiitake Broth has flavors of citrus and\n             umami. Great as an appetizer or entree.\"\n  }\n}\n```\n\n[dynamic mappings](static-dynamic-mappings) allow\nyou to index all fields in a collection as needed.\n\nThe index definition for the `posts` collection is as follows:\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"multi\": {\n  \"simpleAnalyzer\": {\n    \"analyzer\": \"lucene.whitespace\",\n    \"type\": \"string\"\n  }\n}",
+          "tokenEstimate": 31
+        },
+        {
+          "language": "json",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"Three\",\n        \"path\": { \"value\": \"description\", \"multi\": \"simpleAnalyzer\" }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 50
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to\n  four passengers.\"\n}",
+          "tokenEstimate": 50
+        },
+        {
+          "language": "json",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"path\": \"description\",\n              \"query\": \"Three\"\n            }\n          },\n          {\n            \"text\": {\n              \"query\": \"Three\",\n              \"path\": { \"value\" : \"description\", \"multi\" : \"simpleAnalyzer\" },\n              score: { boost: { value: 2 }}\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"type\": 1,\n      \"description\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+          "tokenEstimate": 152
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"type\" : \"sedan\",\n  \"description\" : \"Blue four-door sedan, lots of trunk space. Three to four passengers seats.\",\n  \"score\" : 1.1092689037322998\n}\n{\n  \"type\" : \"SUV\",\n  \"description\" : \"Black four-door SUV, three rows of seats.\",\n  \"score\" : 0.17812025547027588\n}",
+          "tokenEstimate": 90
+        },
+        {
+          "language": "json",
+          "content": " {\n  \"_id\": 1,\n  \"username\": \"pinto\",\n  \"post\": {\n    \"date\": \"12-03-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Spicy Garlic Tofu cooks up crispy in 10 minutes or less.\n             Serve with broccoli and rice for a delicious vegetarian meal.\"\n  }\n}\n{\n  \"_id\": 2,\n  \"username\": \"paloma\",\n  \"post\": {\n    \"date\": \"12-08-2018\",\n    \"forum\": \"Tofu Recipes\",\n    \"body\": \"Crispy Tofu in Shiitake Broth has flavors of citrus and\n             umami. Great as an appetizer or entree.\"\n  }\n}",
+          "tokenEstimate": 161
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "Nested Field Search",
+      "headingLevel": 3,
+      "body": "The following [compound](compound-ref) query searches the field\n`post.body` for the string `broccoli`, and also specifies that the\nfield must not contain the string `cauliflower`.\n\n```javascript\ndb.posts.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"query\": \"broccoli\",\n            \"path\": \"post.body\"\n          }\n        },\n        \"mustNot\": {\n          \"text\": {\n            \"query\": \"cauliflower\",\n            \"path\": \"post.body\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the document with `_id: 1`, in which the\n`posts.body` field contains the string `broccoli`.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.posts.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"query\": \"broccoli\",\n            \"path\": \"post.body\"\n          }\n        },\n        \"mustNot\": {\n          \"text\": {\n            \"query\": \"cauliflower\",\n            \"path\": \"post.body\"\n          }\n        }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 85
+        }
+      ]
+    },
+    {
+      "heading": "Wildcard Field Search",
+      "headingLevel": 3,
+      "body": "The following example uses a collection named `cars`, which has the following documents:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Two-door convertible, driver's-side airbag.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 5,\n      \"color\" : \"black\"\n    }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 7,\n      \"color\" : \"white\"\n    },\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}\n```\n\nThe index definition for the `cars` collection is as follows:\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\nThe following queries search the fields specified using the wildcard character\n`*` for the string `red`.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}\n{\n  \"_id\" : 2,\n  \"type\" : \"coupe\",\n  \"make\" : \"BMW\",\n  \"description\" : \"Two-door convertible, driver's-side airbag.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 5,\n      \"color\" : \"black\"\n    }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    {\n      \"inventory\" : 7,\n      \"color\" : \"white\"\n    },\n    {\n      \"inventory\" : 3,\n      \"color\" : \"red\"\n    }\n  ]\n}",
+          "tokenEstimate": 236
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "All Fields Search Example",
+      "headingLevel": 4,
+      "body": "The following [Phrase](phrase-ref) searches  *all fields*  for the\nstring `red`.\n\n```javascript\ndb.cars.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": { \"wildcard\": \"*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])\n```\n\nThe query returns the following results:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.cars.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": { \"wildcard\": \"*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 42
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}",
+          "tokenEstimate": 156
+        }
+      ]
+    },
+    {
+      "heading": "Nested Field Search Example",
+      "headingLevel": 4,
+      "body": "The following [text](text-ref) searches the fields nested\nwithin the `warehouse` field for the string `red`.\n\n```javascript\ndb.cars.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": { \"wildcard\": \"warehouse.*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])\n```\n\nThe query returns the following results:\n\n```json\n{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.cars.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": { \"wildcard\": \"warehouse.*\" },\n        \"query\": \"red\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 45
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\" : 1,\n  \"type\" : \"sedan\",\n  \"make\" : \"Toyota\",\n  \"description\" : \"Four-door sedan, lots of trunk space. Three to four passengers.\",\n  \"warehouse\" : [\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}\n{\n  \"_id\" : 3,\n  \"type\" : \"SUV\",\n  \"make\" : \"Ford\",\n  \"description\" : \"Four-door SUV, three rows of seats.\",\n  \"warehouse\" : [\n    { \"inventory\" : 7, \"color\" : \"white\" },\n    { \"inventory\" : 3, \"color\" : \"red\" }\n  ]\n}",
+          "tokenEstimate": 156
+        }
+      ]
+    }
+  ]
+}

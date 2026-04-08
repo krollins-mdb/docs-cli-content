@@ -1,0 +1,53 @@
+{
+  "path": "atlas/reduce-document-size",
+  "product": "atlas",
+  "title": "Reduce the Size of Large Documents",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Storing large documents in your database can lead to excessive RAM and\nbandwidth usage. MongoDB keeps frequently accessed data, referred to as\nthe [working set](manual/reference/glossary), in\nRAM. When the working set grows beyond the RAM allotment, performance\nis degraded as data must be retrieved from disk instead.\n\nIf your most frequent queries are for documents that contain much more\ninformation than you need for that query, consider restructuring your\nschema with smaller documents using [references](manual/data-modeling) to additional collections. By breaking up\nyour data into more collections and using smaller documents for\nfrequently accessed data, you reduce the overall size of the working set\nand improve performance.\n\n> **Note:** Your hardware configuration can affect the size of documents that\n> your system can support. The\n> [BSON Document Size](manual/reference/limits) limit is 16 megabytes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "Consider a movie catalog website that displays a list of the 50\nmost recently released movie titles and their poster images on the home\npage. From the home page, a user can click on a movie to see\nadditional details.\n\nThe website stores information about movies in a `movies` collection.\nEach movie document contains all of the information available for that\nmovie:\n\n```javascript\n// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>,\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}\n```\n\n> **Note:** Whenever possible, you should host images outside of your MongoDB\n> deployment and reference them with URLs. If you store images in\n> your database, you are much more likely to reach the document size\n> limit.\n\nIn this example, the most frequent query the website performs is to\nfind the 50 most recent movies' `title` and `poster`. Instead of\nquerying for all movie information, consider breaking up the `movie`\ncollection into two separate collections, `movies` and\n`movie_metadata`. The collections are linked with the `_id` of\n`movie` documents:\n\n```javascript\n// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>\n}\n```\n\n```javascript\n// movie_metadata collection\n\n{\n    \"_id\": <object_id>,\n    \"movie_id\": 123, // reference to a movies document\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}\n```\n\nThis way, when the website queries for the 50 most recent movies\nand their posters, it only loads information that it needs. If a user\nclicks on a movie, the site performs another query to find the\n`movie_metadata` document associated with that movie. This new schema\nis more performant than the original because the most frequent query\nreturns much smaller documents.\n\nConsider your use case, especially the operations you most frequently\nperform, and design a schema that efficiently uses your working set.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>,\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}",
+          "tokenEstimate": 113
+        },
+        {
+          "language": "javascript",
+          "content": "// movies collection\n\n{\n    \"_id\": 123,\n    \"title\": \"2001: A Space Odyssey\",\n    \"poster\": <url>\n}",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "javascript",
+          "content": "// movie_metadata collection\n\n{\n    \"_id\": <object_id>,\n    \"movie_id\": 123, // reference to a movies document\n    \"director\": \"Stanley Kubrick\",\n    \"release_year\": 1968,\n    \"box_office_usd\": 146000000,\n    \"countries_released\": [\n        \"United States\",\n        ...\n    ],\n    \"cast\": [\n        \"Keir Dullea\",\n        ...\n    ],\n    \"crew\": [\n         \"Ray Lovejoy\",\n         ...\n    ],\n    ...\n\n}",
+          "tokenEstimate": 111
+        }
+      ]
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- To learn more about Data Modeling in MongoDB and the flexible schema\n  model, see [Data Modeling Introduction](manual/core/data-modeling-introduction).\n\n- To learn more about using references to model your schema, see\n  [Model One-to-Many Relationships with Document References](manual/tutorial/model-referenced-one-to-many-relationships-between-documents).\n\n- MongoDB also offers a free MongoDB University Course on Data Modeling:\n  [Data Modeling for MongoDB](https://learn.mongodb.com/learning-paths/data-modeling-for-mongodb).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Design Patterns",
+      "headingLevel": 3,
+      "body": "To read about strategies for keeping documents in your working set at\na manageable size, see the following patterns:\n\n- Use\n  [The Extended Reference Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-extended-reference-pattern) to\n  duplicate a frequently-read portion of data from large documents to\n  smaller ones.\n\n- Use\n  [The Subset Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-subset-pattern)\n  to reduce the size of documents with large array fields.\n\n- Use\n  [The Outlier Pattern](https://www.mongodb.com/blog/post/building-with-patterns-the-outlier-pattern) to handle a few\n  large documents in an otherwise standard collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB.live 2020 Presentations",
+      "headingLevel": 3,
+      "body": "To learn how to incorporate the flexible data model into your schema,\nsee the following presentations from **MongoDB.live 2020**:\n\n- Learn about entity relationships in MongoDB and examples of their\n  implementations with\n  [Data Modeling with MongoDB](https://www.mongodb.com/presentations/data-modeling-with-mongodb).\n\n- Learn advanced data modeling design patterns you can incorporate\n  into your schema with\n  [Advanced Schema Design Patterns](https://www.mongodb.com/presentations/advanced-schema-design-patterns).",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "path": "atlas/supported-unsupported/diagnostic-commands",
+  "product": "atlas",
+  "title": "Diagnostic Commands",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "json": 3,
+      "js": 7
+    },
+    "bySection": [
+      {
+        "heading": "buildInfo",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 91
+          }
+        ]
+      },
+      {
+        "heading": "collStats",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 139
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "dbStats",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 15
+          }
+        ]
+      },
+      {
+        "heading": "Output",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 207
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 226
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 244
+          }
+        ]
+      },
+      {
+        "heading": "hostInfo",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 107
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "buildInfo",
+      "content": "{\n  \"ok\" : <return>,\n  \"version\" : \"<version-number>\",\n  \"versionArray\" : [\n    <number>,\n    <number>,\n    <number>,\n    <number>\n  ],\n  \"dataLake\" : {\n    \"version\" : \"<version-number>\",\n    \"gitVersion\" : \"<version-number>\",\n    \"date\" : \"<timestamp>\",\n    \"mongoSQLVersion\" : \"<version-number>\"\n  }\n}",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "json",
+      "section": "collStats",
+      "content": "{\n  ...\n  \"partitionCount\": <number of partitions>,\n  \"avgPartitionSize\": <average size of all partitions>,\n  \"partitions\": [\n    {\n        \"format\": <file format>,\n        \"attributes\": <filtering attributes>,\n        \"count\": <number of documents in partition>,\n        \"source\": <cloud storage URL>,\n        \"size\": <size, in bytes, of the partition>\n      },\n    ...\n  ],\n  \"truncated\": false,\n  \"cacheMetadata\": {\n    computeTime: ISODate(\"2021-07-25T15:10:33.513Z\"),\n    automaticRefreshInProgress: false\n  },\n  ...\n}",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "js",
+      "section": "collStats",
+      "content": "db.runCommand( {collStats: \"<string>\", sync: true|false} )",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "js",
+      "section": "dbStats",
+      "content": "db.runCommand( {dbStats: 1, sync: true|false} )",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "js",
+      "section": "Usage",
+      "content": "db.runCommand({ \"explain\": { \"aggregate\": \"user\", \"verbosity\":\n\"queryPlannerExtended\", \"pipeline\": [ ], \"cursor\": {} }})",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "js",
+      "section": "Usage",
+      "content": "db.users.explain(\"executionStats\").find({\"type\": \"admin\"})",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "js",
+      "section": "Output",
+      "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          optimizationPlan: { kind: 'everything' }\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 207
+    },
+    {
+      "language": "js",
+      "section": "Output",
+      "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source:'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          scannedDataSetPartitionsCount: 1,\n          percentOfTotalPartitions: 100,\n          optimizationPlan: { kind: 'everything' }\n        },\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "js",
+      "section": "Output",
+      "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc',\n          explainResults: {\n            queryPlanner: {\n              ...\n              winningPlan: {\n                ...\n              },\n              rejectedPlans: []\n            },\n            executionStats: {\n              ...\n            },\n            stages: {\n                ...\n            }\n          }\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc'\n        },\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 244
+    },
+    {
+      "language": "json",
+      "section": "hostInfo",
+      "content": "{\n  \"ok\" : <return>,\n  \"system\" : {\n    \"currentTime\" : ISODate(\"<timestamp>\"),\n    \"hostname\" : \"<hostname>\",\n    \"cpuAddrSize\" : <number>,\n    \"memSizeMB\" : <number>,\n    \"numCores\" : <number>,\n    \"cpuArch\" : \"<identifier>\",\n  },\n  \"os\" : {\n    \"type\" : \"<string>\",\n    \"name\" : \"<string>\",\n  },\n  \"extra\" : { }\n}",
+      "tokenEstimate": 107
+    }
+  ]
+}

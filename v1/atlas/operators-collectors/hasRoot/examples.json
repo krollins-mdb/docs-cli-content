@@ -1,0 +1,121 @@
+{
+  "path": "atlas/operators-collectors/hasRoot",
+  "product": "atlas",
+  "title": "hasRoot Operator",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "javascript": 7,
+      "json": 1
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 75
+          }
+        ]
+      },
+      {
+        "heading": "Sample Index",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 151
+          }
+        ]
+      },
+      {
+        "heading": "Simple Query",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 86
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 208
+          }
+        ]
+      },
+      {
+        "heading": "Multi-Level Query",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 78
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 1091
+          }
+        ]
+      },
+      {
+        "heading": "Compound Query",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 191
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 1835
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n    \"index\": \"<index name>\", // optional, defaults to \"default\"\n    \"hasRoot\": {\n      \"operator\": {\n        <operator-specification>\n      }\n    },\n    \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n    },\n    \"returnStoredSource\": true,\n  }\n}",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "json",
+      "section": "Sample Index",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"funding_rounds\": {\n        \"dynamic\": true,\n        \"fields\": {\n          \"investments\": [\n            {\n              \"dynamic\": true,\n              \"type\": \"embeddedDocuments\"\n            }\n          ]\n        },\n        \"storedSource\": {\n          \"include\": [\n            \"raised_currency_code\",\n            \"raised_amount\",\n            \"investments\"\n          ]\n        },\n        \"type\": \"embeddedDocuments\"\n      },\n      \"products\": {\n        \"dynamic\": true,\n        \"storedSource\": {\n          \"include\": [\n            \"name\"\n          ]\n        },\n        \"type\": \"embeddedDocuments\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 151
+    },
+    {
+      "language": "javascript",
+      "section": "Simple Query",
+      "content": "db.companies.aggregate([\n  {\n    \"$search\": { \n      \"returnStoredSource\": true,\n      \"returnScope\": { \"path\": \"products\" },\n      \"hasRoot\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"founded_year\",\n            \"gte\": 2005,\n            \"lte\": 2010\n          }\n        }\n      }\n    }\n  }\n])\n",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "javascript",
+      "section": "Simple Query",
+      "content": "[\n  { name: 'Wikison Wetpaint' },\n  { name: 'Wetpaint Social Distribution System' },\n  { name: 'Omnidrive' },\n  { name: 'Twitter Blocks' },\n  { name: 'Twicco' },\n  { name: 'Slacker Web Player' },\n  { name: 'Slacker Desktop Radio' },\n  { name: 'Slacker Portable Player' },\n  { name: 'Babelgum' },\n  { name: 'Powerset' },\n  { name: 'OpenX Enterprise' },\n  { name: 'OpenX Market' },\n  { name: 'OpenX Lift' },\n  { name: 'Sparter' },\n  { name: 'Thoof' },\n  { name: 'MyFree411' },\n  { name: 'Wesabe' },\n  { name: 'Prosper' },\n  { name: 'Stickam' },\n  { name: 'PayPerLive.com' }\n]",
+      "tokenEstimate": 208
+    },
+    {
+      "language": "javascript",
+      "section": "Multi-Level Query",
+      "content": "db.companies.aggregate([\n  {\n    \"$search\": { \n      \"returnStoredSource\": true,\n      \"returnScope\": { \"path\": \"funding_rounds\" },\n      \"hasRoot\": {\n        \"operator\": {\n          \"text\": {\n            \"path\": \"name\",\n            \"query\": \"Facebook\"\n          }\n        }\n      }\n    }\n  }\n])\n",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "javascript",
+      "section": "Multi-Level Query",
+      "content": "[\n  {\n    raised_amount: 500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Peter',\n          last_name: 'Thiel',\n          permalink: 'peter-thiel'\n        }\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  },\n  {\n    raised_amount: 12700000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Mark',\n          last_name: 'Pincus',\n          permalink: 'mark-pincus'\n        }\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  },\n  {\n    raised_amount: 27500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Greylock Partners', permalink: 'greylock' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Meritech Capital Partners',\n          permalink: 'meritech-capital-partners'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Founders Fund', permalink: 'founders-fund' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'SV Angel', permalink: 'sv-angel' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 240000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: { name: 'Microsoft', permalink: 'microsoft' },\n        financial_org: null,\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 60000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Li',\n          last_name: 'Ka-shing',\n          permalink: 'li-ka-shing'\n        }\n      },\n      {\n        company: null,\n        financial_org: { name: 'Horizons Ventures', permalink: 'horizons-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 15000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'European Founders Fund',\n          permalink: 'european-founders-fund'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 100000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'TriplePoint Capital',\n          permalink: 'triplepoint-capital'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 60000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Li',\n          last_name: 'Ka-shing',\n          permalink: 'li-ka-shing'\n        }\n      },\n      {\n        company: null,\n        financial_org: { name: 'Horizons Ventures', permalink: 'horizons-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 200000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'Digital Sky Technologies',\n          permalink: 'digital-sky-technologies-fo'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 210000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Elevation Partners', permalink: 'elevation-partners' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 1500000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Goldman Sachs', permalink: 'goldman-sachs' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Digital Sky Technologies',\n          permalink: 'digital-sky-technologies-fo'\n        },\n        person: null\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 1091
+    },
+    {
+      "language": "javascript",
+      "section": "Compound Query",
+      "content": "db.companies.aggregate([\n  {\n    \"$search\": { \n      \"compound\": {\n        \"should\": [\n          {\n            \"embeddedDocument\": {\n              \"path\": \"funding_rounds.investments\",\n              \"operator\": {\n                \"wildcard\": {\n                  \"path\": \"funding_rounds.investments.financial_org.name\",\n                  \"query\": \"*Ventures*\",\n                  \"allowAnalyzedField\": true\n                }\n              }\n            }\n          },\n          {\n            \"hasRoot\": {\n              \"operator\": {\n                \"wildcard\": {\n                  \"path\": \"description\",\n                  \"query\": \"*network*\",\n                  \"allowAnalyzedField\": true\n                }\n              }\n            }\n          }\n        ]\n      },\n      \"returnScope\": {\"path\": \"funding_rounds\"},\n      \"returnStoredSource\": true\n    }\n  },\n  {\n    \"$limit\": 5\n  }\n])",
+      "tokenEstimate": 191
+    },
+    {
+      "language": "javascript",
+      "section": "Compound Query",
+      "content": "[\n  {\n    raised_amount: 6500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'Velocity Interactive Group',\n          permalink: 'velocity-interactive-group'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'TELUS Ventures', permalink: 'telus-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Charles River Ventures',\n          permalink: 'charles-river-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Partech Ventures',\n          permalink: 'partech-international'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Fidelity Ventures', permalink: 'fidelity-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Star Ventures', permalink: 'star-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Castile Ventures', permalink: 'castile-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 25000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Boulder Ventures', permalink: 'boulder-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Sequel Venture Partners', permalink: 'sequel' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Sprout Group', permalink: 'the-sprout-group' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'EPIC Ventures', permalink: 'epic-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Garage Technology Ventures',\n          permalink: 'garage-technology-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Pritzker Group Venture Capital',\n          permalink: 'pritzker-group-venture-capital'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Ironside Ventures', permalink: 'ironside-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Valhalla Partners', permalink: 'valhalla-partners' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Vista Ventures', permalink: 'vista-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'JPMorgan Chase & Co', permalink: 'jpmorgan-chase-co' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'DFJ Portage Ventures',\n          permalink: 'dfj-portage-ventures'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 49500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: { name: 'Versant Ventures', permalink: 'versant-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Skyline Ventures', permalink: 'skyline-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Three Arch Partners',\n          permalink: 'three-arch-partners'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Affinity Capital Management',\n          permalink: 'affinity-capital-management'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Alloy Ventures', permalink: 'alloy-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Delphi Ventures', permalink: 'delphi-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'GBS Ventures', permalink: 'gbs-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'INVESCO Private Capital',\n          permalink: 'invesco-private-capital'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'J.P. Morgan Securities Inc.',\n          permalink: 'j-p-morgan-securities-inc'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'ONSET Ventures', permalink: 'onset-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 1400000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'Accelerator Ventures',\n          permalink: 'accelerator-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'JAIC America', permalink: 'jaic-america' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Pacific I&T Ventures',\n          permalink: 'pacific-i-t-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Eric',\n          last_name: 'Di Benedetto',\n          permalink: 'eric-di-benedetto'\n        }\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'iSteps App Ventures',\n          permalink: 'isteps-app-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Ben T.',\n          last_name: 'Smith, IV',\n          permalink: 'ben-smith-iv'\n        }\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Tim',\n          last_name: 'Stevens',\n          permalink: 'tim-stevens'\n        }\n      },\n      {\n        company: null,\n        financial_org: null,\n        person: {\n          first_name: 'Fabrice',\n          last_name: 'Grinda',\n          permalink: 'fabrice-grinda'\n        }\n      },\n      {\n        company: null,\n        financial_org: { name: 'LaunchCapital', permalink: 'launchcapital' },\n        person: null\n      }\n    ]\n  },\n  {\n    raised_amount: 1000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        company: null,\n        financial_org: {\n          name: 'DFJ Gotham Ventures',\n          permalink: 'dfj-gotham-ventures'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: {\n          name: 'Metamorphic Ventures',\n          permalink: 'metamorphic-ventures-llc'\n        },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'RRE Ventures', permalink: 'rre-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Pilot Group', permalink: 'pilot-group' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'AOL Ventures', permalink: 'aol-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Lerer Ventures', permalink: 'lerer-ventures' },\n        person: null\n      },\n      {\n        company: null,\n        financial_org: { name: 'Bowery Capital', permalink: 'bowery-capital' },\n        person: null\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 1835
+    }
+  ]
+}

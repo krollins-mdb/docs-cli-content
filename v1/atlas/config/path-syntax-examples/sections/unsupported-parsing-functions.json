@@ -1,0 +1,27 @@
+{
+  "heading": "Unsupported Parsing Functions",
+  "headingLevel": 2,
+  "body": "Specifying consecutive parsing functions on the same filename with\nno way of differentiating them could lead to inconsistent results.\n\n> **Example:** Consider a S3 (Simple Storage Service) store with the following files:\n>\n> ```shell\n> |--food\n>    |--icecream\n>    |--peanutbutter\n> ```\n>\n> Now consider the following path to the files in the `food` directory:\n>\n> ```shell\n> /food/{first string}{second string}/\n> ```\n>\n> There is no way to determine which part of the filename substring\n> should match the `first` versus `second` string attributes.\n> Therefore, Atlas Data Federation matches everything to `first`.\n>\n> Consider using attributes with regex similar to the following\n> instead:\n>\n> - ```shell\n>   /food/{first string:\\\\D{3}}{second string:\\\\D{5}}\n>   ```\n>\n>   The preceding path specifies that `first` matches 3 non-digit\n>   characters and `second` matches the next 5 non-digit characters.\n>\n> - ```shell\n>   /food/{first string:[A-Z]{3}}{second string:[a-z]{5}}\n>   ```\n>\n>   The preceding path matches `first` to 3 uppercase letters and\n>   `second` to 5 lowercase letters.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "|--food\n   |--icecream\n   |--peanutbutter",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "shell",
+      "content": "/food/{first string}{second string}/",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "content": "/food/{first string:\\\\D{3}}{second string:\\\\D{5}}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "content": "/food/{first string:[A-Z]{3}}{second string:[a-z]{5}}",
+      "tokenEstimate": 20
+    }
+  ]
+}

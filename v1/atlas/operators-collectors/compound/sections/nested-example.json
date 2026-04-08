@@ -1,0 +1,17 @@
+{
+  "heading": "Nested Example",
+  "headingLevel": 4,
+  "body": "The following example uses nested `compound` clauses to construct a\nquery. For this example, the `fruit` collection has an index on the\n`type`, `category`, and `in_stock` fields, whose text fields use the\n[standard analyzer](ref-standard-analyzer) analyzer. The query requires\ndocuments to only satisfy one of the following  `should` clauses:\n\n- Contain the word `apple` in the `type` field.\n\n- Contain the term `organic` in the `category` field and have the\n  value `true` in the `in_stock` field.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"query\": \"organic\",\n                    \"path\": \"category\"\n                  }\n                },\n                {\n                  \"equals\": {\n                    \"value\": true,\n                    \"path\": \"in_stock\"\n                  }\n                }\n              ]\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{\n  \"_id\" : 3,\n  \"type\" : \"pear\",\n  \"description\" : \"Bosc and Bartlett are the most common varieties of pears.\",\n  \"category\" : \"organic\",\n  \"in_stock\" : true\n}\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}\n```\n\nThe documents in the results fulfill all the requirements for inclusion:\n\n- The document with `_id: 3` matches the `must` clause nested within\n  the second `should` clause.\n\n- The document with `_id: 1` matches the first `should` clause.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/66140231bfc02dcf24ce958a).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.fruit.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"should\": [\n          {\n            \"text\": {\n              \"query\": \"apple\",\n              \"path\": \"type\"\n            }\n          },\n          {\n            \"compound\": {\n              \"must\": [\n                {\n                  \"text\": {\n                    \"query\": \"organic\",\n                    \"path\": \"category\"\n                  }\n                },\n                {\n                  \"equals\": {\n                    \"value\": true,\n                    \"path\": \"in_stock\"\n                  }\n                }\n              ]\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n      }\n    }\n  }\n])",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  \"_id\" : 3,\n  \"type\" : \"pear\",\n  \"description\" : \"Bosc and Bartlett are the most common varieties of pears.\",\n  \"category\" : \"organic\",\n  \"in_stock\" : true\n}\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 113
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "heading": "Compound Example Queries",
+  "headingLevel": 3,
+  "body": "The following example uses the [compound](compound-ref)\nin conjunction with `must`, `mustNot`, and `equals` to search for\ndocuments in which the `region` field is `Southwest` and the\n`verified_user` field is not `false`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"path\": \"region\",\n            \"query\": \"Southwest\"\n          }\n        },\n        \"mustNot\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": false\n          }\n        }\n      }\n    }\n  }\n])\n```\n\nThe above query returns the document for \"Ellen Smith\", which is the\nonly one in the collection which meets the search criteria.\n\nThe following example query has these search criteria:\n\n- The `verified_user` field must be set to `true`\n\n- One of the following must be true:\n\n  - The `teammates` array contains the value `ObjectId(\"5ed6990aa1199b471010d70d\")`\n\n  - The `region` field is set to `Northwest`\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5ed6990aa1199b471010d70d\")\n            }\n          },\n          {\n            \"text\": {\n              \"path\": \"region\",\n              \"query\": \"Northwest\"\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Jim Hall\", \"score\" : 2 }\n```\n\nThe document for \"Jim Hall\" receives a score of `2` because it meets the\nrequirements for the `must` clause and the first of the two `should` clauses.\n\nYou can search for multiple ObjectIDs with a compound query. The following\nexample query uses the `compound` operator with a `should` clause\nto search for three different ObjectIDs, at least two of which must appear\nto satisfy the query.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69537a5\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69579d0\")\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 2\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Ellen Smith\", \"score\" : 2 }\n```\n\nThe document for \"Ellen Smith\" receives a score of `2` because it contains\ntwo of the specified ObjectIDs in its `teammates` array.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"path\": \"region\",\n            \"query\": \"Southwest\"\n          }\n        },\n        \"mustNot\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": false\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 81
+    },
+    {
+      "language": "javascript",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5ed6990aa1199b471010d70d\")\n            }\n          },\n          {\n            \"text\": {\n              \"path\": \"region\",\n              \"query\": \"Northwest\"\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])",
+      "tokenEstimate": 171
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"name\" : \"Jim Hall\", \"score\" : 2 }",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69537a5\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69579d0\")\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 2\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])",
+      "tokenEstimate": 199
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"name\" : \"Ellen Smith\", \"score\" : 2 }",
+      "tokenEstimate": 17
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "> **Example:** The following example uses an index named `default` on the\n> `sample_mflix.movies` collection. The `year` field in the\n> collection is indexed as the [number](bson-data-types-number) type.\n>\n> ```json\n> {\n>   \"mappings\": {\n>     \"dynamic\": false,\n>     \"fields\": {\n>       \"year\": [\n>         {\n>           \"type\": \"number\"\n>         }\n>       ]\n>     }\n>   }\n> }\n> ```\n>\n> The query  uses the [$searchMeta](pipe.$searchMeta) stage to search the\n> `year` field in the `movies` collection for movies between\n> the years `1980` to `2000` and retrieve metadata results for the\n> query. The query specifies three buckets:\n>\n> - `1980`, inclusive lower bound for this bucket\n>\n> - `1990`, exclusive upper bound for the `1980` bucket and\n>   inclusive lower bound for this bucket\n>\n> - `2000`, exclusive upper bound for the `1990` bucket\n>\n> The query also specifies a `default` bucket named `other` to\n> retrieve results of the query that don't fall under any of the\n> specified boundaries.\n>\n> **Input:**\n>\n> ```json\n> db.movies.aggregate([\n>   {\n>     \"$searchMeta\": {\n>       \"facet\": {\n>         \"operator\": {\n>          \"range\": {\n>             \"path\": \"year\",\n>             \"gte\": 1980,\n>             \"lte\": 2000\n>           }\n>         },\n>         \"facets\": {\n>           \"yearFacet\": {\n>             \"type\": \"number\",\n>             \"path\": \"year\",\n>             \"boundaries\": [1980,1990,2000],\n>             \"default\": \"other\"\n>           }\n>         }\n>       }\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```shell\n> [\n>   {\n>     count: { lowerBound: Long('6095') },\n>     facet: {\n>       yearFacet: {\n>         buckets: [\n>           { _id: 1980, count: Long('1956') },\n>           { _id: 1990, count: Long('3558') },\n>           { _id: 'other', count: Long('581') }\n>         ]\n>       }\n>     }\n>   }\n> ]\n> ```\n>\n> To learn more about these results, see [Facet Results](fts-facet-results).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": [\n        {\n          \"type\": \"number\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n         \"range\": {\n            \"path\": \"year\",\n            \"gte\": 1980,\n            \"lte\": 2000\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1980,1990,2000],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    count: { lowerBound: Long('6095') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1980, count: Long('1956') },\n          { _id: 1990, count: Long('3558') },\n          { _id: 'other', count: Long('581') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 88
+    }
+  ]
+}

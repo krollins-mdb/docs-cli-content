@@ -1,0 +1,17 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 2,
+  "body": "To enable vector search queries on your vector store,\ncreate a MongoDB Vector Search index on the `langchain_db.test` collection\nby using the LangChain helper method or the\nPyMongo driver method.Run the following code in your notebook for\nyour preferred method. The index definition specifies\nindexing the following fields:* `embedding` field as the [index definition](avs-types-vector-search) type.\n  The `embedding` field contains the embeddings\n  created using Voyage AI's `voyage-3-large` embedding model.\n  The index definition specifies `1024` vector dimensions\n  and measures similarity using `cosine`.\n\n* `page_label` field as the [index definition](avs-types-vector-search) type\n  for pre-filtering data by the page number in the PDF.**Langchain:**LangChain```python\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024, # The number of vector dimensions to  index\n   filters = [ \"page_label\" ]\n)\n```> **Tip:** [create\\_vector\\_search\\_index API reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)**Pymongo:**PyMongo```python\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"langchain_db\"][\"test\"]\n\n# Create your vector search index model, then create the index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"cosine\"\n         },\n         {\n         \"type\": \"filter\",\n         \"path\": \"page_label\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)\n\n```The index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024, # The number of vector dimensions to  index\n   filters = [ \"page_label\" ]\n)",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "python",
+      "content": "# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"langchain_db\"][\"test\"]\n\n# Create your vector search index model, then create the index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"cosine\"\n         },\n         {\n         \"type\": \"filter\",\n         \"path\": \"page_label\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)\n",
+      "tokenEstimate": 133
+    }
+  ]
+}

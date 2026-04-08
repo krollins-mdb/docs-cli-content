@@ -1,0 +1,12 @@
+{
+  "heading": "Identify Ranges of Queryable Data from Filename",
+  "headingLevel": 3,
+  "body": "Consider a federated database instance store `accountingArchive`  containing files\nwhere the filename describes the range of data contained in the file.\nFor example, the filename\n`/invoices/1546367712000-1549046112000.json` contains invoices for\nthe time period between 2019-01-01 and 2019-01-02 with the date range\nrepresented as milliseconds elapsed since the UNIX epoch.\n\nThe following  [defaultFormat](adf-aws-databases-reference) object identifies\nthe minimum time range as the first segment of the filename and the\nmaximum time range as the second segment of the filename:\n\n```none\n\"databases\" : [\n  {\n    \"name: \"accounting\",\n    \"collections\" : [\n      {\n        \"name: \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(invoiceDate) epoch_millis}-{max(invoiceDate) epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nWhen Data Federation receives a query on the `\"invoiceDate\"` field, it uses\nthe specified path to identify which files contain the data that\nmatches the query.\n\nQueries on the `invoiceDate` field can be targeted to only those\nfiles whose range captures the specified value, including the `min`\nand `max` date.\n\n> **Important:** The field specified for the min and max ranges *must* exist in\n> every document contained in the file to avoid unexpected or\n> undesired behavior. Data Federation does *not* perform any\n> validation that the underlying data conforms to this constraint.\n\n> **See Also:** [Parsing Padded Numbers from Filenames](parse-padded-numeric-values)",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "\"databases\" : [\n  {\n    \"name: \"accounting\",\n    \"collections\" : [\n      {\n        \"name: \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{min(invoiceDate) epoch_millis}-{max(invoiceDate) epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 87
+    }
+  ]
+}

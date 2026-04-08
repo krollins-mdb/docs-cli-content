@@ -1,0 +1,355 @@
+{
+  "path": "atlas/workforce-oidc",
+  "product": "atlas",
+  "title": "Step 7: Add the new database user or group.",
+  "sections": [
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To manage Workforce Identity Federation configuration, you must have\n[Organization Owner](<Organization Owner>) access to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedures",
+      "headingLevel": 2,
+      "body": "To access Atlas clusters with Workforce Identity Federation, complete the following steps:\n\n- Configure a Workforce Identity Provider (one-time setup).\n\n  - [Configure An External Identity Provider Application](configure-idp-oidc).\n\n  - [enable Workload IdP for your organization](configure-oidc).\n\n- Grant external identities (user principals) or groups access\n  to MongoDB clusters.\n\n- Authenticate to your Atlas clusters with MongoDB Shell or Compass.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure An External Identity Provider Application",
+      "headingLevel": 3,
+      "body": "To configure Workforce Identity Federation with OIDC (OpenID Connect), register your OIDC (OpenID Connect)\napplication with an IdP (Identity Provider) that supports OIDC (OpenID Connect) standard, such\nas [Microsoft Entra ID](configure-azure-idp-oidc), [Okta](configure-okta-idp-oidc), or\nPing Identity.\n\n> **Note:** Workforce Identity Federation supports only JWT for authentication. It doesn't\n> support opaque access tokens.\n\nYou can configure your OIDC (OpenID Connect) application for the following grant types:\n\n- Authorization Code Flow with PKCE (Proof Key of Code Exchange)\n\n- Device Authorization Flow\n\nMongoDB recommends that you use Authorization Code Flow with PKCE (Proof Key of Code Exchange) for increased\nsecurity. Use Device Authorization Flow only if your users need\nto access the database from machines with no browser.\n\nThe OIDC (OpenID Connect) application registration steps can vary based on your\nIdP (Identity Provider). Ensure that you complete the following items during\nyour registration process:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Register a new application for .",
+      "headingLevel": 4,
+      "body": "Select **public client/native application** as the client type.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Set the  value to .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: (Conditional) Add or enable a  claim if you authenticate with groups.",
+      "headingLevel": 4,
+      "body": "For groups, this step ensures that your access tokens contain the group\nmembership information of the user authenticating. MongoDB uses the\nvalues sent in a groups claim for authorization.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4",
+      "headingLevel": 4,
+      "body": "(Optional) Allow refresh tokens if you want MongoDB clients to\nrefresh the tokens for a better user experience.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5",
+      "headingLevel": 4,
+      "body": "(Optional) Configure the access token lifetime (`exp` claim) to align with\nyour database connection session time.After you register your application, save the `issuer`,\n`clientId`, and `audience` values to use in the next stage of the\n[Atlas Workforce IdP configuration](apply-oidc-idp).**Azure:**Microsoft Entra IDTo register your OIDC (OpenID Connect) application with Microsoft Entra ID:* Navigate to App registrations.\n\n  - In your [Azure portal](https://portal.azure.com/) account, search and click Microsoft Entra ID.\n\n  - In the Manage section of the left navigation, click App registrations.\n\n* Click New registration.\n\n* Apply the following values.\n\n  | Field                   | Value                                                                       |\n  | ----------------------- | --------------------------------------------------------------------------- |\n  | Name                    | Atlas Database - Workforce                                                  |\n  | Supported Account Types | Accounts in this organizational directory only (single tenant)              |\n  | Redirect URI            | - Public client/native (mobile & desktop)- http\\://localhost:27097/redirect |\n\n* Click Register.To learn more about registering an application, see [Azure Documentation](https://learn.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app#register-an-application).* Navigate to Token Configuration.\n\n  In the Manage section of the left navigation,\n  click Token Configuration.\n\n* Click Add groups claim.\n\n* In the Edit groups claim modal, select Security groups.\n\n  What groups you select depend on the type of groups you configured\n  in your Azure environment. You may need to select a different\n  type of group to send the appropriate group information.\n\n* In the Customize token properties by type section, only select Group ID.\n\n* Click Add.To learn more about adding a group claim, see [Azure Documentation](https://docs.microsoft.com/en-us/azure/active-directory/hybrid/connect/how-to-connect-fed-group-claims).* Click Add optional claim.\n\n* In the Add optional claim modal, select Access.\n\n* Select a claim that carries a user identifier that you can\n  refer to in MongoDB access logs such as an email.\n\n  You can use the UPN (UserPrincipalName) claim to identify users with their email address.\n\n* Click Add.\n\n* In the Microsoft Graph Permissions note, check the box, and click Add.To learn more, see [Azure Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/optional-claims).* In the Manage section of the left navigation, click Manifest.\n\n* Update the requestedAccessTokenVersion from `null` to `2`.\n\n  The number `2` represents Version 2 of Microsoft's access\n  tokens. Other applications can use this as a signed\n  attestation of the Active Directory-managed user's identity.\n  Version 2 ensures that the token is a JSON Web Token that\n  MongoDB understands.\n\n* Click Save.To learn more about adding an optional claim, see [Azure Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/reference-app-manifest).* In the left navigation, click Overview.\n\n  Copy the Application (client) ID value.\n\n* In the top navigation, click Endpoints.\n\n  Copy the OpenID Connect metadata document value\n  without the `/.well-known/openid-configuration` part.\n\n  You can also get this value by copying the value for\n  `issuer` in the OpenID Connect metadata document URL (Uniform Resource Locator).The following table shows what these Microsoft Entra ID UI values map to in our Atlas Configuration Properties:| Microsoft Entra ID UI                                                        | Atlas Configuration Property |\n| ---------------------------------------------------------------------------- | ---------------------------- |\n| Application (client) ID                                                      | Client IDAudience            |\n| OpenID Connect metadata document (without /.well-known/openid-configuration) | Issuer URI                   |**Okta:**OktaTo register your OIDC (OpenID Connect) application with Okta:In your Okta Admin dashboard, use the left navigation pane\nto go to Applications → Applications.* On the Applications screen, click Create App\n  Integration.\n\n* In the Sign-in method section, select OIDC - OpenID Connect.\n\n* In the Application type section, select Native Application.\n\n* Click Next.To learn more, see [Create OIDC app Integrations](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm).After you create an app integration, you are automatically redirected to the\nNew Native App Integration screen.* In the App integration name field, enter a name for your\n  application.\n\n* In the Grant type field, select grant types.\n\n  Enable the following grant types:\n\n  - Authorization Code or Device Authorization\n\n  - *(Optional)* Refresh Token\n\n    Enabling refresh tokens provides a better user experience. When\n    refresh tokens are not enabled, users must re-authenticate with\n    the identity provider once their access token expires.\n\n* In the Sign-in redirect URIs section, enter a URL.\n\n  Enter the following URL: `http://localhost:27097/redirect`.\n\n* In the Assignments section, configure the Controlled access\n  and Enable immediate access fields.\n\n  - For the Controlled access field, select Allow everyone\n    in your organization to access.\n\n  - For Enable immediate access field, ensure Enable immediate\n    access with Federation Broker Mode is checked.\n\n* Click Save.To learn more, see [Create OIDC app integrations](https://help.okta.com/en-us/content/topics/apps/apps_app_integration_wizard_oidc.htm).On your application dashboard, go to the General tab\nand configure the following:* In the Client ID field, click the&#x20;\n  icon to copy the client ID for later use.\n\n* In the Proof Key for Code Exchange (PKCE) field, ensure\n  Require PKCE as additional verification is enabled (checked\n  by default).In the left navigation pane, go to Security → API. Click\nAdd Authorization Server.* In the Name field, enter a name for your server.\n\n* In the Audience field, paste the client ID from the previous\n  step.\n\n* *(Optional)* In the Description field, enter a description of\n  your server.\n\n* Click Save.To learn more, see [Create an Authorization Server](https://help.okta.com/en-us/content/topics/security/api-config-auth-server.htm).After you create your authorization server, you are automatically\nredirected to your authorization server's screen.Under the Settings tab, save the issuer URI by copying the\nfirst part of the Metadata URI up to the `.well-known`\nsection. The URI structure should be similar to:\n`https://trial4238026.okta.com/oauth2/ausabgmhveoOQSMsE697`.On your authorization server screen, go to the Claims tab and\nclick Add Claim.* Configure Groups claim with the following configuration information:\n\n  | Field                 | Value                                                                           |\n  | --------------------- | ------------------------------------------------------------------------------- |\n  | Name                  | Enter a name for your claim.                                                    |\n  | Include in token type | Click the drop-down and select Access Token.                                    |\n  | Value type            | Click the drop-down and select Groups.                                          |\n  | Filter                | Click the drop-down and select Matches regex. Next to the drop-down, enter .\\*. |\n  | Disable claim         | Do not check.                                                                   |\n  | Include in            | Select Any scope.                                                               |\n\n* Click Create.To learn more, see [Create Claims](https://help.okta.com/en-us/content/topics/security/api-config-claims.htm).On your authorization server screen, go to the Access Policies\ntab and click Add Policy.* In the Name field, enter a policy name.\n\n* In the Description field, enter a description for the policy.\n\n* In the Assign to field, select All clients.\n\n* Click Create Policy.To learn more, see [Create an Access Policy](https://help.okta.com/en-us/content/topics/security/api-config-access-policies.htm).Under the Access Policies tab, click Add Rule.* In the Rule Name field, enter a name for the access policy.\n\n* For IF Grant Type is, select a grant type.\n\n  When configuring grant types, select the appropriate option based on the\n  client behavior:\n\n  - If the client is acting on behalf of itself, select Client\n    Credentials.\n\n  - If the client is acting on behalf of a user, select the following:\n\n    - Authorization Code\n\n    - Device Authorization\n\n* Add rule configurations based on your organization's security policy.\n\n  Example Okta rule configuration:\n\n  | Field                             | Value                                            |\n  | --------------------------------- | ------------------------------------------------ |\n  | AND user is                       | Select Any user assigned to the app.             |\n  | AND Scopes requested              | Select Any scopes.                               |\n  | THEN Use this inline hook         | None (disabled)                                  |\n  | AND Access token lifetime is      | 1 Hours                                          |\n  | AND Refresh token lifetime is     | Click the second drop-down and select Unlimited. |\n  | but will expire if not used every | Enter 7 days.                                    |\n\n* Click Create Rule.To learn more, see [Create Rules for each Access Policy](https://developer.okta.com/docs/guides/customize-authz-server/main/#create-rules-for-each-access-policy).In the left navigation pane, go to Directory → Groups and click\nAdd Group.* In the Name field, name your directory `OIDC`.\n\n* *(Optional)* In the Description field, enter a description\n  for your rule.\n\n* Click Save.\n\n  To learn more, see [Create a Group](https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-groups-create.htm).\n\n* Follow the Okta documentation to\n  [manually assign people to the group](https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-assign-group-people.htm).In the left navigation pane, go to Directory → People and click\nAdd Person.* Provide user details by entering the following values in the\n  corresponding fields:\n\n  | Field                                    | Value                                                                          |\n  | ---------------------------------------- | ------------------------------------------------------------------------------ |\n  | User type                                | Select User.                                                                   |\n  | First name                               | Provide name as needed.                                                        |\n  | Last name                                | Provide name as needed.                                                        |\n  | Username                                 | Enter an email as a username.                                                  |\n  | Primary email                            | Enter an email. The email must be same as the one used for the Username field. |\n  | Secondary email                          | Optional.                                                                      |\n  | Groups                                   | Enter OIDC.                                                                    |\n  | Activation                               | Select Activate Now and check I will set password.                             |\n  | Password                                 | Enter a password.                                                              |\n  | User must change password on first login | Select Optional                                                                |\n\n* Click Save.To learn more, see [Add Users Manually](https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-add-users.htm).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure Workforce Identity Federation Authentication",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n>\n> Prerequisite\n>\n> This procedure requires you to have [Organization Owner](<Organization Owner>)\n> access and assumes you already have an OIDC (OpenID Connect) application\n> created in your IdP (Identity Provider). To learn\n> how to configure an IdP (Identity Provider), see [Configure An External Identity Provider Application](configure-idp-oidc).\n\nTo configure a Workforce Identity Provider in Atlas:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Configure identify providers.",
+      "headingLevel": 4,
+      "body": "- Click **Identity Providers** in the left sidebar.\n\n- Do one of the following steps:\n\n  - If you do not have any Identity Providers configured yet, click\n    **Set Up Identity Provider**.\n\n  - Otherwise, on the **Identity Providers** screen, click\n    **Configure Identity Provider(s)**.\n\n- Select **Workforce Identity Federation** and click **Continue**.\n\n- Select **OIDC for Data Access**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Enter the following Workforce Identity Provider Protocol Settings.",
+      "headingLevel": 4,
+      "body": "| Setting                   | Necessity | Value                                                                                                                                                                                                                                                                                                                                                                                     |\n| ------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Configuration Name        | Required  | Human-readable label that identifies this configuration. This label is visible to your Atlas users.                                                                                                                                                                                                                                                                                       |\n| Configuration Description | Optional  | Human-readable label that describes this configuration.                                                                                                                                                                                                                                                                                                                                   |\n| Issuer URI                | Required  | Issuer value provided by your registered IdP (Identity Provider) application. Using this URI, MongoDB finds an OpenID Provider Configuration Document, which should be available in the /.wellknown/open-id-configuration endpoint.                                                                                                                                                       |\n| Client ID                 | Required  | Unique identifier for your registered application. Enter the clientId value from the app you registered with external Identity Provider.                                                                                                                                                                                                                                                  |\n| Audience                  | Required  | Entity that your external identity provider intends the token for. Enter the audience value from the app you registered with external Identity Provider. Generally, this value is the same as the Client ID.                                                                                                                                                                              |\n| Requested Scopes          | Optional  | Tokens that give users permission to request data from the authorization endpoint. If you plan to support refresh tokens, this field must include the value offline\\_access.If your identity provider is Microsoft Entra ID, Atlas requires this setting. Add default scope, which is \\<application client id>/.default.For each additional scope you want to add, click Add more scopes. |\n| Authorization Type        | Required  | Select Group Membership to grant authorization based on IdP (Identity Provider) user group membership, or select User ID to grant an individual user authorization.                                                                                                                                                                                                                       |\n| Customize Groups Claim    | Required  | Identifier of the claim that includes the principal's IdP (Identity Provider) user group membership information. Accept the default value unless your IdP (Identity Provider) uses a different claim, or you need a custom claim. This field is only required if you select Group Membership.Default: groups                                                                              |\n| Customize User Claim      | Required  | Identifier of the claim that includes the user principal identity. Accept the default value unless your IdP (Identity Provider) uses a different claim.Default: sub                                                                                                                                                                                                                       |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Click .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: (Optional) Associate a domain to your Workforce .",
+      "headingLevel": 4,
+      "body": "> **Note:** This step is required only if you need to connect multiple Workforce IdP (Identity Provider)s\n> to the same organization with different domains. Atlas supports a\n> maximum of two Workforce IdP (Identity Provider)s connected to an organization: one OIDC IdP (Identity Provider)\n> (for database access) and one SAML IdP (Identity Provider) (for UI access).\n\n- In your Workforce Identity Provider card, click **Associate Domains**.\n\n- In the **Associate Domains with Identity Provider** modal,\n  select one or more domains.\n\n- Click **Submit**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Enable your Workforce  in an organization.",
+      "headingLevel": 4,
+      "body": "- Click **Connect Organizations**.\n\n- For the organization you want to connect to Workforce Identity Provider,\n  click **Configure Access**.\n\n- Click **Connect Identity Provider**.\n\n  > **Note:** If you have another IdP (Identity Provider) configured, this button says\n  > **Connect Identity Provider(s)**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: Select .",
+      "headingLevel": 4,
+      "body": "In the **Connect Identity Provider(s)** modal, select  a\nWorkforce Identity Provider where the **Purpose** is\n**Workforce Identity Federation**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 7: Click .",
+      "headingLevel": 4,
+      "body": "When you connect your Workforce Identity Provider to an organization, Atlas\nenables your Workforce Identity Provider for all the projects within that organization.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add a Database User using Workforce Authentication",
+      "headingLevel": 3,
+      "body": "Click  Add New Database User or Group.\n\n> **Note:** Until you [Atlas Workforce IdP configuration](apply-oidc-idp), this button says&#x20;\n> Add New Database User.\n\nIn the Authentication Method section, select Federated Auth.\n\n> **Note:** Until you [enable Workload IdP for your organization](configure-oidc),\n> you can't select this box.\n\na. In the Select Identity Provider section, select a configured\nOIDC (OpenID Connect) Identity Provider.\n\n- Specify either the user identifier or group identifier associated with\n  your configured Workforce Identity Provider.\n\n> **Note:** For Azure Entra ID users, this value maps to the Object Id of your\n> Azure user group rather than user group name.\n\nTo assign privileges to the new user or group, do one or more of the\nfollowing tasks:\n\n- Select a [built-in role](manual/reference/built-in-roles) from the\n  Built-in Role dropdown menu.\n\n  - You can select one built-in role per database group in the Atlas UI.\n\n  - If you delete the default option, you can click Add Built-in Role\n    to select a new built-in role.\n\n- Select or add [custom roles](mongodb-roles).\n\n  - If you have any custom roles defined, you can expand\n    the Custom Roles section and select\n    one or more roles from the Custom Roles dropdown menu.\n\n  - Click Add Custom Role to add more custom roles.\n\n  - Click the Custom Roles link to see the custom\n    roles for your project.\n\n- Add [privileges](manual/reference/built-in-roles).\n\n  - Expand the Specific Privileges section and select one or more\n    privileges from the Specific Privileges dropdown menu.\n\n  - Click Add Specific Privilege to add more privileges. This assigns\n    the group specific privileges on individual databases and collections.\n\n- Remove an applied role or privilege.\n\n  - <DefinitionListItem>\n      Click \n\n       \n\n      Delete\n\n       next to the\n\n      role or privilege to delete.\n    </DefinitionListItem>\n\n  > **Note:** Atlas doesn't display the  Delete icon\n  > next to your Built-in Role, Custom Role, or\n  > Specific Privilege selection if you selected only one option. You\n  > can delete the selected role or privilege once you apply another role or privilege.\n\nAtlas can apply a built-in role, multiple custom roles, and multiple specific\nprivileges to a database group.\n\nTo learn more about authorization, see [Role-Based\nAccess Control](manual/core/authorization) and [Built-in\nRoles](manual/reference/built-in-roles) in the MongoDB manual.\n\nBy default, groups can access all the clusters and federated database instances in the\nproject. To restrict access to specific clusters and federated database instances:\n\n- Toggle Restrict Access to Specific Clusters/Federated\n  Database Instances to On.\n\n- Select the clusters and federated database instances to grant the group access to\n  from the Grant Access To list.\n\nToggle Temporary User or Temporary Group to\nOn and choose a time after which Atlas can delete the user\nor group from the Temporary User Duration or\nTemporary Group Duration dropdown. You can select one of the\nfollowing time periods for the group to exist:\n\n- 6 hours\n\n- 1 day\n\n- 1 week\n\nIn the Database Users tab, temporary users or groups display\nthe time remaining until Atlas deletes the users or group. After\nAtlas deletes the user or group, any client or application that uses\nthe temporary user's or group's credentials loses access to the cluster.\n\nDo one of the following steps:\n\n- If you added a user, click the Add User button.\n\n- If you added a group, click the Add Group button.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connect a Client to MongoDB with Workforce Identity Federation",
+      "headingLevel": 3,
+      "body": "The following lists the ways you can connect a client to MongoDB\nwith Workforce Identity Federation authentication:\n\n- [Compass](atlas-connect-via-compass) v1.38+\n\n- [MongoDB Shell](connect-mongo-shell) v2.1.4+",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Manage an Existing Workforce Identity Federation Configuration",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Click  in the left sidebar.",
+      "headingLevel": 4,
+      "body": "You can view all configured identity providers and their details.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Update Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Click  in the left sidebar.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: In the Workforce Identity Provider card, click the  dropdown, then .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Make your changes and click .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View and Manage Connected Organizations",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Click  in the left sidebar.",
+      "headingLevel": 4,
+      "body": "You can view all connected organizations and manage their configurations.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Revoke JWKS",
+      "headingLevel": 3,
+      "body": "> **Note:** Use the following procedure only if you manage your own signing keys.\n>\n> Don't use this feature to rotate your signing keys. When you rotate\n> your Workforce Identity Provider signing keys, MongoDB fetches the JWKS automatically\n> when the existing access tokens expire.\n\nIf your private key is compromised, you can immediately revoke your JSON\nWeb Key Sets (JWKS) cached in MongoDB nodes:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Update your signing keys in your Workforce identity provider.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  in the left sidebar.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Scroll to the Workforce Identity Provider card.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Click the  dropdown, then .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Click .",
+      "headingLevel": 4,
+      "body": "After you click **Revoke**, MongoDB fetches the new keys\nthrough your JWKS endpoint. You must restart your clients (such as\n[mongosh](mongodb-shell) or [Compass](compass)) after you revoke JWKS.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete a Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "To delete your Workforce Identity Provider configuration:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Disconnect each organization you connected to your Workforce .",
+      "headingLevel": 4,
+      "body": "- Click **Organizations** in the left sidebar.\n\n- Click the organization that has Workforce Identity Federation enabled.\n\n- Click **Disconnect** under the **Manage** dropdown on the Workforce Identity Federation card.\n\n- In the **Disconnect identity provider?** modal, click\n  **Disconnect**.\n\n  When you disconnect an IdP (Identity Provider), users who authenticate using the\n  IdP (Identity Provider) lose access to Workforce Identity Federation in the Atlas projects\n  listed in the **Project** table.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  in the left sidebar.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: In the Workforce Identity Provider card, click the  dropdown, then .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4",
+      "headingLevel": 4,
+      "body": "In the **Delete Identity Provider?** modal, click\n**Delete**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Manage Workforce Identity Federation with the Atlas CLI",
+      "headingLevel": 2,
+      "body": "You can use the Atlas CLI to manage Workforce Identity Federation configuration\nfor your organizations.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure Workforce Identity Federation Authentication",
+      "headingLevel": 3,
+      "body": "To create an OIDC identity provider using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider create oidc [displayName] [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider create oidc](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-create-oidc).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider create oidc [displayName] [options]\n",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Enable Workforce Identity Provider in an Organization",
+      "headingLevel": 3,
+      "body": "To connect an identity provider to an organization using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs connect [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs connect](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-connect).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs connect [options]\n",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "View Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "To list all identity providers:\n\nTo list the identity providers from your federation settings using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider list [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider list](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-list).\n\nTo view details of a specific identity provider:\n\nTo describe the specified identity provider from your federation settings using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider describe <identityProviderId> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider describe](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-describe).\n\nTo view federation settings:\n\nTo return the federation settings details for the specified organization using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings describe [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings describe](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-describe).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider list [options]\n",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider describe <identityProviderId> [options]\n",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings describe [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Update Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "To update an OIDC identity provider using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider update oidc [identityProviderId] [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider update oidc](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-update-oidc).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider update oidc [identityProviderId] [options]\n",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "View and Manage Connected Organizations",
+      "headingLevel": 3,
+      "body": "To list connected organizations:\n\nTo list connected org configs using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs list [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs list](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-list).\n\nTo view details of a connected organization:\n\nTo describe a connected org config using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs describe [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs describe](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-describe).\n\nTo update a connected organization:\n\nTo update one org config connected to one federation setting using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs update [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs update](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-update).\n\nTo delete a connected organization:\n\nTo delete a connected org config organization using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs delete [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs delete](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-delete).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs list [options]\n",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs describe [options]\n",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs update [options]\n",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs delete [options]\n",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Revoke JWKS",
+      "headingLevel": 3,
+      "body": "To revoke the JWK token from the specified identity provider from your federation settings using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider revokeJwk <identityProviderId> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider revokeJwk](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-revokeJwk).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider revokeJwk <identityProviderId> [options]\n",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Delete a Workforce Identity Provider Configuration",
+      "headingLevel": 3,
+      "body": "To disconnect an organization:\n\nTo disconnect an identity provider from an organization using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings connectedOrgConfigs disconnect [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings connectedOrgConfigs disconnect](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-connectedOrgConfigs-disconnect).\n\nTo delete the identity provider:\n\nTo remove the specified identity provider from your federation settings using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas federatedAuthentication federationSettings identityProvider delete <identityProviderId> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas federatedAuthentication federationSettings identityProvider delete](atlas/cli/current/command/atlas-federatedAuthentication-federationSettings-identityProvider-delete).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings connectedOrgConfigs disconnect [options]\n",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "sh",
+          "content": "\natlas federatedAuthentication federationSettings identityProvider delete <identityProviderId> [options]\n",
+          "tokenEstimate": 19
+        }
+      ]
+    }
+  ]
+}

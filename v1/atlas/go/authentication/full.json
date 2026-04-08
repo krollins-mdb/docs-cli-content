@@ -1,0 +1,67 @@
+{
+  "path": "atlas/go/authentication",
+  "product": "atlas",
+  "title": "Authenticating with the Atlas Go SDK",
+  "sections": [
+    {
+      "heading": "Using the Atlas Go SDK in Your Code with Digest Authentication",
+      "headingLevel": 2,
+      "body": "To access different parts of the Atlas Admin API, construct a new Atlas SDK client and use its services. For example:\n\n```go\npackage main\n\nimport (\n    \"context\"\n    \"fmt\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n    apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n\n    sdk, err := admin.NewClient(admin.UseDigestAuth(apiKey, apiSecret))\n    if err != nil {\n        log.Fatalf(\"Error instantiating new client: %v\", err)\n    }\n    projects, response, err := sdk.ProjectsApi.ListProjects(ctx).Execute()\n    if err != nil {\n        log.Fatalf(\"Could not fetch projects: %v\", err)\n    }\n    fmt.Printf(\"Response status: %v\\n\", response.Status)\n    fmt.Printf(\"Projects: %v\\n\", projects)\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n    \"context\"\n    \"fmt\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    ctx := context.Background()\n\n    apiKey := os.Getenv(\"MONGODB_ATLAS_PUBLIC_KEY\")\n    apiSecret := os.Getenv(\"MONGODB_ATLAS_PRIVATE_KEY\")\n\n    sdk, err := admin.NewClient(admin.UseDigestAuth(apiKey, apiSecret))\n    if err != nil {\n        log.Fatalf(\"Error instantiating new client: %v\", err)\n    }\n    projects, response, err := sdk.ProjectsApi.ListProjects(ctx).Execute()\n    if err != nil {\n        log.Fatalf(\"Could not fetch projects: %v\", err)\n    }\n    fmt.Printf(\"Response status: %v\\n\", response.Status)\n    fmt.Printf(\"Projects: %v\\n\", projects)\n}",
+          "tokenEstimate": 181
+        }
+      ]
+    },
+    {
+      "heading": "(Preview) Using the Atlas Go SDK with Service Account Authentication",
+      "headingLevel": 2,
+      "body": "Atlas SDK Go provides OAuth Authentication using Service Accounts. This\nis currently available as a [Preview](https://www.mongodb.com/resources/beta-programs) feature. To learn\nmore, see [Preview Features](preview-features).\n\nA Service Account implements an OAuth [client\\_credentials](https://oauth.net/2/grant-types/client-credentials) grant.\nFor more information about the feature, please refer to [Service Account Public documentation.](atlas/api/api-authentication)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "OAuth Authentication",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Authenticating with OAuth ClientID and ClientSecret",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Admin API Authentication using Service Accounts",
+      "headingLevel": 3,
+      "body": "Authenticating using Service Accounts\n\n```go\npackage main\n\nimport (\n    \"context\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    clientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n    clientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n    if clientID == \"\" || clientSecret == \"\" {\n        log.Fatal(\"Missing CLIENT_ID or CLIENT_SECRET environment variables\")\n    }\n\n    // Using ClientID and ClientSecret. No cache supported (nil).\n    sdk, err := admin.NewClient(admin.UseOAuthAuth(context.Background(), clientID, clientSecret))\n    // Make API calls\n}\n```\n\nFor complete reference implementation,\nplease refer to [service account example](https://github.com/mongodb/atlas-sdk-go/tree/main/examples/service_account_management)",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "package main\n\nimport (\n    \"context\"\n    \"log\"\n    \"os\"\n\n    \"go.mongodb.org/atlas-sdk/v20250312001/admin\"\n)\n\nfunc main() {\n    clientID := os.Getenv(\"MONGODB_ATLAS_CLIENT_ID\")\n    clientSecret := os.Getenv(\"MONGODB_ATLAS_CLIENT_SECRET\")\n\n    if clientID == \"\" || clientSecret == \"\" {\n        log.Fatal(\"Missing CLIENT_ID or CLIENT_SECRET environment variables\")\n    }\n\n    // Using ClientID and ClientSecret. No cache supported (nil).\n    sdk, err := admin.NewClient(admin.UseOAuthAuth(context.Background(), clientID, clientSecret))\n    // Make API calls\n}",
+          "tokenEstimate": 135
+        }
+      ]
+    },
+    {
+      "heading": "Revocation",
+      "headingLevel": 3,
+      "body": "Revocation invalidates an OAuth token before its expiration date.\nThis effectively \"logs out\" the current OAuth client and allows you to configure a new client.\n\n```go\n// Sounding code omitted for brevity\nrevokeConfig := credentials.NewConfig(clientID, clientSecret)\nrevokeConfig.RevokeToken(context.Background(), &auth.Token{\n    AccessToken: \"yourTokenHere\"\n});\n```",
+      "codeBlocks": [
+        {
+          "language": "go",
+          "content": "// Sounding code omitted for brevity\nrevokeConfig := credentials.NewConfig(clientID, clientSecret)\nrevokeConfig.RevokeToken(context.Background(), &auth.Token{\n    AccessToken: \"yourTokenHere\"\n});",
+          "tokenEstimate": 45
+        }
+      ]
+    },
+    {
+      "heading": "OAuth Token Cache",
+      "headingLevel": 3,
+      "body": "Service Account OAuth Access Tokens validity is expressed as a number of seconds in the  `expires_in` field.\nClients can cache these Access Tokens to mitigate rate limiting and adhere to [Access Token limits](manual/reference/limits).\n\nFor an example on how to cache and reuse OAuth tokens in the Atlas SDK for Go, see the Service Account OAuth Token Cache\n[Service Account OAuth Token Cache example](https://github.com/mongodb/atlas-sdk-go/tree/main/examples/service_account_token_store).",
+      "codeBlocks": []
+    }
+  ]
+}

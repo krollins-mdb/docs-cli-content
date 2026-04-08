@@ -1,0 +1,79 @@
+{
+  "path": "atlas/triggers/limitations",
+  "product": "atlas",
+  "title": "Triggers Limitations",
+  "sections": [
+    {
+      "heading": "Aggregation",
+      "headingLevel": 2,
+      "body": "Triggers support all [stages](manual/reference/mql/aggregation-stages) in [system functions](atlas-system-functions) except for `$currentOp` and `$indexStats`.\n\nFor security reasons, only a subset of aggregation pipeline stages are\nsupported in [user functions](atlas-user-functions).\n\nFor a list of pipeline stages that are available and their allowed function\ncontext, see [Aggregation](atlas/app-services/mongodb/crud-and-aggregation-apis).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Batch Loading",
+      "headingLevel": 2,
+      "body": "When data is bulk/batch loaded into MongoDB Atlas, you may see a delay in\ndata appearing on devices while Atlas processes changes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Time Series Collections",
+      "headingLevel": 2,
+      "body": "You *cannot* define [database trigger](atlas-database-trigger) on a [time series collections](manual/core/timeseries-collections). This is because time series collections do not\nyet support [change streams](manual/changeStreams).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Flex Clusters",
+      "headingLevel": 2,
+      "body": "You *cannot* define [database trigger](atlas-database-trigger) on a Flex Cluster.\nThis is because Flex Clusters don't support [change streams](manual/changeStreams).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Federated Database Instances",
+      "headingLevel": 2,
+      "body": "You *cannot* define [database trigger](atlas-database-trigger) on a [Learn More About Atlas Data Federation](atlas-data-federation-key-concepts) because federated database instances don't support [change streams](manual/changeStreams).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Change Streams",
+      "headingLevel": 2,
+      "body": "Atlas limits the total number of change streams open against a given\ncluster based on the cluster's size. The following table lists\nthe limitations for each cluster size:\n\n| Cluster Size                        | Maximum Number of Change Streams |\n| ----------------------------------- | -------------------------------- |\n| Free cluster                        | 5                                |\n| Flex Clusters                       | 10                               |\n| Small, Dedicated Clusters (M10/M20) | 100                              |\n| Standard Clusters (M30/M40)         | 1000                             |\n| Standard Clusters (M50 - M90)       | 1000                             |\n| High-Power Clusters (M100+)         | 1000                             |\n\n> **Note:** Atlas opens a single change stream on each collection that is\n> associated with a [database trigger](atlas-database-trigger).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Database Commands",
+      "headingLevel": 2,
+      "body": "You can call a limited subset of database commands when connected to a\nMongoDB cluster over the [wire protocol](manual/reference/mongodb-wire-protocol). For a list of\nsupported commands, see [Database Commands](atlas/app-services/mongodb/crud-and-aggregation-apis).\n\n> **Note:** App Services does *not* support any database commands in Atlas [system functions](atlas-system-functions).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "MongoDB Version Requirements",
+      "headingLevel": 2,
+      "body": "You can access most of the CRUD and Aggregation functionality of MongoDB\nversion 3.6. However, Triggers do not support all operations and features\navailable in standard tools and clients. For a list of specific MongoDB\noperations that are available when you connect to MongoDB through Triggers, see\n[the CRUD & Aggregation API reference](atlas/app-services/mongodb/crud-and-aggregation-apis).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Options",
+      "headingLevel": 2,
+      "body": "Triggers support all query options in [system functions](atlas-system-functions). For a list of specific options that are available when you\nconnect to MongoDB through Triggers, see [Query Options](atlas/app-services/mongodb/crud-and-aggregation-apis).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Results",
+      "headingLevel": 2,
+      "body": "MongoDB queries executed through Triggers can return a maximum of 50,000\ndocuments. If you need to return more documents, consider paginating\nyour query.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Request Traffic",
+      "headingLevel": 2,
+      "body": "Atlas limits request traffic to the following defaults:\n\n- 10,000 concurrent requests. Any requests made beyond\n  the concurrent request limit receive an HTTP response status\n  code of [429 - Too Many Requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429).\n\nAtlas can handle requests many times the above limits. However, these limits are\nput in place to ensure applications scale responsibly and to prevent DOS attacks\nand unintended billing charges.\n\nYou can request a higher limit by [filing a support ticket](https://support.mongodb.com/welcome).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connection Pooling",
+      "headingLevel": 2,
+      "body": "Atlas uses connection pooling to reduce the overhead of frequently\nopening and closing connections between requests and Trigger executions.\nConnections are opened as needed. Connection pooling is dependent on\nseveral factors:\n\n- Cluster Tier. The higher the cluster tier, the more connections available in\n  the pool.\n\n- Deployment Mode. Global deployments use multiple servers in each region, and\n  therefore have an overall larger connection pool.\n\n- Services. Each service has an independent connection pool, so the number of\n  services in your app does not impact the number of connections available.",
+      "codeBlocks": []
+    }
+  ]
+}

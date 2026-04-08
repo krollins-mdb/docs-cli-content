@@ -1,0 +1,256 @@
+{
+  "path": "atlas/score/get-details",
+  "product": "atlas",
+  "title": "Return the Score Details",
+  "summary": {
+    "total": 22,
+    "byLanguage": {
+      "json": 21,
+      "shell": 1
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 55
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 8
+          }
+        ]
+      },
+      {
+        "heading": "Operator Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 109
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 1241
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 144
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 511
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 208
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 704
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 163
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 402
+          }
+        ]
+      },
+      {
+        "heading": "Custom Score Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 160
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 553
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 127
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 438
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 185
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 1536
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 139
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 536
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 122
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 2361
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 145
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 566
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$search\": {\n    \"<operator>\": {\n      <operator-specification>\n    },\n    \"scoreDetails\": true | false\n  }\n},\n{\n  \"$project\": {\n    \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n  }\n}",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "shell",
+      "section": "Examples",
+      "content": "config.set('inspectDepth', Infinity)",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"autumn\"\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n    \"$limit\": 3\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" },\n      \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n    }\n  }\n])",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "[\n  {\n    title: 'Autumn Leaves',\n    score: 3.834893226623535,\n    scoreDetails: {\n      value: 3.834893226623535,\n      description: '$type:string/title:autumn [BM25Similarity], result of:',\n      details: [\n        {\n          value: 3.834893226623535,\n          description: 'score(freq=1.0), computed as boost * idf * tf from:',\n          details: [\n            {\n              value: 7.39188289642334,\n              description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n              details: [\n                {\n                  value: 14,\n                  description: 'n, number of documents containing term',\n                  details: []\n                },\n                {\n                  value: 23529,\n                  description: 'N, total number of documents with field',\n                  details: []\n                }\n              ]\n            },\n            {\n              value: 0.5187978744506836,\n              description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n              details: [\n                {\n                  value: 1,\n                  description: 'freq, occurrences of term within document',\n                  details: []\n                },\n                {\n                  value: 1.2000000476837158,\n                  description: 'k1, term saturation parameter',\n                  details: []\n                },\n                {\n                  value: 0.75,\n                  description: 'b, length normalization parameter',\n                  details: []\n                },\n                {\n                  value: 2,\n                  description: 'dl, length of field',\n                  details: []\n                },\n                {\n                  value: 2.868375301361084,\n                  description: 'avgdl, average length of field',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'Late Autumn',\n    score: 3.834893226623535,\n    scoreDetails: {\n      value: 3.834893226623535,\n      description: '$type:string/title:autumn [BM25Similarity], result of:',\n      details: [\n        {\n          value: 3.834893226623535,\n          description: 'score(freq=1.0), computed as boost * idf * tf from:',\n          details: [\n            {\n              value: 7.39188289642334,\n              description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n              details: [\n                {\n                  value: 14,\n                  description: 'n, number of documents containing term',\n                  details: []\n                },\n                {\n                  value: 23529,\n                  description: 'N, total number of documents with field',\n                  details: []\n                }\n              ]\n            },\n            {\n              value: 0.5187978744506836,\n              description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n              details: [\n                {\n                  value: 1,\n                  description: 'freq, occurrences of term within document',\n                  details: []\n                },\n                {\n                  value: 1.2000000476837158,\n                  description: 'k1, term saturation parameter',\n                  details: []\n                },\n                {\n                  value: 0.75,\n                  description: 'b, length normalization parameter',\n                  details: []\n                },\n                {\n                  value: 2,\n                  description: 'dl, length of field',\n                  details: []\n                },\n                {\n                  value: 2.868375301361084,\n                  description: 'avgdl, average length of field',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'Cheyenne Autumn',\n    score: 3.834893226623535,\n    scoreDetails: {\n      value: 3.834893226623535,\n      description: '$type:string/title:autumn [BM25Similarity], result of:',\n      details: [\n        {\n          value: 3.834893226623535,\n          description: 'score(freq=1.0), computed as boost * idf * tf from:',\n          details: [\n            {\n              value: 7.39188289642334,\n              description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n              details: [\n                {\n                  value: 14,\n                  description: 'n, number of documents containing term',\n                  details: []\n                },\n                {\n                  value: 23529,\n                  description: 'N, total number of documents with field',\n                  details: []\n                }\n              ]\n            },\n            {\n              value: 0.5187978744506836,\n              description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n              details: [\n                {\n                  value: 1,\n                  description: 'freq, occurrences of term within document',\n                  details: []\n                },\n                {\n                  value: 1.2000000476837158,\n                  description: 'k1, term saturation parameter',\n                  details: []\n                },\n                {\n                  value: 0.75,\n                  description: 'b, length normalization parameter',\n                  details: []\n                },\n                {\n                  value: 2,\n                  description: 'dl, length of field',\n                  details: []\n                },\n                {\n                  value: 2.868375301361084,\n                  description: 'avgdl, average length of field',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 1241
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"near\": {\n        \"path\": \"released\",\n        \"origin\": ISODate(\"2010-01-01T00:00:00.000+00:00\"),\n        \"pivot\": 7776000000\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n     \"$limit\": 3\n  },\n  {\n     \"$project\": {\n        \"_id\": 0,\n        \"title\": 1,\n        \"released\": 1,\n        \"score\": { \"$meta\": \"searchScore\" },\n        \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n     }\n  }\n])",
+      "tokenEstimate": 144
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "[\n  {\n    title: 'Tony',\n    released: ISODate(\"2010-01-01T00:00:00.000Z\"),\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Distance score, computed as weight * pivotDistance / (pivotDistance + abs(value - origin)) from:',\n      details: [\n        { value: 1, description: 'weight', details: [] },\n        {\n          value: 7776000000,\n          description: 'pivotDistance',\n          details: []\n        },\n        { value: 1262303969280, description: 'origin', details: [] },\n        {\n          value: 1262303969280,\n          description: 'current value',\n          details: []\n        }\n      ]\n    }\n  },\n {\n    title: 'And Everything Is Going Fine',\n    released: ISODate(\"2010-01-01T00:00:00.000Z\"),\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Distance score, computed as weight * pivotDistance / (pivotDistance + abs(value - origin)) from:',\n      details: [\n        { value: 1, description: 'weight', details: [] },\n        {\n          value: 7776000000,\n          description: 'pivotDistance',\n          details: []\n        },\n        { value: 1262303969280, description: 'origin', details: [] },\n        {\n          value: 1262303969280,\n          description: 'current value',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'A Film with Me in It',\n    released: ISODate(\"2010-01-01T00:00:00.000Z\")\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Distance score, computed as weight * pivotDistance / (pivotDistance + abs(value - origin)) from:',\n      details: [\n        { value: 1, description: 'weight', details: [] },\n        {\n          value: 7776000000,\n          description: 'pivotDistance',\n          details: []\n        },\n        { value: 1262303969280, description: 'origin', details: [] },\n        {\n          value: 1262303969280,\n          description: 'current value',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 511
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"filter\": [{\n          \"text\": {\n            \"query\": \"friend\",\n            \"path\": \"title\"\n          }\n        }],\n        \"must\": [{\n          \"range\": {\n            \"path\": \"year\",\n            \"gte\": 2000,\n            \"lte\": 2015\n          }\n        }],\n        \"mustNot\": [{\n          \"text\": {\n            \"query\": [\"Short, Western\", \"Biography\"],\n            \"path\": \"genres\"\n          }\n        }]\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n    \"$limit\": 3\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1,\n      \"score\": { \"$meta\": \"searchScore\" },\n      \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n    }\n  }\n])",
+      "tokenEstimate": 208
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "[\n  {\n    genres: [ 'Comedy', 'Drama', 'Mystery' ],\n    title: 'With a Friend Like Harry...',\n    released: ISODate(\"2001-06-15T00:00:00.000Z\"),\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'sum of:',\n      details: [\n        {\n          value: 0,\n          description: 'match on required clause, product of:',\n          details: [\n            { value: 0, description: '# clause', details: [] },\n            {\n              value: 1,\n              description: '$type:string/title:friend',\n              details: []\n            }\n          ]\n        },\n        {\n          value: 1,\n          description: 'sum of:',\n          details: [\n            {\n              value: 1,\n              description: 'sum of:',\n              details: [\n                {\n                  value: 1,\n                  description: '$type:double/year:[4656510908468559872 TO 4656576879166226432]',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'My Friend Henry',\n    released: ISODate(\"2004-08-20T00:00:00.000Z\"),\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'sum of:',\n      details: [\n        {\n          value: 0,\n          description: 'match on required clause, product of:',\n          details: [\n            { value: 0, description: '# clause', details: [] },\n            {\n              value: 1,\n              description: '$type:string/title:friend',\n              details: []\n            }\n          ]\n        },\n        {\n          value: 1,\n          description: 'sum of:',\n          details: [\n            {\n              value: 1,\n              description: 'sum of:',\n              details: [\n                {\n                  value: 1,\n                  description: '$type:double/year:[4656510908468559872 TO 4656576879166226432]',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    genres: [ 'Comedy', 'Drama' ],\n    title: 'A Friend of Mine',\n    released: ISODate(\"2006-10-26T00:00:00.000Z\"),\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'sum of:',\n      details: [\n        {\n          value: 0,\n          description: 'match on required clause, product of:',\n          details: [\n            { value: 0, description: '# clause', details: [] },\n            {\n              value: 1,\n              description: '$type:string/title:friend',\n              details: []\n            }\n          ]\n        },\n        {\n          value: 1,\n          description: 'sum of:',\n          details: [\n            {\n              value: 1,\n              description: 'sum of:',\n              details: [\n                {\n                  value: 1,\n                  description: '$type:double/year:[4656510908468559872 TO 4656576879166226432]',\n                  details: []\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 704
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "db.companies.aggregate({\n  \"$search\": {\n    \"embeddedDocument\": {\n      \"path\": \"products\",\n      \"operator\": {\n        \"wildcard\": {\n          \"path\": \"products.name\",\n          \"query\": \"*Basic\",\n          \"allowAnalyzedField\": true\n        }\n     },\n      \"score\": {\n        \"embedded\": {\n          \"aggregate\": \"sum\"\n        }\n      }\n    },\n    \"scoreDetails\": true\n  }\n},\n{\n  \"$limit\": 3\n},\n{\n  \"$project\": {\n    \"_id\": 0,\n    \"name\": 1,\n    \"products.name\": 1,\n    \"score\": { \"$meta\": \"searchScore\" },\n    \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n  }\n})",
+      "tokenEstimate": 163
+    },
+    {
+      "language": "json",
+      "section": "Operator Examples",
+      "content": "[\n  {\n    name: 'Plaxo',\n    products: [\n      { name: 'Plaxo Basic' },\n      { name: 'Plaxo Pulse' },\n      { name: 'Plaxo Personal Assistant' }\n    ],\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Score based on 1 child docs in range from 27 to 29, best match:',\n      details: [\n        {\n          value: 1,\n          description: '$embedded:8/products/$type:string/products.name:*Basic',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    name: 'The Game Creators',\n    products: [\n      { name: 'Dark Basic Professional' },\n      { name: 'FPS Creator' },\n      { name: 'FPS Creator X10' }\n    ],\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Score based on 1 child docs in range from 7474 to 7476, best match:',\n      details: [\n        {\n          value: 1,\n          description: '$embedded:8/products/$type:string/products.name:*basic',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    name: 'Load Impact',\n    products: [\n      { name: 'Load Impact LIGHT' },\n      { name: 'Load Impact BASIC' },\n      { name: 'Load Impact PROFESSIONAL' },\n      { name: 'Load Impact ADVANCED' }\n    ],\n    score: 1,\n    scoreDetails: {\n      value: 1,\n      description: 'Score based on 1 child docs in range from 11545 to 11548, best match:',\n      details: [\n        {\n          value: 1,\n          description: '$embedded:8/products/$type:string/products.name:*basic',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 402
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\":{\n          \"multiply\":[\n            {\n              \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 2\n              }\n            },\n            {\n              \"score\": \"relevance\"\n            }\n          ]\n        }\n      }\n    },\n    \"scoreDetails\": true\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" },\n    \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n  }\n}])",
+      "tokenEstimate": 160
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: 'Men...',\n    score: 23.431293487548828,\n    scoreDetails: {\n      value: 23.431293487548828,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by (imdb.rating * scores)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 23.431293487548828,\n          description: '(imdb.rating * scores)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: '12 Angry Men',\n    score: 22.080968856811523,\n    scoreDetails: {\n      value: 22.080968856811523,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by (imdb.rating * scores)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 22.080968856811523,\n          description: '(imdb.rating * scores)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'X-Men',\n    score: 21.34803581237793,\n    scoreDetails: {\n      value: 21.34803581237793,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by (imdb.rating * scores)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 21.34803581237793,\n          description: '(imdb.rating * scores)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'X-Men',\n    score: 21.34803581237793,\n    scoreDetails: {\n      value: 21.34803581237793,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by (imdb.rating * scores)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 21.34803581237793,\n          description: '(imdb.rating * scores)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'Matchstick Men',\n    score: 21.05954933166504,\n    scoreDetails: {\n      value: 21.05954933166504,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by (imdb.rating * scores)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 21.05954933166504,\n          description: '(imdb.rating * scores)',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 553
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"men\",\n        \"score\": {\n          \"function\":{\n            \"constant\": 3\n          }\n        }\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n    $limit: 5\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" },\n      \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n    }\n  }\n])",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: 'Men Without Women',\n    score: 3,\n    scoreDetails: {\n      value: 3,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by constant(3.0)) [BM25Similarity], result of:',\n      details: [ { value: 3, description: 'constant(3.0)', details: [] } ]\n    }\n  },\n  {\n    title: 'One Hundred Men and a Girl',\n    score: 3,\n    scoreDetails: {\n      value: 3,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by constant(3.0)) [BM25Similarity], result of:',\n      details: [ { value: 3, description: 'constant(3.0)', details: [] } ]\n    }\n  },\n  {\n    title: 'Of Mice and Men',\n    score: 3,\n    scoreDetails: {\n      value: 3,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by constant(3.0)) [BM25Similarity], result of:',\n      details: [ { value: 3, description: 'constant(3.0)', details: [] } ]\n    }\n  },\n  {\n    title: \"All the King's Men\",\n    score: 3,\n    scoreDetails: {\n      value: 3,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by constant(3.0)) [BM25Similarity], result of:',\n      details: [ { value: 3, description: 'constant(3.0)', details: [] } ]\n    }\n  },\n  {\n    title: 'The Men',\n    score: 3,\n    scoreDetails: {\n      value: 3,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by constant(3.0)) [BM25Similarity], result of:',\n      details: [ { value: 3, description: 'constant(3.0)', details: [] } ]\n    }\n  }\n]",
+      "tokenEstimate": 438
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"shop\",\n        \"score\": {\n          \"function\":{\n            \"gauss\": {\n              \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 4.6\n              },\n              \"origin\": 9.5,\n              \"scale\": 5,\n              \"offset\": 0,\n              \"decay\": 0.5\n            }\n          }\n        }\n      },\n      \"scoreDetails\": true\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" },\n      \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n    }\n  }\n])",
+      "tokenEstimate": 185
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: 'The Shop Around the Corner',\n    score: 0.9471074342727661,\n    scoreDetails: {\n      value: 0.9471074342727661,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9471074342727661,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'Exit Through the Gift Shop',\n    score: 0.9471074342727661,\n    scoreDetails: {\n      value: 0.9471074342727661,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9471074342727661,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Shop on Main Street',\n    score: 0.9395227432250977,\n    scoreDetails: {\n      value: 0.9395227432250977,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9395227432250977,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'Chop Shop',\n    score: 0.8849083781242371,\n    scoreDetails: {\n      value: 0.8849083781242371,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.8849083781242371,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'Little Shop of Horrors',\n    score: 0.8290896415710449,\n    scoreDetails: {\n      value: 0.8290896415710449,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.8290896415710449,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Suicide Shop',\n    score: 0.7257778644561768,\n    scoreDetails: {\n      value: 0.7257778644561768,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.7257778644561768,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'A Woman, a Gun and a Noodle Shop',\n    score: 0.6559237241744995,\n    scoreDetails: {\n      value: 0.6559237241744995,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.6559237241744995,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'Beauty Shop',\n    score: 0.6274620294570923,\n    scoreDetails: {\n      value: 0.6274620294570923,\n      description: 'FunctionScoreQuery($type:string/title:shop, scored by exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.6274620294570923,\n          description: 'exp((max(0, |imdb.rating - 9.5| - 0.0)^2) / 2 * (5.0^2 / 2 * ln(0.5)))',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 1536
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\":{\n          \"path\": {\n            \"value\": \"imdb.rating\",\n            \"undefined\": 4.6\n          }\n        }\n      }\n    },\n    \"scoreDetails\": true\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" },\n    \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n  }\n}])",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: '12 Angry Men',\n    score: 8.899999618530273,\n    scoreDetails: {\n      value: 8.899999618530273,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by imdb.rating) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 8.899999618530273,\n          description: 'imdb.rating',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Men Who Built America',\n    score: 8.600000381469727,\n    scoreDetails: {\n      value: 8.600000381469727,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by imdb.rating) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 8.600000381469727,\n          description: 'imdb.rating',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'No Country for Old Men',\n    score: 8.100000381469727,\n    scoreDetails: {\n      value: 8.100000381469727,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by imdb.rating) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 8.100000381469727,\n          description: 'imdb.rating',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'X-Men: Days of Future Past',\n    score: 8.100000381469727,\n    scoreDetails: {\n      value: 8.100000381469727,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by imdb.rating) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 8.100000381469727,\n          description: 'imdb.rating',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Best of Men',\n    score: 8.100000381469727,\n    scoreDetails: {\n      value: 8.100000381469727,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by imdb.rating) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 8.100000381469727,\n          description: 'imdb.rating',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 536
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\":{\n          \"score\": \"relevance\"\n        }\n      }\n    },\n    \"scoreDetails\": true\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" },\n    \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n  }\n}])",
+      "tokenEstimate": 122
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: 'Men...',\n    score: 3.4457783699035645,\n    scoreDetails: {\n      value: 3.4457783699035645,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by scores) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 3.4457783699035645,\n          description: 'weight($type:string/title:men in 4705) [BM25Similarity], result of:',\n          details: [\n            {\n              value: 3.4457783699035645,\n              description: 'score(freq=1.0), computed as boost * idf * tf from:',\n              details: [\n                {\n                  value: 5.5606818199157715,\n                  description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n                  details: [\n                    {\n                      value: 90,\n                      description: 'n, number of documents containing term',\n                      details: []\n                    },\n                    {\n                      value: 23529,\n                      description: 'N, total number of documents with field',\n                      details: []\n                    }\n                  ]\n                },\n                {\n                  value: 0.6196683645248413,\n                  description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n                  details: [\n                    {\n                      value: 1,\n                      description: 'freq, occurrences of term within document',\n                      details: []\n                    },\n                    {\n                      value: 1.2000000476837158,\n                      description: 'k1, term saturation parameter',\n                      details: []\n                    },\n                    {\n                      value: 0.75,\n                      description: 'b, length normalization parameter',\n                     details: []\n                    },\n                    {\n                      value: 1,\n                      description: 'dl, length of field',\n                      details: []\n                    },\n                    {\n                      value: 2.868375301361084,\n                      description: 'avgdl, average length of field',\n                      details: []\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Men',\n    score: 2.8848698139190674,\n    scoreDetails: {\n      value: 2.8848698139190674,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by scores) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 2.8848698139190674,\n          description: 'weight($type:string/title:men in 870) [BM25Similarity], result of:',\n          details: [\n            {\n              value: 2.8848698139190674,\n              description: 'score(freq=1.0), computed as boost * idf * tf from:',\n              details: [\n                {\n                  value: 5.5606818199157715,\n                  description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n                  details: [\n                    {\n                      value: 90,\n                      description: 'n, number of documents containing term',\n                      details: []\n                    },\n                    {\n                      value: 23529,\n                      description: 'N, total number of documents with field',\n                      details: []\n                    }\n                  ]\n                },\n                {\n                  value: 0.5187978744506836,\n                  description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n                  details: [\n                    {\n                      value: 1,\n                      description: 'freq, occurrences of term within document',\n                      details: []\n                    },\n                    {\n                      value: 1.2000000476837158,\n                      description: 'k1, term saturation parameter',\n                      details: []\n                    },\n                    {\n                      value: 0.75,\n                      description: 'b, length normalization parameter',\n                      details: []\n                    },\n                    {\n                      value: 2,\n                      description: 'dl, length of field',\n                      details: []\n                    },\n                    {\n                      value: 2.868375301361084,\n                      description: 'avgdl, average length of field',\n                      details: []\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'Simple Men',\n    score: 2.8848698139190674,\n    scoreDetails: {\n      value: 2.8848698139190674,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by scores) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 2.8848698139190674,\n          description: 'weight($type:string/title:men in 6371) [BM25Similarity], result of:',\n          details: [\n            {\n              value: 2.8848698139190674,\n              description: 'score(freq=1.0), computed as boost * idf * tf from:',\n              details: [\n                {\n                  value: 5.5606818199157715,\n                  description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n                  details: [\n                    {\n                      value: 90,\n                      description: 'n, number of documents containing term',\n                      details: []\n                    },\n                    {\n                      value: 23529,\n                      description: 'N, total number of documents with field',\n                      details: []\n                    }\n                  ]\n                },\n                {\n                  value: 0.5187978744506836,\n                  description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n                  details: [\n                    {\n                      value: 1,\n                      description: 'freq, occurrences of term within document',\n                      details: []\n                    },\n                    {\n                      value: 1.2000000476837158,\n                      description: 'k1, term saturation parameter',\n                      details: []\n                    },\n                    {\n                      value: 0.75,\n                      description: 'b, length normalization parameter',\n                      details: []\n                    },\n                    {\n                      value: 2,\n                      description: 'dl, length of field',\n                      details: []\n                    },\n                    {\n                      value: 2.868375301361084,\n                      description: 'avgdl, average length of field',\n                      details: []\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'X-Men',\n    score: 2.8848698139190674,\n    scoreDetails: {\n      value: 2.8848698139190674,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by scores) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 2.8848698139190674,\n          description: 'weight($type:string/title:men in 8368) [BM25Similarity], result of:',\n          details: [\n            {\n              value: 2.8848698139190674,\n              description: 'score(freq=1.0), computed as boost * idf * tf from:',\n              details: [\n                {\n                  value: 5.5606818199157715,\n                  description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n                  details: [\n                    {\n                      value: 90,\n                      description: 'n, number of documents containing term',\n                      details: []\n                    },\n                    {\n                      value: 23529,\n                      description: 'N, total number of documents with field',\n                      details: []\n                    }\n                  ]\n                },\n                {\n                  value: 0.5187978744506836,\n                  description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n                  details: [\n                    {\n                      value: 1,\n                      description: 'freq, occurrences of term within document',\n                      details: []\n                    },\n                    {\n                      value: 1.2000000476837158,\n                      description: 'k1, term saturation parameter',\n                      details: []\n                    },\n                    {\n                      value: 0.75,\n                      description: 'b, length normalization parameter',\n                      details: []\n                    },\n                    {\n                      value: 2,\n                      description: 'dl, length of field',\n                      details: []\n                    },\n                    {\n                      value: 2.868375301361084,\n                      description: 'avgdl, average length of field',\n                      details: []\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  },\n  {\n    title: 'Mystery Men',\n    score: 2.8848698139190674,\n    scoreDetails: {\n      value: 2.8848698139190674,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by scores) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 2.8848698139190674,\n          description: 'weight($type:string/title:men in 8601) [BM25Similarity], result of:',\n          details: [\n            {\n              value: 2.8848698139190674,\n              description: 'score(freq=1.0), computed as boost * idf * tf from:',\n              details: [\n                {\n                  value: 5.5606818199157715,\n                  description: 'idf, computed as log(1 + (N - n + 0.5) / (n + 0.5)) from:',\n                  details: [\n                    {\n                      value: 90,\n                      description: 'n, number of documents containing term',\n                      details: []\n                    },\n                    {\n                      value: 23529,\n                      description: 'N, total number of documents with field',\n                      details: []\n                    }\n                  ]\n                },\n                {\n                  value: 0.5187978744506836,\n                  description: 'tf, computed as freq / (freq + k1 * (1 - b + b * dl / avgdl)) from:',\n                  details: [\n                    {\n                      value: 1,\n                      description: 'freq, occurrences of term within document',\n                      details: []\n                    },\n                    {\n                      value: 1.2000000476837158,\n                      description: 'k1, term saturation parameter',\n                      details: []\n                    },\n                    {\n                      value: 0.75,\n                      description: 'b, length normalization parameter',\n                      details: []\n                    },\n                    {\n                      value: 2,\n                      description: 'dl, length of field',\n                      details: []\n                    },\n                    {\n                      value: 2.868375301361084,\n                      description: 'avgdl, average length of field',\n                      details: []\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 2361
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\": {\n          \"log\": {\n            \"path\": {\n              \"value\": \"imdb.rating\",\n              \"undefined\": 10\n            }\n          }\n        }\n      }\n    },\n    \"scoreDetails\": true\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" },\n    \"scoreDetails\": {\"$meta\": \"searchScoreDetails\"}\n  }\n}])",
+      "tokenEstimate": 145
+    },
+    {
+      "language": "json",
+      "section": "Custom Score Examples",
+      "content": "[\n  {\n    title: '12 Angry Men',\n    score: 0.9493899941444397,\n    scoreDetails: {\n      value: 0.9493899941444397,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by log(imdb.rating)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9493899941444397,\n          description: 'log(imdb.rating)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Men Who Built America',\n    score: 0.9344984292984009,\n    scoreDetails: {\n      value: 0.9344984292984009,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by log(imdb.rating)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9344984292984009,\n          description: 'log(imdb.rating)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'No Country for Old Men',\n    score: 0.9084849953651428,\n    scoreDetails: {\n      value: 0.9084849953651428,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by log(imdb.rating)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9084849953651428,\n          description: 'log(imdb.rating)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'X-Men: Days of Future Past',\n    score: 0.9084849953651428,\n    scoreDetails: {\n      value: 0.9084849953651428,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by log(imdb.rating)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9084849953651428,\n          description: 'log(imdb.rating)',\n          details: []\n        }\n      ]\n    }\n  },\n  {\n    title: 'The Best of Men',\n    score: 0.9084849953651428,\n    scoreDetails: {\n      value: 0.9084849953651428,\n      description: 'FunctionScoreQuery($type:string/title:men, scored by log(imdb.rating)) [BM25Similarity], result of:',\n      details: [\n        {\n          value: 0.9084849953651428,\n          description: 'log(imdb.rating)',\n          details: []\n        }\n      ]\n    }\n  }\n]",
+      "tokenEstimate": 566
+    }
+  ]
+}

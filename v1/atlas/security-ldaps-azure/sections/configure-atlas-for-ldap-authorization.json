@@ -1,0 +1,22 @@
+{
+  "heading": "Configure Atlas for LDAP Authorization",
+  "headingLevel": 3,
+  "body": "> **Note:** Skip this section if you don't want to\n> enable LDAP (Lightweight Directory Access Protocol) authorization.\n\nThe following procedure adds the OneLogin database access\ngroups to Atlas and enables database user authorization in\nAtlas:\n\nAdd each of the Azure database groups you created to Atlas.\nMembers of groups that you add are authorized to perform database actions\ngranted to the group.\n\n- Click  Add New Database User.\n\n* Click LDAP Group, and then enter the full DN of the\n  group containing your database users, even if you enabled\n  User to DN Mapping. Follow this template:\n\n  ```sh\n  CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com\n  ```\n\n  > **Note:** For OneLogin, the attributes in distinguished names must be\n  > upper case.\n\n  If your `<managed-domain>` consists of one or more subdomains,\n  you must add a `DC` (domainComponent) attribute to the\n  distinguished name for each.\n\n  > **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n  > components are:\n  >\n  > `DC=aadds,DC=example,DC=com`\n\n  For example, if your `<group-name>` is `Atlas read only` and\n  your `<managed-domain>` is `aadds.example.com`, your user's\n  DN is:\n\n  ```sh\n  CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com\n  ```\n\n- Select the database access level to grant to users in this group.\n\n- Click Add User.\n\nWhen a user attempts to perform an action, Atlas executes the\n[LDAP query template](manual/reference/configuration-options)\nto obtain the LDAP groups to which the authenticated user belongs.\nAtlas permits the action if the query returns at least one group\nthat is authorized to perform the action. Atlas does not permit\nthe action if the query returns no groups that are authorized to\nperform the action.\n\nAtlas substitutes the authenticated username in the `{USER}`\nplaceholder when it runs the query. The query is relative to the host\nspecified in Server Hostname.\n\nThe formatting for the query must conform to [RFC4515](https://www.rfc-editor.org/rfc/rfc4515).\n\nIf you want to identify what group a user is a member of, you can use\nthe default Query Template:\n\n```sh\n{USER}?memberOf?base\n```\n\n> **Note:** Other query templates may also work.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nserver using the configuration details that you provide.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "sh",
+      "content": "CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "content": "{USER}?memberOf?base",
+      "tokenEstimate": 6
+    }
+  ]
+}

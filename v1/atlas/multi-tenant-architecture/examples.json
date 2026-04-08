@@ -1,0 +1,56 @@
+{
+  "path": "atlas/multi-tenant-architecture",
+  "product": "atlas",
+  "title": "Build a Multi-Tenant Architecture for MongoDB Vector Search",
+  "summary": {
+    "total": 3,
+    "byLanguage": {
+      "shell": 2,
+      "javascript": 1
+    },
+    "bySection": [
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 40
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 57
+          }
+        ]
+      },
+      {
+        "heading": "Migrating from a Collection-Per-Tenant Model",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 419
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "db.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": \"<largeTenantId>\"\n      }\n    }\n  ]\n)",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "db.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": {\n          \"$nin\": [ \"<largeTenantId1>\", \"<largeTenantId2>\", ... ]\n        }\n      }\n    }\n  ]\n)",
+      "tokenEstimate": 57
+    },
+    {
+      "language": "javascript",
+      "section": "Migrating from a Collection-Per-Tenant Model",
+      "content": "import { MongoClient } from 'mongodb';\n\nconst uri = \"<connectionString>\"; \nconst sourceDbName = \"<sourceDatabaseName>\"; \nconst targetDbName = \"<targetDatabaseName>\"; \nconst targetCollectionName = \"<targetCollectionName>\";\n\nasync function migrateCollections() {\n const client = new MongoClient(uri);\n\n try {\n     await client.connect();\n\n     const sourceDb = client.db(sourceDbName);\n     const targetDb = client.db(targetDbName);\n     const targetCollection = targetDb.collection(targetCollectionName);\n\n     const collections = await sourceDb.listCollections().toArray();\n     console.log(`Found ${collections.length} collections.`);\n\n     const BATCH_SIZE = 1000; // Define a suitable batch size based on your requirements\n     let totalProcessed = 0;\n\n     for (const collectionInfo of collections) {\n         const collection = sourceDb.collection(collectionInfo.name);\n         let documentsProcessed = 0;\n         let batch = [];\n         const tenantId = collectionInfo.name; // Uses the collection name as the tenant_id\n\n         const cursor = collection.find({});\n         for await (const doc of cursor) {\n             doc.tenant_id = tenantId; // Adds a tenant_id field to each document\n             batch.push(doc);\n\n             if (batch.length >= BATCH_SIZE) {\n                 await targetCollection.insertMany(batch);\n                 totalProcessed += batch.length;\n                 documentsProcessed += batch.length;\n                 console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n                 batch = [];\n             }\n         }\n\n         if (batch.length > 0) {\n             await targetCollection.insertMany(batch);\n             totalProcessed += batch.length;\n             documentsProcessed += batch.length;\n             console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n         }\n     }\n\n     console.log(`Migration completed. Total documents processed: ${totalProcessed}`);\n } catch (err) {\n     console.error('An error occurred:', err);\n } finally {\n     await client.close();\n }\n}\n\nawait migrateCollections().catch(console.error);",
+      "tokenEstimate": 419
+    }
+  ]
+}

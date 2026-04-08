@@ -1,0 +1,12 @@
+{
+  "heading": "Behavior",
+  "headingLevel": 2,
+  "body": "You can run kNN (K-nearest neighbors) queries against fields\nthat were indexed as MongoDB Search type [knnVector](fts-data-types-knn-vector) only.\n\nYou can use [$limit](manual/reference/operator/aggregation/limit) after the [$search](pipe.$search) stage\nto limit the number of documents in the `knnBeta` query results. We\nrecommend setting the value for `k` higher than the value for\n`$limit`. This overrequest pattern is the main way to trade off latency and recall in your\napproximate nearest neighbor searches. Empirically, we have seen a multiplier of 5-10 work\nwell for many use cases, but we recommend tuning this on your specific dataset.\n\n> **Example:** The following query finds `150` nearest neighbors to the query and\n> limits the remaining number of results to `50`.\n>\n> ```json\n> db.<collection>.aggregate({\n>   \"$search\": {\n>     \"knnBeta\": {\n>       \"vector\": <array-of-numbers-to-search>,\n>       \"path\": <indexed-field-to-search>,\n>       \"k\": 150\n>     }\n>   }\n> },\n> {\n>   \"$limit\": 50\n> })\n> ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.<collection>.aggregate({\n  \"$search\": {\n    \"knnBeta\": {\n      \"vector\": <array-of-numbers-to-search>,\n      \"path\": <indexed-field-to-search>,\n      \"k\": 150\n    }\n  }\n},\n{\n  \"$limit\": 50\n})",
+      "tokenEstimate": 61
+    }
+  ]
+}

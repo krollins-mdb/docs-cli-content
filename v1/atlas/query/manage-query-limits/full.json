@@ -1,0 +1,174 @@
+{
+  "path": "atlas/query/manage-query-limits",
+  "product": "atlas",
+  "title": "Manage Atlas Data Federation Query Limits",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "You can limit the amount of data that Atlas Data Federation processes for your\nfederated database instances to control costs. To limit the amount of [processed data](atlas-data-federation-billing), you can configure query limits per\nfederated database instance and for all federated database instances in your project. The query limits that you\nconfigure only apply to data processing costs and don't apply to other\nAtlas Data Federation costs such as [processed data](atlas-data-federation-billing).\n\nYou can configure one limit *per query*, *per day*, *per week*, and *per\nmonth* per project and per federated database instance. Atlas Data Federation considers each limit of each\ntype independent of other configured limits. If you configure the same\ntype of limit for the project and for a federated database instance in the project, Atlas Data Federation\nenforces the more restrictive limit of the two. Limit values must be\nbetween 1GiB (1024^3 bytes) and 1EiB.\n\nBy default, Atlas Data Federation sets a 100TB limit on the amount of processed data\nper month for all new federated database instances.\n\n> **Note:** Atlas Data Federation enforces the project limit per cloud object storage. For\n> example, suppose you have 2 federated database instances, one on AWS (Amazon Web Services) and another on\n> Azure (Microsoft Azure). Atlas Data Federation allows scans of up to 100TB per federated database instance for a\n> total of 200TB for the project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "What Happens When Atlas Data Federation Reaches the Data Limit?",
+      "headingLevel": 3,
+      "body": "When the amount of processed data reaches the configured limit amount,\nAtlas Data Federation stops processing data for the query that has reached the\nlimit if the limit type is *per query*. For limits of other types,\nAtlas Data Federation doesn't execute any new queries until the limit resets based on\nthe configured limit type. That is, Atlas Data Federation doesn't execute any new\nqueries until:\n\n- The next calendar day beginning at `00:00` UTC (Coordinated\n  Universal Time) for limit type of *per day*.\n\n- The next calendar week beginning on Monday at `00:00` UTC\n  (Coordinated Universal Time) for limit type of *per week*.\n\n- The next calendar month beginning on the first day (1st) of the month\n  at `00:00` UTC (Coordinated Universal Time) for limit type\n  of *per month*.\n\nIf you configure the same type of limit for both the project and\nfederated database instances in the project, but with different limit amounts for the\nproject and the federated database instances in the project, the following apply:\n\n- If Atlas Data Federation reaches the project limit amount before reaching the limit\n  amount for any federated database instance in the project, Atlas Data Federation allows all running\n  queries against all federated database instances in the project to complete.\n\n- If Atlas Data Federation doesn't reach the limit amount for the project, but reaches\n  the limit amount set for any federated database instance in the project, Atlas Data Federation allows all\n  running queries against that federated database instance to complete, but doesn't execute\n  any new queries against that federated database instance. Atlas Data Federation continues to execute\n  queries against other federated database instances in the project until it reaches the\n  limit amount set for the project. When Atlas Data Federation reaches the project\n  limit amount, Atlas Data Federation allows all running queries against all federated database instances\n  in the project to complete, but doesn't execute any new queries\n  against any federated database instances in the project.\n\nAtlas Data Federation displays a warning in the Atlas UI when Atlas Data Federation reaches the\ndata processing limit. Additionally, you can configure Atlas Data Federation to\nterminate queries that exceed the limit ASAP (as soon as\npossible) when Atlas Data Federation reaches the limit instead of allowing running\nqueries to complete.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "What Happens When You Enable Query Termination?",
+      "headingLevel": 3,
+      "body": "If you configure Atlas Data Federation to terminate queries that exceed the limit,\nAtlas Data Federation attempts to terminate the queries when Atlas Data Federation reaches the\napplicable limit. While Atlas Data Federation attempts to terminate the query, Atlas Data Federation\nmight exceed the limit marginally. Atlas Data Federation doesn't return any results\nand returns only an error. However, you will see data processing charges\nfor the amount of data that Atlas Data Federation processed before it reached the\nlimit.\n\nIf you configure the same type of limit for both the project and\nfederated database instances in the project, but with different limit amounts and query\ntermination settings, Atlas Data Federation will terminate the query only when the\namount of data that Atlas Data Federation processes reaches the limit amount that you\nassociated with query termination.\n\n> **Example:** Suppose a 100 GB *per week* project limit with termination enabled\n> and a 60 GB *per week* federated database instance limit with termination disabled.\n>\n> - When one or more queries against the federated database instance reach the 60 GB limit,\n>   Atlas Data Federation terminates all running queries against the federated database instance and\n>   doesn't execute any new queries. Atlas Data Federation continues to execute all\n>   running and new queries against other federated database instances in the project\n>   until Atlas Data Federation reaches the project limit of 100 GB.\n>\n> - When one or more queries reach the 100 GB limit for the project,\n>   Atlas Data Federation doesn't execute any new queries and terminates all queries\n>   against all federated database instances in the project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To [add](adf-add-query-limits), [edit](adf-edit-query-limits), or [delete](adf-delete-query-limits)\nquery limits, you must have [Project Owner](<Project Owner>) access to the\nproject. Users with [Organization Owner](<Organization Owner>) access must add\nthemselves as a `Project Owner` to the project before adding, editing,\nor deleting query limits.\n\nTo [view](adf-view-query-limits) limits on queries, you must have\n[Project Read Only](<Project Read Only>) access to the project or higher.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedures",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add Query Limits",
+      "headingLevel": 3,
+      "body": "You can configure limits on the amount of data processed for your\nqueries from the Atlas CLI, Atlas UI, and API (Application Programming Interface).**Atlascli:**Atlas CLITo create a new Data Federation query limit using the\nAtlas CLI, run the following command:```sh\n\natlas dataFederation queryLimits create <name> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas dataFederation queryLimits create](atlas/cli/current/command/atlas-dataFederation-queryLimits-create).**Atlas UI:**UI",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas dataFederation queryLimits create <name> [options]\n",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Navigate to your federated database instances page.",
+      "headingLevel": 4,
+      "body": "- Log in to MongoDB Atlas.\n\n- Select the Data Federation option on the left-hand navigation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  to configure limits per federated database instance or for all federated database instances in the project.",
+      "headingLevel": 4,
+      "body": "You can configure limits for the project and per federated database instance.\nProject level query limits apply to all federated database instances in the\nproject, which prevents new queries against any federated database instance when\nthe amount of processed data reaches the limit. Query limits\non a federated database instance apply to only that federated database instance, and Atlas Data Federation won't\nexecute any new queries against that federated database instance when the amount\nof processed data reaches the limit. You can also,\noptionally, enable termination of queries when Atlas Data Federation\nreaches the configured limit.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Click  to configure the limit.",
+      "headingLevel": 4,
+      "body": "You can configure the following fields in the **Add\nQuery Limit** window:\n\n| Field Name        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Limit For         | Specify whether the limit is for a project or federated database instance. Click the dropdown and select the project or federated database instance to apply the limit to. After you add the limit, you can't modify this setting.                                                                                                                                                                                                                                                                                                                                                      |\n| Limit Type        | Specify the limit duration. Click the dropdown to choose one of the following:Per query - Indicates that the limit is per individual query.Per day - Indicates that the limit is per calendar day beginning at 00:00 UTC (Coordinated Universal Time).Per week - Indicates that the limit is per calendar week beginning on Monday at 00:00 UTC (Coordinated Universal Time).Per month - Indicates that the limit is per calendar month beginning on the first day (1st) of the month at 00:00 UTC (Coordinated Universal Time).After you add the limit, you can't modify this setting. |\n| Limit Amount      | Specify the amount of data in MB, GB, or TB to limit to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| Terminate Queries | Toggle to enable query termination. You can't enable query termination for Per query limit type because, by default, Atlas Data Federation terminates the query when it reaches the limit for this limit type.                                                                                                                                                                                                                                                                                                                                                                          |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Click  for the changes to take effect.",
+      "headingLevel": 4,
+      "body": "For limits of type **Per query**, the changes take effect\nimmediately and Atlas Data Federation enforces the limit for all new\nqueries only. For limits of other types, the following apply:* **Per day** - The changes take effect at the start of\n  Monday in the current week in UTC (Coordinated Universal Time) time.\n\n* **Per week** - The changes take effect at the start of\n  Monday in the current week in UTC (Coordinated Universal Time) time.\n\n* **Per month** - The changes take effect on the first\n  day, the beginning of the the monthly billing period, for the\n  project in UTC (Coordinated Universal Time) time.**Openapi:**APITo configure query limits from the API (Application Programming Interface), send a `POST` request\nto the `limits` endpoint.To configure a limit that applies to all federated database instances in the project,\nyou must specify the unique ID of the project and the name of the\nlimit to set. To learn more about the syntax and options for\nsetting limits for all federated database instances in the project, see\n[API](api/doc/atlas-admin-api-v2/operation/operation-setgrouplimit).To configure a limit for one federated database instance in a project,\nspecify the unique ID of the project and the name of the federated database instance\nin the project. To learn more about the syntax and options for\nsetting limits for one federated database instance in a project, see [API](api/doc/atlas-admin-api-v2/operation/operation-setgroupdatafederationlimit).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Query Limits",
+      "headingLevel": 3,
+      "body": "You can view the project and federated database instance limits on queries from the\nAtlas CLI, Atlas UI, and API (Application Programming Interface). You can also view the amount of data that Atlas Data Federation\nprocessed per instance per day.**Atlascli:**Atlas CLITo list Data Federation query limits for your project using the Atlas CLI, run the following command:```sh\n\natlas dataFederation queryLimits list [options]\n\n```To return the details for the Data Federation query limit you specify using the Atlas CLI, run the following command:```sh\n\natlas dataFederation queryLimits describe <name> [options]\n\n```To learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas dataFederation queryLimits list](atlas/cli/current/command/atlas-dataFederation-queryLimits-list) and\n[atlas dataFederation queryLimits describe](atlas/cli/current/command/atlas-dataFederation-queryLimits-describe).Related Links* [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n* [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)**Atlas UI:**UI",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas dataFederation queryLimits list [options]\n",
+          "tokenEstimate": 12
+        },
+        {
+          "language": "sh",
+          "content": "\natlas dataFederation queryLimits describe <name> [options]\n",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Navigate to your federated database instances page.",
+      "headingLevel": 4,
+      "body": "- Log in to MongoDB Atlas.\n\n- Select the Data Federation option on the left-hand navigation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  to view the limits per federated database instance and for all federated database instances in the project.",
+      "headingLevel": 4,
+      "body": "The **Data Federation Query Limits** page displays\nthe following:| Column Name            | Column Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Limit for              | Specifies the name of the project if the limit is for the project or the name of the federated database instance if the limit is for a federated database instance.                                                                                                                                                                                                                                                                                                                    |\n| Data Processed / Limit | Indicates the total amount of data processed by the queries. You can hover your mouse over the processed data to view the following:For a federated database instance, the limit start date and timeFor a project:If there aren't any federated database instance limits of the same type in the project, only the limit start date and timeIf there are any federated database instance limits of any limit type:Limit start date and timeAmount of processed data for the limit type |\n| Limit Type             | Indicates the type of limit. Value can be:Per queryPer dayPer weekPer month                                                                                                                                                                                                                                                                                                                                                                                                            |\n| Terminate Queries      | Indicates whether the flag to terminate running queries when Atlas Data Federation reaches the limit is enabled.                                                                                                                                                                                                                                                                                                                                                                       |\n| Actions                | Displays the actions you can take on the limit. You can do the following:Edit a query limitDelete a query limit                                                                                                                                                                                                                                                                                                                                                                        |**Openapi:**APITo retrieve the query limits from the API (Application Programming Interface), send a `GET` request\nto the `limits` endpoint.To retrieve one limit that applies to all federated database instances in the project,\nyou must specify the unique ID of the project and the name of the\nlimit to retrieve. To learn more about the syntax and options for\nretrieving one project limit, see [API](api/doc/atlas-admin-api-v2/operation/operation-getprojectlimit). To retrieve all limits for a project,\nspecify the unique ID of the project. To learn more about the\nsyntax and options for retrieving all federated database instance limits, see\n[API](api/doc/atlas-admin-api-v2/operation/operation-listgrouplimits).To retrieve one limit for one federated database instance in a project, specify the\nunique ID of the project, the name of federated database instance, and the name of the\nlimit to retrieve. To learn more about the syntax and options for\nretrieving one limit for one federated database instance in a project, see\n[API](api/doc/atlas-admin-api-v2/operation/operation-getgroupdatafederationlimit). To\nretrieve all limits for a federated database instance in a project, specify the unique\nID of the project and the name of the federated database instance. To learn more about\nthe syntax and options for retrieving all federated database instance limits, see\n[API](api/doc/atlas-admin-api-v2/operation/operation-listgroupdatafederationlimits).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Edit Query Limits",
+      "headingLevel": 3,
+      "body": "You can edit the project and per federated database instance limits from the Atlas UI and\nAPI (Application Programming Interface).**Atlas UI:**UI",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Navigate to your federated database instances page.",
+      "headingLevel": 4,
+      "body": "- Log in to MongoDB Atlas.\n\n- Select the Data Federation option on the left-hand navigation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  to view the limits per federated database instance and for all federated database instances in the project.",
+      "headingLevel": 4,
+      "body": "The **Data Federation Query Limits** page displays\nthe actions you can take on the corresponding limit in the\n**Actions** column.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Click  to open the  window.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Make changes as needed to the following.",
+      "headingLevel": 4,
+      "body": "You can modify any of the following settings:\n\n| Field Name        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Limit Amount      | Specify the amount of data in MB, GB, or TB to limit to. The following apply if the new limit amount is more restrictive than any other limit of the same type at another level:If Atlas Data Federation hasn't yet reached the new limit amount, Atlas Data Federation starts executing new queries and restarts any terminated queries. To learn more, see What Happens When Atlas Data Federation Reaches the Data Limit?.If Atlas Data Federation has already reached the new limit amount, Atlas Data Federation doesn't execute any new queries, but allows all running queries to complete if query termination is disabled. If you enabled query termination, Atlas Data Federation terminates all running queries. To learn more, see What Happens When You Enable Query Termination?. |\n| Terminate Queries | Toggle to enable query termination. You can't enable query termination for Per query limit type because for this limit type, Atlas Data Federation will attempt to terminate each query as soon as it reaches the limit by default. If you enable query termination for any other type, Atlas Data Federation terminates the running queries that have reached the limit. If you disable termination, Atlas Data Federation won't restart any terminated queries and won't terminate any new or running query when Atlas Data Federation reaches the limit amount. Instead, your running queries will be able to finish and scan additional data.To learn more, see What Happens When You Enable Query Termination?.                                                                            |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Click  for the changes to take effect.",
+      "headingLevel": 4,
+      "body": "**Openapi:**APITo modify the query limits from the API (Application Programming Interface), send a `PATCH` request\nto the `limits` endpoint.To update one limit that applies to all federated database instances in the project,\nyou must specify the unique ID of the project and the name of the\nlimit to update. To learn more about the syntax and options for\nupdating one project limit, see [API](api/doc/atlas-admin-api-v2/operation/operation-setgrouplimit).To update one limit for one federated database instance in a project, specify the\nunique ID of the project, the name of the federated database instance, and the name of\nthe limit to update. To learn more about the syntax and options\nfor updating one limit for one federated database instance in a project, see\n[API](api/doc/atlas-admin-api-v2/operation/operation-setgroupdatafederationlimit).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete Query Limits",
+      "headingLevel": 3,
+      "body": "You can delete a project or per federated database instance limit from the Atlas CLI, Atlas UI, and\nAPI (Application Programming Interface).**Atlascli:**Atlas CLITo remove the specified Data Federation query limit from your project using the\nAtlas CLI, run the following command:```sh\n\natlas dataFederation queryLimits delete <name> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas dataFederation queryLimits delete](atlas/cli/current/command/atlas-dataFederation-queryLimits-delete).**Atlas UI:**UI",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas dataFederation queryLimits delete <name> [options]\n",
+          "tokenEstimate": 15
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Navigate to your federated database instances page.",
+      "headingLevel": 4,
+      "body": "- Log in to MongoDB Atlas.\n\n- Select the Data Federation option on the left-hand navigation.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Click  to view the limits per federated database instance and for all federated database instances in the project.",
+      "headingLevel": 4,
+      "body": "The **Data Federation Query Limits** page displays\nthe actions you can take on the corresponding limit in the\n**Actions** column.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Click  to open the  confirmation window.",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Click  to confirm and delete the query limit.",
+      "headingLevel": 4,
+      "body": "When you delete a query limit, the changes take effect\nimmediately. Atlas Data Federation doesn't enforce limits on any running\nor new queries.**Openapi:**APITo delete the query limits from the API (Application Programming Interface), send a `DELETE` request\nto the `limits` endpoint.To delete one limit that applies to all federated database instances in the project,\nyou must specify the unique ID of the project and the name of the\nlimit to delete. To learn more about the syntax and options for\ndeleting one project limit, see [API](api/doc/atlas-admin-api-v2/operation/operation-deleteprojectlimit).To delete one limit for one federated database instance in a project, specify the\nunique ID of the project and the name of the limit to delete. To\nlearn more about the syntax and options for deleting one limit\nfor one federated database instance in a project, see [API](api/doc/atlas-admin-api-v2/operation/operation-deleteonedatafederationinstancequerylimit).",
+      "codeBlocks": []
+    }
+  ]
+}

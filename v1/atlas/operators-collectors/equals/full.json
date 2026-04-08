@@ -1,0 +1,241 @@
+{
+  "path": "atlas/operators-collectors/equals",
+  "product": "atlas",
+  "title": "equals (MongoDB Search Operator)",
+  "sections": [
+    {
+      "heading": "Definition",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "`equals` has the following syntax:\n\n```javascript\n{\n   $search: {\n      \"index\": <index name>, // optional, defaults to \"default\"\n      \"equals\": {\n         \"path\": \"<field-to-search>\",\n         \"value\": <boolean-value>|<objectId>|<number>|<date>|<string>,\n         \"score\": <score-options>\n      }\n   }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   $search: {\n      \"index\": <index name>, // optional, defaults to \"default\"\n      \"equals\": {\n         \"path\": \"<field-to-search>\",\n         \"value\": <boolean-value>|<objectId>|<number>|<date>|<string>,\n         \"score\": <score-options>\n      }\n   }\n}",
+          "tokenEstimate": 69
+        }
+      ]
+    },
+    {
+      "heading": "Options",
+      "headingLevel": 2,
+      "body": "`equals` uses the following terms to construct a query:\n\n| Field | Type                                                    | Description                                                                                                                                                                                                                                                                                                                                                            | Required? |\n| ----- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| path  | string                                                  | Indexed field to search.                                                                                                                                                                                                                                                                                                                                               | yes       |\n| value | boolean, objectId, number, date, string, uuid, or null. | Value to query for.                                                                                                                                                                                                                                                                                                                                                    | yes       |\n| score | object                                                  | Score to assign to matching search term results. Use one of the following options to modify the score:boost: multiply the result score by the given number.constant: replace the result score with the given number.function: replace the result score with the given expression.For information on using score in your query, see Score the Documents in the Results. | no        |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Scoring Behavior",
+      "headingLevel": 2,
+      "body": "By default, `equals` uses [constant](scoring-constant) scoring. Each\nmatching document receives a score of `1`.\n\nWhen querying array values, MongoDB Search assigns higher scores if more values\nin the array match the query.\n\nSee the [Examples](equals-query-examples) section for scoring examples.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following examples use a sample `users` collection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Collection",
+      "headingLevel": 3,
+      "body": "The  `users` collection contains the following three documents:**mongosh:**MongoDB Shell```json&#xA;&#x20;:copyable:&#x20;true\n db.users.insertMany([\n  {\n    \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n    \"name\" : \"Jim Hall\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : true,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5ed6990aa1199b471010d70d\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n    ],\n    \"region\" : \"East\",\n    \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n    \"employee_number\" : 257,\n    \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n    \"job_title\": \"engineer\"\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n    \"name\" : \"Ellen Smith\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69537a5\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n    ],\n    \"region\" : \"Southwest\",\n    \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n    \"employee_number\" : 258,\n    \"job_title\": null\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n    \"name\" : \"Fred Osgood\",\n    \"verified_user\" : false,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : false\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69589a1\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n    ],\n    \"region\" : \"Northwest\",\n    \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n    \"employee_number\" : 259,\n    \"job_title\": null\n  }\n])\n```**Json:**Atlas UI```json\n{\n   \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n   \"name\" : \"Jim Hall\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : true,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5ed6990aa1199b471010d70d\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n   ],\n   \"region\" : \"East\",\n   \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n   \"employee_number\" : 257,\n   \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n   \"job_title\": \"engineer\"\n}\n``````json\n{\n   \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n   \"name\" : \"Ellen Smith\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69537a5\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n   ],\n   \"region\" : \"Southwest\",\n   \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n   \"employee_number\" : 258,\n   \"job_title\": null\n}\n``````json\n{\n   \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n   \"name\" : \"Fred Osgood\",\n   \"verified_user\" : false,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : false\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69589a1\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n   ],\n   \"region\" : \"Northwest\",\n   \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n   \"employee_number\" : 259,\n   \"job_title\": null\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json\n :copyable: true",
+          "content": " db.users.insertMany([\n  {\n    \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n    \"name\" : \"Jim Hall\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : true,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5ed6990aa1199b471010d70d\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n    ],\n    \"region\" : \"East\",\n    \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n    \"employee_number\" : 257,\n    \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n    \"job_title\": \"engineer\"\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n    \"name\" : \"Ellen Smith\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69537a5\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n    ],\n    \"region\" : \"Southwest\",\n    \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n    \"employee_number\" : 258,\n    \"job_title\": null\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n    \"name\" : \"Fred Osgood\",\n    \"verified_user\" : false,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : false\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69589a1\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n    ],\n    \"region\" : \"Northwest\",\n    \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n    \"employee_number\" : 259,\n    \"job_title\": null\n  }\n])",
+          "tokenEstimate": 534
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n   \"name\" : \"Jim Hall\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : true,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5ed6990aa1199b471010d70d\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n   ],\n   \"region\" : \"East\",\n   \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n   \"employee_number\" : 257,\n   \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n   \"job_title\": \"engineer\"\n}",
+          "tokenEstimate": 193
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n   \"name\" : \"Ellen Smith\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69537a5\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n   ],\n   \"region\" : \"Southwest\",\n   \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n   \"employee_number\" : 258,\n   \"job_title\": null\n}",
+          "tokenEstimate": 164
+        },
+        {
+          "language": "json",
+          "content": "{\n   \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n   \"name\" : \"Fred Osgood\",\n   \"verified_user\" : false,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : false\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69589a1\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n   ],\n   \"region\" : \"Northwest\",\n   \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n   \"employee_number\" : 259,\n   \"job_title\": null\n}",
+          "tokenEstimate": 165
+        }
+      ]
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 3,
+      "body": "The `users` collection is indexed with the following\n[index definitions](ref-index-definitions):\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"name\": {\n        \"type\": \"token\",\n        \"normalizer\": \"lowercase\"\n      },\n      \"region\": [\n       {\n         \"type\": \"string\"\n       },\n       {\n         \"type\": \"token\"\n       }\n      ]\n    }\n  }\n}\n```\n\nThe index definition specifies the following:\n\n- Automatically index all dynamically indexable fields.\n\n- Index the `name` field as type `token` to support string search\n  using the `equals` operator.\n\n- Index the `region` field as types `string` to support string\n  search and `token` to support `facet` search.\n\nTo learn how to create a MongoDB Search index, see [create a MongoDB Search index](ref-create-index).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"name\": {\n        \"type\": \"token\",\n        \"normalizer\": \"lowercase\"\n      },\n      \"region\": [\n       {\n         \"type\": \"string\"\n       },\n       {\n         \"type\": \"token\"\n       }\n      ]\n    }\n  }\n}",
+          "tokenEstimate": 75
+        }
+      ]
+    },
+    {
+      "heading": "Basic Example Queries",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Boolean Examples",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `verified_user` field\nis set to `true`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"verified_user\",\n        \"value\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"name\": 1,\n      \"_id\": 0,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Jim Hall\", \"score\" : 1 }\n{ \"name\" : \"Ellen Smith\", \"score\" : 1 }\n```\n\nThe documents for \"Jim Hall\" and \"Ellen Smith\" each receive a score of `1`\nbecause those documents have the `verified_user` field set to `true`.\n\nThe following example uses the `equals` operator to search the\n`users` collection for documents in which the `account.new_user`\nfield contains the boolean value `true`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account.new_user\",\n        \"value\": true\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Jim Hall\" because that document contains `\"new_user\": true` in the\n`account` object.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"verified_user\",\n        \"value\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"name\": 1,\n      \"_id\": 0,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+          "tokenEstimate": 75
+        },
+        {
+          "language": "javascript",
+          "content": "{ \"name\" : \"Jim Hall\", \"score\" : 1 }\n{ \"name\" : \"Ellen Smith\", \"score\" : 1 }",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account.new_user\",\n        \"value\": true\n      }\n    }\n  }\n])",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "ObjectId Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the `users`\ncollection for documents in which the `teammates` field contains the value\n`ObjectId(\"5a9427648b0beebeb69589a1\")`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"teammates\",\n        \"value\": ObjectId(\"5a9427648b0beebeb69589a1\")\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Fred Osgood\" because that document contains\n`ObjectId(\"5a9427648b0beebeb69589a1\")` in the `teammates` array.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"teammates\",\n        \"value\": ObjectId(\"5a9427648b0beebeb69589a1\")\n      }\n    }\n  }\n])",
+          "tokenEstimate": 52
+        }
+      ]
+    },
+    {
+      "heading": "Date Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `account_created`\nfield contains the value that matches `ISODate(\"2022-05-04T05:01:08.000+00:00\")`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account_created\",\n        \"value\": ISODate(\"2022-05-04T05:01:08.000+00:00\")\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Ellen Smith\" because that document contains `\"account_created\":\n2022-05-04T05:01:08.000+00:00`.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account_created\",\n        \"value\": ISODate(\"2022-05-04T05:01:08.000+00:00\")\n      }\n    }\n  }\n])",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Number Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `employee_number`\nfield contains the value that matches `259`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"employee_number\",\n        \"value\": 259\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Fred Osgood\" because that document contains `\"employee_number\":\n259`.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"employee_number\",\n        \"value\": 259\n      }\n    }\n  }\n])",
+          "tokenEstimate": 38
+        }
+      ]
+    },
+    {
+      "heading": "String Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `name`\nfield contains the value that matches `Jim Hall`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"name\",\n        \"value\": \"jim hall\"\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Jim Hall\" because that document contains `Jim Hall` in the `name`\nfield. MongoDB Search matches the lowercase query to the uppercase value in the\ndocument because it normalizes the term to lowercase as specified in the\n[index definition](equals-eg-index-definition) for the `name`\nfield.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"name\",\n        \"value\": \"jim hall\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 39
+        }
+      ]
+    },
+    {
+      "heading": "UUID Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `uuid`\nfield contains the value that matches a specific UUID.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"uuid\",\n        \"value\": UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\")\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Jim Hall\" because that document contains the specified UUID in the\n`uuid` field.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"uuid\",\n        \"value\": UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\")\n      }\n    }\n  }\n])",
+          "tokenEstimate": 58
+        }
+      ]
+    },
+    {
+      "heading": "Null Example",
+      "headingLevel": 4,
+      "body": "The following example uses the `equals` operator to search the\n`users` collection for documents in which the `job_title`\nfield contains the null value.\n\n```javascript\ndb.users.aggregate([\n  {\n    $search: {\n      \"equals\": {\n        \"path\": \"job_title\",\n        \"value\": null\n      }\n    }\n  }\n])\n```\n\nThe preceding query returns the [documents](equals-eg-collection) for\n\"Ellen Smith\" and `Fred Osgood` because that documents contain the\nnull value in the `job_title` field.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    $search: {\n      \"equals\": {\n        \"path\": \"job_title\",\n        \"value\": null\n      }\n    }\n  }\n])",
+          "tokenEstimate": 37
+        }
+      ]
+    },
+    {
+      "heading": "Compound Example Queries",
+      "headingLevel": 3,
+      "body": "The following example uses the [compound](compound-ref)\nin conjunction with `must`, `mustNot`, and `equals` to search for\ndocuments in which the `region` field is `Southwest` and the\n`verified_user` field is not `false`.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"path\": \"region\",\n            \"query\": \"Southwest\"\n          }\n        },\n        \"mustNot\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": false\n          }\n        }\n      }\n    }\n  }\n])\n```\n\nThe above query returns the document for \"Ellen Smith\", which is the\nonly one in the collection which meets the search criteria.\n\nThe following example query has these search criteria:\n\n- The `verified_user` field must be set to `true`\n\n- One of the following must be true:\n\n  - The `teammates` array contains the value `ObjectId(\"5ed6990aa1199b471010d70d\")`\n\n  - The `region` field is set to `Northwest`\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5ed6990aa1199b471010d70d\")\n            }\n          },\n          {\n            \"text\": {\n              \"path\": \"region\",\n              \"query\": \"Northwest\"\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Jim Hall\", \"score\" : 2 }\n```\n\nThe document for \"Jim Hall\" receives a score of `2` because it meets the\nrequirements for the `must` clause and the first of the two `should` clauses.\n\nYou can search for multiple ObjectIDs with a compound query. The following\nexample query uses the `compound` operator with a `should` clause\nto search for three different ObjectIDs, at least two of which must appear\nto satisfy the query.\n\n```javascript\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69537a5\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69579d0\")\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 2\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])\n```\n\nThe above query returns the following results:\n\n```javascript\n{ \"name\" : \"Ellen Smith\", \"score\" : 2 }\n```\n\nThe document for \"Ellen Smith\" receives a score of `2` because it contains\ntwo of the specified ObjectIDs in its `teammates` array.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"text\": {\n            \"path\": \"region\",\n            \"query\": \"Southwest\"\n          }\n        },\n        \"mustNot\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": false\n          }\n        }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 81
+        },
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5ed6990aa1199b471010d70d\")\n            }\n          },\n          {\n            \"text\": {\n              \"path\": \"region\",\n              \"query\": \"Northwest\"\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 1\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])",
+          "tokenEstimate": 171
+        },
+        {
+          "language": "javascript",
+          "content": "{ \"name\" : \"Jim Hall\", \"score\" : 2 }",
+          "tokenEstimate": 16
+        },
+        {
+          "language": "javascript",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"should\": [\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69537a5\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n            }\n          },\n          {\n            \"equals\": {\n              \"path\": \"teammates\",\n              \"value\": ObjectId(\"5a9427648b0beebeb69579d0\")\n            }\n          }\n        ],\n        \"minimumShouldMatch\": 2\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"name\": 1,\n        \"_id\": 0,\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])",
+          "tokenEstimate": 199
+        },
+        {
+          "language": "javascript",
+          "content": "{ \"name\" : \"Ellen Smith\", \"score\" : 2 }",
+          "tokenEstimate": 17
+        }
+      ]
+    },
+    {
+      "heading": "Metadata Examples",
+      "headingLevel": 3,
+      "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to retrieve\nthe number of regions in which `verified_users` is true in the\n`users` collection.\n\n**Input:**\n\n```json\ndb.users.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('2') },\n    facet: {\n      regionFacet: {\n        buckets: [\n          { _id: 'East', count: Long('1') },\n          { _id: 'Southwest', count: Long('1') }\n        ]\n      }\n    }\n  }\n]\n```\n\nThe following query uses the `$$SEARCH_META` aggregation variable to\nreturn both the metadata and search results for a search to retrieve the\nnumber of regions in which `verified_users` is true in the `users`\ncollection.\n\n**Input:**\n\n```json\ndb.users.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  },\n  { \"$limit\": 2 },\n  {\n    \"$facet\": {\n      \"docs\": [\n        { \"$project\":\n          {\n            \"type\": 1,\n            \"description\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  },\n  {\n    \"$set\": {\n      \"meta\": {\n        \"$arrayElemAt\": [\"$meta\", 0]\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    docs: [\n      {\n        _id: ObjectId('5ed698faa1199b471010d70c'),\n        name: 'Jim Hall',\n        region: 'East'\n      },\n      {\n        _id: ObjectId('5ed6990aa1199b471010d70d'),\n        name: 'Ellen Smith',\n        region: 'Southwest'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        regionFacet: {\n          buckets: [\n            { _id: 'East', count: Long('1') },\n            { _id: 'Southwest', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.users.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  }\n])",
+          "tokenEstimate": 83
+        },
+        {
+          "language": "javascript",
+          "content": "[\n  {\n    count: { lowerBound: Long('2') },\n    facet: {\n      regionFacet: {\n        buckets: [\n          { _id: 'East', count: Long('1') },\n          { _id: 'Southwest', count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+          "tokenEstimate": 69
+        },
+        {
+          "language": "json",
+          "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"facet\": {\n        \"operator\": {\n          \"equals\": {\n            \"path\": \"verified_user\",\n            \"value\": true\n          }\n        },\n        \"facets\": {\n          \"regionFacet\": {\n            \"type\": \"string\",\n            \"path\": \"region\"\n          }\n        }\n      }\n    }\n  },\n  { \"$limit\": 2 },\n  {\n    \"$facet\": {\n      \"docs\": [\n        { \"$project\":\n          {\n            \"type\": 1,\n            \"description\": 1\n          }\n        }\n      ],\n      \"meta\": [\n        {\"$replaceWith\": \"$$SEARCH_META\"},\n        {\"$limit\": 1}\n      ]\n    }\n  },\n  {\n    \"$set\": {\n      \"meta\": {\n        \"$arrayElemAt\": [\"$meta\", 0]\n      }\n    }\n  }\n])",
+          "tokenEstimate": 190
+        },
+        {
+          "language": "javascript",
+          "content": "[\n  {\n    docs: [\n      {\n        _id: ObjectId('5ed698faa1199b471010d70c'),\n        name: 'Jim Hall',\n        region: 'East'\n      },\n      {\n        _id: ObjectId('5ed6990aa1199b471010d70d'),\n        name: 'Ellen Smith',\n        region: 'Southwest'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        regionFacet: {\n          buckets: [\n            { _id: 'East', count: Long('1') },\n            { _id: 'Southwest', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]",
+          "tokenEstimate": 157
+        }
+      ]
+    }
+  ]
+}

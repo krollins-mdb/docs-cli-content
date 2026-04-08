@@ -1,0 +1,97 @@
+{
+  "path": "atlas/query-profiler",
+  "product": "atlas",
+  "title": "High-Latency $lookup Operations",
+  "sections": [
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "> **Important:**&#x20;\n>\n> Please read the following considerations before you enable the Query Profiler.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Security",
+      "headingLevel": 3,
+      "body": "Profile data may include sensitive information including the content of\ndatabase queries. Ensure that exposing this data to Atlas is\nconsistent with your information security practices.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data Analysis Limitations",
+      "headingLevel": 3,
+      "body": "The Query Profiler displays approximately 100,000 sampled logs at a\ntime. It shows all the logs if 100,000 or less logs were\nrecorded in the selected hosts and time range.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data Display Limitations",
+      "headingLevel": 3,
+      "body": "Atlas displays no more than 100,000 data points in the\n**Query Profiler** charts.\n\nLog data is processed in batches. Data can be delayed up to five\nminutes from realtime.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Log Quantity",
+      "headingLevel": 4,
+      "body": "If a cluster experiences an activity spike and generates an extremely large\nquantity of log messages, Atlas may stop collecting and storing new logs\nfor a period of time.\n\n> **Note:** Log analysis rate limits apply only to the Performance Advisor UI,\n> the Query Insights UI, the Access Tracking UI, and the MongoDB Search Query\n> Analytics UI. [Downloadable log files](api/doc/atlas-admin-api-v2/operation/operation-downloadgroupclusterlog) are always\n> complete.\n\nSome high-latency [$lookup](manual/reference/operator/aggregation/lookup) operations don't generate a slow\nquery log for the foreign collection. This can occur because slow query\nlogs correspond with operations that are reported in the\n[Query Profiler](query-profiler), whereas latency metrics increment\nonly when a [collection lock](manual/faq/concurrency) is acquired.\n\nIf the `$lookup` query on a shard can perform a local read, the `$lookup`\ndoesn't record a separate operation for querying the foreign collection. A\nlocal read refers to when the query on the foreign collection targets only the\nsame shard where the current operation is being executed. As a result, the\n`$lookup` operation increases the Namespace Insights latency metrics and\noperation counts, but does not generate a slow query log for the foreign\ncollection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To enable or disable Performance Advisor and the Query Profiler\nfor a project, you must have the [Project Owner](<Project Owner>) role for\nthe project or the [Organization Owner](<Organization Owner>) role on its parent\norganization.\n\nTo view query performance in the Query Profiler, you must have\n[Project Read Only](<Project Read Only>) or\n[Project Observability Viewer](<Project Observability Viewer>) access to the project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Enable and Disable the Query Profiler",
+      "headingLevel": 2,
+      "body": "Atlas enables the Query Profiler by default.\n\nTo disable the Query Profiler:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Disable the Query Profiler.",
+      "headingLevel": 3,
+      "body": "In the **Database Monitoring Tools** section, toggle\n**Performance Advisor and Profiler** to **Off**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Find Slow Queries with the Query Profiler",
+      "headingLevel": 2,
+      "body": "The following section describes how to find slow queries using the Query Profiler.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Access the Query Profiler.",
+      "headingLevel": 3,
+      "body": "- Click the name of the cluster to open the **Cluster** sidebar.\n\n- Click **Query Insights** in the **Cluster** sidebar.\n\n- Click the **Query Profiler** tab.\n\n  The Query Profiler displays all your data from the log on the\n  [primary](manual/reference/glossary) and [secondary](manual/reference/glossary) nodes by default.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Customize the Query Profiler.",
+      "headingLevel": 3,
+      "body": "The Query Profiler uses a scatterplot chart and a table directly below the chart to\nhelp you find slow operations.\n\n- Select one or more hosts for which you want to view metrics in the\n  **Filter by Hosts** dropdown.\n\n- Select the time period from the **Time Range** or\n  **Filter by Date and Time** dropdowns.\n  The Query Profiler displays data for the last 24 hours by default.\n\n- Select the metric from the **Operation Execution Time** dropdown. Options\n  include:\n\n  - **Operation Execution Time** (default):\n    The total time, typically in milliseconds, that a MongoDB database\n    operation took to complete.\n\n  - **Response Length**:\n    The size of the documents or data returned by the database in response to an\n    operation, measured in bytes.\n\n  - **Docs Examined**:\n    The total number of documents scanned within the collection to find the results\n    for a query.\n\n  - **Docs Returned**:\n    The number of documents that matched the query criteria that Atlas\n    returned for the query.\n\n  - **Keys Examined**:\n    The total number of index entries scanned by the database during query execution.\n\n  - **Num Yields**:\n    The number of times an operation paused to allow other\n    operations to proceed.\n\n  - **Docs Examined : Returned Ratio**:\n    The ratio calculated by dividing **Docs Examined** by **Docs Returned**.\n\n  - **Keys Examined : Returned Ratio**:\n    The ratio calculated by dividing **Keys Examined** by **Docs Returned**.\n\n- Click the **All operation types** dropdown to change which operations you\n  want to profile.\n  The Query Profiler displays all operation types by default.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Identify slow queries.",
+      "headingLevel": 3,
+      "body": "- Click a scatterplot point on the chart.\n  This opens a right-side panel with summary information.\n\n- Click **View more details** in the right-side panel to view the full query\n  shape, detailed execution statistics, query log, and suggestions for improvement.\n\n- Click and drag along the `X` and `Y` axes\n  to zoom in on a specific subset of collected data.\n\n- Scroll down to the table below the chart to view a list of slow queries by collection.\n  Click a row in the table for more details.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Interpret performance metrics.",
+      "headingLevel": 3,
+      "body": "When inspecting a slow query, start by looking at these key metrics and patterns:\n\n- **Operation Execution Time** (`millis`): Query time in milliseconds. This\n  is the primary indicator of a slow query. If this metric is consistently high,\n  consider optimizing the query logic, batching results, or rethink how the data is\n  being accessed.\n\n- If you see `\"planSummary\": \"COLLSCAN\":` in the query log, the query performed a\n  collection scan and did not use an index. This is a strong signal to add an [Indexes](manual/indexes)\n  or rewrite the query.\n\n- **Docs Examined** (`docsExamined`): Number of documents MongoDB inspected\n  for the query. If **Docs Examined** is significantly larger than\n  **Docs Returned**, this often means that:\n\n  - The query scanned many documents to find the results,\n    which could impact network latency and application performance.\n\n  - Existing indexes are inefficient or not optimal for this specific query.\n    To learn more, see [Indexes](manual/indexes).\n\n- **Keys Examined** (`keysExamined`): Number of index keys scanned for the query.\n  If this metric is `0` for a query that includes filter conditions, it's highly likely\n  there is no index and MongoDB scanned the entire collection. This is a primary cause of slowness.\n  If **Docs Examined** is very high and **Keys Examined** is `0` or\n  very low compared to **Docs Examined**, you're likely scanning the collection\n  or a very unselective index. To learn more, see [Indexes](manual/indexes).\n\n- A high **Docs Examined : Returned Ratio** means the\n  query is scanning many documents to return few results,\n  which can be a sign of an inefficient query or missing indexes.\n\n- **Num Yields** (`numYields`): Frequent yields suggest resource contention\n  or long-running operations that are pausing, potentially impacting overall throughput.\n\n- **Response Length**: Unusually large response lengths indicate that queries\n  are returning more data than necessary. Consider using [projections](manual/tutorial/project-fields-from-query-results) to limit the fields\n  returned.\n\n- **Has Index Coverage** (`usedIndex`): This boolean confirms whether a MongoDB\n  index was used. If set to `false` for a query that should be indexed, add an [Indexes](manual/indexes).\n\n  > **Note:** This metric **does not** reflect the MongoDB Search index usage.\n\n- If `hasSort` is set to `true`, this indicates that the query contains a\n  [sort()](manual/reference/method/cursor.sort) method.\n  Unindexed [sort()](manual/reference/method/cursor.sort) methods can be very resource intensive.\n  Check your search index configuration and confirm whether it supports the\n  [sort()](manual/reference/method/cursor.sort) method.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Next Steps",
+      "headingLevel": 2,
+      "body": "- [Create an Index](manual/core/indexes/create-index)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- [Database Profiler](manual/tutorial/manage-the-database-profiler)\n\n- [Query Performance](manual/administration/query)\n\n- [Indexes](manual/indexes)",
+      "codeBlocks": []
+    }
+  ]
+}

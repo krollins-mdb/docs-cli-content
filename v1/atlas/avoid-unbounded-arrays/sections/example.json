@@ -1,0 +1,22 @@
+{
+  "heading": "Example",
+  "headingLevel": 2,
+  "body": "Consider the following schema for a `publishers` collection:\n\n```javascript\n// publishers collection\n{\n  \"_id\": \"orielly\",\n  \"name\": \"O'Reilly Media\",\n  \"founded\": 1980,\n  \"location\": \"CA\",\n  \"books\": [\n    {\n      \"_id\": 123456789,\n      \"title\": \"MongoDB: The Definitive Guide\",\n      \"author\": [ \"Kristina Chodorow\", \"Mike Dirolf\" ],\n      \"published_date\": ISODate(\"2010-09-24\"),\n      \"pages\": 216,\n      \"language\": \"English\"\n    },\n    {\n      \"_id\": 234567890,\n      \"title\": \"50 Tips and Tricks for MongoDB Developer\",\n      \"author\": \"Kristina Chodorow\",\n      \"published_date\": ISODate(\"2011-05-06\"),\n      \"pages\": 68,\n      \"language\": \"English\"\n    }\n  ]\n}\n```\n\nIn this scenario, the `books` array is *unbounded*. Each new book\nreleased by this publishing company adds a new sub-document to the\n`books` array. As publishing companies continue to release books, the\ndocuments will eventually grow very large and cause a disproportionate\namount of memory strain on the application.\n\nTo avoid mutable, unbounded arrays, separate the `publishers`\ncollection into two collections, one for `publishers` and one for\n`books`. Instead of embedding the entire `book` document in the\n`publishers` document, include a [reference](manual/data-modeling) to the publisher inside of the book\ndocument:\n\n```javascript\n// publishers collection\n{\n  \"_id\": \"oreilly\",\n  \"name\": \"O'Reilly Media\",\n  \"founded\": 1980,\n  \"location\": \"CA\"\n}\n```\n\n```javascript\n// books collection\n{\n  \"_id\": 123456789,\n  \"title\": \"MongoDB: The Definitive Guide\",\n  \"author\": [ \"Kristina Chodorow\", \"Mike Dirolf\" ],\n  \"published_date\": ISODate(\"2010-09-24\"),\n  \"pages\": 216,\n  \"language\": \"English\",\n  \"publisher_id\": \"oreilly\"\n}\n\n{\n  \"_id\": 234567890,\n  \"title\": \"50 Tips and Tricks for MongoDB Developer\",\n  \"author\": \"Kristina Chodorow\",\n  \"published_date\": ISODate(\"2011-05-06\"),\n  \"pages\": 68,\n  \"language\": \"English\",\n  \"publisher_id\": \"oreilly\"\n}\n```\n\nThis updated schema removes the unbounded array in the `publishers`\ncollection and places a reference to the publisher in each book document\nusing the `publisher_id` field. This ensures that each document has a\nmanageable size, and there is no risk of a document field growing\nabnormally large.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// publishers collection\n{\n  \"_id\": \"orielly\",\n  \"name\": \"O'Reilly Media\",\n  \"founded\": 1980,\n  \"location\": \"CA\",\n  \"books\": [\n    {\n      \"_id\": 123456789,\n      \"title\": \"MongoDB: The Definitive Guide\",\n      \"author\": [ \"Kristina Chodorow\", \"Mike Dirolf\" ],\n      \"published_date\": ISODate(\"2010-09-24\"),\n      \"pages\": 216,\n      \"language\": \"English\"\n    },\n    {\n      \"_id\": 234567890,\n      \"title\": \"50 Tips and Tricks for MongoDB Developer\",\n      \"author\": \"Kristina Chodorow\",\n      \"published_date\": ISODate(\"2011-05-06\"),\n      \"pages\": 68,\n      \"language\": \"English\"\n    }\n  ]\n}",
+      "tokenEstimate": 188
+    },
+    {
+      "language": "javascript",
+      "content": "// publishers collection\n{\n  \"_id\": \"oreilly\",\n  \"name\": \"O'Reilly Media\",\n  \"founded\": 1980,\n  \"location\": \"CA\"\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "javascript",
+      "content": "// books collection\n{\n  \"_id\": 123456789,\n  \"title\": \"MongoDB: The Definitive Guide\",\n  \"author\": [ \"Kristina Chodorow\", \"Mike Dirolf\" ],\n  \"published_date\": ISODate(\"2010-09-24\"),\n  \"pages\": 216,\n  \"language\": \"English\",\n  \"publisher_id\": \"oreilly\"\n}\n\n{\n  \"_id\": 234567890,\n  \"title\": \"50 Tips and Tricks for MongoDB Developer\",\n  \"author\": \"Kristina Chodorow\",\n  \"published_date\": ISODate(\"2011-05-06\"),\n  \"pages\": 68,\n  \"language\": \"English\",\n  \"publisher_id\": \"oreilly\"\n}",
+      "tokenEstimate": 159
+    }
+  ]
+}

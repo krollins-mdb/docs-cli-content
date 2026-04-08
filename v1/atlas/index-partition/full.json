@@ -1,0 +1,84 @@
+{
+  "path": "atlas/index-partition",
+  "product": "atlas",
+  "title": "Configure Index Partition",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"numPartitions\": <integer>\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"numPartitions\": <integer>\n}",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Supported Values",
+      "headingLevel": 2,
+      "body": "The MongoDB Search `numPartitions` option takes the following values:\n\n- `1` - to create a single index, with no additional partitions. This\n  is the default value.\n\n- `2` - to create up to two partitions for up to four billion documents.\n\n- `4` - to create up to four partitions for up to eight billion documents.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "The following index example uses the `sample_mflix.movies` collection\nto demonstrate how to configure up to `4` partitions for the data in\nthe collection. You can use the Visual Editor or the JSON (Javascript Object Notation) Editor in\nthe Atlas UI and [MongoDB Search indexes](fts-manage-indexes) to create the index.\n\n<SelectedContent>\n  - Create a file named `indexDef.json` similar to the following:\n\n    ```\n    {\n        \"collectionName\": \"movies\",\n        \"database\": \"sample_mflix\",\n        \"definition\": {\n          \"mappings\": {\n           \"dynamic\": true\n          },\n        },\n        \"name\": \"partitioned_index\",\n        \"numPartitions\": 4\n      }\n    ```\n\n  - Run the following command to create the index.\n\n    ```shell\n\n    atlas deployments search indexes create --file indexDef.json\n\n    ```\n</SelectedContent>\n\n```shell\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'\n```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "{\n    \"collectionName\": \"movies\",\n    \"database\": \"sample_mflix\",\n    \"definition\": {\n      \"mappings\": {\n       \"dynamic\": true\n      },\n    },\n    \"name\": \"partitioned_index\",\n    \"numPartitions\": 4\n  }",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "shell",
+          "content": "\natlas deployments search indexes create --file indexDef.json\n",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'",
+          "tokenEstimate": 153
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Specify the index definition.",
+      "headingLevel": 3,
+      "body": "**Vib:**Visual Editor* Click **Refine Your Index**.\n\n* Toggle **Index Partitions** to enable it.\n\n* Select `4` from the **Number of partitions** dropdown\n  and click **Save Changes**.**Jib:**JSON Editor* Replace the default index definition with the following:\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true\n    },\n    \"numPartitions\": 4\n  }\n  ```\n\n* Click **Next**.```json\ndb.movies.createSearchIndex(\n    \"search-index\",\n    { mappings: { dynamic: true }, \"numPartitions\": 4 }\n)\n``````javascript\nimport { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n    \n    // define your MongoDB Search index\n    const index = {\n        name: \"partitioned_index\",\n        definition: {\n            /* search index definition fields */\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"numPartitions\": 4\n        }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(result);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n``````csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"movies\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", true }\n    }\n  },\n  { \"numPartitions\", 4 }\n};\n\nvar result = collection.SearchIndexes.CreateOne(index, \"partitioned_index\");\nConsole.WriteLine(result);\n\n``````java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n\n            Document index = new Document()\n                .append(\"mappings\", new Document()\n                   .append(\"dynamic\", true)\n                )\n                .append(\"numPartitions\", 4);\n            collection.createSearchIndex(\"partitioned_index\", index);\n        }\n    }\n}\n\n``````python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\ndef create_index():\n    # Connect to your Atlas deployment\n    uri = \"<connectionString>\"\n    client = MongoClient(uri)\n\n    # Access your database and collection\n    database = client[\"sample_mflix\"]\n    collection = database[\"movies\"]\n\n    # Create your index model, then create the search index\n    search_index_model = SearchIndexModel(\n        definition={\n            \"mappings\": {\n                \"dynamic\": True\n            },\n            \"numPartitions\": 4\n        },\n        name=\"partitioned_index\",\n    )\n\n    result = collection.create_search_index(model=search_index_model)\n    print(result)\n\n\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  },\n  \"numPartitions\": 4\n}",
+          "tokenEstimate": 25
+        },
+        {
+          "language": "json",
+          "content": "db.movies.createSearchIndex(\n    \"search-index\",\n    { mappings: { dynamic: true }, \"numPartitions\": 4 }\n)",
+          "tokenEstimate": 29
+        },
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n    \n    // define your MongoDB Search index\n    const index = {\n        name: \"partitioned_index\",\n        definition: {\n            /* search index definition fields */\n            \"mappings\": {\n                \"dynamic\": true\n            },\n            \"numPartitions\": 4\n        }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(result);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 159
+        },
+        {
+          "language": "csharp",
+          "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"movies\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", true }\n    }\n  },\n  { \"numPartitions\", 4 }\n};\n\nvar result = collection.SearchIndexes.CreateOne(index, \"partitioned_index\");\nConsole.WriteLine(result);\n",
+          "tokenEstimate": 123
+        },
+        {
+          "language": "java",
+          "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n\n            Document index = new Document()\n                .append(\"mappings\", new Document()\n                   .append(\"dynamic\", true)\n                )\n                .append(\"numPartitions\", 4);\n            collection.createSearchIndex(\"partitioned_index\", index);\n        }\n    }\n}\n",
+          "tokenEstimate": 166
+        },
+        {
+          "language": "python",
+          "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\ndef create_index():\n    # Connect to your Atlas deployment\n    uri = \"<connectionString>\"\n    client = MongoClient(uri)\n\n    # Access your database and collection\n    database = client[\"sample_mflix\"]\n    collection = database[\"movies\"]\n\n    # Create your index model, then create the search index\n    search_index_model = SearchIndexModel(\n        definition={\n            \"mappings\": {\n                \"dynamic\": True\n            },\n            \"numPartitions\": 4\n        },\n        name=\"partitioned_index\",\n    )\n\n    result = collection.create_search_index(model=search_index_model)\n    print(result)\n\n",
+          "tokenEstimate": 139
+        }
+      ]
+    }
+  ]
+}

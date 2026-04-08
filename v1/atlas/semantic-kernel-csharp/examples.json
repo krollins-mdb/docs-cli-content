@@ -1,0 +1,167 @@
+{
+  "path": "atlas/semantic-kernel-csharp",
+  "product": "atlas",
+  "title": "Step 3: Define environment variables.",
+  "summary": {
+    "total": 13,
+    "byLanguage": {
+      "shell": 5,
+      "text": 5,
+      "csharp": 3
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 90
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 25
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Store Custom Data in MongoDB",
+        "blocks": [
+          {
+            "language": "csharp",
+            "tokenEstimate": 703
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Run Vector Search Queries",
+        "blocks": [
+          {
+            "language": "csharp",
+            "tokenEstimate": 114
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 10
+          }
+        ]
+      },
+      {
+        "heading": "Answer Questions on Your Data",
+        "blocks": [
+          {
+            "language": "csharp",
+            "tokenEstimate": 386
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 27
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "Set Up the Environment",
+      "content": "mkdir sk-mongodb\ncd sk-mongodb\ndotnet new console",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "shell",
+      "section": "Set Up the Environment",
+      "content": "dotnet add package Microsoft.SemanticKernel\ndotnet add package Microsoft.SemanticKernel.Connectors.MongoDB --prerelease\ndotnet add package Microsoft.SemanticKernel.Connectors.OpenAI\ndotnet add package Microsoft.Extensions.AI\ndotnet add package Microsoft.Extensions.AI.OpenAI\ndotnet add package Microsoft.Extensions.AI.Abstractions\ndotnet add package Microsoft.Extensions.VectorData.Abstractions\ndotnet add package SemanticKernelPooling.Connectors.OpenAI",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "shell",
+      "section": "Set Up the Environment",
+      "content": "export OPENAI_API_KEY=\"<Your OpenAI API Key>\"\nexport MONGODB_URI=\"<Your MongoDB Atlas SRV Connection String>\"",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "csharp",
+      "section": "Store Custom Data in MongoDB",
+      "content": "using Microsoft.Extensions.AI;\nusing Microsoft.Extensions.VectorData;\nusing Microsoft.SemanticKernel.Connectors.MongoDB;\nusing Microsoft.SemanticKernel.Data;\nusing MongoDB.Bson;\nusing MongoDB.Driver;\nusing OpenAI;\n\n#pragma warning disable SKEXP0001\n\nstatic class Program\n{\n    static async Task Main(string[] args)\n    {\n        // Get connection string and OpenAI API Key\n        var connectionString = Environment.GetEnvironmentVariable(\"MONGODB_URI\");\n        if (connectionString == null)\n        {\n            Console.WriteLine(\"You must set your 'MONGODB_URI' environment variable.\");\n            Environment.Exit(0);\n        }\n\n        var openAIKey = Environment.GetEnvironmentVariable(\"OPENAI_API_KEY\");\n        if (openAIKey == null)\n        {\n            Console.WriteLine(\"You must set your 'OPENAPI_KEY' environment variable.\");\n            Environment.Exit(0);\n        }\n\n        // Create new OpenAI API Embedding Model\n        var embeddingGenerator = new OpenAIClient(openAIKey)\n            .GetEmbeddingClient(\"text-embedding-ada-002\")\n            .AsIEmbeddingGenerator();\n\n        // Instantiate MongoDB as a vector store\n        var mongoClient = new MongoClient(connectionString);\n        var options = new MongoVectorStoreOptions { EmbeddingGenerator = embeddingGenerator };\n        var vectorStore = new MongoVectorStore(mongoClient.GetDatabase(\"semantic_kernel_db\"), options);\n\n        // Sample data\n        string[] lines =\n        [\n            \"I am a developer\",\n            \"I started using MongoDB two years ago\",\n            \"I'm using MongoDB Vector Search with Semantic Kernel to implement RAG\",\n            \"I like coffee\"\n        ];\n\n        // Populate database with sample data\n        await CreateCollectionFromListAsync<string, DataModel>(vectorStore, \"records\", lines, embeddingGenerator, CreateRecord);\n        \n        // Get the specific collection from the vector store\n        var recordCollection = vectorStore.GetCollection<string, DataModel>(\"records\");\n    }\n\n    static DataModel CreateRecord(string text, ReadOnlyMemory<float> embedding)\n        => new()\n        {\n            Key = ObjectId.GenerateNewId().ToString(),\n            Text = text,\n            Embedding = embedding\n        };\n\n    static async Task CreateCollectionFromListAsync<TKey, TRecord>(\n        this VectorStore vectorStore,\n        string collectionName,\n        string[] entries,\n        IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator,\n        Func<string, ReadOnlyMemory<float>, TRecord> createRecord)\n        where TKey : notnull\n        where TRecord : class\n    {\n        // Get and create collection if it doesn't exist\n        var collection = vectorStore.GetCollection<TKey, TRecord>(collectionName);\n        await collection.EnsureCollectionExistsAsync().ConfigureAwait(false);\n\n        // Create records and generate embeddings for them\n        var embeddings = await embeddingGenerator.GenerateAsync(entries);\n        var records = entries.Zip(embeddings, (entry, embedding) => createRecord(entry, embedding.Vector));\n\n        // Add them to the database\n        await collection.UpsertAsync(records).ConfigureAwait(false);\n    }\n\n    internal sealed class DataModel\n    {\n        [VectorStoreKey]\n        [TextSearchResultName]\n        public required String Key { get; init; }\n\n        [VectorStoreData]\n        [TextSearchResultValue]\n        public required string Text { get; init; }\n\n        [VectorStoreVector(1536)]\n        public ReadOnlyMemory<float> Embedding { get; init; }\n    }\n}",
+      "tokenEstimate": 703
+    },
+    {
+      "language": "text",
+      "section": "Store Custom Data in MongoDB",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "csharp",
+      "section": "Run Vector Search Queries",
+      "content": "// Create a text search instance using the InMemory vector store.\nvar textSearch = new VectorStoreTextSearch<DataModel>(recordCollection, embeddingGenerator);\n\n// Search and return results as TextSearchResult items\nvar query = \"What is my job title?\";\nKernelSearchResults<TextSearchResult> textResults = await textSearch.GetTextSearchResultsAsync(query, new() { Top = 2, Skip = 0 });\nawait foreach (TextSearchResult result in textResults.Results)\n{\n   Console.WriteLine($\"Answer: {result.Value}\");\n}\nConsole.WriteLine(\"Search completed.\");",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "shell",
+      "section": "Run Vector Search Queries",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "section": "Run Vector Search Queries",
+      "content": "Answer: I am a developer\nSearch completed.",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "csharp",
+      "section": "Answer Questions on Your Data",
+      "content": "// Create a kernel with OpenAI chat completion\nIKernelBuilder kernelBuilder = Kernel.CreateBuilder();\nkernelBuilder.AddOpenAIChatCompletion(\n        modelId: \"gpt-4o\",\n        apiKey: openAIKey);\nKernel kernel = kernelBuilder.Build();\n\n// Create a text search instance using the vector store collection.\nvar textSearch = new VectorStoreTextSearch<DataModel>(recordCollection, embeddingGenerator);\n\n// --- Modified RAG Section ---\nvar userQuestion = \"When did I start using MongoDB?\";\nstring retrievedContext = \"No relevant context found.\"; // Default\n\n// 1. Perform search to get context\nvar searchResults = await textSearch.GetTextSearchResultsAsync(userQuestion, new() { Top = 1 }); // Get most relevant result\n\nawait foreach (var result in searchResults.Results)\n{\n    if (result.Value != null)\n    {\n        retrievedContext = result.Value; // Use the text from the search result as context\n        break; // Take the most relevant result\n    }\n}\n\n// 2. Define a prompt template that uses the retrieved context\nconst string ragPromptTemplate = @\"\nContext:\n{{$context}}\n\nQuestion:\n{{$question}}\n\nBased *only* on the context provided, answer the question.\nAnswer:\n\";\n\n// 3. Create a function from the RAG prompt template\nvar ragFunction = kernel.CreateFunctionFromPrompt(ragPromptTemplate);\n\n// 4. Prepare arguments for the RAG prompt\nvar ragArguments = new KernelArguments\n{\n    [\"question\"] = userQuestion,\n    [\"context\"] = retrievedContext\n};\n\n// 5. Invoke the RAG prompt\nvar ragResult = await kernel.InvokeAsync(ragFunction, ragArguments);\n\nConsole.WriteLine($\"Question: {userQuestion}\");\nConsole.WriteLine($\"Retrieved Context: {retrievedContext}\");\nConsole.WriteLine($\"Answer: {ragResult.GetValue<string>()}\");\n// --- End of Modified RAG Section ---\n",
+      "tokenEstimate": 386
+    },
+    {
+      "language": "shell",
+      "section": "Answer Questions on Your Data",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions on Your Data",
+      "content": "Question: When did I start using MongoDB?\nRetrieved Context: I started using MongoDB two years ago\nAnswer: Two years ago.",
+      "tokenEstimate": 27
+    }
+  ]
+}

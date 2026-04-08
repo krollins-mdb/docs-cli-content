@@ -1,0 +1,157 @@
+{
+  "path": "atlas/architecture",
+  "product": "atlas",
+  "title": "Atlas Stream Processing Architecture",
+  "sections": [
+    {
+      "heading": "Architecture Fundamentals",
+      "headingLevel": 2,
+      "body": "The core abstraction of Atlas Stream Processing is the stream processor. A stream\nprocessor is a MongoDB [aggregation pipeline](manual/core/aggregation-pipeline) that operates continuously on\nstreaming data from a specified source and writes the output to a\nsink. To learn more, see [Structure of a Stream Processor](atlas-sp-processor-structure).\n\nStream processing takes place on stream processing workspaces. Each stream processing workspace is an\nAtlas namespace that associates the following:\n\n- One or more stream processors, each running on its own allocation of\n  RAM and CPUs.\n\n- A default tier, which determines the amount of memory and compute\n  available to each stream processor when you don't specify a tier.\n\n- A maximum tier, which determines the highest amount of memory and\n  compute that you can allocate to a pod within that stream processing workspace.\n\n- A cloud provider and cloud region.\n\n- A **connection registry**, which stores the list of available\n  sources and sinks of streaming data.\n\n- A security context in which to define user authorizations.\n\n- A [Connection String](manual/reference/connection-string) to\n  the stream processing workspace itself.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Tiers",
+      "headingLevel": 3,
+      "body": "When you define a stream processor, it becomes available only for the\nstream processing workspace in which you define it. Each stream processor runs on\nresources allocated according to its tier. Atlas Stream Processing bills users for\na stream processor only while it's running.\n\nIf you start a stream processor without declaring a tier size, it will\nrun the stream processing workspace's tier. You can start a stream processor of any tier\nup to and including the maximum tier of the stream processing workspace\n\n> **Example:** You define a stream processor on a stream processing workspace named `myWorkspace`\n> with a default tier of `SP10`, and a maximum tier of `SP30`. If\n> you start the processor without specifying a tier, Atlas Stream Processing\n> assigns it to an `SP10` pod. However, you can declare any tier\n> from `SP2` up to `SP30` and Atlas Stream Processing will assign the\n> processor to an appropriately sized pod.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Workers (Legacy)",
+      "headingLevel": 3,
+      "body": "Each worker can host up to four running stream processors. Stream Processing Workspaces\nthat run on the legacy workers model bill users according to the\nnumber of workers. Atlas Stream Processing automatically scales your stream processing workspace up\nas you start stream processors by provisioning workers as needed. You\ncan deprovision a worker by stopping all stream processors on\nit. Atlas Stream Processing always prefers to assign a stream processor to an\nexisting worker over provisioning new workers.\n\n> **Example:** You have a stream processing workspace running eight stream processors, named\n> `proc01` through `proc08`. `proc01` through `proc04` run on\n> one worker, `proc05` through `proc08` run on a second\n> worker. You start a new stream processor named\n> `proc09`. Atlas Stream Processing provisions a third worker to host\n> `proc09`.\n>\n> Later, you stop `proc03` on the first worker. When you stop\n> `proc09` and restart it, Atlas Stream Processing reassigns `proc09` to the\n> first worker and deprovisions the third worker.\n>\n> If you start a new stream processor named `proc10` before you\n> stop and restart `proc09`, Atlas Stream Processing assigns `proc10` to the\n> first worker in the slot previously allocated to `proc03`.\n\nWhen scaling, Atlas Stream Processing only considers the number of currently\nrunning stream processors; it doesn't count defined stream processors\nthat aren't running. The tier of the stream processing workspace determines the RAM and\nCPU allotment of its workers.\n\n> **Important:** `SP10` and `SP30` processors operate and bill users\n> according to the legacy worker model. These processors\n> update to the per-processor pricing model on December 3rd,\n> 2025\\. To learn more, see the [worker model](atlas-sp-architecture-workers-legacy) section of the\n> Atlas Stream Processing architecture overview.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Connection Registry",
+      "headingLevel": 3,
+      "body": "Connection registries store one or more connections. Each connection\nassigns a name to the combination of networking and security details\nthat allow a stream processor to interact with external\nservices. Connections exhibit the following behavior:\n\n- Only a connection defined in a given stream processing workspace's connection registry\n  can service stream processors hosted on that stream processing workspace.\n\n- Each connection can service an arbitrary number of stream processors\n\n- Only a single connection can serve as a given stream processor's source.\n\n- Only a single connection can serve as a given stream processor's sink.\n\n- A connection is not innately defined as either a source or a sink. Any given\n  connection can serve either function depending on how a stream processor\n  invokes that connection.\n\nAtlas Stream Processing runs stream processing pods in dedicated\ncustomer containers, on multi-tenant infrastructure. For more information\non MongoDB security and compliance, see the\n[MongoDB Trust Center](https://www.mongodb.com/products/platform/trust).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Checkpoints",
+      "headingLevel": 2,
+      "body": "Atlas Stream Processing captures the state of a stream processor using\ncheckpoints. Each checkpoint has a unique ID and are subject to the\nflow of your stream processor logic. After all operators of a stream\nprocessor add their state to a checkpoint, Atlas Stream Processing commits the\ncheckpoint, generating two types of records:\n\n- A single commit record that validates the checkpoint ID and the stream\n  processor to which it belongs\n\n- A set of records describing the state of each stateful operation\n  in the relevant stream processor at the instant Atlas Stream Processing\n  committed the checkpoint.\n\nWhen you restart a stream processor after an interruption,\nAtlas Stream Processing queries the last committed checkpoint and resumes\noperation from the described state.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Kafka Sources and Consumer Group Offsets",
+      "headingLevel": 3,
+      "body": "After Atlas Stream Processing commits a checkpoint, it updates the consumer group offsets\nin Kafka asynchronously. When you use [Apache Kafka](https://kafka.apache.org/) as a `$source`, the consumer\ngroups track these checkpoints as committed offsets in the Kafka cluster for\neach partition.\n\nBecause these updates happen periodically and asynchronously, the consumer\ngroup’s committed offsets can temporarily lag behind the most recent checkpoint.\nThis can cause short-term delays in monitoring and lag metrics for tools that\nread committed offsets from Kafka, such as the `kafka-consumer-group` CLI\ntool. These tools may show the consumer group “behind” the stream processor’s\ntrue internal position.\n\nThe amount of lag between internal checkpoints and committed Kafka offsets is\nnot fixed and can vary based on workload and configuration. In typical\nworkloads it is on the order of seconds, but there is no strict upper bound.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Dead Letter Queue",
+      "headingLevel": 2,
+      "body": "Atlas Stream Processing supports the use of an Atlas database collection as a\n[dead letter queue](manual/reference/glossary) (DLQ). When Atlas Stream Processing cannot process a\ndocument from your data stream, it writes the content of the document\nto the DLQ along with details of the processing failure. You can assign\na collection as a DLQ in your stream processor definitions.\n\nTo learn more, see [Create a Stream Processor](streams-manage-create).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Stream Processor States",
+      "headingLevel": 2,
+      "body": "Stream processors transition between different states throughout their lifecycle. Understanding these states helps you monitor and troubleshoot your stream processing operations.\n\nPossible states include:\n\n| State        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| RUNNING      | The stream processor is actively processing data and operating normally. This is the desired operational state where your processor consumes data from sources, applies transformations, and writes to sinks.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| STOPPED      | The stream processor has been manually stopped and is not processing data. To learn how to start a stream processor, see Start a Stream Processor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| PROVISIONING | The stream processor is in the process of allocating resources or scaling infrastructure.Common causes include:Starting a new stream processor that requires additional worker resourcesScaling operations when existing workers are at capacityInfrastructure rebalancing during peak usage periodsAutomatic resource provisioning triggered by workload demandsStream Processing Workspace tier changes requiring resource reallocationPotential impacts include:Temporary delay in stream processor startup (typically 2-5 minutes)Brief interruption in data processing during transitionsOnce provisioning completes, processes resume automatically. No data loss occurs, as Atlas Stream Processing preserves state through checkpoints. |\n| FAILED       | The stream processor has encountered an error that prevents it from running. This occurs due to user errors or configuration issues. For detailed information about failure causes and recovery, see Error Handling and Retry Policies.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |\n\n> **Note:** Stream processors might appear intermittently in PROVISIONING state in monitoring dashboards as the system allocates resources. This is normal behavior during scaling operations. If a processor remains in PROVISIONING state for extended periods (>10 minutes), check your stream processing workspace resource limits and tier configuration.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Error Handling and Retry Policies",
+      "headingLevel": 2,
+      "body": "Atlas Stream Processing implements comprehensive error handling and retry policies to\nensure reliable stream processing. The system distinguishes between different\ntypes of errors and applies appropriate retry strategies based on the error\nclassification.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Error Classification",
+      "headingLevel": 3,
+      "body": "Atlas Stream Processing classifies errors into two main categories:\n\n**User Errors**\n\nErrors caused by user configuration, data issues, or external service\nproblems that are outside of Atlas Stream Processing's control. Examples include:\n\n- Invalid connection credentials\n\n- Network connectivity issues to external services\n\n- Malformed data that cannot be processed\n\n- Permission issues accessing external resources\n\n**Internal Errors**\n\nErrors that occur within the Atlas Stream Processing system itself, typically due to\ntemporary infrastructure issues or service disruptions. These are considered\nthe responsibility of the Atlas Stream Processing service to resolve.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Retry Behavior",
+      "headingLevel": 3,
+      "body": "The retry behavior varies based on the error classification:\n\n**User Error Retry Policy**\n\n- Atlas Stream Processing attempts to restart the stream processor a limited number of\n  times over a 5-minute period\n\n- If all retry attempts fail within this timeframe, the stream processor\n  transitions to a `FAILED` state\n\n- Some user errors are classified as non-retryable and immediately cause\n  the processor to fail. Examples include:\n\n  - `StreamProcessorWorkerOutOfMemory (418)`: Pipeline exceeds tier memory\n    limits\n\n  - `StreamProcessorInvalidOptions (420)`: Invalid pipeline syntax or\n    configuration\n\n- You can manually restart a failed stream processor by calling the\n  `start()` method\n\n**Internal Error Retry Policy**\n\n- Atlas Stream Processing continuously retries internal errors without a time limit\n\n- Internal errors trigger alerts to the Atlas Stream Processing engineering team\n\n- The system relies on automatic retry mechanisms to recover processors\n  after internal issues are resolved\n\n- Stream processors automatically resume from their last\n  [checkpoints](atlas-sp-checkpoints) when restarted",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Recovery Process",
+      "headingLevel": 3,
+      "body": "When a stream processor encounters an error and requires a restart, the\nrecovery process follows these steps:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: State preservation",
+      "headingLevel": 4,
+      "body": "The current state is preserved through the\n[checkpoints](atlas-sp-checkpoints) mechanism.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Restart attempt",
+      "headingLevel": 4,
+      "body": "Atlas Stream Processing attempts to restart the processor\naccording to the applicable retry policy.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: State recovery",
+      "headingLevel": 4,
+      "body": "Upon successful restart, the processor resumes\noperation from the last committed checkpoint.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Continued processing",
+      "headingLevel": 4,
+      "body": "The processor continues processing from where\nit left off, ensuring no data loss.\n\nThis recovery process ensures that temporary failures don't result in data\nloss or require manual intervention in most cases.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Stream Processing Timing",
+      "headingLevel": 2,
+      "body": "In streaming data processing, documents are subject to two timing\nsystems:\n\n- event time\n\n- processing time\n\nAtlas Stream Processing offers various parameters to control how stream\nprocessors interact with these timing systems.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Event Time",
+      "headingLevel": 3,
+      "body": "Event time is the time at which either the source stream generates a\ndocument, or the messaging system (e.g. [Apache Kafka](https://kafka.apache.org/)) receives the document.\nThis is ascertained by the timestamp of the document.\n\nNetwork latency, upstream processing, and other factors can not only\ncause discrepancies between these times for a given document, but can\nalso cause documents to arrive in a stream processor out of event-time\norder. In either case, windows can miss documents that you intend for\nthem to capture. Atlas Stream Processing considers such documents\n**late-arriving**, and sends them to your [Dead Letter Queue](atlas-sp-dlq) if you configure one.\n\n**Event Time** is a configurable option for the\n`boundary` field supported in [Tumbling Windows](tumbling-windows)\nand [Hopping Windows](hopping-windows).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Processing Time",
+      "headingLevel": 3,
+      "body": "Processing time is the time at which the stream processor consumes a\ndocument. This is ascertained by the clock of the system hosting the\nstream processor.\n\n**Processing Time** is a configurable option for the `boundary`\nfield supported in [Tumbling Windows](tumbling-windows) and\n[Hopping Windows](hopping-windows). It allows you to create a\npipeline with a kind of window which accumulates data based on the\nwall clock time of the server. As opposed to [event time](atlas-sp-event-time) windows, processing time windows assign each\nevent a timestamp based on the wall clock time of the server when it\narrives at the stream processor.\n\nDocument timestamps and window boundary timestamps are in UTC (Coordinated Universal Time).  You\ncan't specify [idleTimeout](atlas-sp-idle-timeout) or\n[allowedLateness](atlas-sp-allowed-late) options when\nconfiguring a `processingTime` window.\n\n> **Example:** You create a pipeline with a 5 minute event time window. An event is added\n> to a source Kafka cluster at `09:33`. Due to some delay in the Kafka\n> cluster, it arrives at the stream processor at `09:37`.\n>\n> If the pipeline has a 5 minute event time window, then this event will be\n> assigned to the `09:30-09:35` window. If the pipeline has a 5 minute\n> processing time window, then the event will instead be assigned to the\n> `09:35-09:40` window.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Watermarks",
+      "headingLevel": 4,
+      "body": "A watermark supersedes [Processing Time](atlas-sp-processing-time) and\nupdates only when the processor consumes a document with a later event time\nthan any previously-consumed document. All stream processors apply watermarks\nin Atlas Stream Processing.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 5,
+      "body": "You configure a stream processor with 5-minute windows. You start the\nprocessor at `12:00`, so that the first two windows will have\ndurations of `12:00-12:05` and `12:05-12:10`. The following table\nillustrates which windows will capture which events given varying\ndelays, with and without watermarks.\n\n| Event Time | Processing Time | Window Time (No Watermarks) | Window Time (Watermarks) |\n| ---------- | --------------- | --------------------------- | ------------------------ |\n| 12:00      | 12:00           | 12:00-12:05                 | 12:00-12:05              |\n| 12:01      | 12:03           | 12:00-12:05                 | 12:00-12:05              |\n| 12:02      | 12:05           | 12:05-12:10                 | 12:00-12:05              |\n| 12:01      | 12:06           | 12:05-12:10                 | 12:00-12:05              |\n| 12:06      | 12:07           | 12:05-12:10                 | 12:05-12:10              |\n\nWithout watermarks, the `12:00-12:05` window closes at `12:05`\naccording to the system clock of the stream processing workspace, and the `12:05-12:10`\nwindow opens immediately. Thus, though the source generated\nfour of the documents during the `12:00-12:05` interval, the\nrelevant window captures only two documents.\n\nWith watermarks, the `12:00-12:05` window doesn't close at `12:05`\nbecause among the documents it ingests up to that point, the latest\nevent time—and thus the watermark value—is `12:03`. The\n`12:00-12:05` window doesn't close until `12:07` on the system\nclock, when the stream processor ingests a document with an event time\nof `12:05`, advances the watermark to that time, and opens the\n`12:05-12:10` window. Each window captures all of the appropriate\ndocuments.\n\nWhen reading from [Apache Kafka](https://kafka.apache.org/), Atlas Stream Processing waits for all partitions to\npass the watermark.  If a partition idles and fails to produce events\nwith timestamps later than the watermark, the window doesn't close or\noutput results.  To address this, set `partitionIdleTimeout` to\nensure that idle partitions don't halt the progression of\nwatermarks. To learn more, see [aggregation pipelines](atlas-sp-agg-source).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Allowed Lateness",
+      "headingLevel": 4,
+      "body": "If the differences between event time and processing time vary\nsufficiently, documents may arrive in a stream processor after the\nwatermark has advanced enough to close the expected window. To\nmitigate this, Atlas Stream Processing supports Allowed Lateness, a setting which\ndelays a window closing by a set interval relative to the watermark.\n\nWhile watermarks are properties of stream processors, Allowed Lateness\nis a property of a window, and only affects when that window\ncloses. If the stream processor's watermark advances to a point that\nwould trigger a new window to open, Allowed Lateness keeps earlier\nwindows open without preventing this.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 5,
+      "body": "You configure a stream processor with 5-minute tumbling windows. You\nstart the processor at `12:00`, so that the first two windows will\nhave durations of `12:00-12:05` and `12:05-12:10`. You set an\nAllowed Lateness of 2 minutes.\n\nThe table below reflects the order in which the stream processor\ningests the described documents.\n\n| Event Time | Watermark | Allowed Lateness Time | Window Time              |\n| ---------- | --------- | --------------------- | ------------------------ |\n| 12:00      | 12:00     | 11:58                 | 12:00-12:05              |\n| 12:02      | 12:03     | 12:01                 | 12:00-12:05              |\n| 12:01      | 12:04     | 12:02                 | 12:00-12:05              |\n| 12:05      | 12:05     | 12:03                 | 12:00-12:15, 12:05-12:10 |\n| 12:04      | 12:06     | 12:04                 | 12:00-12:05, 12:05-12:10 |\n| 12:07      | 12:07     | 12:05                 | 12:05-12:10              |\n\nWhen the watermark advances to `12:05`, the `12:05-12:10` window\nopens. However, because the Allowed Lateness interval is 2 minutes,\nfrom within the `12:00-12:05` window, it is effectively only\n`12:03`, so it stays open. Only when the watermark advances to\n`12:07` does the adjusted time reach `12:05`. At this point, the\n`12:00-12:05` window closes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Idleness Timeout",
+      "headingLevel": 4,
+      "body": "Decoupling windowing behavior from processing time by default improves\nstream processing correctness in most cases. However, a streaming data\nsource may have periods of extended idleness. In this scenario, a\nwindow may capture events prior to the period of idleness and be unable\nto return processed results while waiting for the watermark to advance\nenough to close.\n\nAtlas Stream Processing allows users to configure an idleness timeout for windows\nto mitigate these scenarios using processing time. An idleness timeout\nis an interval that begins when processing time passes the end of an\nopen window's interval, and the stream processor's source is idle. If\nthe source remains idle for an interval equal to the idleness timeout,\nthe window closes and the watermark advances independent of any\ndocument ingestion.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 5,
+      "body": "You configure a tumbling window with a 3-minute interval and a\n1-minute idleness timeout. The following table illustrates the effects\nof the idleness timeout during and after a window's interval.\n\n| Processing Time | Event Time or Status | Watermark | Window Time |\n| --------------- | -------------------- | --------- | ----------- |\n| 12:00           | 12:00                | 12:00     | 12:00-12:03 |\n| 12:01           | Source idle          | 12:00     | 12:00-12:03 |\n| 12:02           | Source idle          | 12:00     | 12:00-12:03 |\n| 12:03           | Source idle          | 12:00     | 12:00-12:03 |\n| 12:04           | 12:02                | 12:02     | 12:00-12:03 |\n| 12:05           | 12:05                | 12:05     | 12:03-12:06 |\n| 12:06           | Source idle          | 12:05     | 12:03-12:06 |\n| 12:07           | Source idle          | 12:00     | 12:06-12:09 |\n| 12:08           | Source idle          | 12:00     | 12:06-12:09 |\n| 12:09           | 12:09                | 12:09     | 12:09-12:12 |\n\nDuring the `12:00-12:03` interval, the source idles for three\nminutes, but the stream processor doesn't close the window because\nprocessing time is not past the end of the window's interval, and the\nsource does not remain idle after the window's interval ends. When the\nwatermark advances to `12:05`, the window closes normally, and the\n`12:03-12:06` window opens.\n\nWhen the source goes idle at `12:06`, it remains idle through\n`12:07`, triggering the idleness timeout and advancing the watermark\nto `12:06`.",
+      "codeBlocks": []
+    }
+  ]
+}

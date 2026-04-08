@@ -1,0 +1,17 @@
+{
+  "heading": "Facet Query",
+  "headingLevel": 3,
+  "body": "The following query uses the `in` operator to search the `active`\nfield, which contains a boolean value, for customers who are active. The\nquery returns the number of active customers whose birthdate falls in\nthe following buckets:\n\n- 1970-01-01, inclusive lower bound for this bucket\n\n- 1980-01-01, exclusive upper bound for the 1970-01-01 bucket and inclusive lower bound for this bucket\n\n- 1990-01-01, exclusive upper bound for the 1980-01-01 bucket and inclusive lower bound for this bucket\n\n- 2000-01-01, exclusive upper bound for the 1990-01-01 bucket\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"in\": {\n            \"path\": \"active\",\n            \"value\": null\n          }\n        },\n        \"facets\": {\n          \"birthdateFacet\": {\n            \"type\": \"date\",\n            \"path\": \"birthdate\",\n            \"boundaries\": [ISODate(\"1970-01-01\"), ISODate(\"1980-01-01\"), ISODate(\"1990-01-01\"), ISODate(\"2000-01-01\")],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    count: { lowerBound: Long('1') },\n    facet: {\n      birthdateFacet: {\n        buckets: [\n          {\n            _id: ISODate('1970-01-01T00:00:00.000Z'),\n            count: Long('1')\n          },\n          {\n            _id: ISODate('1980-01-01T00:00:00.000Z'),\n            count: Long('0')\n          },\n          {\n            _id: ISODate('1990-01-01T00:00:00.000Z'),\n            count: Long('0')\n          }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"in\": {\n            \"path\": \"active\",\n            \"value\": null\n          }\n        },\n        \"facets\": {\n          \"birthdateFacet\": {\n            \"type\": \"date\",\n            \"path\": \"birthdate\",\n            \"boundaries\": [ISODate(\"1970-01-01\"), ISODate(\"1980-01-01\"), ISODate(\"1990-01-01\"), ISODate(\"2000-01-01\")],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 137
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    count: { lowerBound: Long('1') },\n    facet: {\n      birthdateFacet: {\n        buckets: [\n          {\n            _id: ISODate('1970-01-01T00:00:00.000Z'),\n            count: Long('1')\n          },\n          {\n            _id: ISODate('1980-01-01T00:00:00.000Z'),\n            count: Long('0')\n          },\n          {\n            _id: ISODate('1990-01-01T00:00:00.000Z'),\n            count: Long('0')\n          }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 141
+    }
+  ]
+}

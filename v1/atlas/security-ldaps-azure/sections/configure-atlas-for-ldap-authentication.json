@@ -1,0 +1,22 @@
+{
+  "heading": "Configure Atlas for LDAP Authentication",
+  "headingLevel": 3,
+  "body": "The following procedure enables Atlas to authenticate database users from\nOneLogin LDAP (Lightweight Directory Access Protocol):\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nAdd a User to DN mapping similar to the following example to allow\nclients to provide their username instead of full DNs when they\nconnect to Atlas databases:\n\n```sh\n[\n  {\n      \"match\":\"(.+)\",\n      \"substitution\":\"CN={0},OU=AADDC Users,DC=<managed-domain>,DC=com\"\n  }\n]\n```\n\n> **Note:** For OneLogin, the attributes in distinguished names must be\n> upper case.\n\nIf your `<managed-domain>` consists of one or more subdomains,\nyou must add a `DC` (domainComponent) attribute to the\ndistinguished name for each.\n\n> **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n> components are:\n>\n> `DC=aadds,DC=example,DC=com`\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.\n\n> **Note:** [Skip this step](configure-azure-authz) if you want to enable\n> LDAP authorization.\n\nAdd users managed in the Azure AD (Active Directory) to\nAtlas.\n\n- Click  Add New Database User.\n\n- Click LDAP User.\n\n- Perform one of the following:\n\n  - If you have not entered a User to DN Mapping, enter\n    the full DN of the LDAP (Lightweight Directory Access Protocol) user. Follow this template:\n\n    ```sh\n    CN=<user-name>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com\n    ```\n\n    For example, if your `<user-name>` is `Jane Doe` and\n    your `<managed-domain>` is `aadds.example.com`, your user's\n    DN is:\n\n    ```sh\n    CN=Jane Doe,ou=AADDC Users,DC=aadds,DC=example,DC=com\n    ```\n\n  - If you entered a User to DN Mapping,\n    enter the username that your mapping requires.\n\n- Select the database access level to grant to the user.\n\n- Click Add User.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "[\n  {\n      \"match\":\"(.+)\",\n      \"substitution\":\"CN={0},OU=AADDC Users,DC=<managed-domain>,DC=com\"\n  }\n]",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "sh",
+      "content": "CN=<user-name>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "content": "CN=Jane Doe,ou=AADDC Users,DC=aadds,DC=example,DC=com",
+      "tokenEstimate": 21
+    }
+  ]
+}

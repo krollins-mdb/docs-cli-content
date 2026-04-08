@@ -1,0 +1,243 @@
+{
+  "path": "atlas/langchain/get-started",
+  "product": "atlas",
+  "title": "Step 2: Instantiate the vector store.",
+  "summary": {
+    "total": 20,
+    "byLanguage": {
+      "python": 12,
+      "text": 4,
+      "json": 1,
+      "JSON": 3
+    },
+    "bySection": [
+      {
+        "heading": "Set Up the Environment",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 38
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 112
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 39
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          }
+        ]
+      },
+      {
+        "heading": "Use MongoDB as a Vector Store",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 72
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 153
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 81
+          }
+        ]
+      },
+      {
+        "heading": "Create the MongoDB Vector Search Index",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 45
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 133
+          }
+        ]
+      },
+      {
+        "heading": "Run Vector Search Queries",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "JSON",
+            "tokenEstimate": 211
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 34
+          },
+          {
+            "language": "JSON",
+            "tokenEstimate": 192
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 52
+          },
+          {
+            "language": "JSON",
+            "tokenEstimate": 229
+          }
+        ]
+      },
+      {
+        "heading": "Answer Questions on Your Data",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 203
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 853
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 235
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 830
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "pip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai langchain-text-splitters pymongo pypdf",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "import os, pymongo, pprint\nfrom langchain_community.document_loaders import PyPDFLoader\nfrom langchain_core.output_parsers import StrOutputParser\nfrom langchain_core.runnables import RunnablePassthrough\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\nfrom langchain_openai import ChatOpenAI\nfrom langchain.prompts import PromptTemplate\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "python",
+      "section": "Set Up the Environment",
+      "content": "os.environ[\"VOYAGE_API_KEY\"] = \"<voyage-api-key>\"\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Set Up the Environment",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Print the first document\ndocs[0]",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "json",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "Document(metadata={'producer': 'West Corporation using ABCpdf', 'creator': 'PyPDF', 'creationdate': '2025-03-05T21:06:26+00:00', 'title': 'MongoDB, Inc. Announces Fourth Quarter and Full Year Fiscal 2025 Financial Results', 'source': 'https://investors.mongodb.com/node/13176/pdf', 'total_pages': 9, 'page': 0, 'page_label': '1'}, page_content='MongoDB, Inc. Announces Fourth Quarter and Full Year Fiscal 2025 Financial Results\\nMarch 5, 2025\\nFourth Quarter Fiscal 2025 Total Revenue of $548.4 million, up 20% Year-over-Year')",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "python",
+      "section": "Use MongoDB as a Vector Store",
+      "content": "# Instantiate the vector store using your MongoDB connection string\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = MONGODB_URI,\n  namespace = \"langchain_db.test\",\n  embedding =  VoyageAIEmbeddings(model=\"voyage-3-large\"),\n  index_name = \"vector_index\"\n)\n\n# Add documents to the vector store\nvector_store.add_documents(documents=docs)",
+      "tokenEstimate": 81
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024, # The number of vector dimensions to  index\n   filters = [ \"page_label\" ]\n)",
+      "tokenEstimate": 45
+    },
+    {
+      "language": "python",
+      "section": "Create the MongoDB Vector Search Index",
+      "content": "# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"langchain_db\"][\"test\"]\n\n# Create your vector search index model, then create the index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"cosine\"\n         },\n         {\n         \"type\": \"filter\",\n         \"path\": \"page_label\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)\n",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "python",
+      "section": "Run Vector Search Queries",
+      "content": "query = \"MongoDB acquisition\"\nresults = vector_store.similarity_search(query)\n\npprint.pprint(results)",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "JSON",
+      "section": "Run Vector Search Queries",
+      "content": "[Document(id='67f0259b8bb2babc06924409', metadata={ ... }, page_content='SOURCE MongoDB, Inc.'),\n Document(id='67f0259b8bb2babc0692432f', metadata={ ... }, page_content='MongoDB  platform. In fiscal year 2026 we expect to see stable consumption growth in Atlas, our main growth driver,\" said Dev Ittycheria, President\\nand Chief Executive Officer of MongoDB .'),\n Document(id='67f0259b8bb2babc06924355', metadata={ ... }, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n Document(id='67f0259b8bb2babc069243a6', metadata={ ... }, page_content=\"MongoDB's unified, intelligent data platform was built to power the next generation of applications, and MongoDB  is the most widely available, globally\")]",
+      "tokenEstimate": 211
+    },
+    {
+      "language": "python",
+      "section": "Run Vector Search Queries",
+      "content": "query = \"MongoDB acquisition\"\nresults = vector_store.similarity_search_with_score(\n   query = query, k = 3\n)\n\npprint.pprint(results)",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "JSON",
+      "section": "Run Vector Search Queries",
+      "content": "[(Document(id='67f0259b8bb2babc06924409', metadata={ ... }, page_content='SOURCE MongoDB, Inc.'),\n  0.8193451166152954),\n (Document(id='67f0259b8bb2babc0692432f', metadata={ ... }, page_content='MongoDB  platform. In fiscal year 2026 we expect to see stable consumption growth in Atlas, our main growth driver,\" said Dev Ittycheria, President\\nand Chief Executive Officer of MongoDB .'),\n  0.7815237045288086),\n (Document(id='67f0259b8bb2babc06924355', metadata={ ... }, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n  0.7788857221603394)]",
+      "tokenEstimate": 192
+    },
+    {
+      "language": "python",
+      "section": "Run Vector Search Queries",
+      "content": "query = \"MongoDB acquisition\"\n\nresults = vector_store.similarity_search_with_score(\n   query = query,\n   k = 3,\n   pre_filter = { \"page_label\": { \"$eq\": 2 } }\n)\n\npprint.pprint(results)",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "JSON",
+      "section": "Run Vector Search Queries",
+      "content": "[(Document(id='67f0259b8bb2babc06924355', metadata={ ... 'page_label': '2'}, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n  0.7788857221603394),\n (Document(id='67f0259b8bb2babc06924351', metadata={ ... 'page_label': '2'}, page_content='Measures.\"\\nFourth Quarter Fiscal 2025 and Recent Business Highlights\\nMongoDB  acquired Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation'),\n  0.7606035470962524),\n (Document(id='67f0259b8bb2babc06924354', metadata={ ... 'page_label': '2'}, page_content='data.\\nMongoDB  completed the redemption of 2026 Convertible Notes, eliminating all debt from the balance sheet. Additionally, in'),\n  0.7583936452865601)]",
+      "tokenEstimate": 229
+    },
+    {
+      "language": "python",
+      "section": "Answer Questions on Your Data",
+      "content": "# Instantiate MongoDB Vector Search as a retriever\nretriever = vector_store.as_retriever(\n   search_type = \"similarity\",\n   search_kwargs = { \"k\": 10 }\n)\n\n# Define a prompt template\ntemplate = \"\"\"\n   Use the following pieces of context to answer the question at the end.\n   {context}\n   Question: {question}\n\"\"\"\nprompt = PromptTemplate.from_template(template)\nmodel = ChatOpenAI(model=\"gpt-4o\")\n\n# Construct a chain to answer questions on your data\nchain = (\n   { \"context\": retriever, \"question\": RunnablePassthrough()}\n   | prompt\n   | model\n   | StrOutputParser()\n)\n\n# Prompt the chain\nquestion = \"What was MongoDB's latest acquisition?\"\nanswer = chain.invoke(question)\n\nprint(\"Question: \" + question)\nprint(\"Answer: \" + answer)\n\n# Return source documents\ndocuments = retriever.invoke(question)\nprint(\"\\nSource documents:\")\npprint.pprint(documents)",
+      "tokenEstimate": 203
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions on Your Data",
+      "content": "Question: What was MongoDB's latest acquisition?\nAnswer: MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models.\n\nSource documents:\n[Document(id='67f0259b8bb2babc06924409', metadata={'_id': '67f0259b8bb2babc06924409', ... 'page_label': '9'}, page_content='SOURCE MongoDB, Inc.'),\n Document(id='67f0259b8bb2babc06924351', metadata={'_id': '67f0259b8bb2babc06924351', ... 'page_label': '2'}, page_content='Measures.\"\\nFourth Quarter Fiscal 2025 and Recent Business Highlights\\nMongoDB  acquired Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation'),\n Document(id='67f0259b8bb2babc0692432f', metadata={'_id': '67f0259b8bb2babc0692432f', ... 'page_label': '1'}, page_content='MongoDB  platform. In fiscal year 2026 we expect to see stable consumption growth in Atlas, our main growth driver,\" said Dev Ittycheria, President\\nand Chief Executive Officer of MongoDB .'),\n Document(id='67f0259b8bb2babc06924355', metadata={'_id': '67f0259b8bb2babc06924355', ... 'page_label': '2'}, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n Document(id='67f0259b8bb2babc069243a6', metadata={'_id': '67f0259b8bb2babc069243a6', ... 'page_label': '4'}, page_content=\"MongoDB's unified, intelligent data platform was built to power the next generation of applications, and MongoDB  is the most widely available, globally\"),\n Document(id='67f0259b8bb2babc06924329', metadata={'_id': '67f0259b8bb2babc06924329', ... 'page_label': '1'}, page_content='MongoDB, Inc. Announces Fourth Quarter and Full Year Fiscal 2025 Financial Results\\nMarch 5, 2025\\nFourth Quarter Fiscal 2025 Total Revenue of $548.4 million, up 20% Year-over-Year'),\n Document(id='67f0259b8bb2babc069243a7', metadata={'_id': '67f0259b8bb2babc069243a7', ... 'page_label': '4'}, page_content='distributed database on the market. With integrated capabilities for operational data, search, real-time analytics, and AI-powered retrieval, MongoDB'),\n Document(id='67f0259b8bb2babc069243a5', metadata={'_id': '67f0259b8bb2babc069243a5', ... 'page_label': '4'}, page_content=\"Headquartered in New York, MongoDB's mission is to empower innovators to create, transform, and disrupt industries with software and data.\"),\n Document(id='67f0259b8bb2babc06924354', metadata={'_id': '67f0259b8bb2babc06924354', ... 'page_label': '2'}, page_content='data.\\nMongoDB  completed the redemption of 2026 Convertible Notes, eliminating all debt from the balance sheet. Additionally, in'),\n Document(id='67f0259b8bb2babc069243a9', metadata={'_id': '67f0259b8bb2babc069243a9', ... 'page_label': '4'}, page_content='50,000 customers across almost every industry—including 70% of the Fortune 100—rely on MongoDB  for their most important applications. To learn\\nmore, visit mongodb.com .\\nInvestor Relations')]",
+      "tokenEstimate": 853
+    },
+    {
+      "language": "python",
+      "section": "Answer Questions on Your Data",
+      "content": "# Instantiate MongoDB Vector Search as a retriever\nretriever = vector_store.as_retriever(\n   search_type = \"similarity\",\n   search_kwargs = {\n      \"k\": 10,\n      \"score_threshold\": 0.75,\n      \"pre_filter\": { \"page_label\": { \"$eq\": 2 } }\n   }\n)\n\n# Define a prompt template\ntemplate = \"\"\"\n   Use the following pieces of context to answer the question at the end.\n   {context}\n   Question: {question}\n\"\"\"\nprompt = PromptTemplate.from_template(template)\nmodel = ChatOpenAI(model=\"gpt-4o\")\n\n# Construct a chain to answer questions on your data\nchain = (\n   { \"context\": retriever, \"question\": RunnablePassthrough()}\n   | prompt\n   | model\n   | StrOutputParser()\n)\n\n# Prompt the chain\nquestion = \"What was MongoDB's latest acquisition?\"\n\nanswer = rag_chain.invoke(question)\n\nprint(\"Question: \" + question)\nprint(\"Answer: \" + answer)\n\n# Return source documents\ndocuments = retriever.invoke(question)\nprint(\"\\nSource documents:\")\npprint.pprint(documents)",
+      "tokenEstimate": 235
+    },
+    {
+      "language": "text",
+      "section": "Answer Questions on Your Data",
+      "content": "Question: What was MongoDB's latest acquisition?\nAnswer: MongoDB's latest acquisition was Voyage AI, a pioneer in state-of-the-art embedding and reranking models.\n\nSource documents:\n[Document(id='67f0259b8bb2babc06924351', metadata={'_id': '67f0259b8bb2babc06924351', ... 'page_label': '2'}, page_content='Measures.\"\\nFourth Quarter Fiscal 2025 and Recent Business Highlights\\nMongoDB  acquired Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation'),\n Document(id='67f0259b8bb2babc06924355', metadata={'_id': '67f0259b8bb2babc06924355', ... 'page_label': '2'}, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n Document(id='67f0259b8bb2babc06924354', metadata={'_id': '67f0259b8bb2babc06924354', ... 'page_label': '2'}, page_content='data.\\nMongoDB  completed the redemption of 2026 Convertible Notes, eliminating all debt from the balance sheet. Additionally, in'),\n Document(id='67f0259b8bb2babc06924358', metadata={'_id': '67f0259b8bb2babc06924358', ... 'page_label': '2'}, page_content='Lombard Odier, a Swiss private bank, partnered with MongoDB  to migrate and modernize its legacy banking technology'),\n Document(id='67f0259b8bb2babc06924352', metadata={'_id': '67f0259b8bb2babc06924352', ... 'page_label': '2'}, page_content=\"AI applications. Integrating Voyage AI's technology with MongoDB  will enable organizations to easily build trustworthy,\"),\n Document(id='67f0259b8bb2babc0692435a', metadata={'_id': '67f0259b8bb2babc0692435a', ... 'page_label': '2'}, page_content='applications from a legacy relational database to MongoDB  20 times faster than previous migrations.\\nFirst Quarter and Full Year Fiscal 2026 Guidance'),\n Document(id='67f0259b8bb2babc06924356', metadata={'_id': '67f0259b8bb2babc06924356', ... 'page_label': '2'}, page_content='For the third consecutive year, MongoDB  was named a Leader in the 2024 Gartner® Magic Quadrant™ for Cloud'),\n Document(id='67f0259b8bb2babc0692434d', metadata={'_id': '67f0259b8bb2babc0692434d', ... 'page_label': '2'}, page_content='compared to $121.5 million of cash from operations in the year-ago period. MongoDB  used $29.6 million of cash in capital'),\n Document(id='67f0259b8bb2babc0692434c', metadata={'_id': '67f0259b8bb2babc0692434c', ... 'page_label': '2'}, page_content='Cash Flow: During the year ended January 31, 2025, MongoDB  generated $150.2 million of cash from operations,'),\n Document(id='67f0259b8bb2babc06924364', metadata={'_id': '67f0259b8bb2babc06924364', ... 'page_label': '2'}, page_content='MongoDB  will host a conference call today, March 5, 2025, at 5:00 p.m. (Eastern Time) to discuss its financial results and business outlook. A live')]",
+      "tokenEstimate": 830
+    }
+  ]
+}

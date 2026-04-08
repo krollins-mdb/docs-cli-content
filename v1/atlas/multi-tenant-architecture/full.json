@@ -1,0 +1,72 @@
+{
+  "path": "atlas/multi-tenant-architecture",
+  "product": "atlas",
+  "title": "Build a Multi-Tenant Architecture for MongoDB Vector Search",
+  "sections": [
+    {
+      "heading": "Recommendations",
+      "headingLevel": 2,
+      "body": "Refer to the following recommendations when designing a\nmulti-tenant architecture for MongoDB Vector Search.\n\n> **Important:** This guidance assumes that you can colocate\n> tenants within a single VPC (Virtual Private Cloud). Otherwise, you\n> must maintain separate projects for each tenant,\n> which we don't recommend for MongoDB Vector Search.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "One Collection for all Tenants",
+      "headingLevel": 3,
+      "body": "We recommend storing **all tenant data in a single collection**,\nas well as in a single database and cluster. You can distinguish between\ntenants by including a `tenant_id` field within each document. This field\ncan be any unique identifier for the tenant, such as a UUID or\na tenant name. You can use this field as a [lexical prefilters](vectorSearch-agg-pipeline-filter) in your MongoDB Vector Search indexes and queries.\n\nThis centralized approach offers the following benefits:\n\n- Easy to model and scale.\n\n- Simplifies maintenance operations.\n\n- Efficient query routing through pre-filtering by `tenant_id`.\n\n  > **Note:** You are guaranteed to not serve tenants that do not match this filter.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "One Collection per Tenant or One Database per Tenant",
+      "headingLevel": 3,
+      "body": "We do **not** recommend storing each tenant in a separate collection or\ndatabase for the following reasons:\n\n- **Performance Impact**: This approach can lead to varying [change stream](manual/changeStreams) loads\n  depending on the number of collections, which might negatively impact performance and\n  monitoring capabilities.\n\n- **No Additional Isolation**: Data isolation guarantees in Atlas apply\n  at the database level. Using separate collections within the same database provides no\n  additional data isolation benefit. Using separate databases introduces operational\n  complexity without meaningful security advantages for most use cases.\n\nInstead, use [one collection for all tenants](avs-multi-tenancy-one-collection).\nFor an example of how to migrate from a collection-per-tenant model to a single\ncollection model, see [Migrating from a Collection-Per-Tenant Model](multi-tenancy-migrate).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "Consider the following strategies to mitigate\npotential performance issues with the\n[recommended approach](avs-multi-tenancy-recommendations).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Tenant Size Discrepancies",
+      "headingLevel": 3,
+      "body": "If you experience performance issues due to\nunequal distribution of data (some large tenants and many\nsmall tenants), use [MongoDB Views](avs-transform-documents-collections)\nto separate large tenants from smaller tenants:\n\n- **Large Tenants (Top 1%)**:\n\n  - Create a view for each large tenant.\n\n  - Create an index for each view.\n\n  - Maintain a record of large tenants that you\n    check at query-time to route queries accordingly.\n\n- **Small Tenants (Remaining Tenants)**:\n\n  - Create a single view for all small tenants.\n\n  - Build a single index for this view.\n\n  - Use the `tenant_id` field as a pre-filter\n    to route queries accordingly.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 4,
+      "body": "The following example demonstrates how to create views\nfor large and small tenants by using [mongosh](mongodb-shell):**Large-tenants:**Large TenantsKeep a record of your large tenants and their corresponding\n`tenant_id` values, and then create a view for each of these\ntenants:```shell\ndb.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": \"<largeTenantId>\"\n      }\n    }\n  ]\n)\n```**Small-tenants:**Small TenantsCreate a view for the small tenants,\nfiltering out the large tenants:```shell\ndb.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": {\n          \"$nin\": [ \"<largeTenantId1>\", \"<largeTenantId2>\", ... ]\n        }\n      }\n    }\n  ]\n)\n```After creating the views, create the indexes for each view.\nVerify the following:* When specifying the collection name for the index, use the\n  view name instead of the original collection name.\n\n* Ensure that your index on the small tenant view\n  includes the `tenant_id` field as a pre-filter.Refer to the [index definition](avs-types-vector-search) page\nfor instructions on creating indexes.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "db.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": \"<largeTenantId>\"\n      }\n    }\n  ]\n)",
+          "tokenEstimate": 40
+        },
+        {
+          "language": "shell",
+          "content": "db.createView(\n  \"<viewName>\",\n  \"<collectionName>\",\n  [\n    {\n      \"$match\": {\n        \"tenant_id\": {\n          \"$nin\": [ \"<largeTenantId1>\", \"<largeTenantId2>\", ... ]\n        }\n      }\n    }\n  ]\n)",
+          "tokenEstimate": 57
+        }
+      ]
+    },
+    {
+      "heading": "Many Large Tenants",
+      "headingLevel": 3,
+      "body": "If you have many tenants that each have a large number of vectors,\nconsider using a partition-based system by distributing data\nacross [shards](manual/core/sharded-cluster-shards).\n\nYou can use the `tenant_id` field as a\n[shard key](manual/core/sharding-shard-key)\nto distribute the data across specific ranges\nbased on the tenant ID. For more information,\nsee [Ranged Sharding](manual/core/ranged-sharding).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Migrating from a Collection-Per-Tenant Model",
+      "headingLevel": 3,
+      "body": "To migrate from a collection-per-tenant model to a single\ncollection model, process each tenant collection and\ninsert the documents into a new collection.\n\nFor example, the following script uses the [Node.js driver](node)\nto migrate your data from a collection-per-tenant model to a single collection model.\nThe script also includes a `tenant_id` field\nfor each document based on the source collection's name.\n\n```javascript\nimport { MongoClient } from 'mongodb';\n\nconst uri = \"<connectionString>\"; \nconst sourceDbName = \"<sourceDatabaseName>\"; \nconst targetDbName = \"<targetDatabaseName>\"; \nconst targetCollectionName = \"<targetCollectionName>\";\n\nasync function migrateCollections() {\n const client = new MongoClient(uri);\n\n try {\n     await client.connect();\n\n     const sourceDb = client.db(sourceDbName);\n     const targetDb = client.db(targetDbName);\n     const targetCollection = targetDb.collection(targetCollectionName);\n\n     const collections = await sourceDb.listCollections().toArray();\n     console.log(`Found ${collections.length} collections.`);\n\n     const BATCH_SIZE = 1000; // Define a suitable batch size based on your requirements\n     let totalProcessed = 0;\n\n     for (const collectionInfo of collections) {\n         const collection = sourceDb.collection(collectionInfo.name);\n         let documentsProcessed = 0;\n         let batch = [];\n         const tenantId = collectionInfo.name; // Uses the collection name as the tenant_id\n\n         const cursor = collection.find({});\n         for await (const doc of cursor) {\n             doc.tenant_id = tenantId; // Adds a tenant_id field to each document\n             batch.push(doc);\n\n             if (batch.length >= BATCH_SIZE) {\n                 await targetCollection.insertMany(batch);\n                 totalProcessed += batch.length;\n                 documentsProcessed += batch.length;\n                 console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n                 batch = [];\n             }\n         }\n\n         if (batch.length > 0) {\n             await targetCollection.insertMany(batch);\n             totalProcessed += batch.length;\n             documentsProcessed += batch.length;\n             console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n         }\n     }\n\n     console.log(`Migration completed. Total documents processed: ${totalProcessed}`);\n } catch (err) {\n     console.error('An error occurred:', err);\n } finally {\n     await client.close();\n }\n}\n\nawait migrateCollections().catch(console.error);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from 'mongodb';\n\nconst uri = \"<connectionString>\"; \nconst sourceDbName = \"<sourceDatabaseName>\"; \nconst targetDbName = \"<targetDatabaseName>\"; \nconst targetCollectionName = \"<targetCollectionName>\";\n\nasync function migrateCollections() {\n const client = new MongoClient(uri);\n\n try {\n     await client.connect();\n\n     const sourceDb = client.db(sourceDbName);\n     const targetDb = client.db(targetDbName);\n     const targetCollection = targetDb.collection(targetCollectionName);\n\n     const collections = await sourceDb.listCollections().toArray();\n     console.log(`Found ${collections.length} collections.`);\n\n     const BATCH_SIZE = 1000; // Define a suitable batch size based on your requirements\n     let totalProcessed = 0;\n\n     for (const collectionInfo of collections) {\n         const collection = sourceDb.collection(collectionInfo.name);\n         let documentsProcessed = 0;\n         let batch = [];\n         const tenantId = collectionInfo.name; // Uses the collection name as the tenant_id\n\n         const cursor = collection.find({});\n         for await (const doc of cursor) {\n             doc.tenant_id = tenantId; // Adds a tenant_id field to each document\n             batch.push(doc);\n\n             if (batch.length >= BATCH_SIZE) {\n                 await targetCollection.insertMany(batch);\n                 totalProcessed += batch.length;\n                 documentsProcessed += batch.length;\n                 console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n                 batch = [];\n             }\n         }\n\n         if (batch.length > 0) {\n             await targetCollection.insertMany(batch);\n             totalProcessed += batch.length;\n             documentsProcessed += batch.length;\n             console.log(`Processed ${documentsProcessed} documents from ${collectionInfo.name}. Total processed: ${totalProcessed}`);\n         }\n     }\n\n     console.log(`Migration completed. Total documents processed: ${totalProcessed}`);\n } catch (err) {\n     console.error('An error occurred:', err);\n } finally {\n     await client.close();\n }\n}\n\nawait migrateCollections().catch(console.error);",
+          "tokenEstimate": 419
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "The following example query uses `span.near` to search for documents in\nwhich the strings `prince` and `pauper` are found near each other.\nThe `inOrder` parameter is set to `false`, so the search terms can\nbe in any order. The `slop` parameter is set to `4`, so the search\nterms can be separated by up to only 4 words.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\" : {\n      \"span\": {\n        \"near\": {\n          \"clauses\": [\n            { \"term\": { \"path\": \"title\", \"query\": \"prince\" } },\n            { \"term\": { \"path\": \"title\", \"query\": \"pauper\" } }\n          ],\n          \"slop\": 4,\n          \"inOrder\": false\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[ { title: 'The Prince and the Pauper' } ]\n```\n\nMongoDB Search returns a document that contain search words `prince` and\n`pauper`, separated by less than four words, in the `title` field.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\" : {\n      \"span\": {\n        \"near\": {\n          \"clauses\": [\n            { \"term\": { \"path\": \"title\", \"query\": \"prince\" } },\n            { \"term\": { \"path\": \"title\", \"query\": \"pauper\" } }\n          ],\n          \"slop\": 4,\n          \"inOrder\": false\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 132
+    },
+    {
+      "language": "json",
+      "content": "[ { title: 'The Prince and the Pauper' } ]",
+      "tokenEstimate": 14
+    }
+  ]
+}

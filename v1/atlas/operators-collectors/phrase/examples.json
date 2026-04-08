@@ -1,0 +1,156 @@
+{
+  "path": "atlas/operators-collectors/phrase",
+  "product": "atlas",
+  "title": "phrase (MongoDB Search Operator)",
+  "summary": {
+    "total": 11,
+    "byLanguage": {
+      "json": 7,
+      "shell": 4
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 77
+          }
+        ]
+      },
+      {
+        "heading": "Basic Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 83
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 217
+          }
+        ]
+      },
+      {
+        "heading": "Metadata Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 105
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 86
+          }
+        ]
+      },
+      {
+        "heading": "Multiple Phrases Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 87
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 222
+          }
+        ]
+      },
+      {
+        "heading": "Slop Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 83
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 131
+          }
+        ]
+      },
+      {
+        "heading": "Synonyms Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 112
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 311
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  $search: {\n     \"index\": <index name>, // optional, defaults to \"default\"\n     \"phrase\": {\n       \"query\": \"<search-string>\",\n       \"path\": \"<field-to-search>\",\n       \"score\": <options>,\n       \"slop\": <distance-number>,\n       \"synonyms\": \"<synonyms-mapping-name>\"\n     }\n  }\n}",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "json",
+      "section": "Basic Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": \"new york\"\n      }\n    }\n  },\n  { $limit: 10 },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "section": "Basic Example",
+      "content": "[\n  { title: 'New York, New York', score: 6.786321640014648 }\n  { title: 'New York', score: 6.258549213409424 }\n  { title: 'New York Stories', score: 5.3813982009887695 }\n  { title: 'New York Minute', score: 5.3813982009887695 }\n  { title: 'Synecdoche, New York', score: 5.3813982009887695 }\n  { title: 'New York Doll', score: 5.3813982009887695 }\n  { title: 'Little New York', score: 5.3813982009887695 }\n  { title: 'Escape from New York', score: 4.719893455505371 }\n  { title: 'Naked in New York', score: 4.719893455505371 }\n  { title: 'Autumn in New York', score: 4.719893455505371 }\n]",
+      "tokenEstimate": 217
+    },
+    {
+      "language": "json",
+      "section": "Metadata Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"phrase\": {\n            \"path\": \"title\",\n            \"query\": \"new york\"\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [2000, 2005, 2010, 2015 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "shell",
+      "section": "Metadata Example",
+      "content": "[\n  {\n    count: { lowerBound: Long('27') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3') },\n          { _id: 2005, count: Long('8') },\n          { _id: 2010, count: Long('4') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "json",
+      "section": "Multiple Phrases Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": [\"the man\", \"the moon\"]\n      }\n    }\n  },\n  { $limit: 10 },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "shell",
+      "section": "Multiple Phrases Example",
+      "content": "[\n  { title: 'The Man in the Moon', score: 4.4830474853515625 },\n  { title: 'Shoot the Moon', score: 3.252699851989746 },\n  { title: 'Kick the Moon', score: 3.252699851989746 },\n  { title: 'The Man', score: 2.8923356533050537 },\n  { title: 'The Moon and Sixpence', score: 2.8528637886047363 },\n  { title: 'The Moon Is Blue', score: 2.8528637886047363 },\n  { title: 'Racing with the Moon', score: 2.8528637886047363 },\n  { title: 'Mountains of the Moon', score: 2.8528637886047363 },\n  { title: 'Man on the Moon', score: 2.8528637886047363 },\n  { title: 'Castaway on the Moon', score: 2.8528637886047363 }\n]",
+      "tokenEstimate": 222
+    },
+    {
+      "language": "json",
+      "section": "Slop Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"path\": \"title\",\n        \"query\": \"men women\",\n        \"slop\": 5\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "section": "Slop Example",
+      "content": "[\n  { title: 'Men Without Women', score: 3.367523193359375 },\n  { title: 'Men Vs Women', score: 3.367523193359375 },\n  { title: 'Good Men, Good Women', score: 2.8529787063598633 },\n  { title: 'The War Between Men and Women', score: 2.1851978302001953 },\n  { title: 'Women Without Men', score: 1.9656763076782227 },\n  { title: 'Women Vs Men', score: 1.9656763076782227 }\n]",
+      "tokenEstimate": 131
+    },
+    {
+      "language": "json",
+      "section": "Synonyms Example",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"phrase\": {\n        \"path\": \"plot\",\n        \"query\": \"automobile race\",\n        \"slop\": 5,\n        \"synonyms\": \"my_synonyms\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"plot\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "json",
+      "section": "Synonyms Example",
+      "content": "[\n  {\n    plot: 'When a popular daredevil proposes an automobile race across three continents, his arch rival vows to beat him, while an ambitious female reporter has her own plans for victory.',\n    title: 'The Great Race',\n    score: 29.569732666015625\n  },\n  {\n    plot: 'A wide variety of eccentric competitors participate in a wild and illegal cross-country car race.',\n    title: 'The Cannonball Run',\n    score: 25.50379180908203\n  },\n  {\n    plot: 'A mechanic takes his family to a car race and a series of events occur which brings problems, betrayals, violence and the unexpected death of an elderly person.',\n    title: 'National Mechanics',\n    score: 21.538257598876953\n  },\n  {\n    plot: \"It's time for the annual London to Brighton antique car rally, and Alan McKim and Ambrose Claverhouse are not going to let their friendship stop them from trying to humiliate each other. ...\",\n    title: 'Genevieve',\n    score: 20.19266128540039\n  },\n  {\n    plot: \"A naive drifter runs away from his army father in hopes of making it on the car racing circuit. In Las Vegas, he meets a young scam artist, who develops a crush on him. He is then ...\",\n    title: 'Speedway Junky',\n    score: 18.639965057373047\n  }\n]",
+      "tokenEstimate": 311
+    }
+  ]
+}

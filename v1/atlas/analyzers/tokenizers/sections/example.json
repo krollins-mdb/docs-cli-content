@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `message` field in the\n`minutes` collection using a custom analyzer named\n`edgegramExample`. It uses the `edgeGram` tokenizer to create\ntokens (searchable terms) between `2` and `7` characters long\nstarting from the first character on the left side of words in the\n`message` field.**Atlas UI:**Atlas UI<Tab tabid=\"vib\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Tokenizer if it's collapsed.\n\n  - Select whitespace from the dropdown and type the value for the\n    following fields:\n\n    | Field   | Value |\n    | ------- | ----- |\n    | minGram | 2     |\n    | maxGram | 7     |\n\n  - Click Add to add the custom analyzer to your index.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on the\n    message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select whitespace\n    from the Index Analyzer and Search Analyzer\n    dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following:```json\n{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"edgegramExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"edgegramExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"maxGram\": 7,\n        \"minGram\": 2,\n        \"type\": \"edgeGram\"\n      }\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"dynamic\": true,\n      \"fields\": {\n        \"message\": {\n          \"analyzer\": \"edgegramExample\",\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"charFilters\": [],\n        \"name\": \"edgegramExample\",\n        \"tokenFilters\": [],\n        \"tokenizer\": {\n          \"maxGram\": 7,\n          \"minGram\": 2,\n          \"type\": \"edgeGram\"\n        }\n      }\n    ]\n  }\n)\n\n```The following query searches the `message` field in\nthe `minutes` collection for text that begin with `tr`.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Find:\n\n  **Input:**\n\n  ```json\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"tr\",\n        \"path\": \"message\"\n      }\n    }\n  }\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 0.3150668740272522 _id:  \"1\"\n   message: \"try to siGn-In\"\n   page_updated_by: Object\n     last_name: \"AUERBACH\"\n     first_name: \"Siân\"\n     email: \"auerbach@example.com\"\n     phone: \"(123)-456-7890\"\n   text: Object\n     en_US: \"<head> This page deals with department meetings.</head>\"\n     sv_FI: \"Den här sidan behandlar avdelningsmöten\"\n     fr_CA: \"Cette page traite des réunions de département\"\n\n  SCORE: 0.3150668740272522 _id:  \"3\"\n   message: \"try to sign-in\"\n   page_updated_by: Object\n     last_name: \"LEWINSKY\"\n     first_name: \"Brièle\"\n     email: \"lewinsky@example.com\"\n     phone: \"(123).456.9870\"\n   text: Object\n     en_US: \"<body>We'll head out to the conference room by noon.</body>\"\n  ```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"tr\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])\n```**Output:**```js\n{ _id: 1, message: 'try to siGn-In' },\n{ _id: 3, message: 'try to sign-in' }\n```MongoDB Search returns documents with `_id: 1` and `_id: 3` in the\nresults because MongoDB Search created a token with the value `tr` using the\n`edgeGram` tokenizer for the documents, which matches the search\nterm. If you index the `message` field using the `standard`\ntokenizer, MongoDB Search would not return any results for the search term\n`tr`.The following table shows the tokens that the `edgeGram` tokenizer\nand by comparison, the `standard` tokenizer, create for the\ndocuments in the results:| Tokenizer | Token Outputs                                       |\n| --------- | --------------------------------------------------- |\n| standard  | try, to, sign, in                                   |\n| edgeGram  | tr, try, try\\{SPACE}, try t, try to, try to\\{SPACE} |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"message\": {\n        \"analyzer\": \"edgegramExample\",\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"edgegramExample\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"maxGram\": 7,\n        \"minGram\": 2,\n        \"type\": \"edgeGram\"\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"dynamic\": true,\n      \"fields\": {\n        \"message\": {\n          \"analyzer\": \"edgegramExample\",\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"charFilters\": [],\n        \"name\": \"edgegramExample\",\n        \"tokenFilters\": [],\n        \"tokenizer\": {\n          \"maxGram\": 7,\n          \"minGram\": 2,\n          \"type\": \"edgeGram\"\n        }\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 124
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"text\": {\n      \"query\": \"tr\",\n      \"path\": \"message\"\n    }\n  }\n}",
+      "tokenEstimate": 30
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.3150668740272522 _id:  \"1\"\n message: \"try to siGn-In\"\n page_updated_by: Object\n   last_name: \"AUERBACH\"\n   first_name: \"Siân\"\n   email: \"auerbach@example.com\"\n   phone: \"(123)-456-7890\"\n text: Object\n   en_US: \"<head> This page deals with department meetings.</head>\"\n   sv_FI: \"Den här sidan behandlar avdelningsmöten\"\n   fr_CA: \"Cette page traite des réunions de département\"\n\nSCORE: 0.3150668740272522 _id:  \"3\"\n message: \"try to sign-in\"\n page_updated_by: Object\n   last_name: \"LEWINSKY\"\n   first_name: \"Brièle\"\n   email: \"lewinsky@example.com\"\n   phone: \"(123).456.9870\"\n text: Object\n   en_US: \"<body>We'll head out to the conference room by noon.</body>\"",
+      "tokenEstimate": 222
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"tr\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])",
+      "tokenEstimate": 62
+    },
+    {
+      "language": "js",
+      "content": "{ _id: 1, message: 'try to siGn-In' },\n{ _id: 3, message: 'try to sign-in' }",
+      "tokenEstimate": 34
+    }
+  ]
+}

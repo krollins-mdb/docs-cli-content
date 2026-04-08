@@ -1,0 +1,137 @@
+{
+  "path": "atlas/admin/cli/collections/rename-collection",
+  "product": "atlas",
+  "title": "renameCollection",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```json\ndb.runCommand({ \"renameCollection\": \"<namespace>\", \"to\": \"<namespace>\", \"dropTarget\": true|false })\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.runCommand({ \"renameCollection\": \"<namespace>\", \"to\": \"<namespace>\", \"dropTarget\": true|false })",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Fields",
+      "headingLevel": 2,
+      "body": "| Field            | Type    | Description                                                                                                                                                                                                                                                                                                                                                       | Required? |\n| ---------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| renameCollection | string  | The collection namespace, which includes the database name, a dot (.) separator, and the collection name. For example: \\<database>.\\<collection>                                                                                                                                                                                                                  | yes       |\n| to               | string  | The new name for the collection specified as a namespace, which includes the database name, a dot (.) separator, and the new collection name. The new name:Must be unique if dropTarget is omitted or is set to false.Can be the name of an existing collection in the same database if dropTarget is specified and is set to true (that is, dropTarget == true). | yes       |\n| dropTarget       | boolean | Specifies whether or not to rename the collection to a name that already exists in the database. Value can be true or false. The default value is false, which means that the new name for the collection must be unique. If true, overwrites the existing collection's data with data from the renamed collection.                                               | no        |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 2,
+      "body": "The command returns the following output if it succeeds. You can verify\nthe results by running the commands in\n[Verify Collection](adf-rename-collection-cmd-verify). If it fails, see\n[Troubleshoot Errors](adf-rename-collection-cmd-errors) below for recommended solutions.\n\n```json\n{ \"ok\" : 1 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \"ok\" : 1 }",
+          "tokenEstimate": 8
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "These examples use the following `databases` and `collections`\nin the storage configuration:\n\n```json\n\"databases\" : [\n  {\n    \"name\": \"multiCollDB\",\n    \"collections\": [\n      {\n        \"name\": \"air_airlines\",\n        \"dataSources\": [{\n          \"storeName\" : \"egS3Store\",\n          \"path\" : \"egData/air_airlines.json\"\n        }]\n      },\n      {\n        \"name\": \"airbnb\",\n        \"dataSources\": [{\n          \"storeName\" : \"sampleS3Store\",\n          \"path\" : \"json/airbnb/*\"\n        }]\n      },\n      {\n        \"name\": \"weather\",\n        \"dataSources\": [{\n          \"storeName\" : \"sampleS3Store\",\n          \"path\" : \"json/weather/*\"\n        }]\n      }\n    ]\n  }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "\"databases\" : [\n  {\n    \"name\": \"multiCollDB\",\n    \"collections\": [\n      {\n        \"name\": \"air_airlines\",\n        \"dataSources\": [{\n          \"storeName\" : \"egS3Store\",\n          \"path\" : \"egData/air_airlines.json\"\n        }]\n      },\n      {\n        \"name\": \"airbnb\",\n        \"dataSources\": [{\n          \"storeName\" : \"sampleS3Store\",\n          \"path\" : \"json/airbnb/*\"\n        }]\n      },\n      {\n        \"name\": \"weather\",\n        \"dataSources\": [{\n          \"storeName\" : \"sampleS3Store\",\n          \"path\" : \"json/weather/*\"\n        }]\n      }\n    ]\n  }\n]",
+          "tokenEstimate": 158
+        }
+      ]
+    },
+    {
+      "heading": "Basic Example",
+      "headingLevel": 3,
+      "body": "The following `renameCollection` command renames the `air_airlines`\ncollection in the database named `multiCollDB` to `airlines`.\n\n```json\nuse admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.air_airlines\", \"to\": \"multiCollDB.airlines\" })\n```\n\nThe previous command prints the following output:\n\n```json\n{ \"ok\" : 1 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "use admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.air_airlines\", \"to\": \"multiCollDB.airlines\" })",
+          "tokenEstimate": 30
+        },
+        {
+          "language": "json",
+          "content": "{ \"ok\" : 1 }",
+          "tokenEstimate": 8
+        }
+      ]
+    },
+    {
+      "heading": "dropTarget Example",
+      "headingLevel": 3,
+      "body": "The following `renameCollection` command:\n\n- Renames the `weather` collection in the database named\n  `multiCollDB` to `airbnb`, which is the name of an existing\n  collection in the same database.\n\n- Replaces `airbnb` collection data with the data in the `weather`\n  collection.\n\n```json\nuse admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.weather\", \"to\": \"multiCollDB.airbnb\", \"dropTarget\": true })\n```\n\nThe previous command prints the following output:\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following command shows that the collection was successfully\nrenamed:\n\n```json\n> show collections\nairbnb\n> db.runCommand({ \"storageGetConfig\" : 1 })\n{\n       \"ok\" : 1,\n       \"storage\" : {\n              \"stores\" : [\n                     {\n                       \"name\" : \"egS3Store\",\n                       \"provider\" : \"s3\",\n                       \"region\" : \"us-east-2\",\n                       \"bucket\" : \"sbx-data-federation\",\n                       \"delimiter\" : \"/\",\n                       \"prefix\" : \"\"\n                     }\n              ],\n              \"databases\" : [{\n                     \"name\" : \"multiCollDB\",\n                     \"collections\" : [{\n                       \"name\": \"airbnb\",\n                       \"dataSources\" : [\n                              {\n                                     \"storeName\" : \"egS3Store\",\n                                     \"path\" : \"/json/airbnb\"\n                              }\n                       ]\n                     }]\n              }]\n       }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "use admin\ndb.runCommand({ \"renameCollection\": \"multiCollDB.weather\", \"to\": \"multiCollDB.airbnb\", \"dropTarget\": true })",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{ \"ok\" : 1 }",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "json",
+          "content": "> show collections\nairbnb\n> db.runCommand({ \"storageGetConfig\" : 1 })\n{\n       \"ok\" : 1,\n       \"storage\" : {\n              \"stores\" : [\n                     {\n                       \"name\" : \"egS3Store\",\n                       \"provider\" : \"s3\",\n                       \"region\" : \"us-east-2\",\n                       \"bucket\" : \"sbx-data-federation\",\n                       \"delimiter\" : \"/\",\n                       \"prefix\" : \"\"\n                     }\n              ],\n              \"databases\" : [{\n                     \"name\" : \"multiCollDB\",\n                     \"collections\" : [{\n                       \"name\": \"airbnb\",\n                       \"dataSources\" : [\n                              {\n                                     \"storeName\" : \"egS3Store\",\n                                     \"path\" : \"/json/airbnb\"\n                              }\n                       ]\n                     }]\n              }]\n       }\n}",
+          "tokenEstimate": 178
+        }
+      ]
+    },
+    {
+      "heading": "Verify Collection",
+      "headingLevel": 2,
+      "body": "You can verify that the command succeeded by running any of the\nfollowing commands:\n\n```json\nshow collections\ndb.runCommand({ \"storageGetConfig\" : 1 })\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "show collections\ndb.runCommand({ \"storageGetConfig\" : 1 })",
+          "tokenEstimate": 16
+        }
+      ]
+    },
+    {
+      "heading": "Troubleshoot Errors",
+      "headingLevel": 2,
+      "body": "If the command fails, it returns one of the following errors:\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"renameCollection can only be run against the admin database\",\n \"code\": 13,\n \"codeName\": \"Unauthorized\"\n}\n```\n\n**Solution:** Switch to the `admin` database and re-run the command.\nTo switch to the `admin` database, run the `use admin` command.\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"Invalid namespace specified '<ns>'\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}\n```\n\n**Solution:** Check that the specified namespace (database or\ncollection) exists in the storage configuration.\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"Invalid target namespace: <namespace>\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}\n```\n\n**Solution:** Ensure that the namespace (database or collection)\nspecified with the `to` field is valid.\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"target namespace exists\",\n \"code\": 48,\n \"codeName\": \"NamespaceExists\"\n}\n```\n\n**Solution:** Check that a collection with the specified name does not\nalready exist. Collection name must be unique if `dropTarget` is\nomitted or set to `false`.\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"source namespace does not exist\",\n \"code\": 26,\n \"codeName\": \"NamespaceNotFound\"\n}\n```\n\n**Solution:** Check the database name is valid and exists in the\nstorage configuration.\n\n```json\n{\n \"ok\": 0,\n \"errmsg\": \"cannot rename a collection created from a wildcard\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}\n```\n\n**Solution:** Collections created by the wildcard collection function\n(`collectionName()`) cannot be renamed.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"renameCollection can only be run against the admin database\",\n \"code\": 13,\n \"codeName\": \"Unauthorized\"\n}",
+          "tokenEstimate": 36
+        },
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"Invalid namespace specified '<ns>'\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"Invalid target namespace: <namespace>\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"target namespace exists\",\n \"code\": 48,\n \"codeName\": \"NamespaceExists\"\n}",
+          "tokenEstimate": 30
+        },
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"source namespace does not exist\",\n \"code\": 26,\n \"codeName\": \"NamespaceNotFound\"\n}",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "json",
+          "content": "{\n \"ok\": 0,\n \"errmsg\": \"cannot rename a collection created from a wildcard\",\n \"code\": 73,\n \"codeName\": \"InvalidNamespace\"\n}",
+          "tokenEstimate": 35
+        }
+      ]
+    }
+  ]
+}

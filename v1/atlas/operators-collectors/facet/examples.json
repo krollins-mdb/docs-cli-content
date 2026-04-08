@@ -1,0 +1,277 @@
+{
+  "path": "atlas/operators-collectors/facet",
+  "product": "atlas",
+  "title": "facet (MongoDB Search Operator)",
+  "summary": {
+    "total": 22,
+    "byLanguage": {
+      "javascript": 1,
+      "json": 14,
+      "shell": 7
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 91
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 75
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 92
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 204
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 83
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 41
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 114
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 88
+          }
+        ]
+      },
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 83
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 41
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 176
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 159
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 66
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 180
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 228
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 51
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 212
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 325
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 73
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 142
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 74
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n  \"$searchMeta\"|\"$search\": {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"facet\": {\n      \"operator\": {\n        <operator-specifications>\n      },\n      \"facets\": {\n        <facet-definitions>\n      }\n    },\n    \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-query>\"\n    },\n    \"returnStoredSource\": true\n  }\n}",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$searchMeta\": {\n    \"facet\":{\n      \"operator\": {\n        <operator-specification>\n      },\n      \"facets\": {\n        \"<facet-name>\" : {\n          \"type\" : \"string\",\n          \"path\" : \"<field-path>\",\n          \"numBuckets\" : <number-of-categories>,\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"token\"\n      },\n      \"year\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"year\",\n            \"gte\": 2000,\n            \"lte\": 2015\n          }\n        },\n        \"facets\": {\n          \"genresFacet\": {\n            \"type\": \"string\",\n            \"path\": \"genres\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "[\n  {\n    count: { lowerBound: Long('12568') },\n    facet: {\n      genresFacet: {\n        buckets: [\n          { _id: 'Drama', count: Long('7079') },\n          { _id: 'Comedy', count: Long('3689') },\n          { _id: 'Romance', count: Long('1764') },\n          { _id: 'Thriller', count: Long('1584') },\n          { _id: 'Documentary', count: Long('1472') },\n          { _id: 'Action', count: Long('1471') },\n          { _id: 'Crime', count: Long('1367') },\n          { _id: 'Adventure', count: Long('1056') },\n          { _id: 'Horror', count: Long('866') },\n          { _id: 'Biography', count: Long('796') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 204
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$searchMeta\": {\n    \"facet\":{\n      \"operator\": {\n        <operator-specification>\n      },\n      \"facets\": {\n        \"<facet-name>\" : {\n          \"type\" : \"number\",\n          \"path\" : \"<field-path>\",\n          \"boundaries\" : <array-of-numbers>,\n          \"default\": \"<bucket-name>\"\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": [\n        {\n          \"type\": \"number\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n         \"range\": {\n            \"path\": \"year\",\n            \"gte\": 1980,\n            \"lte\": 2000\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1980,1990,2000],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "[\n  {\n    count: { lowerBound: Long('6095') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1980, count: Long('1956') },\n          { _id: 1990, count: Long('3558') },\n          { _id: 'other', count: Long('581') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "{\n  \"$searchMeta\": {\n    \"facet\":{\n      \"operator\": {\n        <operator-specification>\n      },\n      \"facets\": {\n        \"<facet-name>\" : {\n          \"type\" : \"date\",\n          \"path\" : \"<field-path>\",\n          \"boundaries\" : <array-of-dates>,\n          \"default\": \"<bucket-name>\"\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": [\n        {\n          \"type\": \"date\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"released\",\n            \"gte\": ISODate(\"2000-01-01T00:00:00.000Z\"),\n            \"lte\": ISODate(\"2015-01-31T00:00:00.000Z\")\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"date\",\n            \"path\": \"released\",\n            \"boundaries\": [ISODate(\"2000-01-01\"), ISODate(\"2005-01-01\"), ISODate(\"2010-01-01\"), ISODate(\"2015-01-01\")],\n            \"default\": \"other\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 176
+    },
+    {
+      "language": "shell",
+      "section": "Example",
+      "content": "[\n  {\n    count: { lowerBound: Long('11922') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          {\n            _id: ISODate('2000-01-01T00:00:00.000Z'),\n            count: Long('3028')\n          },\n          {\n            _id: ISODate('2005-01-01T00:00:00.000Z'),\n            count: Long('3953')\n          },\n          {\n            _id: ISODate('2010-01-01T00:00:00.000Z'),\n            count: Long('4832')\n          },\n          { _id: 'other', count: Long('109') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 159
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"directors\": {\n        \"type\": \"token\"\n      },\n      \"year\": {\n        \"type\": \"number\"\n      },\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"released\",\n            \"gte\": ISODate(\"2000-01-01T00:00:00.000Z\"),\n            \"lte\": ISODate(\"2015-01-31T00:00:00.000Z\")\n          }\n        },\n        \"facets\": {\n          \"directorsFacet\": {\n            \"type\": \"string\",\n            \"path\": \"directors\",\n            \"numBuckets\" : 7\n          },\n          \"yearFacet\" : {\n            \"type\" : \"number\",\n            \"path\" : \"year\",\n            \"boundaries\" : [2000,2005,2010, 2015]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 180
+    },
+    {
+      "language": "shell",
+      "section": "Examples",
+      "content": "[\n  {\n    count: { lowerBound: Long('11922') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 2000, count: Long('3064') },\n          { _id: 2005, count: Long('4035') },\n          { _id: 2010, count: Long('4553') }\n        ]\n      },\n      directorsFacet: {\n        buckets: [\n          { _id: 'Takashi Miike', count: Long('26') },\n          { _id: 'Johnnie To', count: Long('20') },\n          { _id: 'Steven Soderbergh', count: Long('18') },\n          { _id: 'Michael Winterbottom', count: Long('16') },\n          { _id: 'Ridley Scott', count: Long('15') },\n          { _id: 'Tyler Perry', count: Long('15') },\n          { _id: 'Clint Eastwood', count: Long('14') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 228
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"genres\": {\n        \"type\": \"token\"\n      },\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n {\n   \"$search\": {\n     \"facet\": {\n       \"operator\": {\n         \"near\": {\n           \"path\": \"released\",\n           \"origin\": ISODate(\"1999-07-01T00:00:00.000+00:00\"),\n           \"pivot\": 7776000000\n         }\n       },\n       \"facets\": {\n         \"genresFacet\": {\n           \"type\": \"string\",\n           \"path\": \"genres\"\n         }\n       }\n     }\n   }\n },\n { \"$limit\": 2 },\n {\n   \"$facet\": {\n     \"docs\": [\n       { \"$project\":\n         {\n           \"title\": 1,\n           \"released\": 1\n         }\n       }\n     ],\n     \"meta\": [\n       {\"$replaceWith\": \"$$SEARCH_META\"},\n       {\"$limit\": 1}\n     ]\n   }\n },\n {\n   \"$set\": {\n     \"meta\": {\n       \"$arrayElemAt\": [\"$meta\", 0]\n     }\n   }\n }\n])",
+      "tokenEstimate": 212
+    },
+    {
+      "language": "shell",
+      "section": "Examples",
+      "content": "[\n {\n   docs: [\n     {\n       _id: ObjectId('573a1393f29313caabcde1ae'),\n       title: 'Begone Dull Care',\n       released: ISODate('1999-07-01T00:00:00.000Z')\n     },\n     {\n       _id: ObjectId('573a13a9f29313caabd2048a'),\n       title: 'Fara'                released: ISODate('1999-07-01T00:00:00.000Z')\n     }\n   ],\n   meta: {\n     count: { lowerBound: Long('20878') },\n     facet: {\n       genresFacet: {\n         buckets: [\n           { _id: 'Drama', count: Long('12149') },\n           { _id: 'Comedy', count: Long('6436') },\n           { _id: 'Romance', count: Long('3274') },\n           { _id: 'Crime', count: Long('2429') },\n           { _id: 'Thriller', count: Long('2400') },\n           { _id: 'Action', count: Long('2349') },\n           { _id: 'Adventure', count: Long('1876') },\n           { _id: 'Documentary', count: Long('1755') },\n           { _id: 'Horror', count: Long('1432') },\n           { _id: 'Biography', count: Long('1244') }\n         ]\n       }\n     }\n   }\n }\n]",
+      "tokenEstimate": 325
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"funding_rounds\": {\n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"storedSource\": {\n          \"include\": [\n            \"raised_currency_code\",\n            \"raised_amount\"\n          ]\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.companies.aggregate([\n {\n   \"$searchMeta\": {\n     \"returnStoredSource\": true,\n     \"returnScope\": {\n       \"path\": \"funding_rounds\"\n     },\n     \"facet\": {\n       \"operator\": {\n         \"text\": {\n           \"path\": \"funding_rounds.raised_currency_code\",\n           \"query\": \"USD\"\n         }\n       },\n       \"facets\": {\n         \"raisedAmountFacet\": {\n           \"type\": \"number\",\n           \"path\": \"funding_rounds.raised_amount\",\n           \"boundaries\": [5000000, 5250000, 5500000]\n         }\n       }\n     }\n   }\n }\n])",
+      "tokenEstimate": 142
+    },
+    {
+      "language": "shell",
+      "section": "Examples",
+      "content": "[\n  {\n    count: { lowerBound: Long('5329') },\n    facet: {\n      raisedAmountFacet: {\n        buckets: [\n          { _id: 5000000, count: Long('251') },\n          { _id: 5250000, count: Long('32') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 74
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "path": "atlas/drop-indexes",
+  "product": "atlas",
+  "title": "Step 6: Drop or hide the index by using the Atlas UI or MongoDB Shell.",
+  "sections": [
+    {
+      "heading": "Unused Indexes",
+      "headingLevel": 2,
+      "body": "An index is unused if it doesn't support any queries.\n\nThe Performance Advisor flags an index as unused if it hasn't supported\na query in 7 or more days after it was created or the server was\nrestarted.\n\n> **Note:** The Performance Advisor inspects only the 20 most active\n> collections for unused indexes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Redundant Indexes",
+      "headingLevel": 2,
+      "body": "An index is redundant if another index supports any query that it could.\n\nThe Performance Advisor flags an index as redundant if it matches the\nprefix of another index in the same collection.\n\n> **Example:** If a collection contains the indexes:\n>\n> - `{ a: 1 }`\n>\n> - `{ b: -1 }`\n>\n> - `{ a: 1, b: -1 }`\n>\n> `{ a: 1 }` is redundant because it matches the prefix\n> `{ a: 1, b: -1 }`.\n>\n> `{ b: -1 }` is not redundant because it does not match any prefix.\n\nIn the Performance Advisor, redundant indexes are marked with a red\n`Redundant` badge. Below each redundant index, the Performance\nAdvisor displays the related indexes that cover it.\n\n> **Note:** Related indexes are displayed for you to verify that the redundant\n> index can be dropped safely. Related indexes are not recommended\n> for removal.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Hidden Indexes",
+      "headingLevel": 2,
+      "body": "Atlas doesn't use hidden indexes to support queries.\nThey still impact write performance and consume storage space. To learn\nmore, see [Hidden Indexes](manual/core/index-hidden).\n\nYou can hide an index to evaluate the impact of dropping an\nindex before you drop it. Unhiding an index also takes\nless time than rebuilding a dropped index. To hide and unhide an\nindex by using the Atlas UI, see [Atlas UI](atlas-ui-indexes).\n\nThe Performance Advisor always recommends dropping hidden indexes.\nIf you determine that a hidden index is unnecessary, drop it.\n\n> **Note:** The Atlas Performance Advisor page displays hidden indexes from\n> your top 20 most active namespaces at the time you load the page.\n> If you have more than 20 namespaces, the Performance Advisor page might\n> not display all of your namespaces with hidden indexes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Drop or Hide an Index",
+      "headingLevel": 2,
+      "body": "> **Note:** Consider [hiding indexes](hidden-indexes) before you\n> drop them.\n\nTo drop or hide an index by using the Performance Advisor:\n\nIf the replica set is part of a sharded cluster, first click the\nsharded cluster containing the replica set.\n\nIn the Performance Advisor tab, click\nExplore Recommendations on the Drop Indexes card.\n\nBy default, the results correspond to one of the primary hosts.\nHowever, you can select another host from the drop-down.\n\nThe Performance Advisor displays a dialog box with a link to\nthe [Atlas UI](atlas-ui-indexes) and a copyable\n[MongoDB Shell](mongodb-shell) command to drop that index.\n\nThe dialog box also provides a copyable MongoDB Shell command to\nhide that index.\n\nTo drop or hide an index by using the Atlas UI, click the\nIndexes tab, then click the Drop Index or\nHide Index icon next to the index. Atlas displays a\ndialog box to confirm your selection. For more information,\nsee [Atlas UI](atlas-ui-indexes).\n\nTo drop or hide an index by using the MongoDB Shell, paste and run the\ncommand provided by the Performance Advisor.",
+      "codeBlocks": []
+    }
+  ]
+}

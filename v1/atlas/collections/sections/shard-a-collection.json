@@ -1,0 +1,27 @@
+{
+  "heading": "Shard a Collection",
+  "headingLevel": 2,
+  "body": "If you have large data sets and perform high throughput operations, you\ncan [shard](manual/sharding) a collection to distribute data across\nthe shards.\n\nYou cannot shard a collection through the Atlas UI. To shard a\ncollection, first confirm that your cluster is a [Deploy a Sharded Cluster](create-cluster-sharding), then take the following steps to shard the\ncollection in [mongosh](mongodb-shell):\n\nSee Connect to a Cluster via mongosh.\n\nTo create an index on the shard key, run the following command:\n\n```sh\ndb.<collection-name>.createIndex({<shard_key_definition>})\n```\n\n> **Example:** To create an index on the shard key for the\n> `sample_analytics.customers` collection:\n>\n> ```sh\n> db.sample_analytics.createIndex( { \"username\": 1 } )\n> ```\n\nTo learn  more, see:\n\n- [Choose a Shard Key](manual/core/sharding-choose-a-shard-key)\n\n- [createIndexes](manual/reference/command/createIndexes)\n\nTo shard a collection, run the following command:\n\n```sh\nsh.shardCollection(\"<database>.<collection>\", { \"<indexed-field>\" : 1 } )\n```\n\n> **Example:** To shard the `sample_analytics.customers` collection:\n>\n> ```sh\n> sh.shardCollection(\"sample_analytics.customers\", { \"username\" : 1 } )\n> ```\n\nWARNING: If you shard a collection that already has a MongoDB Search\nindex, you might experience a brief period of incomplete search results\nwhile the index is building on a shard. Also, if you add a shard for\nan already sharded collection that contains a MongoDB Search index, your search\nqueries against that collection might return incomplete results until\nthe initial sync process completes on the added shards. To learn more,\nsee [initial sync process](troubleshoot-initial-sync).\n\nTo learn more, see [Shard a Collection](manual/tutorial/deploy-shard-cluster) in the MongoDB\nmanual.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "db.<collection-name>.createIndex({<shard_key_definition>})",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "sh",
+      "content": "db.sample_analytics.createIndex( { \"username\": 1 } )",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "sh",
+      "content": "sh.shardCollection(\"<database>.<collection>\", { \"<indexed-field>\" : 1 } )",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "sh",
+      "content": "sh.shardCollection(\"sample_analytics.customers\", { \"username\" : 1 } )",
+      "tokenEstimate": 20
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "path": "atlas/admin/terminate-running-query",
+  "product": "atlas",
+  "title": "Terminate a Running Federated Database Instance Query",
+  "sections": [
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```json\ndb.runCommand({ \"killOp\": 1, \"op\":  ObjectId(<hexadecimal>) })\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.runCommand({ \"killOp\": 1, \"op\":  ObjectId(<hexadecimal>) })",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Options",
+      "headingLevel": 2,
+      "body": "| Field | Type     | Description                                                                                                                                      | Necessity |\n| ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |\n| op    | ObjectId | Unique identifier, in ObjectId format, of the operation to terminate. You can use $currentOp to retrieve the opid of the operation to terminate. | Required  |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 2,
+      "body": "[killOp](manual/reference/command/killOp) returns the following\nif it succeeds in marking the specified operation for termination:\n\n```\n{ \"info\" : \"attempting to kill op\", \"ok\" : 1 }\n```\n\nNote that the output is the same whether or not the operation being\nterminated is currently running. You can use [$currentOp](determine-query-status) to verify that the operation was terminated.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "{ \"info\" : \"attempting to kill op\", \"ok\" : 1 }",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "For the example below, suppose a query with `opid` value of\n`ObjectId(\"1635fad364c529820c6f9e76\")` is running. The following\ncommand terminates this query.\n\n```json\nuse admin\ndb.runCommand({ \"killOp\": 1, \"op\": ObjectId(\"1635fad364c529820c6f9e76\") })\n```\n\nThe previous command returns the following:\n\n```json\n{ \"info\" : \"attempting to kill op\", \"ok\" : 1 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "use admin\ndb.runCommand({ \"killOp\": 1, \"op\": ObjectId(\"1635fad364c529820c6f9e76\") })",
+          "tokenEstimate": 34
+        },
+        {
+          "language": "json",
+          "content": "{ \"info\" : \"attempting to kill op\", \"ok\" : 1 }",
+          "tokenEstimate": 19
+        }
+      ]
+    }
+  ]
+}

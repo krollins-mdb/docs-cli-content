@@ -1,0 +1,97 @@
+{
+  "path": "atlas/google-vertex-ai",
+  "product": "atlas",
+  "title": "Integrate Atlas with Google Vertex AI",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Vertex AI enables a variety of use cases\nwith MongoDB Atlas:\n\n- Use foundation models from Google with MongoDB Vector Search\n  to build AI applications and implement RAG (Retrieval-Augmented Generation).\n  To learn more, see [Google models](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models).\n\n- Use Vertex AI extensions to customize how Google models\n  interact with Atlas. To get started, see [Use Vertex AI Extensions for Natural Language MongoDB Queries](vertex-ai-extensions).\n\n- Use the Vertex AI Agent Engine to build and scale\n  AI agents with Atlas as the database.\n  To get started, see [Build AI Agents with Vertex AI Agent Engine and Atlas](vertex-ai-agent-engine).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Get Started",
+      "headingLevel": 2,
+      "body": "The following sample application demonstrates how to use Vertex AI\nwith Atlas for RAG (Retrieval-Augmented Generation). The application includes an interface\nthat allows you to upload PDF documents and answer questions on\nthe PDF data by using MongoDB Vector Search and Vertex AI models.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 3,
+      "body": "Before starting this tutorial, you must have the following:\n\n- An [Create a Cluster](create-new-cluster)\n  running MongoDB version 6.0.11, 7.0.2, or later.\n  Ensure that your IP address (Internet Protocol address)\n  is included in your Atlas project's [IP Access List](access-list).\n\n- Access to a Google Cloud project with Vertex AI API enabled. To learn more, see\n  [Google Cloud documentation](https://cloud.google.com/vertex-ai/docs/start/cloud-environment).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create a Google Cloud Compute Instance",
+      "headingLevel": 3,
+      "body": "Follow the steps in the [Google Cloud documentation](https://cloud.google.com/compute/docs/instances/create-start-instance#console)\nto create and start a virtual machine (VM) instance in your Google Cloud console.\nConfigure the Google Cloud VM instance with the following settings and use\nthe default settings for the remaining options:\n\n| Option                | Configuration                                                         |\n| --------------------- | --------------------------------------------------------------------- |\n| Name                  | vertexai-chatapp                                                      |\n| Region and Zone       | Any Google Cloud region and zone near your physical location          |\n| Machine Configuration | Series: High MemoryMachine Type: n1-standard-1                        |\n| Boot disk             | Size: 100 GB                                                          |\n| Access                | Allow full access to all Cloud APIs                                   |\n| Firewall              | Select all                                                            |\n| Networking            | For the External IP range, specify Reserve external static IP address |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Deploy and Run the Application",
+      "headingLevel": 3,
+      "body": "This section loads a sample application that you\ncan use to transform and store PDFs in Atlas and query them\nusing MongoDB Vector Search. To deploy and run the application on your\nGoogle Cloud VM instance, complete the following steps:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Create a MongoDB Vector Search index.",
+      "headingLevel": 4,
+      "body": "You must create a MongoDB Vector Search index named `vector_index`\non the `vertexaiApp.chat-vec` namespace\nin your Atlas cluster to enable queries against\nyour vector embeddings. Use the default settings\nand specify `768` dimensions.\n\nTo learn more, see [index definition](avs-types-vector-search).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Get the sample application.",
+      "headingLevel": 4,
+      "body": "Connect to the VM instance by using [SSH](https://cloud.google.com/compute/docs/connect/standard-ssh).\nIn the environment, clone the GitHub repository\nthat contains the application code:\n\n```bash\ngit clone https://github.com/mongodb-partners/MongoDB-VertexAI-Qwiklab.git\n```\n\n> **Note:** To learn more about the application, see the [repository](https://github.com//mongodb-partners/MongoDB-VertexAI-Qwiklab).",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "git clone https://github.com/mongodb-partners/MongoDB-VertexAI-Qwiklab.git",
+          "tokenEstimate": 20
+        }
+      ]
+    },
+    {
+      "heading": "Step 3: Install the dependencies from the cloned repository.",
+      "headingLevel": 4,
+      "body": "Run the following commands to install the dependencies:\n\n```shell\nsudo apt update\nsudo apt install python3-pip\nsudo apt install git\ncd MongoDB-VertexAI-Qwiklab\npip3 install -r requirements.txt\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "sudo apt update\nsudo apt install python3-pip\nsudo apt install git\ncd MongoDB-VertexAI-Qwiklab\npip3 install -r requirements.txt",
+          "tokenEstimate": 33
+        }
+      ]
+    },
+    {
+      "heading": "Step 4: Run the application using Streamlit.",
+      "headingLevel": 4,
+      "body": "```bash\nstreamlit run app.py\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "streamlit run app.py",
+          "tokenEstimate": 5
+        }
+      ]
+    },
+    {
+      "heading": "Step 5: Access the application.",
+      "headingLevel": 4,
+      "body": "Open the public IP address of your VM in a web browser with the port\nshown in the command output.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: Upload PDF documents by using the application's interface.",
+      "headingLevel": 4,
+      "body": "In the application, upload PDF data that you want to search.\n\nThe repository includes a sample PDF file that you can use.\nThe app chunks the data into batches, converts each chunk into\nvector embeddings by using an embedding model from Vertex AI,\nand ingests this data into your Atlas collection.\n\n> **Tip:** After uploading the file, if you're using Atlas, you can verify your vector embeddings\n> by navigating to the `vertexaiApp.chat-vec` namespace\n> [in the Atlas UI](atlas-ui-view-collections).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 7: Answer questions on your data.",
+      "headingLevel": 4,
+      "body": "- In the application, click the **Q\\&A** tab.\n\n- Enter a question in the search bar, and then press **Enter**.\n\n  The application performs RAG (Retrieval-Augmented Generation) by running a vector search\n  query on your collection to retrieve the most relevant documents,\n  and then uses a chat model from Vertex AI to generate a context-aware\n  response.",
+      "codeBlocks": []
+    }
+  ]
+}

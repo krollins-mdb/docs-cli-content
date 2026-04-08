@@ -1,0 +1,90 @@
+{
+  "path": "atlas/cloud-backup/restore-from-continuous",
+  "product": "atlas",
+  "title": "Restore from Continuous Cloud Backup",
+  "sections": [
+    {
+      "heading": "Restore Considerations",
+      "headingLevel": 2,
+      "body": "In addition to the [prerequisites](restore-prereq) consider the\nfollowing requirements and limitations when restoring from a\n[Continuous Cloud Backup](pit-restore).\n\n- If the `DefaultRWConcern` value on the source snapshot differs\n  from the `DefaultRWConcern` value on the target\n  cluster, Atlas overrides the value on the source\n  snapshot with the value on the target cluster. If\n  there is no value configured for the `DefaultRWConcern` on the\n  target cluster, Atlas keeps the value of\n  `DefaultRWConcern` from the snapshot without explicit\n  configuration. This may differ from the default value for that\n  MongoDB version.\n\nThis feature is only available for `M10+` dedicated clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Recommendations to Optimize Restore Times",
+      "headingLevel": 2,
+      "body": "- For `M10+` dedicated clusters,\n  Atlas restores MongoDB Search [index definitions](ref-index-definitions)\n  from a Cloud Backup snapshot. Atlas doesn't restore search\n  index data, so the `mongot` processes perform [initial sync](manual/core/replica-set-sync) for all restored search index definitions.\n  If you've defined large search indexes on your cluster, you might\n  experience delays during snapshot restorations.\n\n  > **Note:** The MongoDB Search index definitions captured at the snapshot time specified\n  > for the point in time restore replace any existing MongoDB Search index\n  > definitions.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "General Optimizations",
+      "headingLevel": 3,
+      "body": "To optimize performance and reduce the amount of time it takes to\nrestore, follow these principles where applicable:\n\n- Select a target cluster that isn't global or multi-cloud.\n\n- Select a multi-region target cluster only if copies of the snapshot\n  you plan to restore exist in every region of that cluster.\n\n- Select a target cluster that belongs to the same cloud provider region\n  as the snapshot.\n\n- Select a cluster tier with the same storage capacity as the\n  capacity of the original volume used by the source cluster.\n\n- If the target cluster runs on AWS (Amazon Web Services) with configured IOPS (Input/Output Operations per Second),\n  select the configured IOPS (Input/Output Operations per Second) to fall within the configured range.\n\n- Select a target cluster that is not configured to use NVMe (non-volatile memory express) storage.\n  NVMe (non-volatile memory express) storage degrades restore performance.\n\n- For AWS (Amazon Web Services) source clusters created before March 27, 2024, click the\n  Faster Restore button in the cluster's [Backup](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fbackup%2Fclusters)\n  details in Atlas UI to enable faster cross-project restores using\n  the direct attach restore method. The target cluster must meet all\n  conditions listed in this section to use this feature.\n\n  When you activate Faster Restore, Atlas replaces each\n  node in the source cluster one at a time during your next\n  [Configure Maintenance Window](configure-maintenance-window). If the\n  maintenance window ends before all nodes are replaced, Atlas\n  finishes replacing the current node, then waits for the next\n  maintenance window to start replacing the next node. Secondary reads\n  and analytic nodes are unavailable during the rolling replacement.\n\n  Faster cross-project restores are automatically enabled for AWS (Amazon Web Services)\n  clusters created after March 27, 2024, all Google Cloud and Microsoft Azure\n  clusters, and all clusters in MongoDB Atlas for Government. If this feature is enabled\n  for your cluster, the Faster Restore button doesn't\n  appear.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To monitor a backup restore job until it completes, you must have\n[Project Read Only](<Project Read Only>) access or higher to the specific project.\n\nTo start a restore job, you must have [Project Backup Recovery Operator](<Project Backup Recovery Operator>), [Project Backup Manager](<Project Backup Manager>), or [Project Owner](<Project Owner>) access to the project.\n\nFor cross-organization or cross-project restores, the required permissions\napply to both the source and target projects. You must have the necessary\npermissions: [Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\nin both projects to initiate or manage such restore operations.\n\nTo restore an encrypted or unencrypted snapshot created in an Atlas\nproject to the same project, you require the [Project Backup Manager](<Project Backup Manager>) role.\n\nTo restore an encrypted or unencrypted snapshot created in a source\nAtlas project to a different target project, you require the\n[Project Owner](<Project Owner>) role in the target project.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "Atlas deletes all existing data on the target cluster prior to\nthe restore. The target cluster is unavailable for the duration of\nthe restore. As part of the restore, Atlas also restores any indexes.**Atlascli:**Atlas CLI",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Restore a Cluster",
+      "headingLevel": 3,
+      "body": "To start a restore job for your project and cluster using the Atlas CLI, run the following command:```sh\n\natlas backups restores start <automated|download|pointInTime> [options]\n\n```To watch for a specific restore job to complete using the Atlas CLI, run the following command:```sh\n\natlas backups restores watch <restoreJobId> [options]\n\n```To learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups restores start](atlas/cli/current/command/atlas-backups-restores-start) and\n[atlas backups restores watch](atlas/cli/current/command/atlas-backups-restores-watch).Related Links* [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n* [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)**Ui:**Atlas UIYou can enable Continuous Cloud Backups for dedicated clusters when\nyou [Create a Cluster](create-new-cluster) or\n[Enable or Disable Backup for the Cluster](scale-cluster-backups) a cluster.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas backups restores start <automated|download|pointInTime> [options]\n",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "sh",
+          "content": "\natlas backups restores watch <restoreJobId> [options]\n",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Click .",
+      "headingLevel": 3,
+      "body": "Click the **Point in Time Restore** button on the\nfar right side of the screen.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Select either the  or  tab.",
+      "headingLevel": 3,
+      "body": "If you select the **Date & Time** option, you can\nspecify the time of restore with one minute of granularity.\nIf you select the **Oplog Timestamp** option, you\ncan specify the time of restore with one second of granularity.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Enter the desired point in time to restore from.",
+      "headingLevel": 3,
+      "body": "> **Important:** You can restore a cluster from any time during its\n> continuous cloud backup window **except** between when you\n> initiated a restore and when Atlas completes a\n> snapshot after the restore.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Click the  button.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Choose a project and cluster to restore to from the dropdown menus.",
+      "headingLevel": 3,
+      "body": "> **Important:** Atlas might create a host rollback alert due to\n> differences in the data between the source and target\n> clusters. You can ignore this alert.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: Click the  button.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    }
+  ]
+}

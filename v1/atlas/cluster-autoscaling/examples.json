@@ -1,0 +1,117 @@
+{
+  "path": "atlas/cluster-autoscaling",
+  "product": "atlas",
+  "title": "Configure Auto-Scaling",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "json": 2,
+      "bash": 4,
+      "json\n  :copyable: true": 2
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Create the payload file.",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 267
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Run the update command.",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 42
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 351
+          }
+        ]
+      },
+      {
+        "heading": "Enable Effective Fields",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 71
+          }
+        ]
+      },
+      {
+        "heading": "Behavior of Effective Fields",
+        "blocks": [
+          {
+            "language": "json\n  :copyable: true",
+            "tokenEstimate": 428
+          },
+          {
+            "language": "json\n  :copyable: true",
+            "tokenEstimate": 301
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 565
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Step 1: Create the payload file.",
+      "content": "{\n  \"replicationSpecs\": [\n    {\n      \"regionConfigs\": [\n        {\n          \"providerName\": \"{CLOUD-PROVIDER}\",\n          \"regionName\": \"{REGION-NAME}\",\n          \"priority\": 7,\n          \"electableSpecs\": {\n            \"instanceSize\": \"{INSTANCE-SIZE}\",\n            \"nodeCount\": 3\n          },\n          \"analyticsSpecs\": {\n            \"instanceSize\": \"{ANALYTICS-INSTANCE-SIZE}\",\n            \"nodeCount\": 1\n          },\n          \"autoScaling\": {\n            \"compute\": {\n              \"enabled\": true,\n              \"scaleDownEnabled\": true,\n              \"minInstanceSize\": \"{MIN-INSTANCE-SIZE}\",\n              \"maxInstanceSize\": \"{MAX-INSTANCE-SIZE}\"\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          },\n          \"analyticsAutoScaling\": {\n            \"compute\": {\n              \"enabled\": true,\n              \"scaleDownEnabled\": true,\n              \"minInstanceSize\": \"{MIN-ANALYTICS-INSTANCE-SIZE}\",\n              \"maxInstanceSize\": \"{MAX-ANALYTICS-INSTANCE-SIZE}\"\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          }\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 267
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Run the update command.",
+      "content": "atlas api clusters updateCluster \\\n  --version 2024-10-23 \\\n  --clusterName {CLUSTER-NAME} \\\n  --groupId {GROUP-ID} \\\n  --file payload.json",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Run the update command.",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n     --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n     --header \"Content-Type: application/json\" \\\n     --include \\\n     --request PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{GROUP-ID}/clusters/{CLUSTER-NAME}\" \\\n     --data '{\n     \"replicationSpecs\": [\n       {\n         \"regionConfigs\": [\n           {\n             \"providerName\": \"{CLOUD-PROVIDER}\",\n             \"regionName\": \"{REGION-NAME}\",\n             \"priority\": 7,\n             \"electableSpecs\": {\n               \"instanceSize\": \"{INSTANCE-SIZE}\",\n               \"nodeCount\": 3\n             },\n             \"autoScaling\": {\n               \"compute\": {\n                 \"enabled\": true,\n                 \"scaleDownEnabled\": true,\n                 \"minInstanceSize\": \"{MIN-INSTANCE-SIZE}\",\n                 \"maxInstanceSize\": \"{MAX-INSTANCE-SIZE}\"\n               },\n               \"diskGB\": {\n                 \"enabled\": true\n               }\n             },\n             \"analyticsSpecs\": {\n               \"instanceSize\": \"{ANALYTICS-INSTANCE-SIZE}\",\n               \"nodeCount\": 1\n             },\n             \"analyticsAutoScaling\": {\n               \"compute\": {\n                 \"enabled\": true,\n                 \"scaleDownEnabled\": true,\n                 \"minInstanceSize\": \"{MIN-ANALYTICS-INSTANCE-SIZE}\",\n                 \"maxInstanceSize\": \"{MAX-ANALYTICS-INSTANCE-SIZE}\"\n               },\n               \"diskGB\": {\n                 \"enabled\": true\n               }\n             }\n           }\n         ]\n       }\n     ]\n   }'",
+      "tokenEstimate": 351
+    },
+    {
+      "language": "bash",
+      "section": "Enable Effective Fields",
+      "content": "--header \"Use-Effective-Instance-Fields: true\"",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "bash",
+      "section": "Enable Effective Fields",
+      "content": "  resource \"mongodbatlas_advanced_cluster\" \"this\" {\n      project_id           = mongodbatlas_project.this.id\n      name                 = var.cluster_name\n      cluster_type         = var.cluster_type\n      use_effective_fields = true\n      replication_specs    = var.replication_specs\n      tags                 = var.tags\n    }",
+      "tokenEstimate": 71
+    },
+    {
+      "language": "json\n  :copyable: true",
+      "section": "Behavior of Effective Fields",
+      "content": "  {\n  \"replicationSpecs\": [\n    {\n      \"regionConfigs\": [\n        {\n          \"analyticsAutoScaling\": {\n            \"compute\": {\n              \"maxInstanceSize\": \"M30\",\n              \"minInstanceSize\": \"M10\",\n              \"enabled\": true,\n              \"scaleDownEnabled\": true\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          },\n          \"autoScaling\": {\n            \"compute\": {\n              \"maxInstanceSize\": \"M30\",\n              \"minInstanceSize\": \"M10\",\n              \"enabled\": true,\n              \"scaleDownEnabled\": true\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          },\n          \"effectiveAnalyticsSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"effectiveElectableSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 3\n          },\n          \"effectiveReadOnlySpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"electableSpecs\": {\n            \"instanceSize\": \"M20\",\n            \"diskSizeGB\": 50.0,\n            \"nodeCount\": 3\n          },\n          \"priority\": 7,\n          \"providerName\": \"AWS\",\n          \"regionName\": \"US_EAST_1\"\n        }\n      ],\n      \"zoneId\": \"6924a70c67695449ba5625ce\",\n      \"zoneName\": \"Zone 1\"\n    }\n  ]\n}",
+      "tokenEstimate": 428
+    },
+    {
+      "language": "json\n  :copyable: true",
+      "section": "Behavior of Effective Fields",
+      "content": "  {\n  \"replicationSpecs\": [\n    {\n      \"regionConfigs\": [\n        {\n          \"effectiveAnalyticsSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"effectiveElectableSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 3\n          },\n          \"effectiveReadOnlySpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"electableSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskSizeGB\": 100.0,\n            \"nodeCount\": 3\n          },\n          \"priority\": 7,\n          \"providerName\": \"AWS\",\n          \"regionName\": \"US_EAST_1\"\n        }\n      ],\n      \"zoneId\": \"6924a70c67695449ba5625ce\",\n      \"zoneName\": \"Zone 1\"\n    }\n  ]\n}",
+      "tokenEstimate": 301
+    },
+    {
+      "language": "json",
+      "section": "Behavior of Effective Fields",
+      "content": "{\n  \"replicationSpecs\": [\n    {\n      \"regionConfigs\": [\n        {\n          \"analyticsAutoScaling\": {\n            \"compute\": {\n              \"maxInstanceSize\": \"M30\",\n              \"minInstanceSize\": \"M10\",\n              \"enabled\": true,\n              \"scaleDownEnabled\": true\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          },\n          \"autoScaling\": {\n            \"compute\": {\n              \"maxInstanceSize\": \"M30\",\n              \"minInstanceSize\": \"M10\",\n              \"enabled\": true,\n              \"scaleDownEnabled\": true\n            },\n            \"diskGB\": {\n              \"enabled\": true\n            }\n          },\n          \"effectiveAnalyticsSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"effectiveElectableSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 3\n          },\n          \"effectiveReadOnlySpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"analyticsSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"electableSpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 3\n          },\n          \"readOnlySpecs\": {\n            \"instanceSize\": \"M30\",\n            \"diskIOPS\": 3000,\n            \"diskSizeGB\": 100.0,\n            \"ebsVolumeType\": \"STANDARD\",\n            \"nodeCount\": 0\n          },\n          \"priority\": 7,\n          \"providerName\": \"AWS\",\n          \"regionName\": \"US_EAST_1\"\n        }\n      ],\n      \"zoneId\": \"6924a70c67695449ba5625ce\",\n      \"zoneName\": \"Zone 1\"\n    }\n  ]\n  }",
+      "tokenEstimate": 565
+    }
+  ]
+}

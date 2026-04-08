@@ -1,0 +1,127 @@
+{
+  "path": "atlas/billing-breakdown-optimization",
+  "product": "atlas",
+  "title": "Support Resources",
+  "sections": [
+    {
+      "heading": "Understanding Flex Clusters vs. Dedicated Clusters",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Flex Clusters",
+      "headingLevel": 3,
+      "body": "Flex clusters are ideal for learning and exploring MongoDB inexpensively.\nFlex cluster considerations include:\n\n- Multiple clusters share hardware. The underlying\n  compute is on a large machine that hosts many Flex clusters, which impacts\n  maximum performance and storage capacity.\n\n- Despite the shared hardware, all data is secure and accessible\n  only by you.\n\n- Flex clusters do not have access to advanced features\n  such as query diagnosis tools and horizontal scaling, which makes them a good fit\n  for non-production use cases.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Dedicated Clusters",
+      "headingLevel": 3,
+      "body": "Dedicated clusters (M10 and higher) are designed for more robust workloads, offering greater\ncontrol and guaranteed resources:\n\n- Your cluster's hardware is dedicated to your workload.\n  Dedicated hardware provides granularity in the control of hardware specifications\n  like RAM, vCPU, and storage.\n\n- We guarantee the availability of the specified resources,\n  which ensures consistent performance.\n\n- Backup settings are more robust in dedicated clusters.\n  You can configure backup settings for dedicated clusters with granularity\n  as low as one-second intervals.\n\n- You have access to our premium diagnostic tools such as\n  [Performance Advisor](performance-advisor) and [Query Insights](cloud-manager/query-insights).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Billing Breakdown for Each Tier",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Flex cluster Billing",
+      "headingLevel": 3,
+      "body": "Billing for Flex clusters is straightforward and designed to keep costs low\nand predictable. Flex clusters have a maximum charge of $30 per month.\n\nFor more information, refer to the [Atlas Flex Costs](atlas-flex-costs) page.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Dedicated Cluster Billing",
+      "headingLevel": 3,
+      "body": "Billing for dedicated clusters is more complex, which reflects the enhanced\ncapabilities and resources:\n\n- Starts at $60 per month, which typically includes compute\n  and included storage costs.\n\n- There may be usage fees for services such as backups\n  (depending on frequency and configuration), storage beyond the default [Select Cluster Tier](create-cluster-instance) threshold, and data transfers.\n\n- The selected tier impacts the structure of your invoice,\n  with various line items reflecting different aspects of your cluster's usage.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Investigating Your Invoice",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Key Areas to Monitor",
+      "headingLevel": 3,
+      "body": "If there are unexpected charges on your invoice, monitor the following areas:\n\n- **Cloud computing costs.** These are often the most significant portion\n  of the bill. You can review them by going to the **Billing** page in\n  Atlas, and clicking **Summary By Service**. This view shows the\n  costs of all clusters by provider, tier, and region. If you find any\n  clusters that are no longer needed, pause or terminate them to avoid\n  unnecessary costs.\n\n- **Storage limits.** Each cluster tier comes with a specific storage limit.\n  To manage storage costs, enable the [Cluster Auto-Scaling](cluster-autoscaling),\n  which adjusts storage capacity based on usage and the thresholds you set.\n  For example, if you’re using less than 50% of your allocated storage,\n  the system will scale down your storage capacity automatically.\n\n- **Backups.** Backups are crucial for production workloads but can also be a\n  significant cost driver. For non-critical clusters, consider reducing the\n  backup frequency or disabling continuous cloud backups to reduce costs.\n\n- **Data transfer costs.** Data transfer costs vary depending on where the data is\n  being transferred. Transfers within the same region are the least expensive,\n  followed by transfers between different regions. Internet transfers are the\n  most costly.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Billing Optimizations",
+      "headingLevel": 2,
+      "body": "Consider these strategies for optimizing your Atlas costs.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Optimize Queries",
+      "headingLevel": 2,
+      "body": "Queries that take a long time to execute can increase resource usage,\nrequiring higher-tier clusters. [Performance Advisor](performance-advisor)\nto reduce resource consumption and lower costs.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Index Management",
+      "headingLevel": 2,
+      "body": "Create indexes for frequent queries and ensure that the indexes you create include all\nfields being queried. Also consider running unindexed queries on separate nodes. For\ndedicated clusters, the [Performance Advisor](performance-advisor)\nrecommends indexes to create or drop.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Result Filtering",
+      "headingLevel": 2,
+      "body": "Filter and limit query results based on input and feedback from the end user.\nEnsure that you're only returning important results to reduce the amount of\ndata returned, and thus save on egress costs.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Optimize Data Transfer Patterns",
+      "headingLevel": 2,
+      "body": "Whenever possible, deploy resources to the same provider and region to minimize\ndata transfer costs. Only use inter-region or internet transfers when necessary.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Underutilized Clusters",
+      "headingLevel": 2,
+      "body": "- Use [Cluster Auto-Scaling](cluster-autoscaling) for both cluster tier and storage to\n  match your usage and prevent over-provisioning.\n\n- For dedicated clusters, consider scaling down\n  to a lower tier or [pause and resume a cluster](pause-terminate-cluster) the cluster\n  if you won't use it for an extended period.\n\n- Create a separate cluster tier for aggregation queries to help isolate\n  analytics work and ensure operational queries remain fast and responsive\n  without affecting costs associated with the primary workload as your\n  analytics needs change or grow over time.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Optimize Storage",
+      "headingLevel": 2,
+      "body": "- Use features like [Online Archives](online-archive-overview)\n  or [TTL indexes](manual/core/index-ttl) to\n  move older data from more expensive hot storage to less expensive cold\n  storage. After you archive data, you can access the data through\n  [federated database instances](atlas-data-federation).\n\n- Atlas supports scaling Azure (Microsoft Azure) IOPS (Input/Output Operations per Second) independently\n  from storage. You can increase storage performance without increasing storage.\n\n- You can increase storage to up to 14 terabytes per replica set for\n  single-region clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "High Backup Frequency",
+      "headingLevel": 2,
+      "body": "- If [Continuous Cloud Backup](pit-restore) aren’t necessary for\n  a cluster, disable this feature to reduce costs.\n\n- [Hourly Snapshot Retention Time](creating-backup-policy) for less critical\n  clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Optimize Network Costs",
+      "headingLevel": 2,
+      "body": "- Lower network egress volume between the driver and Atlas\n  by up to 50%, at only a slight increase in compute.\n\n- Avoid cross-region egress costs for multi-regional businesses, while also reducing latency.\n\n- Reduce inter-AZ data transfer costs by directly targeting nodes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Monitor Spending with Cost Explorer",
+      "headingLevel": 2,
+      "body": "Regularly use the [Cost Explorer](cost-explorer) tool to monitor spending\npatterns at the organization, project, cluster, and service levels. Set a\nfrequency that works for your needs.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Set Alerts",
+      "headingLevel": 2,
+      "body": "Configure [billing alerts](billing-alerts) for key thresholds, such as\nwhen your monthly costs exceed a certain amount.  For example, set an alert when\ncosts exceed $100. This proactive approach helps you avoid surprises.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Review Invoices",
+      "headingLevel": 2,
+      "body": "Each month, review your invoice to assess the highest-cost services using the\nprevious billing optimization suggestions. This is a recommended best practice\nto identify cost reduction opportunities.\n\n- [support](atlas-support): Available for all customers at no\n  additional cost, providing a foundational level of assistance.\n\n- [support](atlas-support): For teams that require\n  faster response times and end-to-end database support.\n\n- [Consulting Sessions](https://www.mongodb.com/services/consulting): For\n  complex workloads, consider consulting sessions to focus on optimization and\n  cost reduction strategies.",
+      "codeBlocks": []
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "path": "atlas/security-ldaps-azure",
+  "product": "atlas",
+  "title": "Step 2: After connecting to your cluster, run commands to verify the user has the read or write privileges you assigned them.",
+  "summary": {
+    "total": 15,
+    "byLanguage": {
+      "sh": 15
+    },
+    "bySection": [
+      {
+        "heading": "Configure OneLogin for Your Domain",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 3
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 113
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 33
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 33
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authentication",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 36
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 21
+          }
+        ]
+      },
+      {
+        "heading": "Configure Atlas for LDAP Authorization",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 22
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          }
+        ]
+      },
+      {
+        "heading": "Connect to your Cluster Using mongosh",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          }
+        ]
+      },
+      {
+        "heading": "Troubleshoot LDAP Connection Issues",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 95
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 97
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "brew install openssl",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "openssl genrsa -out <your-key-name>.key 2048",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "# openssl x509 extfile params\nextensions = extend\n\n[req] # openssl req params\nprompt = no\ndistinguished_name = dn-param\n\n[dn-param] # DN fields\nC = US\nST = NY\nL  = New York\nO = MongoDB\nOU = Atlas\nCN = *.aadds.example.com\n\n[extend] # openssl extensions\nsubjectKeyIdentifier = hash\nauthorityKeyIdentifier = keyid:always\nkeyUsage = digitalSignature,keyEncipherment,keyCertSign\nextendedKeyUsage=serverAuth,clientAuth",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "openssl req -new -key <your-key-name>.key \\\n-out <your-csr-name>.csr -config <your-config-name>.cfg \\\n-extensions extend",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "openssl x509 -req -sha256 -days 365 -in <your-csr-name>.csr \\\n-signkey <your-key-name>.key -out <your-cert-name>.crt \\\n-extfile <your-config-name>.cfg",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "sh",
+      "section": "Configure OneLogin for Your Domain",
+      "content": "openssl pkcs12 -export -out <your-cert-name>.pfx \\\n-inkey <your-key-name>.key -in <your-cert-name>.crt",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "[\n  {\n      \"match\":\"(.+)\",\n      \"substitution\":\"CN={0},OU=AADDC Users,DC=<managed-domain>,DC=com\"\n  }\n]",
+      "tokenEstimate": 36
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "CN=<user-name>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authentication",
+      "content": "CN=Jane Doe,ou=AADDC Users,DC=aadds,DC=example,DC=com",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "section": "Configure Atlas for LDAP Authorization",
+      "content": "{USER}?memberOf?base",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "sh",
+      "section": "Connect to your Cluster Using mongosh",
+      "content": "--username CN=Jane\\ Doe,OU=AADDC\\ Users,DC=aadds,DC=example,DC=com",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://ldap.<managed-domain>.com' -b 'DC=<managed>,DC=<domain>,DC=com' -s sub -D 'CN=<bind-user-dn>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com))'",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "sh",
+      "section": "Troubleshoot LDAP Connection Issues",
+      "content": "ldapsearch -H 'ldaps://ldap.aadds.example.com' -b 'DC=aadds,DC=example,DC=com' -s sub -D 'CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com))'",
+      "tokenEstimate": 97
+    }
+  ]
+}

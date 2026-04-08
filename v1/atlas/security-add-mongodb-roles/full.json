@@ -1,0 +1,96 @@
+{
+  "path": "atlas/security-add-mongodb-roles",
+  "product": "atlas",
+  "title": "Step 3: Click .",
+  "sections": [
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "> **Important:** You must use the [Atlas CLI](atlas/cli/current/command/atlas-customDbRoles-create),\n> [Atlas Administration API](api/doc/atlas-admin-api-v2/group/endpoint-database-users),\n> Atlas UI,\n> or a supported [integration](partner-integrations)\n> to add, modify, or delete database roles on Atlas\n> clusters. Otherwise, Atlas rolls back any role\n> modifications.\n\n- You can assign up to 20 custom roles to a single [Configure Database Users](mongodb-users)\n\n- You can create up to 100 custom roles per project by default.\n  IMPORTANT: If you require more custom roles per project,\n  you can increase the number of custom roles up to a maximum of 1400\n  through the Atlas Administration API using the [Set One Project Limit endpoint](atlas/reference/api-resources-spec/v2).\n\n- Atlas audits the creation, deletion, and updates of custom MongoDB\n  roles in the project's [Project Activity Feed](view-activity-feed).\n\n- If you assign multiple roles to a user and those roles grant\n  conflicting permissions for an object, Atlas honors the highest\n  permissions within any role.\n\n  For example:\n\n  You create two custom roles and assign both to User A:\n\n  - The first custom role grants only `read` privileges on your database.\n    It also grants [bypassDocumentValidation](manual/reference/privilege-actions)\n    on your database.\n\n  - The second role grants `dbAdmin` privileges on your database. It\n    doesn't grant [bypassDocumentValidation](manual/reference/privilege-actions),\n    which is an implicit denial of bypass permissions.\n\n  User A would have all of the `dbAdmin` privileges for your database,\n  since `dbAdmin` is the higher database access permission. User A would\n  also have [bypassDocumentValidation](manual/reference/privilege-actions),\n  since [bypassDocumentValidation](manual/reference/privilege-actions)\n  is the higher bypass permission.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To configure custom database roles, you must have\n[Organization Owner](<Organization Owner>), [Project Owner](<Project Owner>), or\n[Project Database Access Admin](<Project Database Access Admin>) access to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add Custom Roles",
+      "headingLevel": 2,
+      "body": "**Atlascli:**Atlas CLITo create a custom database role for your project using the\nAtlas CLI, run the following command:```sh\n\natlas customDbRoles create <roleName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas customDbRoles create](atlas/cli/current/command/atlas-customDbRoles-create).**Api:**Atlas Administration APITo create custom roles through the Atlas Administration API,\nsee [Create One](api/doc/atlas-admin-api-v2/operation/operation-creategroupcustomdbrolerole).**Ui:**Atlas UIFollow these steps to create a custom role through the\nAtlas UI:* Click the Custom Roles tab.\n\n* Click  Add New Custom Role.| Field            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |\n| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Custom Role Name | Name of your custom role.IMPORTANT: The specified role name can only contain letters, numbers, underscores or hyphens. Additionally, you cannot specify a role name that meets any of the following criteria:Is a name already used by an existing custom role in the projectIs a name of any of the built-in rolesIs atlasAdminStarts with xgen-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n| Action or Role   | Privileges granted by the role. Click the dropdown to view the list of available privilege actions and roles.Atlas groups the actions and roles into the following categories:Collection Actions,Database Actions and Roles,Global Actions and Roles,Custom Roles (if any)Select the action or role from a single category. Once you select an action or role, Atlas disables the other categories with the following exception. If you select an action/role from the Global Actions and Roles, you can still select actions/roles from Custom Roles.To grant actions and roles from a different category, click Add an action or role to add a new row\\.Atlas disables actions not available to any cluster version in your project. Custom roles are defined at the project level, and must be compatible with each MongoDB version used by your project's clusters. |\n| Database         | Database on which the selected actions and roles are granted, if applicable.To specify the database, type the database name or select Apply to any database.WARNING: If you select Apply to any database, the roles grants permissions for actions on the admin, local, config, and \\_\\_mdb\\_internal\\_ databases. We don't recommend writes to these databases. To learn more, see Internal Databases and System Collections.This field is required for all roles and actions under the Collection Actions and Database Actions and Roles categories.                                                                                                                                                                                                                                                                                                                  |\n| Collection       | Collection within the specified database on which the actions and roles are granted, if applicable.To specify the collection, type the collection name or select Apply to any collection.WARNING: If you select Apply to any collection, the roles grants permissions for actions on the collections in the admin, local, and config databases. We don't recommend writes to these collections.This field is required for all roles and actions under Collection Actions.                                                                                                                                                                                                                                                                                                                                                                                               |To grant the same set of privileges on multiple databases and\ncollections, click Add a database or collection.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas customDbRoles create <roleName> [options]\n",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "View Custom Roles",
+      "headingLevel": 2,
+      "body": "**Atlascli:**Atlas CLITo list all custom database roles for your project using the Atlas CLI, run the following command:```sh\n\natlas customDbRoles list [options]\n\n```To return the details for a single custom database role in the project you specify using the Atlas CLI, run the following command:```sh\n\natlas customDbRoles describe <roleName> [options]\n\n```To learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas customDbRoles list](atlas/cli/current/command/atlas-customDbRoles-list) and\n[atlas customDbRoles describe](atlas/cli/current/command/atlas-customDbRoles-describe).Related Links* [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n* [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)**Api:**Atlas Administration APITo view custom roles through the Atlas Administration API,\nsee [Get All](api/doc/atlas-admin-api-v2/operation/operation-listgroupcustomdbroleroles).**Ui:**Atlas UITo view your custom roles through the\nAtlas UI:",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas customDbRoles list [options]\n",
+          "tokenEstimate": 10
+        },
+        {
+          "language": "sh",
+          "content": "\natlas customDbRoles describe <roleName> [options]\n",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Click the  tab.",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Modify Custom Roles",
+      "headingLevel": 2,
+      "body": "**Atlascli:**Atlas CLITo update a custom database role for your project using the\nAtlas CLI, run the following command:```sh\n\natlas customDbRoles update <roleName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas customDbRoles update](atlas/cli/current/command/atlas-customDbRoles-update).**Api:**Atlas Administration APITo modify custom roles through the Atlas Administration API,\nsee [Update One](api/doc/atlas-admin-api-v2/operation/operation-updategroupcustomdbrolerole).**Ui:**Atlas UIFollow these steps to modify a custom role through the\nAtlas UI:",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas customDbRoles update <roleName> [options]\n",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Modify the custom role.",
+      "headingLevel": 3,
+      "body": "- Click the **Custom Roles** tab.\n\n- Click pencil-alt **Edit** next to\n  the role you want to modify. You can modify the\n  following components of the role:\n\n  - The actions or roles the custom role inherits.\n\n  - The databases and collections on which those privileges\n    apply.\n\n- Click **Update Custom Role** to save the changes.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete Custom Roles",
+      "headingLevel": 2,
+      "body": "**Atlascli:**Atlas CLITo delete a custom database role from your project using the\nAtlas CLI, run the following command:```sh\n\natlas customDbRoles delete <roleName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas customDbRoles delete](atlas/cli/current/command/atlas-customDbRoles-delete).**Api:**Atlas Administration APITo delete custom roles through the Atlas Administration API,\nsee [Remove One](api/doc/atlas-admin-api-v2/operation/operation-deletecustomdatabaserole).**Ui:**Atlas UIFollow these steps to delete a custom role through the\nAtlas UI:",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas customDbRoles delete <roleName> [options]\n",
+          "tokenEstimate": 14
+        }
+      ]
+    },
+    {
+      "heading": "Step 1: Delete the custom role.",
+      "headingLevel": 3,
+      "body": "- Click the **Custom Roles** tab.\n\n- Click trash-o **Delete** next to the\n  role you want to delete.\n\n- Click **Delete** in the dialog box to confirm\n  deletion.\n\nYou cannot delete a custom role in the following scenarios:\n\n- When deleting the role would leave one or more child roles with no\n  parent roles or actions.\n\n- When deleting the role would leave one or more\n  [Configure Database Users](mongodb-users) with no roles.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Assign Custom Roles",
+      "headingLevel": 2,
+      "body": "You can assign custom roles in the Atlas UI when you [Configure Database Users](add-mongodb-users) or [modify a database user](modify-mongodb-users). To assign custom roles through the\nAtlas Administration API, see [Create a Database User](api/doc/atlas-admin-api-v2/operation/operation-creategroupdatabaseuser) or [Update a\nDatabase User](api/doc/atlas-admin-api-v2/operation/operation-updategroupdatabaseuser).",
+      "codeBlocks": []
+    }
+  ]
+}

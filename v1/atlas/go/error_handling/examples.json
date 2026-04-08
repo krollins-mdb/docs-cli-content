@@ -1,0 +1,75 @@
+{
+  "path": "atlas/go/error_handling",
+  "product": "atlas",
+  "title": "Error Handling",
+  "summary": {
+    "total": 4,
+    "byLanguage": {
+      "go": 4
+    },
+    "bySection": [
+      {
+        "heading": "Fetching Error Object",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 41
+          }
+        ]
+      },
+      {
+        "heading": "Checking for the Existence of a Specific Error Code",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 40
+          }
+        ]
+      },
+      {
+        "heading": "Checking for the Existence of a Specific Response Status Code",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 53
+          }
+        ]
+      },
+      {
+        "heading": "Mocking Errors",
+        "blocks": [
+          {
+            "language": "go",
+            "tokenEstimate": 83
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "go",
+      "section": "Fetching Error Object",
+      "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nfmt.Println(apiError)",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "go",
+      "section": "Checking for the Existence of a Specific Error Code",
+      "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\nif admin.IsErrorCode(err, \"code\"){\n // Do something\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "go",
+      "section": "Checking for the Existence of a Specific Response Status Code",
+      "content": "// Surrounding code omitted for brevity\n\nprojects, response, err := admin.ProjectsApi.ListProjects(ctx).Execute()\napiError, ok := admin.AsError(err)\nif ok && apiError.GetError() == 404 {\n // Do something\n}",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "go",
+      "section": "Mocking Errors",
+      "content": "// Surrounding code omitted for brevity\n\napiError := admin.GenericOpenAPIError{}\napiError.SetModel(admin.ApiError{\n    Detail: admin.PtrString(\"Error when listing clusters\"),\n    Error: admin.PtrInt(400),\n    ErrorCode: admin.PtrString(\"CLUSTERS_UNREACHABLE\"),\n    Reason: admin.PtrString(\"Clusters unreachable\"),\n\n})\napiError.SetError(\"Mocked error\")",
+      "tokenEstimate": 83
+    }
+  ]
+}

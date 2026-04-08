@@ -1,0 +1,22 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "In your project's base package directory, create a\n`CreateIndex.java` file and copy and paste the following code\ninto this file.```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateBooleanIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<databaseName>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collectionName>\");\n\n            // Create MongoDB Search index definition\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", true | false)\n                        .append(\"fields\", new Document(\"<fieldName>\", \n                                              new Document(\"type\", \"boolean\"))));\n\n            String result = collection.createSearchIndex(\"<indexName>\", index);\n            System.out.println(\"New search index created with name: \" + result);\n        } catch (Exception e) {\n            System.err.println(\"Error creating search index: \" + e.getMessage());\n            e.printStackTrace();\n        }\n    }\n}\n\n```Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.Atlas ClusterYour connection string should use the following format:```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```To learn more, see [Driver](connect-via-driver).Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateBooleanIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<databaseName>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collectionName>\");\n\n            // Create MongoDB Search index definition\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", true | false)\n                        .append(\"fields\", new Document(\"<fieldName>\", \n                                              new Document(\"type\", \"boolean\"))));\n\n            String result = collection.createSearchIndex(\"<indexName>\", index);\n            System.out.println(\"New search index created with name: \" + result);\n        } catch (Exception e) {\n            System.err.println(\"Error creating search index: \" + e.getMessage());\n            e.printStackTrace();\n        }\n    }\n}\n",
+      "tokenEstimate": 224
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ]
+}

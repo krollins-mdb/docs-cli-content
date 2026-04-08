@@ -1,0 +1,95 @@
+{
+  "path": "atlas/analyzers/language",
+  "product": "atlas",
+  "title": "Language Analyzers",
+  "sections": [
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "Consider a collection named `cars` with the following documents:\n\n```json\n{\n  \"_id\": 1,\n  \"subject\": {\n    \"en\": \"It is better to equip our cars to understand the causes of the accident.\",\n    \"fr\": \"Mieux équiper nos voitures pour comprendre les causes d'un accident.\",\n    \"he\": \"עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.\"\n  }\n}\n```\n\n```json\n{\n  \"_id\": 2,\n  \"subject\": {\n    \"en\": \"The best time to do this is immediately after you've filled up with fuel\",\n    \"fr\": \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\",\n    \"he\": \"הזמן הטוב ביותר לעשות זאת הוא מיד לאחר שמילאת דלק.\"\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 1,\n  \"subject\": {\n    \"en\": \"It is better to equip our cars to understand the causes of the accident.\",\n    \"fr\": \"Mieux équiper nos voitures pour comprendre les causes d'un accident.\",\n    \"he\": \"עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.\"\n  }\n}",
+          "tokenEstimate": 114
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"_id\": 2,\n  \"subject\": {\n    \"en\": \"The best time to do this is immediately after you've filled up with fuel\",\n    \"fr\": \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\",\n    \"he\": \"הזמן הטוב ביותר לעשות זאת הוא מיד לאחר שמילאת דלק.\"\n  }\n}",
+          "tokenEstimate": 119
+        }
+      ]
+    },
+    {
+      "heading": "Built-In Language Analyzer Example",
+      "headingLevel": 3,
+      "body": "The following example index definition specifies an index on\nthe `subject.fr` field using the `french` analyzer:\n\n```json\n{\n  \"mappings\": {\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"fr\": {\n            \"analyzer\": \"lucene.french\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  }\n}\n```\n\nThe following query searches for the string `pour` in the\n`subject.fr` field:\n\n**Input:**\n\n```shell\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"pour\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])\n```\n\nThe previous query returns no results when using the `french` analyzer,\nbecause `pour` is a built-in stop word. Using the `standard`\nanalyzer, the same query would return both documents.\n\nThe following query searches for the string `carburant` in the\n`subject.fr` field:\n\n**Input:**\n\n```shell\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"carburant\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ subject: { fr: \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\" } }\n```\n\nMongoDB Search returns a document with `_id: 1` in the results because the query\nmatched a token that the `lucene.french` analyzer created for the\ndocument. The `lucene.french` analyzer creates the following tokens\nfor the `subject.fr` field in document with `_id: 1`:\n\n| meileu | moment  | fair      |\n| ------ | ------- | --------- |\n| est    | imediat | aprè      |\n| fait   | plein   | carburant |",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"fr\": {\n            \"analyzer\": \"lucene.french\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 63
+        },
+        {
+          "language": "shell",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"pour\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+          "tokenEstimate": 65
+        },
+        {
+          "language": "shell",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"carburant\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+          "tokenEstimate": 67
+        },
+        {
+          "language": "json",
+          "content": "{ subject: { fr: \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\" } }",
+          "tokenEstimate": 34
+        }
+      ]
+    },
+    {
+      "heading": "Custom Language Analyzer Example",
+      "headingLevel": 3,
+      "body": "You can also create indexes for unsupported languages by\ncreating a [Custom analyzers](custom-analyzers) with the\n[icuFolding](icufolding-tf-ref) and [stopword](stopword-tf-ref) token filters.\n\nThe following example index definition specifies an index on\nthe `subject.he` field using a [Custom analyzers](custom-analyzers) called `myHebrewAnalyzer` to analyze and create\ntokens for Hebrew text:\n\n```json\n{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"he\": {\n            \"analyzer\": \"myHebrewAnalyzer\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"myHebrewAnalyzer\",\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuFolding\"\n        },\n        {\n          \"tokens\": [\n            \"אן\",\n            \"שלנו\",\n            \"זה\",\n            \"אל\"\n          ],\n          \"type\": \"stopword\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      }\n    }\n  ]\n}\n```\n\nThe following query searches for the string `המכוניות` in the\n`subject.he` field:\n\n**Input:**\n\n```sh\ndb.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"המכוניות\",\n        \"path\": \"subject.he\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.he\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ subject: { he: 'עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.' } }\n```\n\nMongoDB Search returns a document with `_id: 1` in the results because the\nquery matched a token that the `myHebrewAnalyzer` analyzer created for\ndocument. The `myHebrewAnalyzer` analyzer creates the following tokens\nfor the `subject.he` field in document with `_id: 1`:\n\n| עדיף     | לצייד   | את     |\n| -------- | ------- | ------ |\n| המכוניות | כדי     | להבין  |\n| את       | הגורמים | לתאונה |",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"he\": {\n            \"analyzer\": \"myHebrewAnalyzer\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"myHebrewAnalyzer\",\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuFolding\"\n        },\n        {\n          \"tokens\": [\n            \"אן\",\n            \"שלנו\",\n            \"זה\",\n            \"אל\"\n          ],\n          \"type\": \"stopword\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      }\n    }\n  ]\n}",
+          "tokenEstimate": 186
+        },
+        {
+          "language": "sh",
+          "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"המכוניות\",\n        \"path\": \"subject.he\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.he\": 1\n    }\n  }\n])",
+          "tokenEstimate": 73
+        },
+        {
+          "language": "json",
+          "content": "{ subject: { he: 'עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.' } }",
+          "tokenEstimate": 60
+        }
+      ]
+    },
+    {
+      "heading": "Multilingual Search Example",
+      "headingLevel": 3,
+      "body": "You can also create an index that uses multiple language analyzers\nto perform a multilingual search.\n\nThe following example index definition specifies an index with dynamic mapping\non the `sample_mflix.movies` collection. The definition applies the `lucene.italian`\nlanguage analyzer to index the `fullplot` field, and uses the [multi](ref-multi-analyzers)\noption to specify `lucene.english` as an alternate language analyzer. MongoDB Search uses the default\n`lucene.english` language analyzer for all other fields that it dynamically indexes in the\n`movies` collection.\n\n```json\n{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"fullplot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.italian\",\n        \"multi\": {\n          \"fullplot_english\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.english\",\n          }\n        }\n      }\n   }\n  }\n}\n```\n\nThe following MongoDB Search query uses the following [compound](compound-ref) operator clauses to query the collection:\n\n- `must` clause searches for movie plots in English and Italian that contain the term `Bella` using the [text](text-ref) operator\n\n- `mustNot` clause excludes movies released between the years 1984 to 2016 using the [range](range-ref) operator\n\n- `should` clause specifies preference for the `Comedy` genre using the [text](text-ref) operator\n\n**Input:**\n\n```json\n[\n  {\n    $search: {\n      \"index\": \"multilingual-tutorial\",\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"Bella\",\n            \"path\": { \"value\": \"fullplot\", \"multi\": \"fullplot_english\" }\n          }\n        }],\n        \"mustNot\": [{\n          \"range\": {\n            \"path\": \"released\",\n            \"gt\": ISODate(\"1984-01-01T00:00:00.000Z\"),\n            \"lt\": ISODate(\"2016-01-01T00:00:00.000Z\")\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Comedy\",\n            \"path\": \"genres\"\n          }\n        }]\n      }\n    }\n  }\n]\n```\n\n**Output:**\n\n```json\nSCORE: 3.909510850906372  _id: \"573a1397f29313caabce8bad\"\n  plot: \"He is a revenge-obssessed stevedore whose sister was brutally raped an…\"\n  genres:\n    0: \"Drama\"\n  runtime: 137\n  fullplot: \"In Marseilles, a woman commits suicide after she is raped in an alley.…\"\n  released: 1983-05-18T00:00:00.000+00:00\nSCORE: 3.4253346920013428  _id: \"573a1396f29313caabce5735\"\n  plot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  genres:\n    0: \"Comedy\"\n  runtime: 100\n  fullplot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  released: 1974-11-15T00:00:00.000+00:00\nSCORE: 3.363344430923462  _id: \"573a1395f29313caabce13cf\"\n  plot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  genres:\n    0: \"Comedy\"\n  runtime: 95\n  fullplot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  released: 1960-02-10T00:00:00.000+00:00\nSCORE: 1.9502882957458496  _id: \"573a1396f29313caabce5299\"\n  plot: \"Dr Tremayne is an enigmatic Psychiatrist running a\n  Futuristic asylum h…\"\n  genres:\n    0: \"Horror\"\n  runtime: 90\n  fullplot: \"Dr Tremayne is an enigmatic Psychiatrist running a Futuristic asylum h…\"\n  released: 1973-10-31T00:00:00.000+00:00\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"fullplot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.italian\",\n        \"multi\": {\n          \"fullplot_english\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.english\",\n          }\n        }\n      }\n   }\n  }\n}",
+          "tokenEstimate": 95
+        },
+        {
+          "language": "json",
+          "content": "[\n  {\n    $search: {\n      \"index\": \"multilingual-tutorial\",\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"Bella\",\n            \"path\": { \"value\": \"fullplot\", \"multi\": \"fullplot_english\" }\n          }\n        }],\n        \"mustNot\": [{\n          \"range\": {\n            \"path\": \"released\",\n            \"gt\": ISODate(\"1984-01-01T00:00:00.000Z\"),\n            \"lt\": ISODate(\"2016-01-01T00:00:00.000Z\")\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Comedy\",\n            \"path\": \"genres\"\n          }\n        }]\n      }\n    }\n  }\n]",
+          "tokenEstimate": 171
+        },
+        {
+          "language": "json",
+          "content": "SCORE: 3.909510850906372  _id: \"573a1397f29313caabce8bad\"\n  plot: \"He is a revenge-obssessed stevedore whose sister was brutally raped an…\"\n  genres:\n    0: \"Drama\"\n  runtime: 137\n  fullplot: \"In Marseilles, a woman commits suicide after she is raped in an alley.…\"\n  released: 1983-05-18T00:00:00.000+00:00\nSCORE: 3.4253346920013428  _id: \"573a1396f29313caabce5735\"\n  plot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  genres:\n    0: \"Comedy\"\n  runtime: 100\n  fullplot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  released: 1974-11-15T00:00:00.000+00:00\nSCORE: 3.363344430923462  _id: \"573a1395f29313caabce13cf\"\n  plot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  genres:\n    0: \"Comedy\"\n  runtime: 95\n  fullplot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  released: 1960-02-10T00:00:00.000+00:00\nSCORE: 1.9502882957458496  _id: \"573a1396f29313caabce5299\"\n  plot: \"Dr Tremayne is an enigmatic Psychiatrist running a\n  Futuristic asylum h…\"\n  genres:\n    0: \"Horror\"\n  runtime: 90\n  fullplot: \"Dr Tremayne is an enigmatic Psychiatrist running a Futuristic asylum h…\"\n  released: 1973-10-31T00:00:00.000+00:00",
+          "tokenEstimate": 467
+        }
+      ]
+    }
+  ]
+}

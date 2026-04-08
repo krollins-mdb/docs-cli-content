@@ -1,0 +1,246 @@
+{
+  "path": "atlas/troubleshoot-connection",
+  "product": "atlas",
+  "title": "Troubleshoot Connection Issues",
+  "summary": {
+    "total": 20,
+    "byLanguage": {
+      "text": 1,
+      "none": 5,
+      "go": 1,
+      "java": 1,
+      "javascript": 1,
+      "python": 1,
+      "sh": 10
+    },
+    "bySection": [
+      {
+        "heading": "Special Characters in Connection String Password",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "go",
+            "tokenEstimate": 252
+          },
+          {
+            "language": "java",
+            "tokenEstimate": 226
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 153
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 119
+          }
+        ]
+      },
+      {
+        "heading": "Internet Service Provider DNS Blocks Connection String",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 15
+          }
+        ]
+      },
+      {
+        "heading": "Connection String Error with DB Tools",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 25
+          }
+        ]
+      },
+      {
+        "heading": "Connection Refused using SRV Connection String",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Test Basic Network Connectivity:",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 13
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 20
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 116
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 6
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 12
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 31
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 10
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 10
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 14
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 25
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "text",
+      "section": "Special Characters in Connection String Password",
+      "content": "This password contains special characters which will be URL-encoded.",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "none",
+      "section": "Special Characters in Connection String Password",
+      "content": ": / ? # [ ] @ ! $ & ' ( ) * , ; = %",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "none",
+      "section": "Special Characters in Connection String Password",
+      "content": "p%40ssw0rd%279%27%21",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "go",
+      "section": "Special Characters in Connection String Password",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"net/url\"\n\n\t\"go.mongodb.org/mongo-driver/bson\"\n\t\"go.mongodb.org/mongo-driver/mongo\"\n\t\"go.mongodb.org/mongo-driver/mongo/options\"\n)\n\nfunc main() {\n\tusername := \"<username>\"\n\tpassword := \"<password>\"\n\tcluster := \"<clusterName>\"\n\tauthSource  := \"<authSource>\"\n\tauthMechanism := \"<authMechanism>\"\n\n\turi := \"mongodb+srv://\" + url.QueryEscape(username) + \":\" + \n\t\turl.QueryEscape(password) + \"@\" + cluster + \n\t\t\"/?authSource=\" + authSource +\n\t\t\"&authMechanism=\" + authMechanism\n\n\tclient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\tcollection := client.Database(\"<dbName>\").Collection(\"<collName>\")\n\n\tcursor, err := collection.Find(context.TODO(), bson.D{})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 252
+    },
+    {
+      "language": "java",
+      "section": "Special Characters in Connection String Password",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\n\nimport org.bson.Document;\nimport java.net.URLEncoder;\n\npublic class Encoding {\n\n    public static void main(String [] args){\n\n        try{\n            String username = URLEncoder.encode(\"<username>\", \"UTF-8\");\n            String password = URLEncoder.encode(\"<password>\", \"UTF-8\");\n            String cluster = \"<clusterName>\";\n            String authSource = \"<authSource>\";\n            String authMechanism = \"<authMechanism>\";\n            \n            String uri = \"mongodb+srv://\" + username + \":\" + password + \"@\" + cluster + \n                         \"/?authSource=\" + authSource + \"&authMechanism=\" + authMechanism;\n\n            MongoClient mongoClient = MongoClients.create(uri);\n    \n            MongoDatabase database = mongoClient.getDatabase(\"<dbName>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collName>\");\n            \n            collection.find().forEach(doc -> System.out.println(doc.toJson()));\n\n        } catch(Exception e){\n            System.err.println(e.getCause());\n\n        }\n    }\n}\n",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "javascript",
+      "section": "Special Characters in Connection String Password",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\nconst username = encodeURIComponent(\"<username>\");\nconst password = encodeURIComponent(\"<password>\");\nconst cluster = \"<clusterName>\";\nconst authSource = \"<authSource>\";\nconst authMechanism = \"<authMechanism>\";\n\nlet uri =\n  `mongodb+srv://${username}:${password}@${cluster}/?authSource=${authSource}&authMechanism=${authMechanism}`;\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    await client.connect();\n\n    const database = client.db(\"<dbName>\");\n    const ratings = database.collection(\"<collName>\");\n\n    const cursor = ratings.find();\n\n    await cursor.forEach(doc => console.dir(doc));\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "python",
+      "section": "Special Characters in Connection String Password",
+      "content": "import pymongo\nfrom urllib.parse import quote_plus\n\nusername = quote_plus('<username>')\npassword = quote_plus('<password>')\ncluster = '<clusterName>'\nauthSource = '<authSource>'\nauthMechanism = '<authMechanism>'\n\nuri = 'mongodb+srv://' + username + ':' + password + '@' + cluster + '/?authSource=' + authSource + '&authMechanism=' + authMechanism\n\nclient = pymongo.MongoClient(uri)\n\nresult = client[\"<dbName\"][\"<collName>\"].find()\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "none",
+      "section": "Internet Service Provider DNS Blocks Connection String",
+      "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "none",
+      "section": "Connection String Error with DB Tools",
+      "content": "lookup nta8e.mongodb.net on 123.45.67.8:27017: cannot unmarshal DNS message",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "none",
+      "section": "Connection Refused using SRV Connection String",
+      "content": "Error: querySrv ECONNREFUSED _mongodb._tcp.<SRV Record>",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "dig SRV _mongodb._tcp.<DNS SRV name>",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "nslookup -debug -q=SRV  _mongodb._tcp.<DNS SRV name>",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": ";; ANSWER SECTION:\n_mongodb._tcp.gcluster0.dfget.mongodb.net. 60 IN SRV 0 0 27017 cluster0-shard-00-00.dfget.mongodb.net.\n_mongodb._tcp.gcluster0.dfget.mongodb.net. 60 IN SRV 0 0 27017 cluster0-shard-00-01.dfget.mongodb.net.\n_mongodb._tcp.gcluster0.dfget.mongodb.net. 60 IN SRV 0 0 27017 cluster0-shard-00-02.dfget.mongodb.net.",
+      "tokenEstimate": 116
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "dig <Node Hostname>",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "nslookup -debug -q=A <Node Hostname>",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": ";; ANSWER SECTION: cluster0-shard-00-00.ag9in.mongodb.net. 60 IN A 10.10.10.10",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "ping -c 10 <Node Hostname>",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "ping /n 10 <Node Hostname>",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "nc -zv <Node Hostname> <Node Port Number>",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "sh",
+      "section": "Test Basic Network Connectivity:",
+      "content": "Test-NetConnection -Port <Node Port Number> -InformationLevel \"Detailed\" -ComputerName \"<Node Hostname>\"",
+      "tokenEstimate": 25
+    }
+  ]
+}

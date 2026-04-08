@@ -1,0 +1,157 @@
+{
+  "path": "atlas/analyzers/language",
+  "product": "atlas",
+  "title": "Language Analyzers",
+  "summary": {
+    "total": 12,
+    "byLanguage": {
+      "json": 9,
+      "shell": 2,
+      "sh": 1
+    },
+    "bySection": [
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 114
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 119
+          }
+        ]
+      },
+      {
+        "heading": "Built-In Language Analyzer Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 63
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 65
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 67
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 34
+          }
+        ]
+      },
+      {
+        "heading": "Custom Language Analyzer Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 186
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 73
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 60
+          }
+        ]
+      },
+      {
+        "heading": "Multilingual Search Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 95
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 171
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 467
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"_id\": 1,\n  \"subject\": {\n    \"en\": \"It is better to equip our cars to understand the causes of the accident.\",\n    \"fr\": \"Mieux équiper nos voitures pour comprendre les causes d'un accident.\",\n    \"he\": \"עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.\"\n  }\n}",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"_id\": 2,\n  \"subject\": {\n    \"en\": \"The best time to do this is immediately after you've filled up with fuel\",\n    \"fr\": \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\",\n    \"he\": \"הזמן הטוב ביותר לעשות זאת הוא מיד לאחר שמילאת דלק.\"\n  }\n}",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "json",
+      "section": "Built-In Language Analyzer Example",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"fr\": {\n            \"analyzer\": \"lucene.french\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "shell",
+      "section": "Built-In Language Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"pour\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "shell",
+      "section": "Built-In Language Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"carburant\",\n        \"path\": \"subject.fr\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.fr\": 1\n    }\n  }\n])",
+      "tokenEstimate": 67
+    },
+    {
+      "language": "json",
+      "section": "Built-In Language Analyzer Example",
+      "content": "{ subject: { fr: \"Le meilleur moment pour le faire c'est immédiatement après que vous aurez fait le plein de carburant.\" } }",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "json",
+      "section": "Custom Language Analyzer Example",
+      "content": "{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"subject\": {\n        \"fields\": {\n          \"he\": {\n            \"analyzer\": \"myHebrewAnalyzer\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"myHebrewAnalyzer\",\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuFolding\"\n        },\n        {\n          \"tokens\": [\n            \"אן\",\n            \"שלנו\",\n            \"זה\",\n            \"אל\"\n          ],\n          \"type\": \"stopword\"\n        }\n      ],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      }\n    }\n  ]\n}",
+      "tokenEstimate": 186
+    },
+    {
+      "language": "sh",
+      "section": "Custom Language Analyzer Example",
+      "content": "db.cars.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"query\": \"המכוניות\",\n        \"path\": \"subject.he\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"subject.he\": 1\n    }\n  }\n])",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "json",
+      "section": "Custom Language Analyzer Example",
+      "content": "{ subject: { he: 'עדיף לצייד את המכוניות שלנו כדי להבין את הגורמים לתאונה.' } }",
+      "tokenEstimate": 60
+    },
+    {
+      "language": "json",
+      "section": "Multilingual Search Example",
+      "content": "{\n  \"analyzer\": \"lucene.standard\",\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"fullplot\": {\n        \"type\": \"string\",\n        \"analyzer\": \"lucene.italian\",\n        \"multi\": {\n          \"fullplot_english\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.english\",\n          }\n        }\n      }\n   }\n  }\n}",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "json",
+      "section": "Multilingual Search Example",
+      "content": "[\n  {\n    $search: {\n      \"index\": \"multilingual-tutorial\",\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"Bella\",\n            \"path\": { \"value\": \"fullplot\", \"multi\": \"fullplot_english\" }\n          }\n        }],\n        \"mustNot\": [{\n          \"range\": {\n            \"path\": \"released\",\n            \"gt\": ISODate(\"1984-01-01T00:00:00.000Z\"),\n            \"lt\": ISODate(\"2016-01-01T00:00:00.000Z\")\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Comedy\",\n            \"path\": \"genres\"\n          }\n        }]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 171
+    },
+    {
+      "language": "json",
+      "section": "Multilingual Search Example",
+      "content": "SCORE: 3.909510850906372  _id: \"573a1397f29313caabce8bad\"\n  plot: \"He is a revenge-obssessed stevedore whose sister was brutally raped an…\"\n  genres:\n    0: \"Drama\"\n  runtime: 137\n  fullplot: \"In Marseilles, a woman commits suicide after she is raped in an alley.…\"\n  released: 1983-05-18T00:00:00.000+00:00\nSCORE: 3.4253346920013428  _id: \"573a1396f29313caabce5735\"\n  plot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  genres:\n    0: \"Comedy\"\n  runtime: 100\n  fullplot: \"Giovanna e' una bella ragazza, ma ha qualche problema con gli uomini: …\"\n  released: 1974-11-15T00:00:00.000+00:00\nSCORE: 3.363344430923462  _id: \"573a1395f29313caabce13cf\"\n  plot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  genres:\n    0: \"Comedy\"\n  runtime: 95\n  fullplot: \"Gerardo è un attore o almeno cerca di esserlo, ma il pubblico non è de…\"\n  released: 1960-02-10T00:00:00.000+00:00\nSCORE: 1.9502882957458496  _id: \"573a1396f29313caabce5299\"\n  plot: \"Dr Tremayne is an enigmatic Psychiatrist running a\n  Futuristic asylum h…\"\n  genres:\n    0: \"Horror\"\n  runtime: 90\n  fullplot: \"Dr Tremayne is an enigmatic Psychiatrist running a Futuristic asylum h…\"\n  released: 1973-10-31T00:00:00.000+00:00",
+      "tokenEstimate": 467
+    }
+  ]
+}

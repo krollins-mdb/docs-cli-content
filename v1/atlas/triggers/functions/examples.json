@@ -1,0 +1,289 @@
+{
+  "path": "atlas/triggers/functions",
+  "product": "atlas",
+  "title": "Atlas Functions",
+  "summary": {
+    "total": 22,
+    "byLanguage": {
+      "javascript": 8,
+      "text": 1,
+      "json": 7,
+      "shell": 4,
+      "sh": 2
+    },
+    "bySection": [
+      {
+        "heading": "How to Write a Function",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 242
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 86
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 26
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 46
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Step 7: Write the Function Code",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 13
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Authenticate a MongoDB  User",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Pull Your App's Latest Configuration Files",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 9
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Write the Function Source Code",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 7
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 97
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Configure the Function",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 74
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 32
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 33
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 49
+          }
+        ]
+      },
+      {
+        "heading": "Step 5: Deploy Your Changes:",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 3
+          }
+        ]
+      },
+      {
+        "heading": "Call a Function",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 23
+          }
+        ]
+      },
+      {
+        "heading": "Call from a Function",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 38
+          }
+        ]
+      },
+      {
+        "heading": "Call from the App Services CLI",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 19
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 38
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "How to Write a Function",
+      "content": "exports = function Hello(name) {\n   console.log(`Said hello to ${name}`);\n   return `Hello, ${name}!`;\n};",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "section": "How to Write a Function",
+      "content": "// You can use ES6 arrow functions\nconst uppercase = (str) => {\n   return str.toUpperCase();\n};\n\n// You can use async functions and await Promises\nexports = async function GetWeather() {\n// You can get information about the user called the function\nconst city = context.user.custom_data.city;\n\n// You can import Node.js built-ins and npm packages\nconst { URL } = require(\"url\");\nconst weatherUrl = new URL(\"https://example.com\");\nweatherUrl.pathname = \"/weather\";\nweatherUrl.search = `?location=\"${city}\"`;\n\n// You can send HTTPS requests to external services\nconst weatherResponse = await context.http.get({\n   url: url.toString(),\n   headers: {\n      Accept: [\"application/json\"],\n   },\n});\nconst { current, forecasts } = JSON.parse(weatherResponse.body.text());\n\nreturn [\n   `Right now ${uppercase(city)} is ${current.temperature}°F and ${current.weather}.`,\n   `Here's the forecast for the next 7 days:`,\n   forecasts\n      .map((f) => `${f.day}: ${f.temperature}°F and ${f.weather}`)\n      .join(\"\\n  \"),\n].join(\"\\n\");\n};",
+      "tokenEstimate": 242
+    },
+    {
+      "language": "text",
+      "section": "How to Write a Function",
+      "content": "Right now NEW YORK CITY is 72°F and sunny.\nHere's the forecast for the next 7 days:\n  Tuesday: 71°F and sunny\n  Wednesday: 72°F and sunny\n  Thursday: 73°F and partly cloudy\n  Friday: 71°F and rainy\n  Saturday: 77°F and sunny\n  Sunday: 76°F and sunny\n  Monday: 74°F and sunny",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "javascript",
+      "section": "How to Write a Function",
+      "content": "exports = function() {\n  return {\n    pi: 3.14159,\n    today: new Date(),\n  }\n}",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "json",
+      "section": "How to Write a Function",
+      "content": "{\n  \"pi\": {\n    \"$numberDouble\": \"3.14159\"\n  },\n  \"today\": {\n    \"$date\": {\n      \"$numberLong\": \"1652297239913\"\n    }\n  }\n}",
+      "tokenEstimate": 46
+    },
+    {
+      "language": "javascript",
+      "section": "How to Write a Function",
+      "content": "exports = function() {\n  return JSON.stringify({\n    pi: 3.14159,\n    today: new Date(),\n  })\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "section": "How to Write a Function",
+      "content": "\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Step 7: Write the Function Code",
+      "content": "exports = function() {\n   return \"Hello, world!\";\n};",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "shell",
+      "section": "Step 1: Authenticate a MongoDB  User",
+      "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Pull Your App's Latest Configuration Files",
+      "content": "appservices pull --remote=<App ID>",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "section": "Step 3: Write the Function Source Code",
+      "content": "touch functions/<FunctionName>.js",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "javascript",
+      "section": "Step 3: Write the Function Source Code",
+      "content": "exports = async function hello(...args) {\n  // Write your function logic here! You can...\n  // Import dependencies\n  const assert = require(\"assert\")\n  assert(typeof args[0] === \"string\")\n  // Use ES6+ syntax\n  const sayHello = (name = \"world\") => {\n    console.log(`Hello, ${name}.`)\n  }\n  // Return values back to clients or other functions\n  return sayHello(args[0])\n}",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Configure the Function",
+      "content": "{\n  \"name\": \"<Function Name>\",\n  \"private\": <Boolean>,\n  \"can_evaluate\": { <JSON Expression> },\n  \"disable_arg_logs\": <Boolean>,\n  \"run_as_system\": <Boolean>,\n  \"run_as_user_id\": \"<App Services User ID>\",\n  \"run_as_user_id_script_source\": \"<Function Source Code>\"\n}",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Configure the Function",
+      "content": "{\n   \"run_as_system\": true,\n   \"run_as_user_id\": \"\",\n   \"run_as_user_id_script_source\": \"\"\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Configure the Function",
+      "content": "{\n   \"run_as_system\": false,\n   \"run_as_user_id\": \"\",\n   \"run_as_user_id_script_source\": \"<Function Source Code>\"\n}",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Configure the Function",
+      "content": "{\n   \"run_as_system\": false,\n   \"run_as_user_id\": \"<App Services User Id>\",\n   \"run_as_user_id_script_source\": \"\"\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Configure the Function",
+      "content": "{\n   \"%%request.remoteIPAddress\": {\n      \"$nin\": [\n         \"248.88.57.58\",\n         \"19.241.23.116\",\n         \"147.64.232.1\"\n      ]\n   }\n}",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "shell",
+      "section": "Step 5: Deploy Your Changes:",
+      "content": "appservices push",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "section": "Call a Function",
+      "content": "// sum: adds two numbers\nexports = function sum(a, b) {\n  return a + b;\n};",
+      "tokenEstimate": 23
+    },
+    {
+      "language": "javascript",
+      "section": "Call from a Function",
+      "content": "// difference: subtracts b from a using the sum function\nexports = function difference(a, b) {\n  return context.functions.execute(\"sum\", a, -1 * b);\n};",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "sh",
+      "section": "Call from the App Services CLI",
+      "content": "appservices function run \\\n  --name=sum \\\n  --args=1 --args=2",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "sh",
+      "section": "Call from the App Services CLI",
+      "content": "appservices function run \\\n  --name=sum \\\n  --args=1 --args=2 \\\n  --user=61a50d82532cbd0de95c7c89",
+      "tokenEstimate": 38
+    }
+  ]
+}

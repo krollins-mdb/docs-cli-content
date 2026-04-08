@@ -1,0 +1,95 @@
+{
+  "path": "atlas/manage-connection-registry",
+  "product": "atlas",
+  "title": "Step 2: Test the connection.",
+  "sections": [
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To create and configure connections, you must have the following:\n\n- An Atlas [Manage Project Access](manage-projects)\n\n- An Atlas user with the [Project Owner](<Project Owner>) or\n  the [Project Stream Processing Owner](<Project Stream Processing Owner>) role to manage a\n  connection registry\n\n  > **Note:** While both the [Project Owner](<Project Owner>) and [Project Stream Processing Owner](<Project Stream Processing Owner>)\n  > roles grant the privileges to create, view, edit and delete\n  > connections in the connection registry, the\n  > [Project Owner](<Project Owner>) role also allows users to perform tasks\n  > such as creating database deployments, managing project access, and more.\n  >\n  > See [project role](project-roles) to learn more about the\n  > differences between these roles.\n\n- An Atlas cluster",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 2,
+      "body": "When configuring Atlas Stream Processing connections, ensure you select a\nconnection type suitable to your use case. Atlas Stream Processing supports the\nfollowing providers:\n\n| Provider (See note)                                   | Description                                                                                                                                                                                                                                                                                                                                                  | Connection Types                                   |\n| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |\n| Kafka Broker                                          | Configurable server that receives and stores event streams, organizing them into partitioned topics.                                                                                                                                                                                                                                                         | Sink and Source                                    |\n| Atlas Clusters                                        | Cloud-hosted MongoDB server providing both permanent storage and event-driven Change Streams.                                                                                                                                                                                                                                                                | Sink and Source                                    |\n| AWS (Amazon Web Services) S3 (Simple Storage Service) | Object storage container hosted on AWS (Amazon Web Services).                                                                                                                                                                                                                                                                                                | Only Sink                                          |\n| AWS (Amazon Web Services) Kinesis                     | Cloud-hosted platform that receives and stores event streams, providing various integrated tools.                                                                                                                                                                                                                                                            | Sink and Source                                    |\n| HTTPS                                                 | HTTPS request to retrieve data through an API endpoint each time a document passes through. Atlas Stream Processing then uses this data to enrich the document that triggered the request.                                                                                                                                                                   | Supplementary Source; must follow a $source stage. |\n| External Function Connections                         | Atlas Stream Processing supports embedding calls to AWS Lambda resources within your Atlas Stream Processing pipeline. You can execute these calls synchronously or asynchronously, and you can pass responses from synchronous calls to subsequent stages in your pipeline.To learn more, see the Atlas Stream Processing External Functions documentation. | Trigger                                            |\n\n> **Note:** You cannot use [time series collections](manual/core/timeseries-collections)\n> as a source for [Atlas Stream Processing](atlas-sp). Time series collections\n> do not support [change streams](manual/changeStreams).\n\n> **Tip:** See [Time Series Collection Limitations](manual/core/timeseries/timeseries-limitations) for more information.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Add a Connection to the Connection Registry",
+      "headingLevel": 2,
+      "body": "Each Atlas Stream Processing connection type has distinct configuration\nrequirements and procedures. To learn more, see [Add an Atlas Stream Processing Connection](atlas-sp-add-connection).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Connections in the Connection Registry",
+      "headingLevel": 2,
+      "body": "To view a connection to your stream processing workspace:**Manage-connection-cli:**Atlas CLITo list all connections from one stream processing workspace you specify using the Atlas CLI, run the following command:```sh\n\natlas streams connections list [options]\n\n```To return the details for one stream processing connection you specify using the Atlas CLI, run the following command:```sh\n\natlas streams connections describe <streamConnectionName> [options]\n\n```To learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas streams connections list](atlas/cli/current/command/atlas-streams-connections-list) and\n[atlas streams connections describe](atlas/cli/current/command/atlas-streams-connections-describe).Related Links* [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n* [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)**Manage-connection-ui:**Atlas UI* Locate the overview panel of the stream processing workspace containing the\n  connection registry you want to view.\n\n* Click Manage.\n\n* Select the Connection Registry tab.Atlas Stream Processing displays all of the connections available in your\ninstance connection registry.**Manage-connection-api:**Atlas Administration APIThe Atlas Administration API provides different endpoints for\nretrieving one or all connections in a connection registry.[View One Connection in a Connection Registry](api/doc/atlas-admin-api-v2/operation/operation-getgroupstreamconnection)[List All Connections in a Connection Registry](api/doc/atlas-admin-api-v2/operation/operation-listgroupstreamconnections)**Manage-connection-sh:**`mongosh`To list all available connections using `mongosh`, use the\n`sp.listConnections()` method. It returns a list of documents\ndescribing each connection in the stream processing workspace's connection\nregistry. It has the following syntax:```sh\nsp.listConnections()\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas streams connections list [options]\n",
+          "tokenEstimate": 9
+        },
+        {
+          "language": "sh",
+          "content": "\natlas streams connections describe <streamConnectionName> [options]\n",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "sh",
+          "content": "sp.listConnections()",
+          "tokenEstimate": 4
+        }
+      ]
+    },
+    {
+      "heading": "Modify a Connection from the Connection Registry",
+      "headingLevel": 2,
+      "body": "To modify a connection from a connection registry:**Manage-connection-cli:**Atlas CLITo modify the details of one connection on the stream processing workspace you specify using the\nAtlas CLI, run the following command:```sh\n\natlas streams connections update <connectionName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas streams connections update](atlas/cli/current/command/atlas-streams-connections-update).**Manage-connection-ui:**Atlas UILocate the overview panel of the stream processing workspace that\ncontains the connection registry that you want to modify\nand click Manage in the upper right.* For the connection that you want to modify in the table,\n  click the pencil icon in the Actions column.\n\n  You can edit a connection only if it is not currently in use\n  by a stream processor. If you want to edit a connection in\n  use, stop all stream processors that use the connection first.\n\n* Modify the fields you want to modify.\n\n* Click Save changes.**Manage-connection-api:**Atlas Administration APIThe Atlas Administration API provides an endpoint for editing a\nstream processing workspace.[Update One Stream Connection](api/doc/atlas-admin-api-v2/operation/operation-updategroupstreamconnection)",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas streams connections update <connectionName> [options]\n",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Delete a Connection from the Connection Registry",
+      "headingLevel": 2,
+      "body": "To delete a connection from a connection registry:**Manage-connection-cli:**Atlas CLITo remove one connection from the stream processing workspace you specify using the\nAtlas CLI, run the following command:```sh\n\natlas streams connections delete <connectionName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas streams connections delete](atlas/cli/current/command/atlas-streams-connections-delete).**Manage-connection-ui:**Atlas UI- Locate the overview panel of the stream processing workspace that\n  contains the connection registry that you want to modify\n\n- Click Manage in the upper right.\n\n- Select the Connection Registry tab.* For the connection you want to modify in the table, click\n  the trash can icon in the Actions column of that\n  entry.\n\n* When prompted, click Delete.**Manage-connection-api:**Atlas Administration APIThe Atlas Administration API provides an endpoint for editing a\nstream processing workspace.[Delete One Stream Connection](api/doc/atlas-admin-api-v2/operation/operation-deletegroupstreamconnection)",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas streams connections delete <connectionName> [options]\n",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Test a Connection from the Connection Registry",
+      "headingLevel": 2,
+      "body": "To verify a connection from a connection registry is working correctly in\nthe Atlas UI:\n\n- Locate the overview panel of the stream processing workspace that\n  contains the connection registry that you want to modify.\n\n- Click Manage in the upper right.\n\n- Select the Connection Registry tab.\n\n* For the connection you want to test in the table, click\n  the link icon in the Actions column of that entry.\n\n* For Atlas Database connections, enter the Database Name\n  and Collection Name to test the connection to a specific\n  database and collection.\n\n  For Kafka connections, enter the Topic Name to test the\n  connection to a specific topic.\n\n  For other connection types, no additional information is required.\n\n* Click Test Connection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "List Private Link Connections",
+      "headingLevel": 2,
+      "body": "The Atlas Administration API provides an endpoint for viewing all Private\nLink connections configured for Atlas Stream Processing within a specified\nproject.\n\n[Return All Private Links](api/doc/atlas-admin-api-v2/operation/operation-listgroupstreamprivatelinkconnections)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View One Private Link Connection",
+      "headingLevel": 2,
+      "body": "The Atlas Administration API provides an endpoint for viewing the details\nof one Private Link connection configured for Atlas Stream Processing within a\nspecified project.\n\n[Return One Private Link](api/doc/atlas-admin-api-v2/operation/operation-getgroupstreamprivatelinkconnection)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Delete a Private Link Connection",
+      "headingLevel": 2,
+      "body": "The Atlas Administration API provides an endpoint for deleting a Private\nLink connection configured for Atlas Stream Processing within a specified\nproject.\n\n[Delete One Private Link](api/doc/atlas-admin-api-v2/operation/operation-deletegroupstreamprivatelinkconnection)",
+      "codeBlocks": []
+    }
+  ]
+}

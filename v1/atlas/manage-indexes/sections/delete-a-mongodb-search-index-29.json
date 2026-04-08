@@ -1,0 +1,17 @@
+{
+  "heading": "Delete a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To delete a MongoDB Search index using the [Go Driver](go):\n\nThe following sample application deletes a MongoDB Search index on the\nspecified collection.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your Atlas connection string\n\tconst uri = \"<connection-string>\"\n\n\t// Connect to your Atlas cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")\n\n\t// Specifies the index name of the index to delete\n\tconst indexName = \"<index-name>\"\n\n\t// Deletes the specified index\n\terr = coll.SearchIndexes().DropOne(ctx, indexName)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to delete the index: %v\", err)\n\t}\n}\n\n```\n\n- `<connection-string>`: Your Atlas connection string. To\n  learn more, see [Driver](connect-via-driver).\n\n- `<database-name>` and  `<collection-name>`: The names of\n  the database and collection for which you want to retrieve the\n  index.\n\n- `<index-name>`: The name of the index you want to delete.\n\n```\ngo run delete-index.go\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your Atlas connection string\n\tconst uri = \"<connection-string>\"\n\n\t// Connect to your Atlas cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")\n\n\t// Specifies the index name of the index to delete\n\tconst indexName = \"<index-name>\"\n\n\t// Deletes the specified index\n\terr = coll.SearchIndexes().DropOne(ctx, indexName)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to delete the index: %v\", err)\n\t}\n}\n",
+      "tokenEstimate": 213
+    },
+    {
+      "language": "text",
+      "content": "go run delete-index.go",
+      "tokenEstimate": 5
+    }
+  ]
+}

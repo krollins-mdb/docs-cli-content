@@ -1,0 +1,37 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "The following index definition indexes the `message` field in the\n[sample collection](custom-analyzers-eg-coll) collection using a custom\nanalyzer named `textNormalizer`. The custom analyzer specifies\nthe following:* Use the [whitespace](whitespace-tokenizer-ref) to\n  create tokens based on occurrences of whitespace between words.\n\n* Use the `icuNormalizer` token filter to normalize tokens by\n  Compatibility Decomposition, followed by Canonical Composition.**Atlas UI:**Atlas UI<Tab tabid=\"visual-editor\">\n  Visual Editor\n\n  - In the Custom Analyzers section, click Add\n    Custom Analyzer.\n\n  - Select the Create Your Own radio button and click\n    Next.\n\n  - Type whitespace in the Analyzer Name field.\n\n  - Expand Tokenizer if it's collapsed.\n\n  - Select whitespace from the dropdown.\n\n  - Expand Token Filters and click&#x20;\n    Add token filter.\n\n  - Select wordDelimiterGraph from the dropdown and select `nfkc`\n    from the normalizationForm dropdown.\n\n  - Click Add token filter to add the token filter to your\n    custom analyzer.\n\n  - Click Add to create the custom analyzer.\n\n  - In the Field Mappings section, click Add\n    Field Mapping to apply the custom analyzer on\n    the message field.\n\n  - Select message from the Field\n    Name dropdown and dateFacet from the Data\n    Type dropdown.\n\n  - In the properties section for the data type, select whitespace\n    from the Index Analyzer and Search Analyzer\n    dropdowns.\n\n  - Click Add, then Save Changes.\n</Tab>JSON EditorReplace the default index definition with the following example:```json\n{\n  \"analyzer\": \"textNormalizer\",\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"textNormalizer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"textNormalizer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuNormalizer\",\n          \"normalizationForm\": \"nfkc\"\n        }\n      ]\n    }\n  ]\n}\n```**Shell:**MongoDB Shell```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"textNormalizer\",\n    \"mappings\": {\n      \"fields\": {\n        \"message\": {\n          \"type\": \"string\",\n          \"analyzer\": \"textNormalizer\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"textNormalizer\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuNormalizer\",\n            \"normalizationForm\": \"nfkc\"\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```The following query searches the `message` field in the\n[sample collection](custom-analyzers-eg-coll) collection for the term\n`1`.**Atlas UI:**Atlas UI- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Search:\n\n  **Input:**\n\n  ```json\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"1\",\n        \"path\": \"message\"\n      }\n    }\n  }\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 0.4342196583747864 _id:  \"2\"\n   message: \"do not forget to SIGN-IN. See ① for details.\"\n   page_updated_by: Object\n   text: Object\n  ```**Shell:**MongoDB Shell**Input:**```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"1\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])\n```**Output:**```js\n[ { _id: 2, message: 'do not forget to SIGN-IN. See ① for details.' } ]\n```MongoDB Search returns the document with `_id: 2` in the results for the\nquery term `1` even though the document contains the circled number\n`①` in the `message` field because the `icuNormalizer` token\nfilter creates the token `1` for this character using the `nfkc`\nnormalization form. The following table shows the tokens (searchable\nterms) that MongoDB Search creates for the document in the results using the\n`nfkc` normalization form and by comparison, the tokens it creates\nfor the other normalization forms.| Normalization Forms | Output Tokens                                        | Matches 1 |\n| ------------------- | ---------------------------------------------------- | --------- |\n| nfd                 | do, not, forget, to, SIGN-IN., See, ①, for, details. | X         |\n| nfc                 | do, not, forget, to, SIGN-IN., See, ①, for, details. | X         |\n| nfkd                | do, not, forget, to, SIGN-IN., See, 1, for, details. | √         |\n| nfkc                | do, not, forget, to, SIGN-IN., See, 1, for, details. | √         |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"analyzer\": \"textNormalizer\",\n  \"mappings\": {\n    \"fields\": {\n      \"message\": {\n        \"type\": \"string\",\n        \"analyzer\": \"textNormalizer\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"textNormalizer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"icuNormalizer\",\n          \"normalizationForm\": \"nfkc\"\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 125
+    },
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"textNormalizer\",\n    \"mappings\": {\n      \"fields\": {\n        \"message\": {\n          \"type\": \"string\",\n          \"analyzer\": \"textNormalizer\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"textNormalizer\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuNormalizer\",\n            \"normalizationForm\": \"nfkc\"\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 138
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"$search\": {\n    \"index\": \"default\",\n    \"text\": {\n      \"query\": \"1\",\n      \"path\": \"message\"\n    }\n  }\n}",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "js",
+      "content": "SCORE: 0.4342196583747864 _id:  \"2\"\n message: \"do not forget to SIGN-IN. See ① for details.\"\n page_updated_by: Object\n text: Object",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"1\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "js",
+      "content": "[ { _id: 2, message: 'do not forget to SIGN-IN. See ① for details.' } ]",
+      "tokenEstimate": 27
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Step 3: Create the  Function.",
+  "headingLevel": 3,
+  "body": "- Duplicate the `pauseClusters` Function into a new Function\n  named `resumeClusters`.\n\n- In the **Function Editor** tab, update the `paused`\n  state to `false` in the Function code:\n\n  ```javascript\n  /*\n   * Iterates over the provided projects and clusters, resuming those clusters.\n   */\n  exports = async function () {\n\n    // Supply project IDs and cluster names to resume\n    const projectIDs = [\n      {\n        id: \"<projectIdA>\",\n        names: [ \"<clusterNameA>\", \"<clusterNameB>\" ]\n      },\n      {\n        id: \"<projectIdB>\",\n        names: [ \"<clusterNameC>\" ]\n      }\n    ];\n\n    // Set desired state\n    const body = { paused: false };\n\n    // Resume each cluster and log the response\n    for (const project of projectIDs) {\n      for (const cluster of project.names) {\n        const result = await context.functions.execute(\n          \"modifyCluster\",\n          project.id,\n          cluster,\n          body,\n        );\n        console.log(\"Cluster \" + cluster + \": \" + EJSON.stringify(result));\n      }\n    }\n\n    return \"Clusters Resumed\";\n  };\n  ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "/*\n * Iterates over the provided projects and clusters, resuming those clusters.\n */\nexports = async function () {\n\n  // Supply project IDs and cluster names to resume\n  const projectIDs = [\n    {\n      id: \"<projectIdA>\",\n      names: [ \"<clusterNameA>\", \"<clusterNameB>\" ]\n    },\n    {\n      id: \"<projectIdB>\",\n      names: [ \"<clusterNameC>\" ]\n    }\n  ];\n\n  // Set desired state\n  const body = { paused: false };\n\n  // Resume each cluster and log the response\n  for (const project of projectIDs) {\n    for (const cluster of project.names) {\n      const result = await context.functions.execute(\n        \"modifyCluster\",\n        project.id,\n        cluster,\n        body,\n      );\n      console.log(\"Cluster \" + cluster + \": \" + EJSON.stringify(result));\n    }\n  }\n\n  return \"Clusters Resumed\";\n};",
+      "tokenEstimate": 189
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "heading": "Step 3: Create the index.",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```shell\nc++ --std=c++17 CreateIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\n> **Tip:**&#x20;\n>\n> MacOS Error\n>\n> MacOS users might see the following error after running the preceding\n> commands:\n>\n> ```sh\n> dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib\n> ```\n>\n> To resolve this error, use the `-Wl`,\\`\\`-rpath\\`\\` linker option to set\n> the `@rpath`, as shown in the following code:\n>\n> ```sh\n> c++ --std=c++17 CreateIndex.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n> ./app.out\n> ```\n\nThe MongoDB Search `objectId` type takes the following option:\n\n| UI Field Name | JSON Option | Type   | Necessity | Description                                                                   |\n| ------------- | ----------- | ------ | --------- | ----------------------------------------------------------------------------- |\n| Data Type     | type        | string | required  | Human-readable label that identifies this field type. Value must be objectId. |\n\nThe following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.\n\nTo learn how to set up and run the following example code, see\nDefine the Index for the token Type.\n\nCreate an index on a field with the objectId type.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main(){\n\n    mongocxx::instance instance;\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"comments\"];\n\n    // instantiate a ``mongocxx::search_index_view`` on your collection\n    auto siv = collection.search_indexes();\n\n    {\n        auto name = \"default\";\n        auto definition = make_document(\n            kvp(\"mappings\", make_document(\n                kvp(\"dynamic\", false),\n                kvp(\"fields\", make_document(\n                    kvp(\"movie_id\", make_document(\n                        kvp(\"type\", \"objectId\")\n                    ))\n                ))\n            ))\n        );\n\n        auto model = mongocxx::search_index_model(name, definition.view());\n\n        // Create the search index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    }\n}\n\n```\n\nYou can use the MongoDB Search `objectId` type to index [ObjectId](manual/reference/bson-types) values. You can query fields of type\n`objectId` using the [equals](equals-ref) and [in](in-ref)\noperators.\n\nYou can also use the `objectId` type to index:\n\n- Fields whose value is an array of `objectId`. To learn more, see\n  [How to Index the Elements of an Array](fts-array-ref).\n\n- `objectId` fields inside an array of documents indexed as the\n  [embeddedDocuments](bson-data-types-embedded-documents) type.\n\nIf you enable [dynamic mappings](static-dynamic-mappings), MongoDB Search\nautomatically indexes fields of type dateFacet. You can\nuse the **Visual Editor** or the  **JSON Editor** in the Atlas UI to\nindex fields as the dateFacet type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "c++ --std=c++17 CreateIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "sh",
+      "content": "dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "content": "c++ --std=c++17 CreateIndex.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+      "tokenEstimate": 43
+    },
+    {
+      "language": "cpp",
+      "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main(){\n\n    mongocxx::instance instance;\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_mflix\"];\n    auto collection = db[\"comments\"];\n\n    // instantiate a ``mongocxx::search_index_view`` on your collection\n    auto siv = collection.search_indexes();\n\n    {\n        auto name = \"default\";\n        auto definition = make_document(\n            kvp(\"mappings\", make_document(\n                kvp(\"dynamic\", false),\n                kvp(\"fields\", make_document(\n                    kvp(\"movie_id\", make_document(\n                        kvp(\"type\", \"objectId\")\n                    ))\n                ))\n            ))\n        );\n\n        auto model = mongocxx::search_index_model(name, definition.view());\n\n        // Create the search index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    }\n}\n",
+      "tokenEstimate": 263
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Update Specific Elements in an Array",
+  "headingLevel": 4,
+  "body": "You can use the [$\\[element\\] (Filtered Positional Update)](manual/reference/operator/update/positional-filtered) operator to update specific\nelements in an array field based on an array filter:\n\n> **Example:** Consider a `students` collection that describes individual students in a\n> class. The documents each include a `grades` field that contains an array\n> of numbers, some of which are greater than 100:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n> { \"_id\" : 2, \"grades\" : [ 18, 100, 102 ] }\n> { \"_id\" : 3, \"grades\" : [ 15, 110, 100 ] }\n> ```\n>\n> The following update operation sets all grade values greater than 100 to\n> exactly 100:\n>\n> ```javascript\n> await students.updateMany(\n>    { },\n>    {\n>      $set: {\n>        \"grades.$[grade]\" : 100\n>      }\n>    },\n>    {\n>      arrayFilters: [{ \"grade\": { $gt: 100 } }]\n>    }\n> )\n> ```\n>\n> After the update, all grade values greater than 100 are set to exactly 100\n> and all other grades are unaffected:\n>\n> ```json\n> { \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n> { \"_id\" : 2, \"grades\" : [ 18, 100, 100 ] }\n> { \"_id\" : 3, \"grades\" : [ 15, 100, 100 ] }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{ \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n{ \"_id\" : 2, \"grades\" : [ 18, 100, 102 ] }\n{ \"_id\" : 3, \"grades\" : [ 15, 110, 100 ] }",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "javascript",
+      "content": "await students.updateMany(\n   { },\n   {\n     $set: {\n       \"grades.$[grade]\" : 100\n     }\n   },\n   {\n     arrayFilters: [{ \"grade\": { $gt: 100 } }]\n   }\n)",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "json",
+      "content": "{ \"_id\" : 1, \"grades\" : [ 15, 92, 90 ] }\n{ \"_id\" : 2, \"grades\" : [ 18, 100, 100 ] }\n{ \"_id\" : 3, \"grades\" : [ 15, 100, 100 ] }",
+      "tokenEstimate": 69
+    }
+  ]
+}

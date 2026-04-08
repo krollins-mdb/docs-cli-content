@@ -1,0 +1,141 @@
+{
+  "path": "atlas/query-with-natural-language/data-explorer-ai-assistant",
+  "product": "atlas",
+  "title": "Intelligent Assistant in Data Explorer",
+  "sections": [
+    {
+      "heading": "Enable AI Features",
+      "headingLevel": 2,
+      "body": "To use the intelligent assistant in Data Explorer, first enable AI features\nin settings.\n\nAt the organizational level:\n\nAt the project level:",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Access the Intelligent Assistant",
+      "headingLevel": 2,
+      "body": "To access the intelligent assistant:\n\n![Data Explorer Page with collapsed AI Drawer](</atlas-ui/images/Figure 1. Data Explorer home page with the assistant collapsed.>)\n\n![Data ExplorerPage with opened AI drawer](</atlas-ui/images/Figure 2. The Data Explorer home page with the assistant expanded.>)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Read-Only Tools",
+      "headingLevel": 2,
+      "body": "Read-only tools in the Data Explorer's assistant fetch context from your\ncurrent task or execute database operations against your connected MongoDB\ndeployment with human approval. Unlike conversational responses, these tools\nmay perform actual database queries and return live data from your database.\n\nAssistant tools exhibit the following key characteristics:\n\n- **Read-only:** Tools cannot modify, insert, update, or delete data.\n\n- **User-approved:** Every tool execution requires explicit user confirmation.\n\n- **Contextual:** The assistant accounts for your current database, collection,\n  and connection when deciding to call tools.\n\n- **Live data:** Results come from your connected MongoDB deployment in real-time.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Data Explorer Tools",
+      "headingLevel": 3,
+      "body": "The following tools fetch sensitive content for users and require confirmation.\nThese tools do not interact with the database, but require user confirmation\nbefore use:\n\n| Data Explorer Tool Name | Description                                                       |\n| ----------------------- | ----------------------------------------------------------------- |\n| get-current-query       | Extracts active MongoDB query parameters from the query bar       |\n| get-current-pipeline    | Extracts active aggregation pipeline from the aggregation builder |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Database Tools",
+      "headingLevel": 3,
+      "body": "| Database Tool Name      | Description                                                                                                                              |\n| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |\n| list-databases          | Displays all databases available in your MongoDB deployment with their storage sizes.                                                    |\n| list-collections        | Shows all collections within a specific database.                                                                                        |\n| find                    | Retrieves actual documents from a collection that match specific search criteria.                                                        |\n| count                   | Quickly returns the total number of documents in a collection without retrieving the documents themselves.                               |\n| aggregate               | Performs complex data processing operations like grouping, filtering, transforming, and calculating statstics across documents.          |\n| collection-indexes      | Lists all indexes defined on a collection.                                                                                               |\n| collection-schema       | Analyzes a collection to reveal the structure of documents, including field names and data types.                                        |\n| collection-storage-size | Reports the physical disk space occupied by a collection, including both data and indexes.                                               |\n| db-stats                | Provides a comprehensive overview of database health, including collection counts, document totals, storage usage, and index statistics. |\n| mongodb-logs            | Retrieves recent server logs for troubleshooting, performance monitoring, and security auditing.                                         |\n| explain                 | Shows the detailed query execution plan and performance statistics, revealing how MongoDB processes a query and whether it uses indexes. |\n\n> **Note:** The aggregation pipeline stages `$out` and `$merge` are not supported in\n> tool calling because they perform write operations. The assistant only\n> supports read-only tools.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example Flow",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Enable Tools",
+      "headingLevel": 4,
+      "body": "Tools are enabled by default, but you can toggle them on or off using the\n**Tools** button in the input bar.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Set Up Your Environment",
+      "headingLevel": 4,
+      "body": "Make sure you have an active connection and are viewing the relevant page.\nTo ask a question, you must be on a tab that relates to your active\nconnection.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Ask a Database Question",
+      "headingLevel": 4,
+      "body": "Submit a prompt inquiring about your data, for example: \"List all databases\".",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 4: Review the Tool Card",
+      "headingLevel": 4,
+      "body": "The assistant detects your intent and displays a tool card in a pending\nstate. This list enumerates the possible elements that the tool card can\nshow:\n\n- Tool name operation\n\n- Deployment (host/endpoint)\n\n- Database and collection being queried\n\n- Any parameters or filters\n\n- **Run** and **Cancel** buttons\n\nFor the above example, the tool card shows for \"list-databases\".",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 5: Click Run",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 6: View Results",
+      "headingLevel": 4,
+      "body": "Example result:\n\n```\nHere are the databases found on your MongoDB deployment:\n\n- sample_mflix (Size: 183,685,120 bytes)\n- admin (Size: 364,544 bytes)\n- local (Size: 21,907,722,240 bytes)\n\nIf you want details about collections in any of these databases,\njust let me know!\n```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "Here are the databases found on your MongoDB deployment:\n\n- sample_mflix (Size: 183,685,120 bytes)\n- admin (Size: 364,544 bytes)\n- local (Size: 21,907,722,240 bytes)\n\nIf you want details about collections in any of these databases,\njust let me know!",
+          "tokenEstimate": 68
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The following scenarios show several uses of the intelligent assistant in\nData Explorer.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Explain Plan",
+      "headingLevel": 3,
+      "body": "Ask the intelligent assistant to analyze the output of your MongoDB Compass query:\n\n**Input:**\n\n```\nInterpret this explain plan for me.\n```\n\n**Output:**\n\n````\n## Summary\n- **Query Logic:** This pipeline counts the number of Italian restaurants in Manhattan by first filtering documents and then aggregating the count.\n- **Performance:** Fair\n- **Recommendations:** Create a compound index on `{ borough: 1, cuisine: 1 }` to optimize document retrieval.\n\n## Details\n\n### Query Logic\n1. `$match`: Filters documents where `borough` is \"Manhattan\" and `cuisine` is \"Italian\".\n2. `$count`: Counts the number of documents matching the filter and outputs the total.\n\n### Performance Analysis\n- The winning plan uses an index scan on the `cuisine` field (`cuisine_1`) and applies an in-memory filter for `borough` (\"Manhattan\").\n- Both `totalKeysExamined` and `totalDocsExamined` are high (43,207), which implies that every document with `cuisine: \"Italian\"` is examined and then filtered by `borough`.\n- No compound index exists, meaning MongoDB cannot efficiently combine both filter criteria in a single index lookup.\n- The pipeline does properly filter before counting, but index usage is only partial, causing increased resource usage.\n\n### Recommendations\n- Create a compound index on `{ borough: 1, cuisine: 1 }` to allow MongoDB to retrieve documents matching both criteria directly from the index, minimizing documents examined.\n- This optimization will reduce execution time and system load without changing the output of your aggregation pipeline.\n\nBelow is the recommended Aggregation Pipeline. This optimized Aggregation Pipeline will leverage the compound index to scan fewer documents, as both filter criteria are present in the index.\n\n```json\n[\n  { \"$match\": { \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" } },\n  { \"$count\": \"totalItalianRestaurants\" }\n]\n```\n\n### Follow-Up Questions\n1. How do I create a compound index in MongoDB Compass or via a shell command?\n2. What other fields should I consider adding to my indexes for restaurant lookups?\n3. How can I further optimize aggregations when working with larger datasets?\n````",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "Interpret this explain plan for me.",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "text",
+          "content": "## Summary\n- **Query Logic:** This pipeline counts the number of Italian restaurants in Manhattan by first filtering documents and then aggregating the count.\n- **Performance:** Fair\n- **Recommendations:** Create a compound index on `{ borough: 1, cuisine: 1 }` to optimize document retrieval.\n\n## Details\n\n### Query Logic\n1. `$match`: Filters documents where `borough` is \"Manhattan\" and `cuisine` is \"Italian\".\n2. `$count`: Counts the number of documents matching the filter and outputs the total.\n\n### Performance Analysis\n- The winning plan uses an index scan on the `cuisine` field (`cuisine_1`) and applies an in-memory filter for `borough` (\"Manhattan\").\n- Both `totalKeysExamined` and `totalDocsExamined` are high (43,207), which implies that every document with `cuisine: \"Italian\"` is examined and then filtered by `borough`.\n- No compound index exists, meaning MongoDB cannot efficiently combine both filter criteria in a single index lookup.\n- The pipeline does properly filter before counting, but index usage is only partial, causing increased resource usage.\n\n### Recommendations\n- Create a compound index on `{ borough: 1, cuisine: 1 }` to allow MongoDB to retrieve documents matching both criteria directly from the index, minimizing documents examined.\n- This optimization will reduce execution time and system load without changing the output of your aggregation pipeline.\n\nBelow is the recommended Aggregation Pipeline. This optimized Aggregation Pipeline will leverage the compound index to scan fewer documents, as both filter criteria are present in the index.\n\n```json\n[\n  { \"$match\": { \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" } },\n  { \"$count\": \"totalItalianRestaurants\" }\n]\n```\n\n### Follow-Up Questions\n1. How do I create a compound index in MongoDB Compass or via a shell command?\n2. What other fields should I consider adding to my indexes for restaurant lookups?\n3. How can I further optimize aggregations when working with larger datasets?",
+          "tokenEstimate": 423
+        }
+      ]
+    },
+    {
+      "heading": "User questions",
+      "headingLevel": 3,
+      "body": "The following examples demonstrate questions you can ask the intelligent assistant about\nData Explorer functions and queries.\n\n**Input:**\n\n```\nHow is MongoDB data modeling different from data modeling with a relational\ndatabase?\n```\n\n**Output:**\n\n```\nMongoDB data modeling differs from relational database (RDBMS) data\nmodeling in some important ways:\n\n1. Document-Oriented vs. Table-Oriented\n\n  - MongoDB stores data as flexible, hierarchical JSON-like documents.\n  - Relational databases use tables with fixed schemas and columns.\n\n2. Schema Flexibility\n\n  - In MongoDB, collections can contain documents with different structures. Schema enforcement is optional.\n  - RDBMS tables have a strict schema that enforces data types and relationships.\n\n3. Embedding vs. Normalization\n\n  - MongoDB encourages embedding related data inside documents when appropriate (denormalization). Example: An order document may include an array of items directly inside it.\n  - Relational databases emphasize normalization—splitting data across tables connected by foreign keys.\n\n4. Relationships\n\n  - MongoDB does support references between documents (similar to foreign keys), but joins are less central and not as efficient as in RDBMS.\n  - RDBMSs use normalized data and JOIN operations to relate tables efficiently.\n\n5. Performance & Scaling\n\n  - MongoDB’s data model enables horizontal scaling (sharding), making it well-suited for large, distributed datasets.\n  - RDBMS scaling typically relies on vertical scaling or complex clustering; JOINs can become expensive as data grows.\n\n6. Use Cases and Design Philosophy\n\n  - MongoDB models are often designed to optimize common query patterns, reducing the need for joins and complex queries.\n  - RDBMS models are designed for transactional consistency and for representing organized, well-structured relationships.\n\nIn summary, MongoDB encourages a more flexible, application-driven\napproach to modeling, while relational databases rely on rigid schemas\nand normalized relationships. Compass provides tools to visually explore\nyour document structures and relationships, which can be especially\nhelpful as your model evolves.\n```\n\n**Input:**\n\n```\nHow can I combine multiple conditions in a single $search query?\n```\n\n**Output:**\n\n```\nTo combine multiple conditions in a single $search query in MongoDB Atlas\nSearch (including Compass), you should use the compound operator. The\ncompound operator allows you to specify multiple criteria using must,\nmustNot, filter, and should clauses.\n\nExample: Combine Multiple Conditions\n\nSuppose you want to:\n\n- Match documents where the plot field contains \"baseball\"\n- Exclude documents where the genres field contains \"Comedy\" or \"Romance\"\n\nYour $search stage would look like this:\n\n{\n  \"$search\": {\n    \"compound\": {\n      \"must\": [\n        {\n          \"text\": {\n            \"query\": \"baseball\",\n            \"path\": \"plot\"\n           }\n        }\n      ],\n      \"mustNot\": [\n        {\n          \"text\": {\n            \"query\": [\"Comedy\", \"Romance\"],\n            \"path\": \"genres\"\n          }\n        }\n      ]\n   }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "How is MongoDB data modeling different from data modeling with a relational\ndatabase?",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "text",
+          "content": "MongoDB data modeling differs from relational database (RDBMS) data\nmodeling in some important ways:\n\n1. Document-Oriented vs. Table-Oriented\n\n  - MongoDB stores data as flexible, hierarchical JSON-like documents.\n  - Relational databases use tables with fixed schemas and columns.\n\n2. Schema Flexibility\n\n  - In MongoDB, collections can contain documents with different structures. Schema enforcement is optional.\n  - RDBMS tables have a strict schema that enforces data types and relationships.\n\n3. Embedding vs. Normalization\n\n  - MongoDB encourages embedding related data inside documents when appropriate (denormalization). Example: An order document may include an array of items directly inside it.\n  - Relational databases emphasize normalization—splitting data across tables connected by foreign keys.\n\n4. Relationships\n\n  - MongoDB does support references between documents (similar to foreign keys), but joins are less central and not as efficient as in RDBMS.\n  - RDBMSs use normalized data and JOIN operations to relate tables efficiently.\n\n5. Performance & Scaling\n\n  - MongoDB’s data model enables horizontal scaling (sharding), making it well-suited for large, distributed datasets.\n  - RDBMS scaling typically relies on vertical scaling or complex clustering; JOINs can become expensive as data grows.\n\n6. Use Cases and Design Philosophy\n\n  - MongoDB models are often designed to optimize common query patterns, reducing the need for joins and complex queries.\n  - RDBMS models are designed for transactional consistency and for representing organized, well-structured relationships.\n\nIn summary, MongoDB encourages a more flexible, application-driven\napproach to modeling, while relational databases rely on rigid schemas\nand normalized relationships. Compass provides tools to visually explore\nyour document structures and relationships, which can be especially\nhelpful as your model evolves.",
+          "tokenEstimate": 371
+        },
+        {
+          "language": "text",
+          "content": "How can I combine multiple conditions in a single $search query?",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "text",
+          "content": "To combine multiple conditions in a single $search query in MongoDB Atlas\nSearch (including Compass), you should use the compound operator. The\ncompound operator allows you to specify multiple criteria using must,\nmustNot, filter, and should clauses.\n\nExample: Combine Multiple Conditions\n\nSuppose you want to:\n\n- Match documents where the plot field contains \"baseball\"\n- Exclude documents where the genres field contains \"Comedy\" or \"Romance\"\n\nYour $search stage would look like this:\n\n{\n  \"$search\": {\n    \"compound\": {\n      \"must\": [\n        {\n          \"text\": {\n            \"query\": \"baseball\",\n            \"path\": \"plot\"\n           }\n        }\n      ],\n      \"mustNot\": [\n        {\n          \"text\": {\n            \"query\": [\"Comedy\", \"Romance\"],\n            \"path\": \"genres\"\n          }\n        }\n      ]\n   }\n  }\n}",
+          "tokenEstimate": 185
+        }
+      ]
+    },
+    {
+      "heading": "Learn More",
+      "headingLevel": 2,
+      "body": "- [AI and Data Usage Information](atlas-ui-ai-data-usage)",
+      "codeBlocks": []
+    }
+  ]
+}

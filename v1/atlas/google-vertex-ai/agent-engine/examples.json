@@ -1,0 +1,247 @@
+{
+  "path": "atlas/google-vertex-ai/agent-engine",
+  "product": "atlas",
+  "title": "Build AI Agents with Vertex AI Agent Engine and Atlas",
+  "summary": {
+    "total": 18,
+    "byLanguage": {
+      "bash": 1,
+      "text": 5,
+      "python": 12
+    },
+    "bySection": [
+      {
+        "heading": "Step 1: Install the required packages.",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 55
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Create the MongoDB Vector Search indexes.",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 21
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 11
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 169
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Initialize the Vertex AI SDK.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 82
+          }
+        ]
+      },
+      {
+        "heading": "Ingest Data into Atlas",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 388
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Define tools for the agent.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 482
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 481
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Create a memory system.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 52
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Initialize the agent.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 94
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 61
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Deploy your agent.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 87
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Retrieve the project URL.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 94
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Test the agent.",
+        "blocks": [
+          {
+            "language": "python",
+            "tokenEstimate": 127
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 112
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 37
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 68
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "Step 1: Install the required packages.",
+      "content": "!pip install --upgrade --quiet \\\n    \"google-cloud-aiplatform[langchain,agent_engines]\" requests datasets pymongo langchain langchain-community langchain-mongodb langchain-google-vertexai google-cloud-aiplatform langchain_google_genai requests beautifulsoup4",
+      "tokenEstimate": 55
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Create the MongoDB Vector Search indexes.",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Step 2: Create the MongoDB Vector Search indexes.",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Create the MongoDB Vector Search indexes.",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\nclient = MongoClient(\"<connection-string>\") # Replace with your connection string\ndb = client[\"AGENT-ENGINE\"]\nstars_wars_collection = db[\"sample_starwars_embeddings\"]\nstars_trek_collection = db[\"sample_startrek_embeddings\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 768,\n         \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\n# Create the indexes\nstars_wars_collection.create_search_index(model=search_index_model)\nstars_trek_collection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Initialize the Vertex AI SDK.",
+      "content": "PROJECT_ID = \"<your-project-id>\"  # Replace with your project ID\nLOCATION = \"<gcp-region>\"         # Replace with your preferred region, e.g. \"us-central1\"\nSTAGING_BUCKET = \"gs://<your-bucket-name>\"  # Replace with your bucket\n\nimport vertexai\nvertexai.init(project=PROJECT_ID, location=LOCATION, staging_bucket=STAGING_BUCKET)",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "python",
+      "section": "Ingest Data into Atlas",
+      "content": "import requests\nfrom bs4 import BeautifulSoup\nfrom pymongo import MongoClient\nimport certifi\nfrom vertexai.language_models import TextEmbeddingModel\n\n# Scrape the website content\ndef scrape_website(url):\n    response = requests.get(url)\n    soup = BeautifulSoup(response.text, 'html.parser')\n    content = ' '.join([p.text for p in soup.find_all('p')])\n    return content\n\n# Split the content into chunks of 1000 characters\ndef split_into_chunks(text, chunk_size=1000):\n    return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]\n\ndef get_text_embeddings(chunks):\n    model = TextEmbeddingModel.from_pretrained(\"text-embedding-005\")\n    embeddings = model.get_embeddings(chunks)\n    return [embedding.values for embedding in embeddings]\n\ndef write_to_mongoDB(embeddings, chunks, db_name, coll_name):\n    client = MongoClient(\"<connection-string>\", tlsCAFile=certifi.where()) # Replace placeholder with your Atlas connection string\n    db = client[db_name]\n    collection = db[coll_name]\n\n    for i in range(len(chunks)):\n        collection.insert_one({\n            \"chunk\": chunks[i],\n            \"embedding\": embeddings[i]\n        })\n\n# Process Star Wars data\ncontent = scrape_website(\"https://en.wikipedia.org/wiki/Star_Wars\")\nchunks = split_into_chunks(content)\nembeddings_starwars = get_text_embeddings(chunks)\nwrite_to_mongoDB(embeddings_starwars, chunks, \"AGENT-ENGINE\", \"sample_starwars_embeddings\")\n\n# Process Star Trek data\ncontent = scrape_website(\"https://en.wikipedia.org/wiki/Star_Trek\")\nchunks = split_into_chunks(content)\nembeddings_startrek = get_text_embeddings(chunks)\nwrite_to_mongoDB(embeddings_startrek, chunks, \"AGENT-ENGINE\", \"sample_startrek_embeddings\")",
+      "tokenEstimate": 388
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Define tools for the agent.",
+      "content": "def star_wars_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to Star wars.\n\n    Args:\n        query: The question to be answered about star wars.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_starwars_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response",
+      "tokenEstimate": 482
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Define tools for the agent.",
+      "content": "def star_trek_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to star trek.\n\n    Args:\n        query: The question to be answered about star trek.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_startrek_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response",
+      "tokenEstimate": 481
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Create a memory system.",
+      "content": "from langchain.memory import ChatMessageHistory\n\n# Initialize session history\nstore = {}\n\ndef get_session_history(session_id: str):\n  if session_id not in store:\n    store[session_id] = ChatMessageHistory()\n  return store[session_id]",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Initialize the agent.",
+      "content": "from vertexai.preview.reasoning_engines import LangchainAgent\n\n# Specify the language model\nmodel = \"gemini-1.5-pro-001\"\n\n# Initialize the agent with your tools\nagent = LangchainAgent(\n  model=model,\n  chat_history=get_session_history,\n  model_kwargs={\"temperature\": 0},\n  tools=[star_wars_query_tool, star_trek_query_tool],\n  agent_executor_kwargs={\"return_intermediate_steps\": True},\n)",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Initialize the agent.",
+      "content": "# Test your agent\nresponse = agent.query(\n    input=\"Who was the antagonist in Star wars and who played them? \",\n    config={\"configurable\": {\"session_id\": \"demo\"}},\n)\n\ndisplay(Markdown(response[\"output\"]))",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Initialize the agent.",
+      "content": "The main antagonist in the Star Wars series is Darth Vader, a dark lord of the Sith. He was originally played by David Prowse in the original trilogy, and later voiced by James Earl Jones. In the prequel trilogy, he appears as Anakin Skywalker, and was played by Hayden Christensen.",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "python",
+      "section": "Step 1: Deploy your agent.",
+      "content": "from vertexai import agent_engines\n\nremote_agent = agent_engines.create(\n  agent,\n  requirements=[\n    \"google-cloud-aiplatform[agent_engines,langchain]\",\n    \"cloudpickle==3.0.0\",\n    \"pydantic>=2.10\",\n    \"requests\",\n    \"langchain-mongodb\",\n    \"pymongo\",\n    \"langchain-google-vertexai\",\n  ],\n)",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "python",
+      "section": "Step 2: Retrieve the project URL.",
+      "content": "from googleapiclient import discovery\nfrom IPython.display import display, Markdown\n\n# Retrieve the project number associated with your project ID\nservice = discovery.build(\"cloudresourcemanager\", \"v1\")\nrequest = service.projects().get(projectId=PROJECT_ID)\nresponse = request.execute()\nproject_number = response[\"projectNumber\"]\nprint(f\"Project Number: {project_number}\")\n# The deployment creates a unique ID for your agent that you can find in the output",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Test the agent.",
+      "content": "from vertexai.preview import reasoning_engines\n\n# Replace with your agent's full resource name from the previous step\nREASONING_ENGINE_RESOURCE_NAME = \"<resource-name>\"\n\nremote_agent = reasoning_engines.ReasoningEngine(REASONING_ENGINE_RESOURCE_NAME)\n\nresponse = remote_agent.query(\n    input=\"tell me about episode 1 of star wars\",\n    config={\"configurable\": {\"session_id\": \"demo\"}},\n)\nprint(response[\"output\"])\n\nresponse = remote_agent.query(\n    input=\"Who was the main character in this series\",\n    config={\"configurable\": {\"session_id\": \"demo\"}},\n)\nprint(response[\"output\"])",
+      "tokenEstimate": 127
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Test the agent.",
+      "content": "Star Wars: Episode I - The Phantom Menace was the first film installment released as part of the prequel trilogy. It was released on May 19, 1999. The main plot lines involve the return of Darth Sidious, the Jedi's discovery of young Anakin Skywalker, and the invasion of Naboo by the Trade Federation.\n\nThe main character in Star Wars is Luke Skywalker. He is a young farm boy who dreams of adventure and becomes a Jedi Knight. He fights against the evil Galactic Empire alongside his friends, Princess Leia and Han Solo.",
+      "tokenEstimate": 112
+    },
+    {
+      "language": "python",
+      "section": "Step 3: Test the agent.",
+      "content": "response = remote_agent.query(\n    input=\"what is episode 1 of star trek?\",\n    config={\"configurable\": {\"session_id\": \"demo\"}},\n)\nprint(response[\"output\"])",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "text",
+      "section": "Step 3: Test the agent.",
+      "content": "Episode 1 of Star Trek is called \"The Man Trap\". It was first aired on September 8, 1966. The story involves the Enterprise crew investigating the disappearance of a crew on a scientific outpost. It turns out that the crew members were killed by a creature that can take on someone else's form after it kills them.",
+      "tokenEstimate": 68
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 4,
+  "body": "The following example queries use `span.first` to find documents\nin which the specified string appears in the `title` field. The\n`endPositionLte` parameter has a value of `2`, which means that the\nsearch term specified using the `term` operator must be the first or\nsecond word in the field.**Term-eg:**term Example**Input:**```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"dance\"\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]\n```MongoDB Search returns the documents that contain search word `dance`\nin the first or second position of the `title` field.**Or-eg:**or Example**Input:**```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]\n```MongoDB Search returns documents that contain the search word `man`\nor `woman` in the first or second position of the `title`\nfield. MongoDB Search does not return both search terms in the same `title`\nbecause the example includes the `or` operator `clauses`\nto specify the search terms.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"dance\"\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 138
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]",
+      "tokenEstimate": 51
+    }
+  ]
+}

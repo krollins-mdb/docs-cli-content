@@ -1,0 +1,12 @@
+{
+  "heading": "How many cross-region network permissions does Atlas support?",
+  "headingLevel": 2,
+  "body": "Clusters can span regions and cloud service providers. The total number\nof nodes in clusters spanning across regions has a specific constraint\non a per-project basis.\n\nAtlas limits the total number of nodes in other regions in one\nproject to a total of 40, **not** including:\n\n- Google Cloud regions communicating with each other\n\n- Free clusters\n\n- Flex clusters\n\nSharded clusters include additional nodes. The electable nodes on\nthe dedicated Config Server Replica Set (CSRS) count towards the\ntotal number of allowable nodes. Each sharded cluster has an\nadditional electable node per region as part of the dedicated CSRS. To\nlearn more, see [Replica Set Config Servers](manual/core/sharded-cluster-config-servers).\n\nThe total number of nodes between any two regions must meet this\nconstraint.\n\n> **Example:** If an Atlas project has nodes in clusters spread across three\n> regions:\n>\n> - 30 nodes in **Region A**\n>\n> - 10 nodes in **Region B**\n>\n> - 5 nodes in **Region C**\n>\n> You can only add 5 more nodes to **Region C** because:\n>\n> - If you exclude Region C, Region A + Region B = 40.\n>\n>\n> - If you exclude Region B, Region A + Region C = 35, \\<= 40.\n>\n>\n> - If you exclude Region A, Region B + Region C = 15, \\<= 40.\n>\n>\n> - Each combination of regions with the added 5 nodes still meets\n>   the per-project constraint:\n>\n>   - Region A + B = 40&#x20;\n>\n>   - Region A + C = 40&#x20;\n>\n>   - Region B + C = 20&#x20;\n\nYou can't create a multi-region cluster in a project if it has one or\nmore clusters spanning 40 or more nodes in other regions.\n\nContact Atlas [support](manual/support) for questions\nor assistance with raising this limit.\n\nIf you would exceed the cross-region permissions limit when creating a\ncluster through the Atlas Administration API, the API (Application Programming Interface) returns the following\nerror:\n\n```json\n{\n  \"error\" : 403,\n  \"detail\" : \"Cannot have more than 40 cross-region network permissions.\",\n  \"reason\" : \"Forbidden\"\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"error\" : 403,\n  \"detail\" : \"Cannot have more than 40 cross-region network permissions.\",\n  \"reason\" : \"Forbidden\"\n}",
+      "tokenEstimate": 35
+    }
+  ]
+}

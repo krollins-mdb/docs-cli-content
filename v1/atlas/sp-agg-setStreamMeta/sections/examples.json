@@ -1,0 +1,22 @@
+{
+  "heading": "Examples",
+  "headingLevel": 2,
+  "body": "A streaming data source generates a document for each order made with\nan e-commerce platform. The documents take the following form:\n\n```json\n{\n  orderId: 1,\n  productId: \"A\",\n  qty: 2\n}\n```\n\nAn Atlas database contains a `products` collection with\ndocuments of the following form:\n\n```json\n[\n  {_id: \"A\", name: \"Laptop\", category: \"tech\"},\n  {_id: \"B\", name: \"Shirt\", category: \"clothing\"}\n]\n```\n\nThe following aggregation has six stages:\n\n- The [$source](pipe.$source) stage ingests order documents from the\n  e-commerce platform, exposing each record as it is ingeste to the\n  subsequent aggregation stages.\n\n- The [$lookup](atlas-sp-agg-lookup) stage joins the incoming\n  order documents to a `products` collection in the `shop`\n  database on the `_id` field. The resulting array field is called\n  `product`.\n\n- The [$unwind](manual/reference/operator/aggregation/unwind) stage turns the single-element array value\n  of `product` into a document.\n\n- The [$setStreamMeta](pipe.$setStreamMeta) stage sets a metadata field called\n  `stream.coll` equal to the value of `product.category`.\n\n- The [$unset](manual/reference/operator/aggregation/unset) stage removes the `product` field,\n  returning the source document to its original form.\n\n- The [$merge](atlas-sp-agg-merge) stage merges the document into a\n  collection dynamically determined by the value of `stream.coll`.\n\n```json\n{\n  $source: {\n    documents: [\n      {\n        orderId: 1,\n        productId: \"A\",\n        qty: 2\n      },\n      {\n        orderId: 2,\n        productId: \"B\",\n        qty: 1\n      },\n      {\n        orderId: 3,\n        productId: \"A\",\n        qty: 5\n      }\n    ]\n  }\n},\n{\n  $lookup: {\n    from: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: \"products\"\n    },\n    localField: \"productId\",\n    foreignField: \"_id\",\n    as: \"product\"\n  }\n},\n{\n  $unwind: \"$product\"\n},\n{\n  $setStreamMeta: {\n    \"stream.coll\": \"$product.category\"\n  }\n},\n{\n  $unset: [\n    \"product\"\n  ]\n},\n{\n  $merge: {\n    into: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: {\n        $meta: \"stream.coll\"\n      }\n    }\n  }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  orderId: 1,\n  productId: \"A\",\n  qty: 2\n}",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "json",
+      "content": "[\n  {_id: \"A\", name: \"Laptop\", category: \"tech\"},\n  {_id: \"B\", name: \"Shirt\", category: \"clothing\"}\n]",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "json",
+      "content": "{\n  $source: {\n    documents: [\n      {\n        orderId: 1,\n        productId: \"A\",\n        qty: 2\n      },\n      {\n        orderId: 2,\n        productId: \"B\",\n        qty: 1\n      },\n      {\n        orderId: 3,\n        productId: \"A\",\n        qty: 5\n      }\n    ]\n  }\n},\n{\n  $lookup: {\n    from: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: \"products\"\n    },\n    localField: \"productId\",\n    foreignField: \"_id\",\n    as: \"product\"\n  }\n},\n{\n  $unwind: \"$product\"\n},\n{\n  $setStreamMeta: {\n    \"stream.coll\": \"$product.category\"\n  }\n},\n{\n  $unset: [\n    \"product\"\n  ]\n},\n{\n  $merge: {\n    into: {\n      connectionName: \"atlas\",\n      db: \"shop\",\n      coll: {\n        $meta: \"stream.coll\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 222
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "path": "atlas/n8n/build-ai-agent",
+  "product": "atlas",
+  "title": "Step 9: Save the workflow.",
+  "sections": [
+    {
+      "heading": "About the n8n Workflow with MongoDB",
+      "headingLevel": 2,
+      "body": "The following screenshot demonstrates the workflow that\nyou will build in this tutorial. In this workflow, you create an AI agent\nthat uses two MongoDB nodes:\n\n- [MongoDB Atlas Vector Store Node](n8n-vector-store) to retrieve relevant documents from the sample data\n\n- [MongoDB Chat Memory Node](n8n-chat-memory) to store conversation history\n\nIt also uses OpenAI as the LLM and embedding model provider.\n\nWhen you send a message to the agent, it triggers the following actions:\n\n- The AI agent node processes the user message and determines the next action.\n\n- The AI agent checks whether it needs to make any tool calls.\n\n  - If yes, it calls the MongoDB Vector Store node\n    to retrieve documents.\n\n  - If not, it continues to the next action.\n\n- The agent generates a response using the\n  LLM that you configured for the workflow.\n\n- After each interaction, the MongoDB Chat Memory node\n  stores the conversation history.\n\n![Screenshot of AI agent workflow with n8n and MongoDB](/ai-integrations/images/n8n-mongodb-ai-agent-workflow.png)\n\n> **Note:** The red asterisks in the AI Agent node's configuration indicate required parameters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "Before you begin, ensure that you have the following:\n\n- [n8n installed](https://docs.n8n.io/hosting/).\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- The [Load Sample Data Into Atlas](sample-data) loaded into your MongoDB deployment.\n\n- An OpenAI API key, or an API key for any other supported provider of\n  LLMs and embedding models that you intend to use.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Considerations",
+      "headingLevel": 3,
+      "body": "When working with n8n and MongoDB, consider the following:\n\n- For MongoDB Atlas users, ensure that you add your n8n IP addresses to your\n  project's IP Access List. To learn more, see\n  [IP Access List](access-list).\n\n- When configuring the MongoDB Vector Store node, ensure that you\n  toggle the **Include Metadata** to **Off**.\n  If you don't toggle this setting to **Off**, the AI agent might not run\n  as the documents might be too large to load into the context window.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create the Vector Search Index",
+      "headingLevel": 2,
+      "body": "You must create a [index definition](avs-types-vector-search)\non your collection before you can use the MongoDB vector store node.Visual EditorSpecify plot\\_embedding as the field to index and specify\n`1536` dimensions.To configure the index, select Dot Product\nfrom the Similarity Method dropdown.JSON EditorPaste the following index definition in the JSON editor:```json\n{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}\n```To use a different index creation method, follow the steps in the\n[create a MongoDB Vector Search index with the Atlas UI](avs-create-index-procedure).\nUse the following configuration:```json\n{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding\",\n      \"numDimensions\": 1536,\n      \"similarity\": \"dotProduct\"\n    }\n  ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}",
+          "tokenEstimate": 46
+        },
+        {
+          "language": "json",
+          "content": "{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding\",\n      \"numDimensions\": 1536,\n      \"similarity\": \"dotProduct\"\n    }\n  ]\n}",
+          "tokenEstimate": 46
+        }
+      ]
+    },
+    {
+      "heading": "Configure Credentials in n8n",
+      "headingLevel": 2,
+      "body": "In this section, you complete the steps to configure\nthe required credentials in n8n.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Open the Credentials configuration page.",
+      "headingLevel": 3,
+      "body": "In the upper right corner of the n8n home page, right click **Create Workflow**.\nAlternatively, select the **Credentials** tab and click **Add first credential**.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 2: Add credentials for your model provider.",
+      "headingLevel": 3,
+      "body": "- From the drop-down menu, select the credentials to configure.\n\n  For example, select **OpenAI** and click **Continue**.\n\n- To see which parameters to enter for your model provider,\n  check the [Credentials Library](https://docs.n8n.io/integrations/builtin/credentials/).\n\n  For example, for OpenAI, enter the API Key, the name of the organization, and the base URL.\n\n- Click **Save**. n8n adds the credential to your personal space.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 3: Add credentials for MongoDB.",
+      "headingLevel": 3,
+      "body": "Follow the same instructions described in the previous step\nto add your MongoDB credentials to n8n.\nSpecify the following values:\n\n| Setting            | Value                                                                                                             |\n| ------------------ | ----------------------------------------------------------------------------------------------------------------- |\n| Configuration Type | In the dropdown menu, select the Connection String method.                                                        |\n| Connection String  | Enter your MongoDB Connection String.To learn how to find your MongoDB connection string, see Connection Strings. |\n| Database           | Enter sample\\_mflix.                                                                                              |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure the AI Agent Workflow",
+      "headingLevel": 2,
+      "body": "Complete the following steps in n8n to build an AI agent workflow\nwith MongoDB and n8n. To learn more about the workflow,\nsee [About the n8n Workflow with MongoDB](n8n-workflow-diagram).\n\nOpen n8n where you are hosting it, then create a new workflow:\n\n- If you have no workflows or are using n8n for the first time, use the empty workflow that is displayed.\n\n- If you have existing workflows, click Create Workflow.\n\nAll workflows in n8n start with a trigger node.\nFor this workflow, you use a chat trigger node so that the AI agent workflow is\ntriggered by a user message.\n\n- Select Add first step or press Tab to open the node menu.\n\n- Search for Chat Trigger. n8n displays a list of nodes that match the search.\n\n- Select Chat Trigger to add the node to the canvas.\n\n- Click Back to canvas in the upper-left corner of your screen.\n  You can skip testing this node at this stage. Click Save.\n\nIn the AI Agent node, you configure the chat model, memory, and tools.\nThese are required components of the AI Agent node where you\nadd additional nodes and sub-nodes.\n\n- Select the + connector on the trigger node.\n\n- Search for the AI Agent node and add it to the workflow.\n  The editing view of the AI agent displays.\n\n- Click Back to canvas in the upper-left corner of your screen.\n  You can skip testing this node at this stage. Click Save.\n\nConfigure the chat model to attach the node to process incoming prompts:\n\n- Click the + connector next to the Chat Model label on the AI Agent node.\n  The search panel appears, filtered on Language Models.\n\n- Select OpenAI Chat Model from the list, or your preferred LLM provider.\n\n- Click Credential to connect with.\n\n- After selecting your credentials, choose a model from the drop-down menu (for example, `gpt-4o`).\n\n- Click Back to canvas in the upper-left corner of your screen.\n  You can skip testing this node at this stage. Click Save.\n\n- Click the AI Agent icon at the top of the dialog box to return to the AI Agent node configuration.\n\nConfigure the [MongoDB Chat Memory Node](n8n-chat-memory) to enable persistent conversation context.\n\n- Click the + connector next to the Memory label on the AI Agent node.\n\n- From the side panel, select MongoDB Chat Memory.\n\n- Click Select credential, then select your MongoDB credentials.\n\n- Use the default configurations for the MongoDB Chat Memory node. By default,\n  n8n creates a collection called `n8n_chat_histories` in the specified database.\n\n- Click Back to canvas in the upper-left corner of your screen.\n  You can skip testing this node at this stage. Click Save.\n\n- Click the AI Agent icon to return to the AI Agent node configuration.\n\nConfigure the [MongoDB Atlas Vector Store Node](n8n-vector-store) to\nenable document retrieval.\n\n- Click the + connector next to the Tool label on the AI Agent node.\n\n- In the search panel, select MongoDB Atlas Vector Store.\n\n- Select the MongoDB credentials that you configured, and then specify the following values:\n\n  | Setting            | Value                                                                                                                                                           |\n  | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n  | Operation Mode     | Retrieve Documents (As Tool for AI Agent)                                                                                                                       |\n  | Description        | \"Search through documents about movies to find relevant information\"                                                                                            |\n  | MongoDB Collection | embedded\\_movies                                                                                                                                                |\n  | Embedding          | plot\\_embedding                                                                                                                                                 |\n  | Metadata Field     | plot                                                                                                                                                            |\n  | Vector Index Name  | vector\\_index                                                                                                                                                   |\n  | Limit              | 4                                                                                                                                                               |\n  | Include Metadata   | Toggle to OffIMPORTANT:If you don't toggle this setting to Off, the AI agent might not run as the documents might be too large to load into the context window. |\n  | Rerank Results     | Toggle to Off                                                                                                                                                   |\n\nConfigure the embedding model for the MongoDB Atlas Vector Store node:\n\n- Click the + connector next to the Embedding label on the MongoDB Atlas Vector Store node.\n\n- From the side panel, select Embeddings OpenAI.\n\n- Select your OpenAI credentials, and then specify the `text-embedding-ada-002` model.\n\n- Click Back to canvas in the upper-left corner of your screen.\n  Click Save.\n\nNow that you've configured the AI Agent node, you can test the complete workflow.\nAfter you send a message, the workflow runs in real-time on the canvas.\n\n- Click the Open chat button near the bottom of the canvas.\n\n- Test the memory functionality by running a few initial prompts. For example:\n\n  **Input:**\n\n  ```text\n  Hi, my name is Mongo\n  ```\n\n  **Output:**\n\n  ```text\n  Hello Mongo! Nice to meet you. How can I help you today?\n  ```\n\n  **Input:**\n\n  ```text\n  What is my name?\n  ```\n\n  **Output:**\n\n  ```text\n  Your name is Mongo, as you mentioned when you introduced yourself earlier.\n  ```\n\n- Test the vector search and RAG (Retrieval-Augmented Generation) functionality by running the following prompt.\n\n  **Input:**\n\n  ```text\n  Recommend me a few movies about time travel\n  ```\n\n  **Output:**\n\n  ```text\n  Here are a few movies about time travel that you might enjoy:\n\n  The Time Traveler's Wife - A romantic drama about a Chicago librarian with a gene that causes him to involuntarily time travel, leading to complications in his marriage.\n\n  Timecop - An officer working for a security agency that regulates time travel must battle for his life against a corrupt politician tied to his past.\n\n  We Are from the Future (My iz budushchego) - Four modern-day treasure seekers are unexpectedly transported into the midst of a World War II battle set in Russia.\n\n  About Time - A young man discovers at the age of 21 that he can travel back in time. He attempts to improve his life, including finding love, but things don't turn out to be as simple as they seem.\n\n  Let me know if you'd like any additional information about these films!\n  ```\n\n* Click the Save button in the top right of the editor window.\n\n* Give your workflow a descriptive name. For example, name it \"AI Agent with MongoDB\".\n\nYou can return to this workflow at any time.",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "Hi, my name is Mongo",
+          "tokenEstimate": 6
+        },
+        {
+          "language": "text",
+          "content": "Hello Mongo! Nice to meet you. How can I help you today?",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "text",
+          "content": "What is my name?",
+          "tokenEstimate": 5
+        },
+        {
+          "language": "text",
+          "content": "Your name is Mongo, as you mentioned when you introduced yourself earlier.",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "text",
+          "content": "Recommend me a few movies about time travel",
+          "tokenEstimate": 8
+        },
+        {
+          "language": "text",
+          "content": "Here are a few movies about time travel that you might enjoy:\n\nThe Time Traveler's Wife - A romantic drama about a Chicago librarian with a gene that causes him to involuntarily time travel, leading to complications in his marriage.\n\nTimecop - An officer working for a security agency that regulates time travel must battle for his life against a corrupt politician tied to his past.\n\nWe Are from the Future (My iz budushchego) - Four modern-day treasure seekers are unexpectedly transported into the midst of a World War II battle set in Russia.\n\nAbout Time - A young man discovers at the age of 21 that he can travel back in time. He attempts to improve his life, including finding love, but things don't turn out to be as simple as they seem.\n\nLet me know if you'd like any additional information about these films!",
+          "tokenEstimate": 170
+        }
+      ]
+    }
+  ]
+}

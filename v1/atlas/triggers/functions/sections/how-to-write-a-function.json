@@ -1,0 +1,42 @@
+{
+  "heading": "How to Write a Function",
+  "headingLevel": 2,
+  "body": "The code for a Function is essentially a named JavaScript source file,\nwhich means you can define multiple JavaScript functions in a single\nFunction file. The file must export a single JavaScript function to\nserve as the entrypoint for incoming calls. When you call a Function by\nname, you're actually calling the JavaScript function assigned to\n`exports` in the Function's source file.\n\nFor example, here's a simple Function that accepts a `name` argument,\nadds a log message, and returns a greeting for the provided name:\n\n```javascript\nexports = function Hello(name) {\n   console.log(`Said hello to ${name}`);\n   return `Hello, ${name}!`;\n};\n```\n\nYou can use modern JavaScript syntax and import packages to define more\ncomplex functions:\n\n**Input:**\n\n```javascript\n// You can use ES6 arrow functions\nconst uppercase = (str) => {\n   return str.toUpperCase();\n};\n\n// You can use async functions and await Promises\nexports = async function GetWeather() {\n// You can get information about the user called the function\nconst city = context.user.custom_data.city;\n\n// You can import Node.js built-ins and npm packages\nconst { URL } = require(\"url\");\nconst weatherUrl = new URL(\"https://example.com\");\nweatherUrl.pathname = \"/weather\";\nweatherUrl.search = `?location=\"${city}\"`;\n\n// You can send HTTPS requests to external services\nconst weatherResponse = await context.http.get({\n   url: url.toString(),\n   headers: {\n      Accept: [\"application/json\"],\n   },\n});\nconst { current, forecasts } = JSON.parse(weatherResponse.body.text());\n\nreturn [\n   `Right now ${uppercase(city)} is ${current.temperature}°F and ${current.weather}.`,\n   `Here's the forecast for the next 7 days:`,\n   forecasts\n      .map((f) => `${f.day}: ${f.temperature}°F and ${f.weather}`)\n      .join(\"\\n  \"),\n].join(\"\\n\");\n};\n```\n\n**Output:**\n\n```\nRight now NEW YORK CITY is 72°F and sunny.\nHere's the forecast for the next 7 days:\n  Tuesday: 71°F and sunny\n  Wednesday: 72°F and sunny\n  Thursday: 73°F and partly cloudy\n  Friday: 71°F and rainy\n  Saturday: 77°F and sunny\n  Sunday: 76°F and sunny\n  Monday: 74°F and sunny\n```\n\nFunctions automatically serialize returned values to [Extended\nJSON](manual/reference/mongodb-extended-json). This is useful to preserve\ntype information but may not be what your application expects.\n\nFor example, the values in the object returned from the following\nfunction are converted into structured EJSON values:\n\n**Input:**\n\n```javascript\nexports = function() {\n  return {\n    pi: 3.14159,\n    today: new Date(),\n  }\n}\n```\n\n**Output:**\n\n```json\n{\n  \"pi\": {\n    \"$numberDouble\": \"3.14159\"\n  },\n  \"today\": {\n    \"$date\": {\n      \"$numberLong\": \"1652297239913\"\n    }\n  }\n}\n```\n\nTo return a value as standard JSON, call `JSON.stringify()` on the\nvalue and then return the stringified result:\n\n**Input:**\n\n```javascript\nexports = function() {\n  return JSON.stringify({\n    pi: 3.14159,\n    today: new Date(),\n  })\n}\n```\n\n**Output:**\n\n```json\n\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "exports = function Hello(name) {\n   console.log(`Said hello to ${name}`);\n   return `Hello, ${name}!`;\n};",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "javascript",
+      "content": "// You can use ES6 arrow functions\nconst uppercase = (str) => {\n   return str.toUpperCase();\n};\n\n// You can use async functions and await Promises\nexports = async function GetWeather() {\n// You can get information about the user called the function\nconst city = context.user.custom_data.city;\n\n// You can import Node.js built-ins and npm packages\nconst { URL } = require(\"url\");\nconst weatherUrl = new URL(\"https://example.com\");\nweatherUrl.pathname = \"/weather\";\nweatherUrl.search = `?location=\"${city}\"`;\n\n// You can send HTTPS requests to external services\nconst weatherResponse = await context.http.get({\n   url: url.toString(),\n   headers: {\n      Accept: [\"application/json\"],\n   },\n});\nconst { current, forecasts } = JSON.parse(weatherResponse.body.text());\n\nreturn [\n   `Right now ${uppercase(city)} is ${current.temperature}°F and ${current.weather}.`,\n   `Here's the forecast for the next 7 days:`,\n   forecasts\n      .map((f) => `${f.day}: ${f.temperature}°F and ${f.weather}`)\n      .join(\"\\n  \"),\n].join(\"\\n\");\n};",
+      "tokenEstimate": 242
+    },
+    {
+      "language": "text",
+      "content": "Right now NEW YORK CITY is 72°F and sunny.\nHere's the forecast for the next 7 days:\n  Tuesday: 71°F and sunny\n  Wednesday: 72°F and sunny\n  Thursday: 73°F and partly cloudy\n  Friday: 71°F and rainy\n  Saturday: 77°F and sunny\n  Sunday: 76°F and sunny\n  Monday: 74°F and sunny",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "javascript",
+      "content": "exports = function() {\n  return {\n    pi: 3.14159,\n    today: new Date(),\n  }\n}",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"pi\": {\n    \"$numberDouble\": \"3.14159\"\n  },\n  \"today\": {\n    \"$date\": {\n      \"$numberLong\": \"1652297239913\"\n    }\n  }\n}",
+      "tokenEstimate": 46
+    },
+    {
+      "language": "javascript",
+      "content": "exports = function() {\n  return JSON.stringify({\n    pi: 3.14159,\n    today: new Date(),\n  })\n}",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "json",
+      "content": "\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"",
+      "tokenEstimate": 28
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "path": "atlas/triggers/scheduled-triggers-tutorial",
+  "product": "atlas",
+  "title": "Tutorial: Automate Clusters with Scheduled Triggers",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "javascript": 8
+    },
+    "bySection": [
+      {
+        "heading": "Step 3: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 373
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 282
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 189
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 189
+          }
+        ]
+      },
+      {
+        "heading": "Step 1: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 220
+          }
+        ]
+      },
+      {
+        "heading": "Step 3: Create the  Function.",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 201
+          }
+        ]
+      },
+      {
+        "heading": "Optional Helper Functions",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 355
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 237
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Step 3: Create the  Function.",
+      "content": "/*\n * Generate API request headers with a new Service Account Access Token.\n */\nexports = async function getAuthHeaders() {\n\n  // Get stored credentials\n  clientId = context.values.get(\"AtlasClientId\");\n  clientSecret = context.values.get(\"AtlasClientSecret\");\n\n  // Throw an error if credentials are missing\n  if (!clientId || !clientSecret) {\n    throw new Error(\"Authentication credentials not found. Set AtlasClientId/AtlasClientSecret (service account auth credentials).\");\n  }\n\n  // Define the argument for the HTTP request to get the access token\n  const tokenUrl = \"https://cloud.mongodb.com/api/oauth/token\";\n  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString(\"base64\");\n\n  const arg = {\n    url: tokenUrl,\n    headers: {\n      \"Authorization\": [ `Basic ${credentials}` ],\n      \"Content-Type\": [ \"application/x-www-form-urlencoded\" ]\n    },\n    body: \"grant_type=client_credentials\"\n  }\n\n  // The response body is a BSON.Binary object; parse it to extract the access token \n  const response = await context.http.post(arg);\n  const tokenData = JSON.parse(response.body.text());\n  const accessToken = tokenData.access_token;\n\n  // Define the Accept header with the resource version from env var or default to latest stable\n  const resourceVersion = context.environment.ATLAS_API_VERSION || \"2025-03-12\";\n  const acceptHeader = `application/vnd.atlas.${resourceVersion}+json`;\n\n  // Return the access token as headers for future API calls\n  return {\n   headers: {\n     \"Authorization\": [ `Bearer ${accessToken}` ],\n     \"Accept\": [ acceptHeader ],\n     \"Accept-Encoding\": [ \"bzip, deflate\" ],\n     \"Content-Type\": [ \"application/json\" ]\n   }\n  };\n}\n",
+      "tokenEstimate": 373
+    },
+    {
+      "language": "javascript",
+      "section": "Step 4: Create the  Function.",
+      "content": "/*\n * Modifies the cluster as defined by the `body` parameter.\n * See https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/#tag/Clusters/operation/updateCluster\n */\nexports = async function(projectID, clusterName, body) {\n\n  // Easy testing from the console\n  if (projectID === \"Hello world!\") {\n    projectID   = \"<projectId>\";\n    clusterName = \"<clusterName>\";\n    body        = { paused: false };\n  }\n\n  // Retrieve headers to authenticate with a new access token, and define the request URL for the Atlas API endpoint\n  const authHeaders = await context.functions.execute(\"getAuthHeaders\");\n  const requestUrl = `https://cloud.mongodb.com/api/atlas/v2/groups/${projectID}/clusters/${clusterName}`;\n\n  // Build the argument for the HTTP request to the Atlas API to modify the cluster\n  const arg = {\n    url: requestUrl,\n    headers: authHeaders.headers,\n    body: JSON.stringify(body)\n  };\n\n  // The response body is a BSON.Binary object; parse it and return the modified cluster description\n  const response = await context.http.patch(arg);\n  if (response.body) {\n     return EJSON.parse(response.body.text()); \n  } else {\n     throw new Error(`No response body returned from Atlas API. Status code: ${response.status}`);\n  }\n};",
+      "tokenEstimate": 282
+    },
+    {
+      "language": "javascript",
+      "section": "Step 1: Create the  Function.",
+      "content": "/*\n * Iterates over the provided projects and clusters, pausing those clusters.\n */\nexports = async function () {\n\n  // Supply project IDs and cluster names to pause\n  const projectIDs = [\n    {\n      id: \"<projectIdA>\",\n      names: [ \"<clusterNameA>\", \"<clusterNameB>\" ]\n    },\n    {\n      id: \"<projectIdB>\",\n      names: [ \"<clusterNameC>\" ]\n    }\n  ];\n\n  // Set desired state\n  const body = { paused: true };\n\n  // Pause each cluster and log the response\n  for (const project of projectIDs) {\n    for (const cluster of project.names) {\n      const result = await context.functions.execute(\n        \"modifyCluster\",\n        project.id,\n        cluster,\n        body,\n      );\n      console.log(\"Cluster \" + cluster + \": \" + EJSON.stringify(result));\n    }\n  }\n\n  return \"Clusters Paused\";\n};",
+      "tokenEstimate": 189
+    },
+    {
+      "language": "javascript",
+      "section": "Step 3: Create the  Function.",
+      "content": "/*\n * Iterates over the provided projects and clusters, resuming those clusters.\n */\nexports = async function () {\n\n  // Supply project IDs and cluster names to resume\n  const projectIDs = [\n    {\n      id: \"<projectIdA>\",\n      names: [ \"<clusterNameA>\", \"<clusterNameB>\" ]\n    },\n    {\n      id: \"<projectIdB>\",\n      names: [ \"<clusterNameC>\" ]\n    }\n  ];\n\n  // Set desired state\n  const body = { paused: false };\n\n  // Resume each cluster and log the response\n  for (const project of projectIDs) {\n    for (const cluster of project.names) {\n      const result = await context.functions.execute(\n        \"modifyCluster\",\n        project.id,\n        cluster,\n        body,\n      );\n      console.log(\"Cluster \" + cluster + \": \" + EJSON.stringify(result));\n    }\n  }\n\n  return \"Clusters Resumed\";\n};",
+      "tokenEstimate": 189
+    },
+    {
+      "language": "javascript",
+      "section": "Step 1: Create the  Function.",
+      "content": "/*\n * Scales a single cluster up to a larger instance size.\n * This example scales an AWS cluster up to M30 in region US_EAST_1.\n */\nexports = async function() {\n  // Supply project ID and cluster name...\n  const projectID   = \"<projectId>\";\n  const clusterName = \"<clusterName>\";\n\n  // Set the desired instance size and topology...\n  const body = {\n    replicationSpecs: [\n      {\n        regionConfigs: [\n          {\n            electableSpecs: {\n              instanceSize: \"M30\", // for example, larger tier\n              nodeCount: 3\n            },\n            priority:     7,\n            providerName: \"AWS\",\n            regionName:   \"US_EAST_1\"\n          }\n        ]\n      }\n    ]\n  };\n\n  // Scale up the cluster and log the response\n  const result = await context.functions.execute(\n    \"modifyCluster\",\n    projectID,\n    clusterName,\n    body\n  );\n  console.log(EJSON.stringify(result));\n\n  return clusterName + \" scaled up\";\n};",
+      "tokenEstimate": 220
+    },
+    {
+      "language": "javascript",
+      "section": "Step 3: Create the  Function.",
+      "content": "/*\n * Scales a single cluster down to a smaller instance size.\n * This example scales an AWS cluster down to M10 in region US_EAST_1.\n */\nexports = async function() {\n  const projectID   = \"<projectId>\";\n  const clusterName = \"<clusterName>\";\n\n  const body = {\n    replicationSpecs: [\n      {\n        regionConfigs: [\n          {\n            electableSpecs: {\n              instanceSize: \"M10\", // for example, smaller tier\n              nodeCount: 3\n            },\n            priority:     7,\n            providerName: \"AWS\",\n            regionName:   \"US_EAST_1\"\n          }\n        ]\n      }\n    ]\n  };\n\n  // Scale down the cluster and log the response\n  const result = await context.functions.execute(\n    \"modifyCluster\",\n    projectID,\n    clusterName,\n    body\n  );\n  console.log(EJSON.stringify(result));\n\n  return clusterName + \" scaled down\";\n};",
+      "tokenEstimate": 201
+    },
+    {
+      "language": "javascript",
+      "section": "Optional Helper Functions",
+      "content": "/*\n * Returns an array of the projects in the organization\n * See https://docs.atlas.mongodb.com/reference/api/project-get-all/\n *\n * Returns an array of objects, e.g.\n *\n * {\n * \"clusterCount\": {\n *      \"$numberInt\": \"1\"\n *    },\n *    \"created\": \"2021-05-11T18:24:48Z\",\n *    \"id\": \"609acbef1b76b53fcd37c8e1\",\n *    \"links\": [\n *      {\n *        \"href\": \"https://cloud.mongodb.com/api/atlas/v1.0/groups/609acbef1b76b53fcd37c8e1\",\n *        \"rel\": \"self\"\n *      }\n *    ],\n *    \"name\": \"mg-training-sample\",\n *    \"orgId\": \"5b4e2d803b34b965050f1835\"\n *  }\n  *\n */\nexports = async function() {\n  \n  // Retrieve headers to authenticate with a new access token, and define the request URL for the Atlas API endpoint\n  const authHeaders = await context.functions.execute(\"getAuthHeaders\");\n  const requestUrl = `https://cloud.mongodb.com/api/atlas/v2/groups`;\n\n  // Build the argument for the HTTP request to the Atlas API to get all projects in the organization\n  const arg = {\n    url: requestUrl,\n    headers: authHeaders.headers\n  };\n\n  // The response body is a BSON.Binary object; parse it and return the `results` array, which contains the list of projects for the organization\n  response = await context.http.get(arg);\n  return EJSON.parse(response.body.text()).results; \n};",
+      "tokenEstimate": 355
+    },
+    {
+      "language": "javascript",
+      "section": "Optional Helper Functions",
+      "content": "/*\n * Returns an array of the clusters for the supplied project ID.\n * See https://docs.atlas.mongodb.com/reference/api/clusters-get-all/\n *\n * Returns an array of objects. See the API documentation for details.\n * \n */\nexports = async function(projectId) {\n  \n  if (projectId == \"Hello world!\") { // Easy testing from the console\n    projectId = \"<projectId>\"\n  }\n  \n  // Retrieve headers to authenticate with a new access token, and define the request URL for the Atlas API endpoint\n  const authHeaders = await context.functions.execute(\"getAuthHeaders\");\n  const requestUrl = `https://cloud.mongodb.com/api/atlas/v2/groups/${projectId}/clusters`;\n  \n  // Build the argument for the HTTP request to the Atlas API to get all clusters in the project\n  const arg = {\n    url: requestUrl,\n    headers: authHeaders.headers\n  };\n\n  // The response body is a BSON.Binary object; parse it and return the `results` array, which contains the list of clusters for the project\n  response = await context.http.get(arg);\n  return EJSON.parse(response.body.text()).results; \n};",
+      "tokenEstimate": 237
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Parse Multiple Fields from Filename",
+  "headingLevel": 3,
+  "body": "Consider a federated database instance store `accountingArchive` containing files\nwhere the filename describes an invoice number and invoice date. For\nexample, the filename `/invoices/MONGO12345-1564671291998.json`\ncontains the invoice `MONGODB12345` for the UNIX timestamp\n`1564671291998`.\n\nThe following [defaultFormat](adf-aws-databases-reference) object\ngenerates:\n\n- A field `invoiceNumber` by parsing the first segment of the filename\n  as a string.\n\n- A field `invoiceDate` by parsing the second segment of the filename\n  as a UNIX timestamp.\n\n```none\n\"databases\" : [\n  {\n    \"name\": \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]\n```\n\nData Federation adds the computed fields and values to each\ndocument generated from the filename. Documents generated from the\nexample filename include the following fields:\n\n- `invoiceNumber : \"MONGODB12345\"`\n\n- `invoiceDate : ISODate(\"2019-08-01T14:54:51Z\")`\n\nQueries that include *both* the `invoiceNumber` and `invoiceDate`\nfields can be targeted to only those files that match the\nspecified values.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "\"databases\" : [\n  {\n    \"name\": \"accounting\",\n    \"collections\" : [\n      {\n        \"name\" : \"invoices\",\n        \"dataSources\" : [\n          {\n            \"storeName\" : \"accountingArchive\",\n            \"path\" : \"/invoices/{invoiceNumber string}-{invoiceDate epoch_millis}\"\n          }\n        ]\n      }\n    ]\n  }\n]",
+      "tokenEstimate": 80
+    }
+  ]
+}

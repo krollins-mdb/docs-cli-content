@@ -1,0 +1,17 @@
+{
+  "heading": "Example: New York City Taxi Data",
+  "headingLevel": 2,
+  "body": "This example uses a database named `cab-db` that contains information\nabout New York City taxi rides, with fields for the times of pickup and\ndropoff, ride distance, and a breakdown of ride costs. A typical\ndocument in the collection `yellow` looks like the following example:\n\n```json\n{\n     \"_id\" : ObjectId(\"5db9daab0b2a17b7706cd6a3\"),\n     \"pickup_datetime\" : \"2014-06-30 02:09:23\",\n     \"dropoff_datetime\" : \"2014-06-30 02:20:36\",\n     \"passenger_count\" : 2,\n     \"trip_distance\" : 3,\n     \"fare_amount\" : 12,\n     \"tip_amount\" : 2.6,\n     \"total_amount\" : 15.6\n}\n```\n\nThe collection contains more than 10 million documents, so an\napplication that needs to run queries based on specific field data will\ngenerate some very inefficient operations unless you properly index the\ncollection.\n\nTypical queries for this application search for documents that contain\na specific dropoff time, combined with one or more other fields. For\nexample:\n\n```javascript\ndb.yellow.find({ \"dropoff_datetime\": \"2014-06-19 21:45:00\",\n                 \"passenger_count\": 1,\n                 \"trip_distance\": {\"$gt\": 3 }\n               })\n```\n\nThe Performance Advisor recommends the following indexes to improve performance:\n\n![Screen shot of suggested indexes](/performance-advisor/images/suggested-indexes.png)\n\n> **Note:** By default, the Performance Advisor shows index recommendations for all collections\n> in your cluster. To narrow the recommendations down to a specific\n> collection, select one from the **Collection** dropdown\n> menu.\n\nThe Performance Advisor lists recommended indexes in order of performance impact, from\ngreatest to least.\n\nThe first recommendation is for an index on three fields:\n\n- `passenger_count`\n\n- `dropoff_datetime`\n\n- `trip_distance`\n\nClick the **Create Index** button to create the index with\nany desired additional options. To learn more about creating an index\nin the Performance Advisor, see [Create Suggested Indexes](pa-create-suggested-indexes).\n\nIf you create this index, you remove the need for the database engine\nto scan the entire collection to find documents that match the query,\nwhich improves performance. Queries with the shape shown in the\n[example](taxi-example-query) return results in 50 milliseconds\nor less on the indexed collection, as opposed to several seconds on the\nunindexed collection.\n\n> **Note:** You can also create indexes with the [Atlas UI](atlas-ui-indexes).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n     \"_id\" : ObjectId(\"5db9daab0b2a17b7706cd6a3\"),\n     \"pickup_datetime\" : \"2014-06-30 02:09:23\",\n     \"dropoff_datetime\" : \"2014-06-30 02:20:36\",\n     \"passenger_count\" : 2,\n     \"trip_distance\" : 3,\n     \"fare_amount\" : 12,\n     \"tip_amount\" : 2.6,\n     \"total_amount\" : 15.6\n}",
+      "tokenEstimate": 118
+    },
+    {
+      "language": "javascript",
+      "content": "db.yellow.find({ \"dropoff_datetime\": \"2014-06-19 21:45:00\",\n                 \"passenger_count\": 1,\n                 \"trip_distance\": {\"$gt\": 3 }\n               })",
+      "tokenEstimate": 46
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Metadata Example",
+  "headingLevel": 3,
+  "body": "The following query searches for movies with a runtime greater than or\nequal to `2` and less than or equal to `3`. The query uses the\n[$searchMeta](pipe.$searchMeta) stage to retrieve all movies in the following\nbuckets (years) that match the search criteria:\n\n- 1990, inclusive lower bound for this bucket\n\n- 2000, exclusive upper bound for the 1990 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2000 bucket and inclusive lower bound for this bucket\n\n- 2020, exclusive upper bound for the 2010 bucket\n\nThe query uses an index named `default` that dynamically indexes all\nthe fields in the `sample_mflix.movies` namespace.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"runtime\",\n            \"gte\": 2,\n            \"lte\": 3\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1990, 2000, 2010, 2020 ]\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('15') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1990, count: Long('2') },\n          { _id: 2000, count: Long('3') },\n          { _id: 2010, count: Long('5') }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"range\": {\n            \"path\": \"runtime\",\n            \"gte\": 2,\n            \"lte\": 3\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1990, 2000, 2010, 2020 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    count: { lowerBound: Long('15') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1990, count: Long('2') },\n          { _id: 2000, count: Long('3') },\n          { _id: 2010, count: Long('5') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 86
+    }
+  ]
+}

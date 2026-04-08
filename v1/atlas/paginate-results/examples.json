@@ -1,0 +1,195 @@
+{
+  "path": "atlas/paginate-results",
+  "product": "atlas",
+  "title": "Paginate the Results",
+  "summary": {
+    "total": 16,
+    "byLanguage": {
+      "json": 16
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 95
+          }
+        ]
+      },
+      {
+        "heading": "searchAfter Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 104
+          }
+        ]
+      },
+      {
+        "heading": "searchBefore Syntax",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 104
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 136
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 753
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 70
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 158
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 768
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 160
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 753
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 168
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 783
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 39
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 254
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 802
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "json",
+      "section": "Syntax",
+      "content": "[{\n  \"$search\": {\n    \"index\": \"<index-name>\",\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    },\n    \"sort\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    },\n    ...\n  },\n  {\n    \"$project\": {\n       \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" }\n  },\n  ...\n}]",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "json",
+      "section": "searchAfter Syntax",
+      "content": "[{\n  \"$search\": {\n    \"index\": \"<index-name>\",\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    },\n    \"searchAfter\": \"<base64-encoded-token>\",\n    \"sort\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    },\n    ...\n  },\n  \"$project\": {\n    \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" }\n  },\n  ...\n}]",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "json",
+      "section": "searchBefore Syntax",
+      "content": "[{\n  \"$search\": {\n    \"index\": \"<index-name>\",\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    },\n    \"searchBefore\": \"<base64-encoded-token>\",\n    \"sort\": {\n      \"score\": {\n       \"$meta\": \"searchScore\"\n     }\n    },\n    ...\n  },\n  \"$project\": {\n    \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" }\n  },\n  ...\n}]",
+      "tokenEstimate": 104
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"pagination-tutorial\",\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"sort\": { \"released\": 1 }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1,\n      \"paginationToken\": { \"$meta\" : \"searchSequenceToken\" },\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 136
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n  {\n    genres: [ 'Drama' ],\n    title: \"A Summer at Grandpa's\",\n    paginationToken: 'CKUdGgJgAA==',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Musical', 'Romance' ],\n    title: 'Summer Stock',\n    released: ISODate('1951-01-22T00:00:00.000Z'),\n    paginationToken: 'CJsFGgkpAHw/0HT///8=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Comedy', 'Romance' ],\n    title: 'Smiles of a Summer Night',\n    released: ISODate('1957-12-23T00:00:00.000Z'),\n    paginationToken: 'CKIHGgkpAKDlpaf///8=',\n    score: 2.0149309635162354\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Violent Summer',\n    released: ISODate('1959-11-13T00:00:00.000Z'),\n    paginationToken: 'CI8JGgkpAJhJh7X///8=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'A Summer Place',\n    released: ISODate('1959-11-18T00:00:00.000Z'),\n    paginationToken: 'CLoJGgkpAGQJobX///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'The End of Summer',\n    released: ISODate('1962-02-01T00:00:00.000Z'),\n    paginationToken: 'CK0KGgkpAAzP18X///8=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'Summer and Smoke',\n    released: ISODate('1962-04-01T00:00:00.000Z'),\n    paginationToken: 'CMQKGgkpAECmB8f///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Documentary', 'Sport' ],\n    title: 'The Endless Summer',\n    released: ISODate('1968-08-17T00:00:00.000Z'),\n    paginationToken: 'CO4MGgkpAJjH5vX///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Comedy', 'Drama', 'Romance' ],\n    title: \"Summer of '42\",\n    released: ISODate('1971-04-09T00:00:00.000Z'),\n    paginationToken: 'CPQQGgkpAGRgUAkAAAA=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'That Certain Summer',\n    released: ISODate('1972-11-01T00:00:00.000Z'),\n    paginationToken: 'COwRGgkpAPQV0hQAAAA=',\n    score: 2.579726457595825\n  }\n]",
+      "tokenEstimate": 753
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"index\": \"pagination-tutorial\",\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"count\": {\n         \"type\": \"lowerBound\",\n         \"threshold\": 5000\n      }\n    }\n  }\n])",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[ { count: { lowerBound: Long(\"65\") } } ]",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"pagination-tutorial\",\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"searchAfter\": \"COwRGgkpAPQV0hQAAAA=\",\n      \"sort\": { \"released\": 1 }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1,\n      \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" },\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n  ",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n  {\n    genres: [ 'Drama' ],\n    title: 'Summer Wishes, Winter Dreams',\n    released: ISODate('1974-09-09T00:00:00.000Z'),\n    paginationToken: 'CMwSGgkpAECHcCIAAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama', 'Thriller' ],\n    title: 'Shadows of a Hot Summer',\n    released: ISODate('1978-09-01T00:00:00.000Z'),\n    paginationToken: 'CPEVGgkpAGw/qz8AAAA=',\n    score: 2.0149309635162354\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Indian Summer',\n    released: ISODate('1978-11-01T00:00:00.000Z'),\n    paginationToken: 'CNYRGgkpAFhj5UAAAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Indian Summer',\n    released: ISODate('1978-11-01T00:00:00.000Z'),\n    paginationToken: 'CNsRGgkpAFhj5UAAAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama', 'Mystery' ],\n    title: 'One Deadly Summer',\n    released: ISODate('1983-05-11T00:00:00.000Z'),\n    paginationToken: 'COwcGgkpAAjtIGIAAAA=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Comedy' ],\n    title: 'Summer Rental',\n    released: ISODate('1985-08-09T00:00:00.000Z'),\n    paginationToken: 'CL8fGgkpABTypHIAAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'Summer',\n    released: ISODate('1986-08-29T00:00:00.000Z'),\n    paginationToken: 'CO0gGgkpAHCiY3oAAAA=',\n    score: 3.5844719409942627\n  },\n  {\n    genres: [ 'Drama', 'Thriller' ],\n    title: 'Summer Camp Nightmare',\n    released: ISODate('1987-04-17T00:00:00.000Z'),\n    paginationToken: 'CNkiGgkpAHQ/CX8AAAA=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Action', 'Crime', 'Drama' ],\n    title: 'Cold Summer of 1953',\n    released: ISODate('1988-06-01T00:00:00.000Z'),\n    paginationToken: 'CNsjGgkpACjVTYcAAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama', 'War' ],\n    title: 'That Summer of White Roses',\n    released: ISODate('1989-07-11T00:00:00.000Z'),\n    paginationToken: 'CI0mGgkpALSEc48AAAA=',\n    score: 2.0149309635162354\n  }\n]",
+      "tokenEstimate": 768
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"pagination-tutorial\",\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"searchBefore\": \"CMwSGgkpAECHcCIAAAA=\",\n      \"sort\": { \"released\": 1 }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1,\n      \"genres\": 1,\n      \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" },\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n]).toArray().reverse()",
+      "tokenEstimate": 160
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n  {\n    genres: [ 'Drama' ],\n    title: \"A Summer at Grandpa's\",\n    paginationToken: 'CKUdGgJgAA==',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Musical', 'Romance' ],\n    title: 'Summer Stock',\n    released: ISODate('1951-01-22T00:00:00.000Z'),\n    paginationToken: 'CJsFGgkpAHw/0HT///8=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Comedy', 'Romance' ],\n    title: 'Smiles of a Summer Night',\n    released: ISODate('1957-12-23T00:00:00.000Z'),\n    paginationToken: 'CKIHGgkpAKDlpaf///8=',\n    score: 2.0149309635162354\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Violent Summer',\n    released: ISODate('1959-11-13T00:00:00.000Z'),\n    paginationToken: 'CI8JGgkpAJhJh7X///8=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'A Summer Place',\n    released: ISODate('1959-11-18T00:00:00.000Z'),\n    paginationToken: 'CLoJGgkpAGQJobX///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'The End of Summer',\n    released: ISODate('1962-02-01T00:00:00.000Z'),\n    paginationToken: 'CK0KGgkpAAzP18X///8=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'Summer and Smoke',\n    released: ISODate('1962-04-01T00:00:00.000Z'),\n    paginationToken: 'CMQKGgkpAECmB8f///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Documentary', 'Sport' ],\n    title: 'The Endless Summer',\n    released: ISODate('1968-08-17T00:00:00.000Z'),\n    paginationToken: 'CO4MGgkpAJjH5vX///8=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Comedy', 'Drama', 'Romance' ],\n    title: \"Summer of '42\",\n    released: ISODate('1971-04-09T00:00:00.000Z'),\n    paginationToken: 'CPQQGgkpAGRgUAkAAAA=',\n    score: 2.579726457595825\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'That Certain Summer',\n    released: ISODate('1972-11-01T00:00:00.000Z'),\n    paginationToken: 'COwRGgkpAPQV0hQAAAA=',\n    score: 2.579726457595825\n  }\n]",
+      "tokenEstimate": 753
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n    {\n      \"$search\": {\n        \"index\": \"pagination-tutorial\",\n        \"text\": {\n          \"path\": \"title\",\n          \"query\": \"summer\"\n        },\n        \"searchAfter\": \"COwRGgkpAPQV0hQAAAA=\",\n        \"sort\": { \"released\": 1 }\n      }\n    },\n    {\n      \"$skip\": 20\n    },\n    {\n      \"$limit\": 10\n    },\n    {\n      \"$project\": {\n        \"_id\": 0,\n        \"title\": 1,\n        \"released\": 1,\n        \"genres\": 1,\n        \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" },\n        \"score\": { \"$meta\": \"searchScore\" }\n      }\n    }\n])",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n  {\n    genres: [ 'Drama' ],\n    title: 'A Storm in Summer',\n    released: ISODate('2000-02-27T00:00:00.000Z'),\n    paginationToken: 'CO5FGgkpAChakN0AAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Comedy', 'Romance' ],\n    title: 'Wet Hot American Summer',\n    released: ISODate('2002-04-11T00:00:00.000Z'),\n    paginationToken: 'CKtIGgkpAFBUIu0AAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Comedy', 'Drama', 'Romance' ],\n    title: 'Summer Things',\n    released: ISODate('2002-10-09T00:00:00.000Z'),\n    paginationToken: 'CIpPGgkpAFxzxvAAAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Adventure', 'Drama', 'Family' ],\n    title: 'Wolf Summer',\n    released: ISODate('2003-02-28T00:00:00.000Z'),\n    paginationToken: 'COZWGgkpAGS6ofMAAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Animation', 'Adventure' ],\n    title: 'Nasu: Summer in Andalusia',\n    released: ISODate('2003-06-26T00:00:00.000Z'),\n    paginationToken: 'CNlaGgkpAMxoAfYAAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Spring, Summer, Fall, Winter... and Spring',\n    released: ISODate('2004-05-28T00:00:00.000Z'),\n    paginationToken: 'CJ5ZGgkpAOjnyPwAAAA=',\n    score: 1.8161234855651855\n  },\n  {\n    genres: [ 'Comedy', 'Drama', 'Romance' ],\n    title: 'Summer Storm',\n    released: ISODate('2004-09-02T00:00:00.000Z'),\n    paginationToken: 'CMVfGgkpAMRwvP4AAAA=',\n    score: 3.000213623046875\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Summer in the Golden Valley',\n    released: ISODate('2004-10-08T00:00:00.000Z'),\n    paginationToken: 'CNNWGgkpALTVdf8AAAA=',\n    score: 2.0149309635162354\n  },\n  {\n    genres: [ 'Drama', 'Romance' ],\n    title: 'My Summer of Love',\n    released: ISODate('2005-07-01T00:00:00.000Z'),\n    paginationToken: 'CL5aGgkpAEyxzwQBAAA=',\n    score: 2.262615203857422\n  },\n  {\n    genres: [ 'Drama' ],\n    title: 'Summer in Berlin',\n    released: ISODate('2006-01-05T00:00:00.000Z'),\n    paginationToken: 'CPZmGgkpANzclwgBAAA=',\n    score: 2.579726457595825\n  }\n]",
+      "tokenEstimate": 783
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n      \"fields\": {\n        \"genres\": {\n          \"type\": \"token\"\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "db.movies.aggregate([\n    {\n      \"$search\": {\n        \"index\": \"pagination-tutorial\",\n        \"facet\": {\n          \"operator\": {\n            \"text\": {\n              \"path\": \"title\",\n              \"query\": \"summer\"\n            } \n          },\n          \"facets\": {\n            \"genresFacet\": {\n              \"type\": \"string\",\n              \"path\": \"genres\"\n            }\n          }\n        }\n      }\n    },\n    { \n      \"$addFields\": {\n        \"paginationToken\" : { \"$meta\" : \"searchSequenceToken\" }\n      }\n    },\n    { \"$limit\": 10 },\n    {\n      \"$facet\": {\n        \"docs\": [\n          { \"$project\":\n            {\n              \"_id\": 0,\n              \"title\": 1,\n              \"released\": 1,\n              \"genres\": 1,\n              \"paginationToken\" : 1\n            }\n          }\n        ],\n        \"meta\": [\n          { \"$replaceWith\": \"$$SEARCH_META\" },\n          { \"$limit\": 1 }\n        ]\n      }\n    },\n    {\n      \"$set\": {\n        \"meta\": {\n          \"$arrayElemAt\": [\"$meta\", 0]\n        }\n      }\n    }\n])",
+      "tokenEstimate": 254
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "[\n    {\n      docs: [\n        {\n          genres: [ 'Drama', 'Romance' ],\n          title: 'Summer',\n          released: ISODate('1986-08-29T00:00:00.000Z'),\n          paginationToken: 'CO0gFf1nZUA='\n        },\n        {\n          genres: [ 'Musical', 'Romance' ],\n          title: 'Summer Stock',\n          released: ISODate('1951-01-22T00:00:00.000Z'),\n          paginationToken: 'CJsFFYADQEA='\n        },\n        {\n          genres: [ 'Drama' ],\n          title: 'Violent Summer',\n          released: ISODate('1959-11-13T00:00:00.000Z'),\n          paginationToken: 'CI8JFYADQEA='\n        },\n        {\n          genres: [ 'Drama' ],\n          title: 'Indian Summer',\n          released: ISODate('1978-11-01T00:00:00.000Z'),\n          paginationToken: 'CNYRFYADQEA='\n        },\n        {\n          genres: [ 'Drama' ],\n          title: 'Indian Summer',\n          released: ISODate('1978-11-01T00:00:00.000Z'),\n          paginationToken: 'CNsRFYADQEA='\n        },\n        {\n          genres: [ 'Comedy' ],\n          title: 'Summer Rental',\n          released: ISODate('1985-08-09T00:00:00.000Z'),\n          paginationToken: 'CL8fFYADQEA='\n        },\n        {\n          genres: [ 'Comedy', 'Drama', 'Romance' ],\n          title: 'Summer Things',\n          released: ISODate('2002-10-09T00:00:00.000Z'),\n          paginationToken: 'CIpPFYADQEA='\n        },\n        {\n          genres: [ 'Adventure', 'Drama', 'Family' ],\n          title: 'Wolf Summer',\n          released: ISODate('2003-02-28T00:00:00.000Z'),\n          paginationToken: 'COZWFYADQEA='\n        },\n        {\n          genres: [ 'Comedy', 'Drama', 'Romance' ],\n          title: 'Summer Storm',\n          released: ISODate('2004-09-02T00:00:00.000Z'),\n          paginationToken: 'CMVfFYADQEA='\n        },\n        {\n          genres: [ 'Drama', 'Romance' ],\n          title: 'Summer Palace',\n          released: ISODate('2007-04-18T00:00:00.000Z'),\n          paginationToken: 'CIRrFYADQEA='\n        }\n      ],\n      meta: {\n        count: { lowerBound: Long('65') },\n        facet: {\n          genresFacet: {\n            buckets: [\n              { _id: 'Drama', count: Long('48') },\n              { _id: 'Romance', count: Long('20') },\n              { _id: 'Comedy', count: Long('19') },\n              { _id: 'Family', count: Long('7') },\n              { _id: 'Adventure', count: Long('5') },\n              { _id: 'Crime', count: Long('5') },\n              { _id: 'Mystery', count: Long('5') },\n              { _id: 'Thriller', count: Long('5') },\n              { _id: 'Horror', count: Long('4') },\n              { _id: 'Action', count: Long('3') }\n            ]\n          }\n        }\n      }\n    }\n]",
+      "tokenEstimate": 802
+    }
+  ]
+}

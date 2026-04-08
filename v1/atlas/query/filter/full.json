@@ -1,0 +1,230 @@
+{
+  "path": "atlas/query/filter",
+  "product": "atlas",
+  "title": "Query Your Data",
+  "sections": [
+    {
+      "heading": "Set Query Filter",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Step 1: Set the query filter.",
+      "headingLevel": 3,
+      "body": "- Select the collection.\n\n- In the **Filter** field, enter a filter document\n  between the curly braces. You can use all the MongoDB\n  [query operators](manual/reference/mql/query-operators) except\n  the [$text](manual/reference/operator/query/text) and [$expr](manual/reference/operator/query/expr) operators.\n\n  > **Example:** The following filter returns documents that have a\n  > `title` value of `Jurassic Park`:\n  >\n  > ```json\n  > { \"title\": \"Jurassic Park\" }\n  > ```\n\n- Click Find to run the query and view the updated\n  results.\n\n![Results of applying a query filter](/atlas-ui/images/atlas-ui/querybar/query-filter-success.png)",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ \"title\": \"Jurassic Park\" }",
+          "tokenEstimate": 10
+        }
+      ]
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "The examples on this page use a small example dataset. To import the\nsample data into your MongoDB deployment, perform the following steps:\n\n- Copy the following documents to your clipboard:\n\n  ```JSON\n  [\n     {\n        \"name\": \"Andrea Le\",\n        \"email\": \"andrea_le@fake-mail.com\",\n        \"school\": {\n           \"name\": \"Northwestern\"\n        },\n        \"version\": 5,\n        \"scores\": [ 85, 95, 75 ],\n        \"dateCreated\": { \"$date\": \"2003-03-26\" }\n     },\n     {\n        \"email\": \"no_name@fake-mail.com\",\n        \"version\": 4,\n        \"scores\": [ 90, 90, 70 ],\n        \"dateCreated\": { \"$date\": \"2001-04-15\" }\n     },\n     {\n        \"name\": \"Greg Powell\",\n        \"email\": \"greg_powell@fake-mail.com\",\n        \"version\": 1,\n        \"scores\": [ 65, 75, 80 ],\n        \"dateCreated\": { \"$date\": \"1999-02-10\" }\n     }\n  ]\n  ```\n\n- In Atlas, use the left navigation panel to select the\n  database and the collection you want to import the data to.\n\n- Click the **Documents** tab.\n\n- Click **Add Data** and select **Insert Document**.\n\n- Set the **View** to JSON (`{}`).\n\n- Paste the JSON documents from your clipboard into the modal.\n\n- Click **Insert**.\n\n> **Note:** If you do not have a MongoDB deployment or if you want to query a\n> larger sample data set, see [Sample Data for Atlas Clusters](atlas/sample-data) for instructions on creating a free-tier cluster\n> with sample data. The following example queries filter the sample\n> documents provided on this page.",
+      "codeBlocks": [
+        {
+          "language": "JSON",
+          "content": "[\n   {\n      \"name\": \"Andrea Le\",\n      \"email\": \"andrea_le@fake-mail.com\",\n      \"school\": {\n         \"name\": \"Northwestern\"\n      },\n      \"version\": 5,\n      \"scores\": [ 85, 95, 75 ],\n      \"dateCreated\": { \"$date\": \"2003-03-26\" }\n   },\n   {\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   },\n   {\n      \"name\": \"Greg Powell\",\n      \"email\": \"greg_powell@fake-mail.com\",\n      \"version\": 1,\n      \"scores\": [ 65, 75, 80 ],\n      \"dateCreated\": { \"$date\": \"1999-02-10\" }\n   }\n]",
+          "tokenEstimate": 201
+        }
+      ]
+    },
+    {
+      "heading": "Match by a Single Condition",
+      "headingLevel": 3,
+      "body": "The following query filter finds all documents where the value of\n`name` is \"Andrea Le\":\n\n```shell\n{ name: \"Andrea Le\" }\n```\n\nThe query returns the following document:\n\n```JSON\n{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ name: \"Andrea Le\" }",
+          "tokenEstimate": 9
+        },
+        {
+          "language": "JSON",
+          "content": "{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}",
+          "tokenEstimate": 101
+        }
+      ]
+    },
+    {
+      "heading": "Match by Multiple Conditions ($and)",
+      "headingLevel": 3,
+      "body": "The following query filter finds all documents where `scores` array\ncontains the value `75`, and the `name` is `Greg Powell`:\n\n```shell\n{ $and: [ { scores: 75, name: \"Greg Powell\" } ] }\n```\n\nThe query returns the following document:\n\n```JSON\n{\n   \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n   \"name\": \"Greg Powell\",\n   \"email\": \"greg_powell@fake-mail.com\",\n   \"version\": 1,\n   \"scores\": [ 65, 75, 80 ],\n   \"dateCreated\": { \"$date\": \"1999-02-10\" }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ $and: [ { scores: 75, name: \"Greg Powell\" } ] }",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "JSON",
+          "content": "{\n   \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n   \"name\": \"Greg Powell\",\n   \"email\": \"greg_powell@fake-mail.com\",\n   \"version\": 1,\n   \"scores\": [ 65, 75, 80 ],\n   \"dateCreated\": { \"$date\": \"1999-02-10\" }\n}",
+          "tokenEstimate": 84
+        }
+      ]
+    },
+    {
+      "heading": "Match by Multiple Possible Conditions ($or)",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$or](manual/reference/operator/query/or) operator to find\ndocuments where `version` is `4`, or `name` is `Andrea Le`:\n\n```shell\n{ $or: [ { version: 4 }, { name: \"Andrea Le\" } ] }\n```\n\nThe query returns the following documents:\n\n```JSON\n[\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n      \"name\": \"Andrea Le\",\n      \"email\": \"andrea_le@fake-mail.com\",\n      \"school\": {\n         \"name\": \"Northwestern\"\n      },\n      \"version\": 5,\n      \"scores\": [ 85, 95, 75 ],\n      \"dateCreated\": { \"$date\": \"2003-03-26\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ $or: [ { version: 4 }, { name: \"Andrea Le\" } ] }",
+          "tokenEstimate": 22
+        },
+        {
+          "language": "JSON",
+          "content": "[\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n      \"name\": \"Andrea Le\",\n      \"email\": \"andrea_le@fake-mail.com\",\n      \"school\": {\n         \"name\": \"Northwestern\"\n      },\n      \"version\": 5,\n      \"scores\": [ 85, 95, 75 ],\n      \"dateCreated\": { \"$date\": \"2003-03-26\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   }\n]",
+          "tokenEstimate": 182
+        }
+      ]
+    },
+    {
+      "heading": "Match by Exclusion ($not)",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$not](manual/reference/operator/query/not) operator to find all\ndocuments where the value of the `name` field is **not** equal to\n\"Andrea Le\", or the `name` field does not exist:\n\n```shell\n{ name: { $not: { $eq: \"Andrea Le\" } } }\n```\n\nThe query returns the following documents:\n\n```JSON\n[\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n      \"name\": \"Greg Powell\",\n      \"email\": \"greg_powell@fake-mail.com\",\n      \"version\": 1,\n      \"scores\": [ 65, 75, 80 ],\n      \"dateCreated\": { \"$date\": \"1999-02-10\" }\n   }\n]\n```\n\n> **See Also:** For a complete list of logical query operators, see\n> [Logical Query Operators](manual/reference/mql/query-logical).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ name: { $not: { $eq: \"Andrea Le\" } } }",
+          "tokenEstimate": 19
+        },
+        {
+          "language": "JSON",
+          "content": "[\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n      \"name\": \"Greg Powell\",\n      \"email\": \"greg_powell@fake-mail.com\",\n      \"version\": 1,\n      \"scores\": [ 65, 75, 80 ],\n      \"dateCreated\": { \"$date\": \"1999-02-10\" }\n   }\n]",
+          "tokenEstimate": 165
+        }
+      ]
+    },
+    {
+      "heading": "Match with Comparison Operators",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$lte](manual/reference/operator/query/lte) operator to find all\ndocuments where `version` is less than or equal to `4`:\n\n```shell\n{ version: { $lte: 4 } }\n```\n\nThe query returns the following documents:\n\n```JSON\n[\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n      \"name\": \"Greg Powell\",\n      \"email\": \"greg_powell@fake-mail.com\",\n      \"version\": 1,\n      \"scores\": [ 65, 75, 80 ],\n      \"dateCreated\": { \"$date\": \"1999-02-10\" }\n   }\n]\n```\n\n> **See Also:** For a complete list of comparison operators, see\n> [Comparison Query Operators](manual/reference/mql/query-comparison).",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ version: { $lte: 4 } }",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "JSON",
+          "content": "[\n   {\n      \"_id\": { \"$oid\":\"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   },\n   {\n      \"_id\": { \"$oid\":\"5a9427648b0beebeb69579cf\" },\n      \"name\": \"Greg Powell\",\n      \"email\": \"greg_powell@fake-mail.com\",\n      \"version\": 1,\n      \"scores\": [ 65, 75, 80 ],\n      \"dateCreated\": { \"$date\": \"1999-02-10\" }\n   }\n]",
+          "tokenEstimate": 165
+        }
+      ]
+    },
+    {
+      "heading": "Match by Date",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$gt](manual/reference/operator/query/gt) operator and\n[Date()](manual/reference/method/Date) method to find all documents where the `dateCreated`\nfield value is later than June 22nd, 2000:\n\n```shell\n{ dateCreated: { $gt: new Date('2000-06-22') } }\n```\n\nThe query returns the following documents:\n\n```JSON\n[\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n      \"name\": \"Andrea Le\",\n      \"email\": \"andrea_le@fake-mail.com\",\n      \"school\": {\n         \"name\": \"Northwestern\"\n      },\n      \"version\": 5,\n      \"scores\": [ 85, 95, 75 ],\n      \"dateCreated\": { \"$date\": \"2003-03-26\" }\n   },\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   }\n]\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ dateCreated: { $gt: new Date('2000-06-22') } }",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "JSON",
+          "content": "[\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n      \"name\": \"Andrea Le\",\n      \"email\": \"andrea_le@fake-mail.com\",\n      \"school\": {\n         \"name\": \"Northwestern\"\n      },\n      \"version\": 5,\n      \"scores\": [ 85, 95, 75 ],\n      \"dateCreated\": { \"$date\": \"2003-03-26\" }\n   },\n   {\n      \"_id\": { \"$oid\": \"5e349915cebae490877d561e\" },\n      \"email\": \"no_name@fake-mail.com\",\n      \"version\": 4,\n      \"scores\": [ 90, 90, 70 ],\n      \"dateCreated\": { \"$date\": \"2001-04-15\" }\n   }\n]",
+          "tokenEstimate": 183
+        }
+      ]
+    },
+    {
+      "heading": "Match by Array Conditions",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$elemMatch](manual/reference/operator/query/elemMatch) operator\nto find all documents where at least one value in the `scores`\narray is greater than `80` and less than `90`:\n\n```shell\n{ scores: { $elemMatch: { $gt: 80, $lt: 90 } } }\n```\n\nThe query returns the following document because one of the values\nin the `scores` array is `85`:\n\n```JSON\n{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}\n```\n\nFor more query examples, see\n[Query Documents](manual/tutorial/query-documents)\nin the MongoDB manual.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ scores: { $elemMatch: { $gt: 80, $lt: 90 } } }",
+          "tokenEstimate": 23
+        },
+        {
+          "language": "JSON",
+          "content": "{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}",
+          "tokenEstimate": 101
+        }
+      ]
+    },
+    {
+      "heading": "Match by Substring",
+      "headingLevel": 3,
+      "body": "The following query filter uses the [$regex](manual/reference/operator/query/regex) operator\nto find all documents where the value of `email` includes the term\n\"andrea\\_le\":\n\n```shell\n{ email: { $regex: \"andrea_le\" } }\n```\n\nThe query returns the following document:\n\n```JSON\n{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ email: { $regex: \"andrea_le\" } }",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "JSON",
+          "content": "{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}",
+          "tokenEstimate": 101
+        }
+      ]
+    },
+    {
+      "heading": "Match by Embedded Field",
+      "headingLevel": 3,
+      "body": "The following query filter finds the\ndocument with the `school.name` subfield of \"Northwestern\":\n\n```shell\n{ \"school.name\": \"Northwestern\" }\n```\n\nThe query returns the following document:\n\n```JSON\n{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}\n```\n\nFor more query examples, see\n[Query Documents](manual/tutorial/query-documents)\nin the MongoDB manual.",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "{ \"school.name\": \"Northwestern\" }",
+          "tokenEstimate": 10
+        },
+        {
+          "language": "JSON",
+          "content": "{\n   \"_id\": { \"$oid\": \"5e349915cebae490877d561d\" },\n   \"name\": \"Andrea Le\",\n   \"email\": \"andrea_le@fake-mail.com\",\n   \"school\": {\n      \"name\": \"Northwestern\"\n   },\n   \"version\": 5,\n   \"scores\": [ 85, 95, 75 ],\n   \"dateCreated\": { \"$date\": \"2003-03-26\" }\n}",
+          "tokenEstimate": 101
+        }
+      ]
+    },
+    {
+      "heading": "Supported Data Types in the Query Bar",
+      "headingLevel": 2,
+      "body": "The Atlas **Filter** supports using the\n[mongosh](mongodb-shell) representation of the MongoDB\nExtended JSON [BSON data types](manual/reference/mongodb-extended-json).\n\n> **Example:** The following filter returns documents where\n> `start_date` is greater than than the BSON `Date`\n> `2017-05-01`:\n>\n> ```javascript\n> { \"start_date\": {$gt: new Date('2017-05-01')} }\n> ```\n>\n> By specifying the `Date` type in both `start_date` and the\n> `$gt` comparison operator, Atlas performs the `greater\n> than` comparison chronologically, returning documents with\n> `start_date` later than `2017-05-01`.\n>\n> Without the `Date` type specification, Atlas compares the\n> `start_dates` as strings\n> [lexicographically](https://en.wikipedia.org/wiki/Lexicographical_order),\n> instead of comparing the values chronologically.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ \"start_date\": {$gt: new Date('2017-05-01')} }",
+          "tokenEstimate": 19
+        }
+      ]
+    },
+    {
+      "heading": "Clear the Query",
+      "headingLevel": 2,
+      "body": "To clear the query bar and the results of the query, click\nReset.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How Does the Atlas Query Compare to MongoDB and SQL Queries?",
+      "headingLevel": 2,
+      "body": "[$filter](manual/reference/operator/aggregation/filter) corresponds to the `WHERE` clause in a\nSQL (Structured Query Language) `SELECT` statement.\n\n> **Example:** You have 3,235 articles. You would like to see all articles\n> that Joe Bloggs wrote.\n>\n> Atlas\n>\n>  Filter Option\n>\n> ```javascript\n> { author : { $eq : \"Joe Bloggs\" } }\n> ```\n>\n> MongoDB Aggregation\n>\n> ```javascript\n> db.article.aggregate( { $match: { \"author\": \"Joe Bloggs\" } } )\n> ```\n>\n> SQL\n>\n> ```sql\n> SELECT * FROM article\n> WHERE author = \"Joe Bloggs\";\n> ```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ author : { $eq : \"Joe Bloggs\" } }",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "javascript",
+          "content": "db.article.aggregate( { $match: { \"author\": \"Joe Bloggs\" } } )",
+          "tokenEstimate": 20
+        },
+        {
+          "language": "sql",
+          "content": "SELECT * FROM article\nWHERE author = \"Joe Bloggs\";",
+          "tokenEstimate": 13
+        }
+      ]
+    }
+  ]
+}

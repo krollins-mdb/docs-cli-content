@@ -1,0 +1,17 @@
+{
+  "heading": "Application names used by client applications to connect to the cluster",
+  "headingLevel": 4,
+  "body": "We can suggest that customers include the application name in the connection\nstring to specify different applications connecting to the cluster. By using the\n`appName`, we can identify which application is creating many connections\nto the cluster in the future. See the [Miscellaneous Configuration](v6.2/reference/connection-string)\nsection of our documentation for more details on using the `appName` in\nthe connection string. Additionally, you can use the `db.currentOp().appname`\ncommand to see the current operations associated with the application name.\nThe following query provides details of the `appName` with the number of\nconnections created by that particular application.\n\n**Input:**\n\n```\nmore mongodb.log| grep 'NETWORK' | jq -r '.attr.doc.application.name' | grep -v null | sort | uniq -c | sort -rn\n```\n\n**Output:**\n\n```\n10809   niyo-*******-api\n8616    MongoDB CPS Module v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n7203    niyo-ns*****\n5752    MongoDB Automation Agent v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n3601    *****-auth-service\n```\n\nThe provided details help to pinpoint the specific factors\ncontributing to the high number of connections. By analyzing Source Client\nIP, client metadata, driver usage, and application names, you can identify\nwhich elements are responsible for the increased connections and determine\nthe necessary areas to investigate. This targeted approach allows you\nto disregard other less relevant factors and concentrate on\naddressing the issues with the highlighted information, ultimately\nstreamlining the mitigation process and enhancing cluster performance.",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "more mongodb.log| grep 'NETWORK' | jq -r '.attr.doc.application.name' | grep -v null | sort | uniq -c | sort -rn",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "text",
+      "content": "10809   niyo-*******-api\n8616    MongoDB CPS Module v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n7203    niyo-ns*****\n5752    MongoDB Automation Agent v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n3601    *****-auth-service",
+      "tokenEstimate": 119
+    }
+  ]
+}

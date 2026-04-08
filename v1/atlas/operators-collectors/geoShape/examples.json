@@ -1,0 +1,146 @@
+{
+  "path": "atlas/operators-collectors/geoShape",
+  "product": "atlas",
+  "title": "geoShape Operator",
+  "summary": {
+    "total": 10,
+    "byLanguage": {
+      "javascript": 5,
+      "json": 5
+    },
+    "bySection": [
+      {
+        "heading": "Syntax",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 72
+          }
+        ]
+      },
+      {
+        "heading": "Examples",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 74
+          }
+        ]
+      },
+      {
+        "heading": "Disjoint Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 165
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 413
+          }
+        ]
+      },
+      {
+        "heading": "Intersects Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 266
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 410
+          }
+        ]
+      },
+      {
+        "heading": "Basic Search",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 243
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 400
+          }
+        ]
+      },
+      {
+        "heading": "Metadata Search",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 236
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 202
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Syntax",
+      "content": "{\n    \"$search\": {\n       \"index\": <index name>, // optional, defaults to \"default\"\n       \"geoShape\": {\n          \"path\": \"<field-to-search>\",\n          \"relation\": \"contains | disjoint | intersects | within\",\n          \"geometry\": <GeoJSON-object>,\n          \"score\": <score-options>\n       }\n    }\n}",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "json",
+      "section": "Examples",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"address\": {\n        \"fields\": {\n          \"location\": {\n            \"indexShapes\": true,\n            \"type\": \"geo\"\n          }\n        },\n        \"type\": \"document\"\n      },\n      \"property_type\": {\n        \"type\": \"token\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "json",
+      "section": "Disjoint Example",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    \"$search\": {\n      \"geoShape\": {\n        \"relation\": \"disjoint\",\n        \"geometry\": {\n          \"type\": \"Polygon\",\n          \"coordinates\": [[[-161.323242,22.512557],\n                          [-152.446289,22.065278],\n                          [-156.09375,17.811456],\n                          [-161.323242,22.512557]]]\n        },\n        \"path\": \"address.location\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"name\": 1,\n      \"address\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 165
+    },
+    {
+      "language": "javascript",
+      "section": "Disjoint Example",
+      "content": "{\n  \"name\" : \"Ribeira Charming Duplex\",\n  \"address\" : {\n    \"street\" : \"Porto, Porto, Portugal\",\n    \"suburb\" : \"\",\n    \"government_area\" : \"Cedofeita, Ildefonso, Sé, Miragaia, Nicolau, Vitória\",\n    \"market\" : \"Porto\",\n    \"country\" : \"Portugal\",\n    \"country_code\" : \"PT\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -8.61308, 41.1413 ],\n      \"is_location_exact\" : false\n    }\n  }\n}\n{\n  \"name\" : \"Horto flat with small garden\",\n  \"address\" : {\n    \"street\" : \"Rio de Janeiro, Rio de Janeiro, Brazil\",\n    \"suburb\" : \"Jardim Botânico\",\n    \"government_area\" : \"Jardim Botânico\",\n    \"market\" : \"Rio De Janeiro\",\n    \"country\" : \"Brazil\",\n    \"country_code\" : \"BR\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -43.23074991429229, -22.966253551739655 ],\n      \"is_location_exact\" : true\n    }\n  }\n}\n{\n  \"name\" : \"Private Room in Bushwick\",\n  \"address\" : {\n    \"street\" : \"Brooklyn, NY, United States\",\n    \"suburb\" : \"Brooklyn\",\n    \"government_area\" : \"Bushwick\",\n    \"market\" : \"New York\",\n    \"country\" : \"United States\",\n    \"country_code\" : \"US\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -73.93615, 40.69791 ],\n      \"is_location_exact\" : true\n    }\n  }\n}",
+      "tokenEstimate": 413
+    },
+    {
+      "language": "json",
+      "section": "Intersects Example",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    \"$search\": {\n      \"geoShape\": {\n        \"relation\": \"intersects\",\n        \"geometry\": {\n          \"type\": \"MultiPolygon\",\n          \"coordinates\": [\n                        [[[2.16942,41.40082],\n                        [2.17963,41.40087],\n                        [2.18146,41.39716],\n                        [2.15533,41.40686],\n                        [2.14596,41.38475],\n                        [2.17519,41.41035],\n                        [2.16942,41.40082]]],\n                        [[[2.16365,41.39416],\n                        [2.16963,41.39726],\n                        [2.15395,41.38005],\n                        [2.17935,41.43038],\n                        [2.16365,41.39416]]]\n          ]\n        },\n        \"path\": \"address.location\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"name\": 1,\n      \"address\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 266
+    },
+    {
+      "language": "javascript",
+      "section": "Intersects Example",
+      "content": "{\n  \"name\" : \"Cozy bedroom Sagrada Familia\",\n  \"address\" : {\n    \"street\" : \"Barcelona, Catalunya, Spain\",\n    \"suburb\" : \"Eixample\",\n    \"government_area\" : \"el Fort Pienc\",\n    \"market\" : \"Barcelona\",\n    \"country\" : \"Spain\",\n    \"country_code\" : \"ES\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 2.17963, 41.40087 ],\n      \"is_location_exact\" : true\n    }\n  }\n}\n{\n  \"name\" : \"\",\n  \"address\" : {\n    \"street\" : \"Barcelona, Catalunya, Spain\",\n    \"suburb\" : \"Vila de Gràcia\",\n    \"government_area\" : \"la Vila de Gràcia\",\n    \"market\" : \"Barcelona\",\n    \"country\" : \"Spain\",\n    \"country_code\" : \"ES\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 2.15759, 41.40349 ],\n      \"is_location_exact\" : true\n    }\n  }\n}\n{\n  \"name\" : \"SPACIOUS RAMBLA CATALUÑA\",\n  \"address\" : {\n    \"street\" : \"Barcelona, Catalunya, Spain\",\n    \"suburb\" : \"L'Antiga Esquerra de l'Eixample\",\n    \"government_area\" : \"l'Antiga Esquerra de l'Eixample\",\n    \"market\" : \"Barcelona\",\n    \"country\" : \"Spain\",\n    \"country_code\" : \"ES\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ 2.15255, 41.39193 ],\n      \"is_location_exact\" : true\n    }\n  }\n}",
+      "tokenEstimate": 410
+    },
+    {
+      "language": "json",
+      "section": "Basic Search",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    \"$search\": {\n      \"geoShape\": {\n        \"relation\": \"within\",\n        \"geometry\": {\n          \"type\": \"Polygon\",\n          \"coordinates\": [[[-74.3994140625,40.5305017757],\n                          [-74.7290039063,40.5805846641],\n                          [-74.7729492188,40.9467136651],\n                          [-74.0698242188,41.1290213475],\n                          [-73.65234375,40.9964840144],\n                          [-72.6416015625,40.9467136651],\n                          [-72.3559570313,40.7971774152],\n                          [-74.3994140625,40.5305017757]]]\n        },\n        \"path\": \"address.location\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"name\": 1,\n      \"address\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 243
+    },
+    {
+      "language": "javascript",
+      "section": "Basic Search",
+      "content": "{\n  \"name\" : \"Private Room in Bushwick\",\n  \"address\" : {\n    \"street\" : \"Brooklyn, NY, United States\",\n    \"suburb\" : \"Brooklyn\",\n    \"government_area\" : \"Bushwick\",\n    \"market\" : \"New York\",\n    \"country\" : \"United States\",\n    \"country_code\" : \"US\",\n    \"location\" : {\n      \"type\" : \"Point\",\n      \"coordinates\" : [ -73.93615, 40.69791 ],\n      \"is_location_exact\" : true\n    }\n  },\n  {\n    \"name\" : \"New York City - Upper West Side Apt\",\n    \"address\" : {\n      \"street\" : \"New York, NY, United States\",\n      \"suburb\" : \"Manhattan\",\n      \"government_area\" : \"Upper West Side\",\n      \"market\" : \"New York\",\n      \"country\" : \"United States\",\n      \"country_code\" : \"US\",\n      \"location\" : {\n        \"type\" : \"Point\",\n        \"coordinates\" : [ -73.96523, 40.79962 ],\n        \"is_location_exact\" : false\n      }\n    },\n    \"score\" : 1\n  }\n  {\n    \"name\" : \"Deluxe Loft Suite\",\n    \"address\" : {\n      \"street\" : \"Brooklyn, NY, United States\",\n      \"suburb\" : \"Greenpoint\",\n      \"government_area\" : \"Greenpoint\",\n      \"market\" : \"New York\",\n      \"country\" : \"United States\",\n      \"country_code\" : \"US\",\n      \"location\" : {\n        \"type\" : \"Point\",\n        \"coordinates\" : [ -73.94472, 40.72778 ],\n        \"is_location_exact\" : true\n      }\n    },\n    \"score\" : 1\n  }",
+      "tokenEstimate": 400
+    },
+    {
+      "language": "json",
+      "section": "Metadata Search",
+      "content": "db.listingsAndReviews.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"geoShape\": {\n          \"relation\": \"within\",\n          \"geometry\": {\n            \"type\": \"Polygon\",\n            \"coordinates\": [[[-74.3994140625,40.5305017757],\n                            [-74.7290039063,40.5805846641],\n                            [-74.7729492188,40.9467136651],\n                            [-74.0698242188,41.1290213475],\n                            [-73.65234375,40.9964840144],\n                            [-72.6416015625,40.9467136651],\n                            [-72.3559570313,40.7971774152],\n                            [-74.3994140625,40.5305017757]]]\n          },\n          \"path\": \"address.location\"\n        }\n        },\n        \"facets\": {\n          \"propertyTypeFacet\": {\n            \"type\": \"string\",\n            \"path\": \"property_type\"\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 236
+    },
+    {
+      "language": "javascript",
+      "section": "Metadata Search",
+      "content": "[\n  {\n    count: { lowerBound: Long('599') },\n    facet: {\n      propertyTypeFacet: {\n        buckets: [\n          { _id: 'Apartment', count: Long('486') },\n          { _id: 'House', count: Long('43') },\n          { _id: 'Townhouse', count: Long('24') },\n          { _id: 'Condominium', count: Long('19') },\n          { _id: 'Loft', count: Long('19') },\n          { _id: 'Guest suite', count: Long('2') },\n          { _id: 'Guesthouse', count: Long('2') },\n          { _id: 'Aparthotel', count: Long('1') },\n          { _id: 'Hostel', count: Long('1') },\n          { _id: 'Serviced apartment', count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 202
+    }
+  ]
+}

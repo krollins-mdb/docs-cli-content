@@ -1,0 +1,147 @@
+{
+  "path": "atlas/security-ldaps-azure",
+  "product": "atlas",
+  "title": "Step 2: After connecting to your cluster, run commands to verify the user has the read or write privileges you assigned them.",
+  "sections": [
+    {
+      "heading": "Limitations",
+      "headingLevel": 2,
+      "body": "- You must deploy `M10` or larger Atlas clusters to enable LDAP (Lightweight Directory Access Protocol)\n  integration. LDAP (Lightweight Directory Access Protocol) integration is an Atlas Enterprise feature.\n\n- Atlas does not support single sign-on integration for database\n  users. To learn about single-sign on integration for the Atlas\n  administrative web interface, see\n  [Configure Federated Authentication](atlas-federated-authentication).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To manage LDAP (Lightweight Directory Access Protocol) users or groups, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 2,
+      "body": "To integrate OneLogin LDAP (Lightweight Directory Access Protocol) with Atlas, you must have:\n\n- An Azure (Microsoft Azure) subscription. To obtain a subscription, visit the\n  [Microsoft Azure portal](https://azure.microsoft.com/en-us/free/).\n\n- `Contributor` privileges or greater for your Azure (Microsoft Azure) subscription to\n  create the resources the LDAP (Lightweight Directory Access Protocol) integration requires.\n\n- An Microsoft Entra ID tenant associated with\n  your subscription. For information about setting up an\n  Microsoft Entra ID tenant, see the\n  [Microsoft Entra ID Documentation](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-create-new-tenant).\n\n- `Global Administrator` privileges in your Microsoft Entra ID tenant to enable\n  OneLogin.\n\n- A custom, routable domain name.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedures",
+      "headingLevel": 2,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure OneLogin for Your Domain",
+      "headingLevel": 3,
+      "body": "To configure OneLogin, follow the\n[Create an advanced managed domain](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-create-instance-advanced)\ntutorial in the Azure (Microsoft Azure) Documentation using the\n`Custom domain names` DNS name option.\n\nWhen you configure your managed domain, make sure that you note the\nvalue you enter in the DNS domain name field. This value\nis your `<managed-domain>`. You must provide it in several places in\nthis tutorial.\n\n> **Example:** aadds.example.com\n\nOneLogin uses SSL certificates to secure LDAP. Your certificate\nmust adhere to the requirements outlined in the [Azure Documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#create-a-certificate-for-secure-ldap).\n\nTo obtain a certificate, either:\n\n- Get one from the public or enterprise certificate authority (CA) your\n  organization uses.\n\n  - You must obtain a wildcard certificate to ensure secure LDAP works\n    properly with OneLogin.\n\n  - The certificate's subject name must match the `<managed-domain>`\n    you used when you configured OneLogin.\n\n    > **Example:** \\*.aadds.example.com\n\n- Generate a self-signed certificate. Self-signed certificates are not\n  recommended for production.\n\nTo generate a self-signed certificate on MacOS or Linux systems **for\ntesting purposes**:\n\n> **Note:** If you are on macOS Catalina, install the latest version of\n> `openssl`. Run the following command to install using Homebrew:\n>\n> ```sh\n> brew install openssl\n> ```\n\n- Generate a private key with `openssl`. The following command\n  generates a private key file named `<your-key-name>.key`:\n\n  ```sh\n  openssl genrsa -out <your-key-name>.key 2048\n  ```\n\n- Edit the following configuration file template. Update the\n  attributes in the `[dn-param]` section with values that relate\n  to your organization. Make sure the subject name (`CN`) matches\n  the following template: `*.<managed-domain>`\n\n  > **Example:** \\*.aadds.example.com\n\n  ```sh\n  # openssl x509 extfile params\n  extensions = extend\n\n  [req] # openssl req params\n  prompt = no\n  distinguished_name = dn-param\n\n  [dn-param] # DN fields\n  C = US\n  ST = NY\n  L  = New York\n  O = MongoDB\n  OU = Atlas\n  CN = *.aadds.example.com\n\n  [extend] # openssl extensions\n  subjectKeyIdentifier = hash\n  authorityKeyIdentifier = keyid:always\n  keyUsage = digitalSignature,keyEncipherment,keyCertSign\n  extendedKeyUsage=serverAuth,clientAuth\n  ```\n\n- Save the file as `<your-config-name>.cfg`.\n\n- Generate a certificate signing request using the key and\n  configuration files you created. The following command generates a\n  certificate signing request named `<your-csr-name>.csr`:\n\n  ```sh\n  openssl req -new -key <your-key-name>.key \\\n  -out <your-csr-name>.csr -config <your-config-name>.cfg \\\n  -extensions extend\n  ```\n\n- Generate a self-signed certificate using key, configuration, and\n  certificate signing request files you created. The following\n  command generates a self-signed certificate file named\n  `<your-cert-name>.crt`:\n\n  ```sh\n  openssl x509 -req -sha256 -days 365 -in <your-csr-name>.csr \\\n  -signkey <your-key-name>.key -out <your-cert-name>.crt \\\n  -extfile <your-config-name>.cfg\n  ```\n\nTo generate a self-signed certificate on a Windows system **for testing\npurposes**, see the [Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#create-a-certificate-for-secure-ldap).\n\nOneLogin uses private keys to decrypt secure LDAP traffic.\nCertificates that include private keys use the `PKCS#12` format and\nuse the `.pfx` file format. You must upload a certificate of this\nformat to OneLogin to decrypt secure LDAP traffic sent over\nthe public internet.\n\nTo generate a `.pfx` certificate on MacOS or Linux systems:\n\n- Save your public key and SSL certificate to your local machine.\n\n  > **Note:** Your certificate must use the `PEM` format.\n\n  If your certificate does not contain your private key, you can save\n  your private key to a `.key` format file.\n\n- Generate a `.pfx` certificate using your private key and your\n  certificate with `openssl`. The following command generates a\n  `.pfx` certificate file named `<your-cert-name>.pfx`:\n\n  ```sh\n  openssl pkcs12 -export -out <your-cert-name>.pfx \\\n  -inkey <your-key-name>.key -in <your-cert-name>.crt\n  ```\n\n  When prompted, enter and verify a password to encrypt the file. You\n  will enter this password to decrypt your private key when you\n  upload the `.pfx` certificate to OneLogin.\n\nTo generate a `.pfx` certificate on a Windows system,\nsee the [Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#export-a-certificate-for-azure-ad-ds).\n\nTo enable secure LDAP on OneLogin, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#enable-secure-ldap-for-azure-ad-ds).\n\nYou must configure your DNS provider so that Atlas and the\ndatabase nodes can connect to the LDAP server in the custom domain\nthat OneLogin manages.\n\nCreate a host record for LDAP traffic that resolves a subdomain of\nyour `<managed-domain>` to the external IP address that the\nOneLogin LDAP service uses:\n\n| LDAP IP Address | Subdomain for LDAP Traffic |\n| --------------- | -------------------------- |\n| 203.0.113.77    | ldap.aadds.example.com     |\n\nTo find the external IP address the OneLogin LDAP service uses,\nsee the [Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-configure-ldaps#configure-dns-zone-for-external-access).\n\nAdd your custom domain name to\nMicrosoft Entra ID to create users that belong\nto your domain. After you add your domain, you must also add the\nMicrosoft Entra ID DNS information in a `TXT`\nrecord with your DNS provider and verify the configuration.\n\nTo add your custom domain to\nMicrosoft Entra ID, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-custom-domain).\n\nYou must allow all traffic over all ports from the public internet to\nport `636` to use OneLogin as an LDAP provider with Atlas.\n\nTo add an inbound security rule to allow inbound LDAP traffic on port\n`636`, see the [Azure documentation](https://docs.microsoft.com/en-us/azure/virtual-network/manage-network-security-group#create-a-security-rule).\n\nCreate a bind user. The bind user is an\nMicrosoft Entra ID user that you use to query\nthe account and to authenticate database users' credentials when they\nconnect to an Atlas database. The bind user must belong to the\ncustom domain you added to Microsoft Entra ID.\n\nTo create Microsoft Entra ID users, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory/).\n\nYou must generate a password hash for the bind user for Kerberos\nand NTLM authentication before the bind user can use OneLogin.\nThe steps differ based on the type of\nMicrosoft Entra ID user account.\n\nTo learn how to generate password hashes for your users, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory-domain-services/tutorial-create-instance#enable-user-accounts-for-azure-ad-ds).\n\nTo query Microsoft Entra ID, the bind user\nmust have the permissions granted by the\n[Directory Readers](https://docs.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#directory-readers)\nrole.\n\nTo assign the Directory Readers role to the bind user, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/).\n\nIf they don't exist already, create users in OneLogin that you\nwant to grant database access to. Users must belong to the custom\ndomain you added to Microsoft Entra ID.\n\nTo create Microsoft Entra ID users, see the\n[Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "brew install openssl",
+          "tokenEstimate": 3
+        },
+        {
+          "language": "sh",
+          "content": "openssl genrsa -out <your-key-name>.key 2048",
+          "tokenEstimate": 14
+        },
+        {
+          "language": "sh",
+          "content": "# openssl x509 extfile params\nextensions = extend\n\n[req] # openssl req params\nprompt = no\ndistinguished_name = dn-param\n\n[dn-param] # DN fields\nC = US\nST = NY\nL  = New York\nO = MongoDB\nOU = Atlas\nCN = *.aadds.example.com\n\n[extend] # openssl extensions\nsubjectKeyIdentifier = hash\nauthorityKeyIdentifier = keyid:always\nkeyUsage = digitalSignature,keyEncipherment,keyCertSign\nextendedKeyUsage=serverAuth,clientAuth",
+          "tokenEstimate": 113
+        },
+        {
+          "language": "sh",
+          "content": "openssl req -new -key <your-key-name>.key \\\n-out <your-csr-name>.csr -config <your-config-name>.cfg \\\n-extensions extend",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "sh",
+          "content": "openssl x509 -req -sha256 -days 365 -in <your-csr-name>.csr \\\n-signkey <your-key-name>.key -out <your-cert-name>.crt \\\n-extfile <your-config-name>.cfg",
+          "tokenEstimate": 48
+        },
+        {
+          "language": "sh",
+          "content": "openssl pkcs12 -export -out <your-cert-name>.pfx \\\n-inkey <your-key-name>.key -in <your-cert-name>.crt",
+          "tokenEstimate": 33
+        }
+      ]
+    },
+    {
+      "heading": "Configure Atlas for LDAP Authentication",
+      "headingLevel": 3,
+      "body": "The following procedure enables Atlas to authenticate database users from\nOneLogin LDAP (Lightweight Directory Access Protocol):\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nAdd a User to DN mapping similar to the following example to allow\nclients to provide their username instead of full DNs when they\nconnect to Atlas databases:\n\n```sh\n[\n  {\n      \"match\":\"(.+)\",\n      \"substitution\":\"CN={0},OU=AADDC Users,DC=<managed-domain>,DC=com\"\n  }\n]\n```\n\n> **Note:** For OneLogin, the attributes in distinguished names must be\n> upper case.\n\nIf your `<managed-domain>` consists of one or more subdomains,\nyou must add a `DC` (domainComponent) attribute to the\ndistinguished name for each.\n\n> **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n> components are:\n>\n> `DC=aadds,DC=example,DC=com`\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.\n\n> **Note:** [Skip this step](configure-azure-authz) if you want to enable\n> LDAP authorization.\n\nAdd users managed in the Azure AD (Active Directory) to\nAtlas.\n\n- Click  Add New Database User.\n\n- Click LDAP User.\n\n- Perform one of the following:\n\n  - If you have not entered a User to DN Mapping, enter\n    the full DN of the LDAP (Lightweight Directory Access Protocol) user. Follow this template:\n\n    ```sh\n    CN=<user-name>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com\n    ```\n\n    For example, if your `<user-name>` is `Jane Doe` and\n    your `<managed-domain>` is `aadds.example.com`, your user's\n    DN is:\n\n    ```sh\n    CN=Jane Doe,ou=AADDC Users,DC=aadds,DC=example,DC=com\n    ```\n\n  - If you entered a User to DN Mapping,\n    enter the username that your mapping requires.\n\n- Select the database access level to grant to the user.\n\n- Click Add User.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "[\n  {\n      \"match\":\"(.+)\",\n      \"substitution\":\"CN={0},OU=AADDC Users,DC=<managed-domain>,DC=com\"\n  }\n]",
+          "tokenEstimate": 36
+        },
+        {
+          "language": "sh",
+          "content": "CN=<user-name>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com",
+          "tokenEstimate": 21
+        },
+        {
+          "language": "sh",
+          "content": "CN=Jane Doe,ou=AADDC Users,DC=aadds,DC=example,DC=com",
+          "tokenEstimate": 21
+        }
+      ]
+    },
+    {
+      "heading": "Add the Database Access LDAP (Lightweight Directory Access Protocol) Groups to Atlas",
+      "headingLevel": 3,
+      "body": "> **Note:** Skip this section if you don't want to\n> enable LDAP (Lightweight Directory Access Protocol) authorization.\n\n> **Important:**&#x20;\n>\n> - You must enable authentication with LDAP (Lightweight Directory Access Protocol) before enabling\n>   authorization.\n>\n> - When you enable and configure LDAP (Lightweight Directory Access Protocol) authorization, database users\n>   who are only configured for LDAP (Lightweight Directory Access Protocol) authentication will no longer\n>   be able to access databases.\n\nAtlas LDAP (Lightweight Directory Access Protocol) authorization uses LDAP (Lightweight Directory Access Protocol) groups to determine if\nusers are authorized to perform database actions.\n\nCreate separate Microsoft Entra ID groups for\neach level of access that you want to grant to users. For example,\nyou create one group for read access to one database, another for read\nand write access, and so on. Assign users to groups based on the level\nof access each user requires.\n\nTo create Microsoft Entra ID database access\ngroups and assign users, see the [Azure documentation](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure Atlas for LDAP Authorization",
+      "headingLevel": 3,
+      "body": "> **Note:** Skip this section if you don't want to\n> enable LDAP (Lightweight Directory Access Protocol) authorization.\n\nThe following procedure adds the OneLogin database access\ngroups to Atlas and enables database user authorization in\nAtlas:\n\nAdd each of the Azure database groups you created to Atlas.\nMembers of groups that you add are authorized to perform database actions\ngranted to the group.\n\n- Click  Add New Database User.\n\n* Click LDAP Group, and then enter the full DN of the\n  group containing your database users, even if you enabled\n  User to DN Mapping. Follow this template:\n\n  ```sh\n  CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com\n  ```\n\n  > **Note:** For OneLogin, the attributes in distinguished names must be\n  > upper case.\n\n  If your `<managed-domain>` consists of one or more subdomains,\n  you must add a `DC` (domainComponent) attribute to the\n  distinguished name for each.\n\n  > **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n  > components are:\n  >\n  > `DC=aadds,DC=example,DC=com`\n\n  For example, if your `<group-name>` is `Atlas read only` and\n  your `<managed-domain>` is `aadds.example.com`, your user's\n  DN is:\n\n  ```sh\n  CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com\n  ```\n\n- Select the database access level to grant to users in this group.\n\n- Click Add User.\n\nWhen a user attempts to perform an action, Atlas executes the\n[LDAP query template](manual/reference/configuration-options)\nto obtain the LDAP groups to which the authenticated user belongs.\nAtlas permits the action if the query returns at least one group\nthat is authorized to perform the action. Atlas does not permit\nthe action if the query returns no groups that are authorized to\nperform the action.\n\nAtlas substitutes the authenticated username in the `{USER}`\nplaceholder when it runs the query. The query is relative to the host\nspecified in Server Hostname.\n\nThe formatting for the query must conform to [RFC4515](https://www.rfc-editor.org/rfc/rfc4515).\n\nIf you want to identify what group a user is a member of, you can use\nthe default Query Template:\n\n```sh\n{USER}?memberOf?base\n```\n\n> **Note:** Other query templates may also work.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nserver using the configuration details that you provide.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "sh",
+          "content": "CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com",
+          "tokenEstimate": 22
+        },
+        {
+          "language": "sh",
+          "content": "{USER}?memberOf?base",
+          "tokenEstimate": 6
+        }
+      ]
+    },
+    {
+      "heading": "Connect to your Cluster Using mongosh",
+      "headingLevel": 3,
+      "body": "The following procedure verifies that LDAP (Lightweight Directory Access Protocol) authentication (and LDAP (Lightweight Directory Access Protocol)\nauthorization, if enabled) is configured correctly:\n\n> **Note:** When LDAP (Lightweight Directory Access Protocol) authentication is enabled, database users must override\n> the following parameters in the connection string for their\n> clients:\n>\n> - `authSource` must be `$external`\n>\n> - `authenticationMechanism` must be `PLAIN`\n\nTo copy the connection string:\n\n- Click Connect.\n\n- Click LDAP, and then click Copy.\n\n- Paste and edit the string with your User DN and password.\n\n> **Note:** Connect to your cluster with a user's full DN if User to DN\n> Mapping is not enabled.\n\n> **Note:** For OneLogin, the attributes in distinguished names must be\n> upper case.\n\nIf your `<managed-domain>` consists of one or more subdomains,\nyou must add a `DC` (domainComponent) attribute to the\ndistinguished name for each.\n\n> **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n> components are:\n>\n> `DC=aadds,DC=example,DC=com`\n\nEscape spaces in user or group names in the user's full DN:\n\n```sh\n--username CN=Jane\\ Doe,OU=AADDC\\ Users,DC=aadds,DC=example,DC=com\n```\n\n> **Note:** If you're using a user's full DN, include only the `AADDC Users`\n> OU (Organizational Unit). Don't include other\n> Microsoft Entra ID groups the user is a\n> member of.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "--username CN=Jane\\ Doe,OU=AADDC\\ Users,DC=aadds,DC=example,DC=com",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Troubleshoot LDAP Connection Issues",
+      "headingLevel": 2,
+      "body": "> **Note:** In OneLogin, the bind user must be a member of the `Microsoft Entra ID DC Administrators` group\n> to perform LDAP searches. [Make sure that your bind user has these privileges](#add-the-bind-user-to-the-aad-dc-administrators-group)\n> before running `ldapsearch`.\n\nUse `ldapsearch` to determine if the query template you\nconfigured Atlas to use returns user DNs the way you expect. The\nquery template may not be returning the correct user DNs if LDAP (Lightweight Directory Access Protocol)\nauthentication works but LDAP (Lightweight Directory Access Protocol) authorization doesn't.\n\nUse the following `ldapsearch` template:\n\n```sh\nldapsearch -H 'ldaps://ldap.<managed-domain>.com' -b 'DC=<managed>,DC=<domain>,DC=com' -s sub -D 'CN=<bind-user-dn>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com))'\n```\n\n> **Note:** For OneLogin, the attributes in distinguished names must be\n> upper case.\n\nIf your `<managed-domain>` consists of one or more subdomains,\nyou must add a `DC` (domainComponent) attribute to the\ndistinguished name for each.\n\n> **Example:** If your `<managed-domain>` is `aadds.example.com`, the domain\n> components are:\n>\n> `DC=aadds,DC=example,DC=com`\n\nFor example, if your `bind-user-dn` is\n`CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com`,\nyour `<managed-domain>` is `aadds.example.com`, and your\n`group-name` is `Atlas read only`, use the following command:\n\n```sh\nldapsearch -H 'ldaps://ldap.aadds.example.com' -b 'DC=aadds,DC=example,DC=com' -s sub -D 'CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com))'\n```\n\n> **Note:** Other query templates may also work.",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "ldapsearch -H 'ldaps://ldap.<managed-domain>.com' -b 'DC=<managed>,DC=<domain>,DC=com' -s sub -D 'CN=<bind-user-dn>,OU=AADDC Users,DC=<managed>,DC=<domain>,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=<group-name>,OU=AADDC Users,DC=<managed-domain>,DC=com))'",
+          "tokenEstimate": 95
+        },
+        {
+          "language": "sh",
+          "content": "ldapsearch -H 'ldaps://ldap.aadds.example.com' -b 'DC=aadds,DC=example,DC=com' -s sub -D 'CN=LDAP Bind User,OU=AADDC Users,DC=aadds,DC=example,DC=com' -w '<REDACTED>' '(&(objectCategory=user)(memberOf=CN=Atlas read only,OU=AADDC Users,DC=aadds,DC=example,DC=com))'",
+          "tokenEstimate": 97
+        }
+      ]
+    }
+  ]
+}
