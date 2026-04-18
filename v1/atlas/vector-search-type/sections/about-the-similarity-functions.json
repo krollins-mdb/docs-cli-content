@@ -1,0 +1,22 @@
+{
+  "heading": "About the Similarity Functions",
+  "headingLevel": 4,
+  "body": "MongoDB Vector Search supports the following similarity functions:\n\n- `euclidean` - measures the distance between ends of vectors. This\n  value allows you to measure similarity based on varying dimensions. To\n  learn more, see [Euclidean](https://en.wikipedia.org/wiki/Euclidean_distance).\n\n- `cosine` - measures similarity based on the angle between  vectors.\n  This value allows you to measure similarity that isn't scaled by\n  magnitude. You can't use zero magnitude vectors with `cosine`. To\n  measure cosine similarity, we recommend that you normalize your\n  vectors and use `dotProduct` instead.\n\n- `dotProduct` - measures similarity like `cosine`, but takes into\n  account the magnitude of the vector. If you normalize the magnitude,\n  `cosine` and `dotProduct` are almost identical in measuring\n  similarity.\n\n  To use `dotProduct`, you must normalize the vector to unit length at\n  index-time and query-time.\n\nThe following table shows the similarity functions for the various types:\n\n| Vector Embeddings Type | euclidean | cosine | dotProduct |\n| ---------------------- | --------- | ------ | ---------- |\n| binData(int1)          | √         |        |            |\n| binData(int8)          | √         | √      | √          |\n| binData(float32)       | √         | √      | √          |\n| array(float32)         | √         | √      | √          |\n\n&#x20;For vector ingestion.\n\n&#x20;For automatic scalar or binary quantization.\n\nThe formula for each similarity function is as follows:\n\nCosine\n\nFor `cosine`, MongoDB Vector Search uses the following algorithm to normalize\nthe score:\n\n```shell\nscore = (1 + cosine(v1,v2)) / 2\n```\n\n- This algorithm normalizes the score by considering the similarity\n  score of the document vector (`v1`) and the query vector\n  (`v2`), which has the range \\[`-1`, `1`]. MongoDB Vector Search adds `1`\n  to the similarity score to normalize the score to a range \\[`0`,\n  `2`] and then divides by `2` to ensure a value between `0`\n  and `1`.\n\nDot Product\n\nFor `dotProduct`, MongoDB Vector Search uses the following algorithm to normalize\nthe score:\n\n```shell\nscore = (1 + dotProduct(v1,v2)) / 2\n```\n\n- This algorithm normalizes the score by considering the similarity score of the\n  document vector (`v1`) and the query vector (`v2`), which has the range\n  \\[`-1`, `1`]. MongoDB Vector Search adds `1` to the similarity score to normalize\n  the score to a range \\[`0`, `2`] and then divides by `2` to ensure a\n  value between `0` and `1`.\n\nEuclidean\n\nFor `euclidean` similarity, MongoDB Vector Search uses the following algorithm to\nnormalize the score to ensure a value between `0` and `1`:\n\n```shell\nscore = 1 / (1 + euclidean(v1,v2))\n```\n\n- This algorithm normalizes the score by calculating the euclidean distance,\n  which is the distance between the document vector (`v1`) and the query\n  vector (`v2`), which has the range \\[`0`, `∞`]. MongoDB Vector Search then transforms\n  the distance to a similarity score by adding `1` to the distance and then\n  divides `1` by the result to ensure a value between `0` and `1`.\n\nFor best performance, check your embedding model to determine which\nsimilarity function aligns with your embedding model's training\nprocess. If you don't have any guidance, start with `dotProduct`.\nSetting `fields.similarity` to the `dotProduct` value allows you\nto efficiently measure similarity based on both angle and magnitude.\n`dotProduct` consumes less computational resources than `cosine`\nand is efficient when vectors are of unit length. However, if your\nvectors aren't normalized, evaluate the similarity scores in the\nresults of a sample query for `euclidean` distance and `cosine`\nsimilarity to determine which corresponds to reasonable results.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "score = (1 + cosine(v1,v2)) / 2",
+      "tokenEstimate": 14
+    },
+    {
+      "language": "shell",
+      "content": "score = (1 + dotProduct(v1,v2)) / 2",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "shell",
+      "content": "score = 1 / (1 + euclidean(v1,v2))",
+      "tokenEstimate": 15
+    }
+  ]
+}

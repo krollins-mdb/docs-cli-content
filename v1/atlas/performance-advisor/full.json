@@ -1,6 +1,197 @@
 {
   "path": "atlas/performance-advisor",
   "product": "atlas",
-  "title": "Monitor and Improve Slow Queries with the Performance Advisor",
-  "sections": []
+  "title": "In the Confirm Operation dialog box, confirm your index.",
+  "sections": [
+    {
+      "heading": "Common Reasons for Slow Queries",
+      "headingLevel": 2,
+      "body": "If a query is slow, common reasons include:\n\n- The query is unsupported by your current indexes.\n\n- Some documents in your collection have large array fields that are\n  costly to search and index.\n\n- One query retrieves information from multiple collections with\n  [$lookup](manual/reference/operator/aggregation/lookup).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "To view collections with slow queries and see suggested indexes, you must have\n[Project Read Only](<Project Read Only>) access or higher to the project.\n\nTo view field values in a sample query in\nthe Performance Advisor, you must have [Project Observability Viewer](<Project Observability Viewer>),\n[Project Data Access Read Only](<Project Data Access Read Only>),\n[Project Data Access Read/Write](<Project Data Access Read/Write>), or\n[Project Data Access Admin](<Project Data Access Admin>) access to the project.\n\nTo enable or disable the Atlas-managed slow operation threshold,\nyou must have [Project Owner](<Project Owner>) access to the project. Users\nwith [Organization Owner](<Organization Owner>) access must add themselves to the\nproject as a `Project Owner`.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Configure the Slow Query Threshold",
+      "headingLevel": 2,
+      "body": "By default, Atlas dynamically adjusts your slow query threshold\nbased on the execution time of operations across your cluster. However,\nyou can opt out of this feature and instead use a fixed slow query\nthreshold of 100 milliseconds. We don't recommend that you set the fixed slow query threshold lower than 100 milliseconds.\n\n> **Note:** Atlas clusters with MongoDB Search enabled don't support\n> the Atlas-managed slow query operation threshold.\n\nFor Free clusters (formerly known as `M0`), Atlas disables the Atlas-managed slow query\noperation threshold by default and you can't enable it.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Disable the Atlas-Managed Slow Operation Threshold",
+      "headingLevel": 3,
+      "body": "To disable the Atlas-managed slow operation threshold and use a\nfixed threshold of 100 milliseconds:\n\n- In Atlas, go to the Project Settings page.\n\n  - If it's not already displayed, select the organization that\n    contains your desired project from the Organizations menu in the\n    navigation bar.\n\n  - If it's not already displayed, select your desired project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Project Settings.\n\n  The \n\n  [Project Settings](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsettings%2FgroupSettings)\n\n   page\n\n  displays.\n\n- In the [project settings](project-settings) for\n  the current project, toggle **Managed Slow Operations** to **Off**.\n\nTo disable the Atlas-managed slow operation threshold for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas performanceAdvisor slowOperationThreshold disable [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas performanceAdvisor slowOperationThreshold disable](atlas/cli/current/command/atlas-performanceAdvisor-slowOperationThreshold-disable).\n\nSee [Disable Managed Slow Operation Threshold](api/doc/atlas-admin-api-v2/operation/operation-disablemanagedslowoperationthreshold).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas performanceAdvisor slowOperationThreshold disable [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Enable the Atlas-Managed Slow Operation Threshold",
+      "headingLevel": 3,
+      "body": "Atlas enables the Atlas-managed slow operation threshold by default.\nTo re-enable the Atlas-managed slow operation threshold that you\npreviously disabled:\n\nIn the [project settings](project-settings) for\nthe current project, toggle **Managed Slow Operations** to\n**On**.\n\nTo enable the Atlas-managed slow operation threshold for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas performanceAdvisor slowOperationThreshold enable [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas performanceAdvisor slowOperationThreshold enable](atlas/cli/current/command/atlas-performanceAdvisor-slowOperationThreshold-enable).\n\nSee [Enable Managed Slow Operation Threshold](api/doc/atlas-admin-api-v2/operation/operation-updategroupperformanceadvisormanagedslow).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas performanceAdvisor slowOperationThreshold enable [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "Index Considerations",
+      "headingLevel": 2,
+      "body": "Indexes improve read performance, but a large number of indexes can\nnegatively impact write performance since indexes must be updated during\nwrites. If your collection already has several indexes, consider this\ntradeoff of read and write performance when deciding whether to create\nnew indexes. Examine whether a query for such a collection can be\nmodified to take advantage of existing indexes, as well as whether a\nquery occurs often enough to justify the cost of a new index.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Access Performance Advisor",
+      "headingLevel": 2,
+      "body": "To access the **Performance Advisor** using the\nAtlas UI:\n\nIf the replica set is part of a sharded cluster, first click the\nsharded cluster containing the replica set.\n\nThe Performance Advisor fetches index recommendations\nfrom the past 24 hours.\n\n- If the Performance Advisor has recommendations,\n  click View Recommendations button in\n  the Create Indexes section.\n\n- If the Performance Advisor has no recommendations,\n  to look up index recommendations for up to the past 5 days,\n  click Explore Recommendations in the\n  Create Indexes section.\n\nThe Performance Advisor ranks the\nindexes according to their Impact, which is based on\nthe total wasted bytes read by the associated operations. To\nlearn more about index ranking, see [Review Index Ranking](pa-index-ranking).\n\nFilter the results by any of the following options:\n\n- Filter by shards and hosts\n\n- Filter by namespace\n\n- Filter by time range\n\n- Filter by date and time",
+      "codeBlocks": []
+    },
+    {
+      "heading": "View Collections with Slow Queries",
+      "headingLevel": 3,
+      "body": "To return up to 20 namespaces in `<database>.<collection>` format for collections experiencing slow queries using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas performanceAdvisor namespaces list [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas performanceAdvisor namespaces list](atlas/cli/current/command/atlas-performanceAdvisor-namespaces-list).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas performanceAdvisor namespaces list [options]\n",
+          "tokenEstimate": 10
+        }
+      ]
+    },
+    {
+      "heading": "View Slow Query Logs",
+      "headingLevel": 3,
+      "body": "To return query log line items for slow queries that the Performance Advisor and Query Profiler identify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas performanceAdvisor slowQueryLogs list [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas performanceAdvisor slowQueryLogs list](atlas/cli/current/command/atlas-performanceAdvisor-slowQueryLogs-list).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas performanceAdvisor slowQueryLogs list [options]\n",
+          "tokenEstimate": 12
+        }
+      ]
+    },
+    {
+      "heading": "View Suggested Indexes",
+      "headingLevel": 3,
+      "body": "To return suggested indexes for collections experiencing slow queries using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas performanceAdvisor suggestedIndexes list [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas performanceAdvisor suggestedIndexes list](atlas/cli/current/command/atlas-performanceAdvisor-suggestedIndexes-list).",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "\natlas performanceAdvisor suggestedIndexes list [options]\n",
+          "tokenEstimate": 11
+        }
+      ]
+    },
+    {
+      "heading": "Access Performance Advisor with the MCP server",
+      "headingLevel": 3,
+      "body": "You can access the Performance Advisor with\nthe [MongoDB MCP Server](mcp-server).\nThis tool enables you to interact with your Atlas clusters in\nnatural language from AI clients like Claude, Cursor, and\nGithub Copilot.\n\nTo learn how to use the MongoDB MCP Server to get Performance Advisor\nrecommendations, see [Access Performance Advisor with the MongoDB MCP Server](performance-advisor-mcp).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Index Suggestions",
+      "headingLevel": 2,
+      "body": "The **Performance Advisor** ranks the indexes according to\ntheir **Impact**, which is based on the total wasted bytes read\nby the associated operations. To learn more about how the Performance Advisor ranks\nindexes, see [Review Index Ranking](pa-index-ranking).\n\nTo learn how to create indexes that the Performance Advisor suggests, see\n[Create Suggested Indexes](pa-create-suggested-indexes).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Index Metrics",
+      "headingLevel": 3,
+      "body": "Each index that the Performance Advisor suggests contains the following\nmetrics. These metrics apply specifically to queries which would be\nimproved by the index:\n\n| Metric                  | Description                                                                                                                                                                                                          |\n| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Execution Count         | Number of queries executed per hour which would be improved.                                                                                                                                                         |\n| Average Execution Time  | Current average execution time in milliseconds for affected queries.                                                                                                                                                 |\n| Average Query Targeting | Average number of documents read per document returned by affected queries. A higher query targeting score indicates a greater degree of inefficiency. For more information on query targeting, see Query Targeting. |\n| In Memory Sort          | Current number of affected queries per hour that needed to be sorted in memory.                                                                                                                                      |\n| Average Docs Scanned    | Average number of documents scanned.                                                                                                                                                                                 |\n| Average Docs Returned   | Average number of documents returned.                                                                                                                                                                                |\n| Average Object Size     | Average object size.                                                                                                                                                                                                 |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Sample Queries",
+      "headingLevel": 3,
+      "body": "For each suggested index, the Performance Advisor shows the most commonly executed\nquery shapes that the index would improve. For each query shape, the\nPerformance Advisor displays the following metrics:\n\n| Metric                  | Description                                                                                                                                                                                                                |\n| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Execution Count         | Number of queries executed per hour which match the query shape.                                                                                                                                                           |\n| Average Execution Time  | Average execution time in milliseconds for queries which match the query shape.                                                                                                                                            |\n| Average Query Targeting | Average number of documents read for every document returned by matching queries. A higher query targeting score indicates a greater degree of inefficiency. For more information on query targeting, see Query Targeting. |\n| Average Docs Scanned    | Average number of documents scanned.                                                                                                                                                                                       |\n| Average Docs Returned   | Average number of documents returned.                                                                                                                                                                                      |\n\nThe Performance Advisor also shows each executed sample query that matches the\nquery shape, with specific metrics for that query.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Query Targeting",
+      "headingLevel": 3,
+      "body": "Each index suggestion includes an **Average Query Targeting**\nscore indicating how many documents were read for every document\nreturned for the index's corresponding query shapes. A score of 1\nrepresents very efficient query shapes because every document read\nmatched the query and was returned with the query results. All suggested\nindexes represent an opportunity to improve query performance.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Filter Index Suggestions",
+      "headingLevel": 3,
+      "body": "By default, the Performance Advisor suggests indexes for all clusters\nin the deployment. To only show suggested indexes from a specific\ncollection, use the **Collection** dropdown at the top of\nthe Performance Advisor.\n\nYou can also adjust the time range the Performance Advisor takes into\naccount when suggesting indexes by using the **Time Range**\ndropdown at the top of the Performance Advisor.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Limitations of Index Suggestions",
+      "headingLevel": 3,
+      "body": "",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Timestamp Format",
+      "headingLevel": 4,
+      "body": "The Performance Advisor can't suggest indexes for MongoDB databases\nconfigured to use the `ctime` timestamp format. As a workaround, set\nthe timestamp format for such databases to either `iso8601-utc` or\n`iso8601-local`. To learn more about timestamp formats, see\n[mongod --timeStampFormat](manual/reference/program/mongod).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Log Quantity",
+      "headingLevel": 4,
+      "body": "If a cluster experiences an activity spike and generates an extremely large\nquantity of log messages, Atlas may stop collecting and storing new logs\nfor a period of time.\n\n> **Note:** Log analysis rate limits apply only to the Performance Advisor UI,\n> the Query Insights UI, the Access Tracking UI, and the MongoDB Search Query\n> Analytics UI. [Downloadable log files](api/doc/atlas-admin-api-v2/operation/operation-downloadgroupclusterlog) are always\n> complete.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Time Series Collections",
+      "headingLevel": 4,
+      "body": "The Performance Advisor doesn't provide performance suggestions for\ntime series collections.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "User Feedback",
+      "headingLevel": 4,
+      "body": "The Performance Advisor includes a user feedback button for Index\nSuggestions on dedicated clusters.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Create Suggested Indexes",
+      "headingLevel": 2,
+      "body": "You can create [indexes](manual/core/indexes) suggested by the\nPerformance Advisor directly within the Performance Advisor itself.\nWhen you create indexes, keep the ratio of reads to writes on the\ntarget collection in mind. Indexes come with a performance cost, but\nare more than worth the cost for frequent queries on large data sets.\nTo learn more about indexing strategies, see\n[Indexing Strategies](manual/applications/indexes).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Behavior and Limitations",
+      "headingLevel": 3,
+      "body": "- You can't create indexes through the Performance Advisor if [Atlas UI](atlas-ui) is disabled for your project. You can still view\n  the Performance Advisor recommendations, but you must create those indexes from\n  [mongosh](mongodb-shell).\n\n- You can only create one index at a time through the Performance\n  Advisor. If you want to create more simultaneously, you can do so\n  using the [Atlas UI](atlas-ui-indexes), a\n  driver, or the\n  [MongoDB Shell](connect-mongo-shell)\n\n- Atlas always creates indexes for entire clusters.\n  If you create an index while viewing the Performance Advisor for a single shard in a\n  sharded cluster, Atlas creates that index for the entire\n  sharded cluster.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 3,
+      "body": "To create a suggested index:\n\nThe Performance Advisor opens the Create Index dialog box\nand prepopulates the Fields based on the\nindex you selected.\n\n```javascript\n{ <option1>: <value1>, ... }\n```\n\n> **Example:** The following options document specifies the `unique` option and\n> the `name` for the index:\n>\n> ```javascript\n> { unique: true, name: \"myUniqueIndex\" }\n> ```\n\nUse collation to specify language-specific rules for string comparison,\nsuch as rules for lettercase and accent marks. The\n[collation document](manual/reference/collation)\ncontains a `locale` field which indicates the [ICU Locale code](https://userguide.icu-project.org/locale), and may contain other\nfields to define collation behavior.\n\n> **Example:** The following collation option document specifies a locale value\n> of `fr` for a French language collation:\n>\n> ```json\n> { \"locale\": \"fr\" }\n> ```\n\nTo review the list of locales that MongoDB collation supports, see\nthe [list of languages and locales](manual/reference/collation-locales-defaults). To learn more about collation\noptions, including which are enabled by default for each locale, see\n[Collation](manual/reference/collation) in the MongoDB manual.\n\n> **Important:** Building an index in a rolling fashion reduces the resiliency of your cluster and\n> increases index build times. We only recommend using rolling index builds when regular\n> index builds do not meet your needs.\n>\n> If you decide to continue with a rolling index, consider that they must meet certain\n> conditions to succeed. To ensure your index build succeeds, avoid the following design\n> patterns that commonly trigger a restart loop:\n>\n> - Index key exceeds the [index key limit](manual/reference/limits)\n>\n> - [Index name](manual/indexes) already exists\n>\n> - Index on [more than one array field](manual/core/index-multikey)\n>\n> - Index on collection that has the\n>   [maximum number of text indexes](manual/reference/limits)\n>\n> - Text index on collection that has the\n>   [maximum number of text indexes](manual/core/index-text)\n\n> **Note:** The Atlas UI doesn't support building indexes with a rolling build\n> for Free clusters and Flex clusters.\n\nFor workloads which cannot tolerate performance decrease due to index\nbuilds, consider building indexes in a rolling fashion.\n\nTo maintain cluster availability:\n\n- Atlas removes one node from the cluster at a time\n  starting with a [secondary](manual/reference/glossary).\n\n- More than one node can go down at a time, but Atlas always keeps\n  a majority of the nodes online.\n\nAtlas automatically cancels rolling index builds\nthat don't succeed on all nodes. When a rolling index build completes\non some nodes, but fails on others, Atlas cancels the build\nand removes the index from any nodes that it was successfully built on.\n\nIn the event of a rolling index build cancellation,\nAtlas generates an [Project Activity Feed](view-activity-feed)\nand sends a notification email to the project owner\nwith the following information:\n\n- Name of the cluster on which the rolling index build failed\n\n- Namespace on which the rolling index build failed\n\n- Project that contains the cluster and namespace\n\n- Organization that contains the project\n\n- Link to the [Project Activity Feed](view-activity-feed)\n\nTo learn more about rebuilding indexes, see [Build Indexes on\nReplica Sets](manual/tutorial/build-indexes-on-replica-sets).\n\n> **Note:** [Unique](manual/reference/method/db.collection.createIndex)\n> [index options](manual/reference/method/db.collection.createIndex) are\n> incompatible with building indexes in a rolling fashion. If you specify `unique` in the Options\n> pane, Atlas rejects your configuration with an error message.\n\n> **Important:** When an index build completes, Atlas generates\n> an [Project Activity Feed](view-activity-feed)\n> and sends a notification email to the project owner\n> with the following information:\n>\n> - Completion date of the index build\n>\n> - Name of the cluster on which the index build completed\n>\n> - Namespace on which the index build completed\n>\n> - Project containing the cluster and namespace\n>\n> - Organization containing the project\n>\n> - Link to the [Project Activity Feed](view-activity-feed)",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{ <option1>: <value1>, ... }",
+          "tokenEstimate": 11
+        },
+        {
+          "language": "javascript",
+          "content": "{ unique: true, name: \"myUniqueIndex\" }",
+          "tokenEstimate": 13
+        },
+        {
+          "language": "json",
+          "content": "{ \"locale\": \"fr\" }",
+          "tokenEstimate": 8
+        }
+      ]
+    }
+  ]
 }

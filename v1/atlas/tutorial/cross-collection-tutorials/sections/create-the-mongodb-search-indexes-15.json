@@ -1,0 +1,37 @@
+{
+  "heading": "Create the MongoDB Search Indexes",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index named `default` on\nall the fields in the `companies` collection in the\n`sample_training` database. You will create another MongoDB Search index\nnamed `default` on all the fields in the `inspections`\ncollection in the `sample_training` database.\n\nIn your terminal, navigate to where you want to create your application,\nthen run the following command to create a directory called\n`search-with-unionwith` and initialize your project in that directory:\n\n```shell\nmkdir search-with-unionwith\ncd search-with-unionwith\ndotnet new console\ndotnet add package MongoDB.Driver\n```\n\nFor more detailed installation instructions, see the\n[MongoDB C# Driver documentation](csharp/get-started).\n\nPaste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_training\");\n\n// Create index for the companies collection\nvar companiesCollection = db.GetCollection<BsonDocument>(\"companies\");\n\n// Create the MongoDB Search index definition for companies\nvar companiesIndex = new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true }\n      }\n    }\n  });\n\nvar companiesResult = companiesCollection.SearchIndexes.CreateOne(companiesIndex);\nConsole.WriteLine($\"New index name for companies: {companiesResult}\");\n\n// Create index for the inspections collection\nvar inspectionsCollection = db.GetCollection<BsonDocument>(\"inspections\");\n\n// Create the MongoDB Search index definition for inspections\nvar inspectionsIndex = new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true }\n      }\n    }\n  });\n\nvar inspectionsResult = inspectionsCollection.SearchIndexes.CreateOne(inspectionsIndex);\nConsole.WriteLine($\"New index name for inspections: {inspectionsResult}\");\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\nNew index name for companies: default\nNew index name for inspections: default\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "mkdir search-with-unionwith\ncd search-with-unionwith\ndotnet new console\ndotnet add package MongoDB.Driver",
+      "tokenEstimate": 25
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_training\");\n\n// Create index for the companies collection\nvar companiesCollection = db.GetCollection<BsonDocument>(\"companies\");\n\n// Create the MongoDB Search index definition for companies\nvar companiesIndex = new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true }\n      }\n    }\n  });\n\nvar companiesResult = companiesCollection.SearchIndexes.CreateOne(companiesIndex);\nConsole.WriteLine($\"New index name for companies: {companiesResult}\");\n\n// Create index for the inspections collection\nvar inspectionsCollection = db.GetCollection<BsonDocument>(\"inspections\");\n\n// Create the MongoDB Search index definition for inspections\nvar inspectionsIndex = new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true }\n      }\n    }\n  });\n\nvar inspectionsResult = inspectionsCollection.SearchIndexes.CreateOne(inspectionsIndex);\nConsole.WriteLine($\"New index name for inspections: {inspectionsResult}\");\n",
+      "tokenEstimate": 258
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name for companies: default\nNew index name for inspections: default",
+      "tokenEstimate": 15
+    }
+  ]
+}
