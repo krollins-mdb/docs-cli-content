@@ -3,13 +3,76 @@
   "product": "atlas",
   "title": "GCP Confluent Private Link Connections",
   "summary": {
-    "total": 8,
+    "total": 21,
     "byLanguage": {
-      "bash": 2,
-      "text": 4,
-      "sh": 2
+      "sh": 11,
+      "bash": 5,
+      "json": 1,
+      "text": 4
     },
     "bySection": [
+      {
+        "heading": "Step 2: Request a connection to your cloud provider.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 10
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 219
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 81
+          }
+        ]
+      },
+      {
+        "heading": "Step 4: Create the Atlas-side connection.",
+        "blocks": [
+          {
+            "language": "sh",
+            "tokenEstimate": 230
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 154
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 10
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 106
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 79
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 227
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 230
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 159
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 88
+          },
+          {
+            "language": "sh",
+            "tokenEstimate": 230
+          }
+        ]
+      },
       {
         "heading": "Step 1: Configure Confluent cluster.",
         "blocks": [
@@ -75,6 +138,84 @@
     ]
   },
   "codeBlocks": [
+    {
+      "language": "sh",
+      "section": "Step 2: Request a connection to your cloud provider.",
+      "content": "\natlas streams privateLinks create [options]\n",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "sh",
+      "section": "Step 2: Request a connection to your cloud provider.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{ \"vendor\": \"Confluent\", \"provider\": \"AWS\",\n  \"region\": \"us_east_1\", \"serviceEndpointId\":\n  \"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\",\n  \"dnsDomain\": \"sample.us-east-1.aws.confluent.cloud\",\n  \"dnsSubDomain: [\n    \"use1-az1.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az2.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az4.sample.us-east-1.aws.confluent.cloud\"\n  ]\n}'",
+      "tokenEstimate": 219
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Request a connection to your cloud provider.",
+      "content": "{\"_id\":\"6aa12e7ccd660d4b2380b1c1\",\"dnsDomain\":\"sample.us-east-1.aws.confluent.cloud.\",\"vendor\":\"Confluent\",\"provider\":\"AWS\",\"region\":\"us_east_1\",\"serviceEndpointId\":\"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\"}",
+      "tokenEstimate": 81
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"confluent_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.us-east-1.aws.confluent.cloud:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 230
+    },
+    {
+      "language": "json",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": [\n          \"arn:aws:iam:123456789012:root\"\n        ]\n      },\n      \"Action\": [\n        \"kafka:CreateVpcConnection\",\n        \"kafka:GetBootstrapBrokers\",\n        \"kafka:DescribeCluster\",\n        \"kafka:DescribeClusterV2\"\n      ],\n      \"Resource\": \"arn:aws:kafka:us-east-1:123456789012:cluster/testing/de8982fa-8222-4e87-8b20-9bf3cdfa1521-2\"\n    }\n  ]\n}",
+      "tokenEstimate": 154
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "\natlas streams privateLinks create [options]\n",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{ \"vendor\": \"msk\",\n         \"provider\": \"AWS\",\n         \"arn\": \"1235711\"}'",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "bash",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "{\"_id\":\"6aa12e7ccd660d4b2380b1c1\",\"dnsDomain\":\"scram.sample.us-east-1.amazonaws.com\",\"vendor\":\"msk\",\"provider\":\"AWS\",\"region\":\"us_east_1\",\"serviceEndpointId\":\"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\"}",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"msk_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.kafka.us-east-1.amazonaws.com:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 227
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"confluent_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.us-east-1.aws.confluent.cloud:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 230
+    },
+    {
+      "language": "bash",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{ \"provider\": \"AZURE\", \"region\": \"US_EAST_2\", \"serviceEndpointId\": \"/subscriptions/b82d6aa0-0b0a-ffa3-7c22-e167dc44f5b0/resourceGroups/asp/providers/Microsoft.EventHub/namespaces/sample\", \"dnsDomain\": \"sample.servicebus.windows.net\" }'",
+      "tokenEstimate": 159
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "{\"_id\":\"6aa12e7ccd660d4b2380b1c1\",\"dnsDomain\":\"sample.servicebus.windows.net\",\"provider\":\"AZURE\",\"region\":\"US_EAST_2\",\"serviceEndpointId\":\"/subscriptions/b82d6aa0-0b0a-ffa3-7c22-e167dc44f5b0/resourceGroups/asp/providers/Microsoft.EventHub/namespaces/sample\"}",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "sh",
+      "section": "Step 4: Create the Atlas-side connection.",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/spinstance/connections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{\n  \"name\": \"confluent_demo\",\n  \"bootstrapServers\": \"slr-ntgrbn.sample.us-east-1.aws.confluent.cloud:9092\",\n  \"security\": {\n    \"protocol\": \"SASL_SSL\"\n    },\n  \"authentication\": {\n    \"mechanism\": \"SCRAM-SHA\",\n    \"password\": \"apiSecretDemo\",\n    \"username\": \"apiUserDemo\"\n    },\n  \"type\": \"Kafka\",\n  \"networking\": {\n    \"access\": {\n      \"type\": \"PRIVATE_LINK\",\n      \"connectionId\": \"38972b0cbe9c2aa40a30a246\"\n      }\n    }\n  }'",
+      "tokenEstimate": 230
+    },
     {
       "language": "bash",
       "section": "Step 1: Configure Confluent cluster.",

@@ -1,0 +1,22 @@
+{
+  "heading": "How the updateMonthlyPurchaseOrders Function Works",
+  "headingLevel": 5,
+  "body": "The `updateMonthlyPurchaseOrders` function adds cumulative monthly\npurchase order information to the `monthlyPhoneTransactions`\nmaterialized view. The function updates the monthly purchase order\ninformation for purchase orders conducted over the phone.\nThe following example defines the function:\n\n```javascript\nexports = function(){\n\n   var pipeline = [\n     { $match: {purchaseMethod: \"Phone\"} },\n     { $unwind: {path: \"$items\"}},\n     { $group: {\n      _id: { $dateToString:\n      { format: \"%Y-%m\", date: \"$saleDate\" } },\n      sales_quantity: { $sum: \"$items.quantity\"},\n      sales_price: { $sum: \"$items.price\"}\n     }},\n     { $set: { sales_price: { $toDouble: \"$sales_price\"}}},\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ]\n\n   var monthlyPhoneTransactions = context.services.get(\"mongodb-atlas\").db(\"sample_supplies\").collection(\"purchaseOrders\");\n\n   return monthlyPhoneTransactions.aggregate(pipeline);\n};\n```\n\nThe `updateMonthlyPurchaseOrders` function uses the same aggregation\npipeline stages to update `monthlyPhoneTransactions` as the\n`updateMonthlySales` function.\n\nClick the Run button in the\nlower right-hand corner of the Function Editor\nto update the `monthlyPhoneTransactions` materialized view.\n\nThe Result tab at the bottom of the\nFunction Editor reflects the execution status of\nthe function.\n\nThe `updateMonthlyPurchaseOrders` function refreshes the\n`monthlyPhoneTransactions` materialized view with the January\n2018 purchase order data.\n\nUse [mongosh](mongodb-shell) to query the\n`monthlyPhoneTransactions` collection to confirm the update:\n\n**Input:**\n\n```sh\ndb.monthlyPhoneTransactions.find().sort( { _id: -1} )\n```\n\n**Output:**\n\n```json\n{\n  _id: '2018-01',\n  sales_quantity: 66,\n  sales_price: Decimal128(\"1407.10\")\n}\n```\n\nThe `monthlyPhoneTransactions` materialized view shows the\nnewly added data. The top result reflects that the most recent\ntransaction took place in January 2018.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "exports = function(){\n\n   var pipeline = [\n     { $match: {purchaseMethod: \"Phone\"} },\n     { $unwind: {path: \"$items\"}},\n     { $group: {\n      _id: { $dateToString:\n      { format: \"%Y-%m\", date: \"$saleDate\" } },\n      sales_quantity: { $sum: \"$items.quantity\"},\n      sales_price: { $sum: \"$items.price\"}\n     }},\n     { $set: { sales_price: { $toDouble: \"$sales_price\"}}},\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ]\n\n   var monthlyPhoneTransactions = context.services.get(\"mongodb-atlas\").db(\"sample_supplies\").collection(\"purchaseOrders\");\n\n   return monthlyPhoneTransactions.aggregate(pipeline);\n};",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "sh",
+      "content": "db.monthlyPhoneTransactions.find().sort( { _id: -1} )",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "json",
+      "content": "{\n  _id: '2018-01',\n  sales_quantity: 66,\n  sales_price: Decimal128(\"1407.10\")\n}",
+      "tokenEstimate": 31
+    }
+  ]
+}

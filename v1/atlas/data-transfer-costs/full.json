@@ -2,5 +2,84 @@
   "path": "atlas/data-transfer-costs",
   "product": "atlas",
   "title": "Data Transfer",
-  "sections": []
+  "sections": [
+    {
+      "heading": "Sources of Data Transfer Costs",
+      "headingLevel": 2,
+      "body": "Atlas data transfer costs depend on the cloud service provider\nhosting your cluster. Atlas tabulates data transfer\ncosts daily.\n\nAtlas charges for data transfer between your Atlas node\nand another node. The following transfers incur costs, listed in order\nof lowest cost to highest:\n\n- Data transfer using in-region VNet peering.\n\n- Data transfer to a different region. Data transfer charges for an Atlas\n  cluster depend on the geographic location of the source node.\n\n- Data transfer using cross-region VNet peering.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Transfer Cost Exceptions and Behavior",
+      "headingLevel": 3,
+      "body": "Azure (Microsoft Azure) charges for virtual network traffic,\nincluding ingress and egress data transfers between virtual networks,\nsuch as in Virtual Network Peering scenarios.\nFor more details, refer to\n[Azure Virtual Network pricing](https://azure.microsoft.com/en-us/pricing/details/virtual-network/#pricing).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Azure (Microsoft Azure) Data Transfer Costs",
+      "headingLevel": 3,
+      "body": "Data transfer costs for Atlas deployments running on Azure (Microsoft Azure).\n\n| Data Transfer Type                           | Price per GB     |\n| -------------------------------------------- | ---------------- |\n| Data Transfer                                | $0.087 to $0.181 |\n| VNET Data Transfer (Same Region)             | $0.01            |\n| Global VNET Peering Data Transfer            | $0.035 to $0.16  |\n| Inter Region Intra-continental Data Transfer | $0.02 to $0.16   |\n| Inter Region Inter-continental Data Transfer | $0.02 to $0.16   |\n\nAtlas charges for data transfer between your Atlas node\nand another node. The following transfers incur costs, listed in order\nof lowest cost to highest:\n\n- Data transfer in the same AWS (Amazon Web Services) region.\n\n- Data transfer between different AWS (Amazon Web Services) regions.\n\n- Data transfer to a location outside of an AWS (Amazon Web Services) region,\n  excluding incoming transfers to the Atlas node.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Cloud Backup Snapshot Export",
+      "headingLevel": 3,
+      "body": "Atlas charges `$0.125` per GB of data exported to the AWS (Amazon Web Services) S3 (Simple Storage Service)\nbucket, Azure Blob Storage Container, or Google Cloud Storage bucket in addition to the data\ntransfer cost incurred from the cloud service itself. Atlas\ncompresses the data before exporting. To estimate the amount of data\nbeing exported, add up the [dataSize](manual/reference/command/dbStats) of each\ndatabase in your cluster. This total should correspond to the\nuncompressed size of your export, which would be the maximum cost\nincurred from Atlas for the data export operation.\n\nTo learn more about cloud backup snapshot export, see\n[export your cloud backup snapshots](cloud-provider-snapshot-export).",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Transfer Cost Exceptions and Behavior",
+      "headingLevel": 3,
+      "body": "Atlas doesn't charge for incoming data transfers to an Atlas\ncluster. Additionally, Atlas doesn't charge Free clusters (formerly known as `M0`) or Flex cluster\ntiers for outgoing data.\n\nFor AWS (Amazon Web Services) clusters deployed outside of the North America region where\nthe Atlas Control Plane is located, invoices will include an\n`AWS Data Transfer (different region)` item that results from the\ninherited network traffic, such as heartbeats, the automation agent,\nand the Performance Advisor, sent between the AWS (Amazon Web Services) North America region with the\nAtlas control plane, and the AWS (Amazon Web Services) region where the clusters are\ndeployed.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "AWS (Amazon Web Services) Data Transfer Costs",
+      "headingLevel": 3,
+      "body": "Data transfer costs for Atlas deployments running on AWS (Amazon Web Services).\n\n| Data Transfer Type | Price per GB   |\n| ------------------ | -------------- |\n| Same Region        | $0.00 to $0.01 |\n| Different Region   | $0.02 to $0.15 |\n| Out to Internet    | $0.09 to $0.16 |\n\nAtlas charges for data transfer between your Atlas node\nand another node. The following transfers incur costs, listed in order\nof lowest cost to highest:\n\n- Data transfer between zones in the same region.\n\n- Data transfer between regions in the United States of America.\n\n- Data transfer between continents.\n\n- Data transfer between regions in the same continent\n  other than the United States of America.\n\n- Data transfer to a location outside of a Google Cloud data center,\n  excluding incoming transfers to the Atlas node.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Transfer Cost Exceptions and Behavior",
+      "headingLevel": 3,
+      "body": "Atlas doesn't charge for incoming data transfers to an Atlas\ncluster. Additionally, Atlas doesn't charge Free clusters or Flex cluster\ntiers for outgoing data.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Google Cloud Data Transfer Costs",
+      "headingLevel": 3,
+      "body": "Data transfer costs for Atlas deployments running on Google Cloud.\n\n| Data Transfer Type                               | Price per GB   |\n| ------------------------------------------------ | -------------- |\n| Data Transfer (Internet)                         | $0.12 to $0.23 |\n| Data Transfer (Interconnect)                     | $0.12 to $0.23 |\n| Data Transfer (between zones in the same region) | $0.01 to $0.15 |\n| Data Transfer (between regions)                  | $0.02 to $0.15 |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Clusters",
+      "headingLevel": 3,
+      "body": "Multi-region clusters might have higher\ndata transfer costs depending on the number and location of additional\nregions, as well as the number of clusters deployed to each region.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Push-based Log Exports",
+      "headingLevel": 3,
+      "body": "Exporting [Push Logs to AWS S3 bucket](mongodb-logs-push)\nincurs costs for data transfer.\n\n> **Note:** Data transfer pricing varies by the cloud provider\n> and region of the source, and destination.\n> For incurred data transfer costs, refer to your Atlas invoice.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Additional Data Transfer Usage",
+      "headingLevel": 3,
+      "body": "While application traffic drives the majority of your costs,\nessential platform operations contribute small amounts of additional\ndata transfer to your aggregate billing. These background processes\nensure the health, security, and performance of your deployment.\n\nThe underlying cloud provider bills this traffic as part of the\ntotal network usage required to maintain your managed service.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Live Migrate Your Data to Atlas",
+      "headingLevel": 2,
+      "body": "MongoDB hosts and operates the free Atlas Live Migration Service to\nhelp users migrate existing MongoDB databases to MongoDB Atlas.\nMongoDB doesn't charge for any incoming data transfers to an Atlas\ncluster.\n[Learn more](https://www.mongodb.com/cloud/atlas/migrate?tck=docs)\nabout migrating to Atlas.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "How to Reduce Data Transfer Costs",
+      "headingLevel": 2,
+      "body": "The vast majority of Atlas customers spend less than 10% of their\nbudget on data transfer. If you are spending significantly more, some\nof these optimizations may reduce your data transfer costs:\n\n- Check all applications and processes that access your data for\n  inefficiencies. Ensure that queries do not:\n\n  - Re-read data that already exists on the client.\n\n  - Re-write existing data to your cluster.\n\n- Ensure that queries originate from the same cloud\n  region and provider as your cluster whenever possible.\n\n  When cross-region queries are necessary:\n\n  - Ensure read queries\n    [use the preference \"nearest.\"](manual/core/read-preference)\n\n  - Source write queries from your **Highest Priority Region**\n    whenever possible. For more information on region priorities, see\n    [highest priority region](deploy-across-multiple-regions).\n\n- Perform query operations with [projection](manual/tutorial/project-fields-from-query-results)\n  to specify or restrict the fields that MongoDB returns in matching documents,\n  thereby limiting the amount of data that MongoDB sends to applications.\n  Alternatively, project document fields using the [$project](manual/reference/operator/aggregation/project) aggregation\n  stage from the [Aggregation Framework](manual/aggregation) to\n  reduce the size of a document before you transfer it.\n\n- Enable network compression in your client driver to compress data between\n  the client and the server. As an example, you can configure the\n  [network compression](node/fundamentals/connection/network-compression)\n  option for your Node.js driver. Atlas always compresses intra-cluster\n  communication. To learn more, see the [Driver's Documentation](drivers).\n\n> **Note:** Queries from on-premises environments into Atlas, across cloud\n> providers, or between continents on the same cloud provider incur\n> the greatest data transfer costs.",
+      "codeBlocks": []
+    }
+  ]
 }

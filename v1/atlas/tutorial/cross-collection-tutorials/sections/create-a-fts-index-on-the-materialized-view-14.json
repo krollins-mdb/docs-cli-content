@@ -1,0 +1,42 @@
+{
+  "heading": "Create a {+fts} Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nCreate a `CreateIndex.cpp` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n    \n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_supplies\"];\n    auto collection = db[\"monthlyPhoneTransactions\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition\n    auto name = \"monthlySalesIndex\";\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true)\n        ))\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\nc++ --std=c++17 CreateIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out\n```\n\n**Output:**\n\n```\nNew index name: monthlySalesIndex\n```\n\n> **Tip:**&#x20;\n>\n> MacOS Error\n>\n> MacOS users might see the following error after running the preceding\n> commands:\n>\n> ```sh\n> dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib\n> ```\n>\n> To resolve this error, use the `-Wl,-rpath` linker option to set\n> the `@rpath`, as shown in the following code:\n>\n> ```sh\n> c++ --std=c++17 CreateIndex.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n> ./app.out\n> ```",
+  "codeBlocks": [
+    {
+      "language": "cpp",
+      "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n    \n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_supplies\"];\n    auto collection = db[\"monthlyPhoneTransactions\"];\n    auto siv = collection.search_indexes();\n\n    // Create the MongoDB Search index definition\n    auto name = \"monthlySalesIndex\";\n    auto definition = make_document(\n        kvp(\"mappings\", make_document(\n            kvp(\"dynamic\", true)\n        ))\n    );\n    auto model = mongocxx::search_index_model(name, definition.view());\n\n    try {\n        // Execute the command to create the index\n        auto result = siv.create_one(model);\n        std::cout << \"New index name: \" << result << std::endl;\n    } catch (const std::exception& e) {\n        std::cerr << \"Error creating Atlas Search index: \" << e.what() << std::endl;\n    }\n}\n",
+      "tokenEstimate": 287
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "c++ --std=c++17 CreateIndex.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "text",
+      "content": "New index name: monthlySalesIndex",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "sh",
+      "content": "dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "content": "c++ --std=c++17 CreateIndex.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./app.out\n./app.out",
+      "tokenEstimate": 43
+    }
+  ]
+}
