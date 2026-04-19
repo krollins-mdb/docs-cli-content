@@ -7,7 +7,9 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "Use the `distinct()` method to retrieve all distinct values for a specified field\nacross a collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Documents",
@@ -19,19 +21,25 @@
           "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"restaurants\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"restaurant\": \"White Bear\", \"borough\": \"Queens\", \"cuisine\": \"Chinese\" },\n  { \"_id\": 2, \"restaurant\": \"Via Carota\", \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" },\n  { \"_id\": 3, \"restaurant\": \"Borgatti's\", \"borough\": \"Bronx\", \"cuisine\": \"Italian\" },\n  { \"_id\": 4, \"restaurant\": \"Tanoreen\", \"borough\": \"Brooklyn\", \"cuisine\": \"Middle Eastern\" },\n  { \"_id\": 5, \"restaurant\": \"Äpfel\", \"borough\": \"Queens\", \"cuisine\": \"German\" },\n  { \"_id\": 6, \"restaurant\": \"Samba Kitchen\", \"borough\": \"Manhattan\", \"cuisine\": \"Brazilian\" },\n]);",
           "tokenEstimate": 215
         }
-      ]
+      ],
+      "slug": "sample-documents",
+      "variantAgnostic": true
     },
     {
       "heading": "Distinct",
       "headingLevel": 2,
       "body": "The `distinct()` method requires a document field as a parameter. You can specify the\nfollowing optional parameters to adjust the method output:\n\n- A `query` parameter to refine your results\n\n- An `options` parameter to set collation rules",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "distinct",
+      "variantAgnostic": true
     },
     {
       "heading": "Document Field Parameter",
       "headingLevel": 3,
       "body": "Pass the name of the document field to return a list of the field's unique values.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "document-field-parameter",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -48,13 +56,17 @@
           "content": "[ \"Bronx\", \"Brooklyn\", \"Manhattan\", \"Queens\" ]",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "Query Parameter",
       "headingLevel": 3,
       "body": "You can specify a query parameter to return unique values for documents that match\nyour query.\n\nVisit [Specify a Query](node-fundamentals-query-document) for more information on constructing a\nquery filter.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "query-parameter",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -71,13 +83,17 @@
           "content": "[ \"Brazilian\", \"Chinese\", \"German\", \"Italian\" ]",
           "tokenEstimate": 15
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "Options Parameter",
       "headingLevel": 3,
       "body": "You can specify the collation to the `distinct()` method by defining a\n`collation` field as an `options` parameter. This field allows you to set\nregional rules for string ordering and comparisons.\n\nSee the [Collation](node-collations) section of the [Configure CRUD Operations](node-configure) guide for\ninstructions on applying collations.\n\n> **Note:** When using the `options` parameter, you must also specify a `query` parameter. If\n> you don't want to use a query filter, define the query as `{}`.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "options-parameter",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -99,35 +115,82 @@
           "content": "[ \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\", \"Äpfel\" ]",
           "tokenEstimate": 32
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "distinct() Example: Full File",
       "headingLevel": 3,
-      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).The following snippet retrieves a list of distinct values for the `year`\ndocument field from the `movies` collection. It uses a query document to\nmatch movies that include `\"Barbara Streisand\"` in the `director` array.**JavaScript:**JavaScript```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**TypeScript:**TypeScript```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```Running the preceding example, results in the following output:```json\n[ 1983, 1991, 1996 ]\n```",
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following snippet retrieves a list of distinct values for the `year`\ndocument field from the `movies` collection. It uses a query document to\nmatch movies that include `\"Barbara Streisand\"` in the `director` array.\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example, results in the following output:\n\n```json\n[ 1983, 1991, 1996 ]\n```",
       "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 175
-        },
-        {
-          "language": "typescript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 143
-        },
         {
           "language": "json",
           "content": "[ 1983, 1991, 1996 ]",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "distinct-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "distinct() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 175
+        }
+      ],
+      "slug": "distinct-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "distinct() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 143
+        }
+      ],
+      "slug": "distinct-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "API Documentation",
       "headingLevel": 2,
       "body": "To learn more about any of the types or methods discussed in this guide, see the\nfollowing API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [Db](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html)\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html)\n\n- [distinct()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#distinct).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "api-documentation",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language",
+      "text": "language",
+      "default": "javascript",
+      "selections": [
+        {
+          "value": "javascript",
+          "text": "javascript"
+        },
+        {
+          "value": "typescript",
+          "text": "typescript"
+        }
+      ]
     }
   ]
 }

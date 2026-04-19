@@ -1,0 +1,27 @@
+{
+  "heading": "Specify MONGODB-AWS Authentication",
+  "headingLevel": 2,
+  "body": "To authenticate to your MongoDB instance using AWS credentials stored in\nenvironment variables available through process.env, set the following\nvariables by using a shell:\n\n```bash\nexport AWS_ACCESS_KEY_ID=<awsKeyId>\nexport AWS_SECRET_ACCESS_KEY=<awsSecretKey>\nexport AWS_SESSION_TOKEN=<awsSessionToken>\n```\n\n> **Note:** Omit the line containing `AWS_SESSION_TOKEN` if you don't need an AWS\n> session token for that role.\n\nAWS recommends using regional AWS STS endpoints instead of global\nendpoints to reduce latency, build-in redundancy, and increase session token validity.\nTo set the AWS region, set [AWS\\_REGION](https://docs.aws.amazon.com/sdkref/latest/guide/feature-region.html)\nand [AWS\\_STS\\_REGIONAL\\_ENDPOINTS](https://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html)\nas environment variables, as shown in the following example:\n\n```bash\nexport AWS_STS_REGIONAL_ENDPOINTS=regional // Enables regional endpoints\nexport AWS_REGION=us-east-1 // Sets your AWS region\n```\n\nIf both these environment variables aren't set, the default region is\n`us-east-1`. For a list of available AWS regions, see the\n[Regional Endpoints](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints)\nsection of the AWS Service Endpoints reference in the AWS documentation.\n\nAfter you've set the preceding environment variables, specify the `MONGODB-AWS`\nauthentication mechanism in your connection string as shown in the following example:\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "export AWS_ACCESS_KEY_ID=<awsKeyId>\nexport AWS_SECRET_ACCESS_KEY=<awsSecretKey>\nexport AWS_SESSION_TOKEN=<awsSessionToken>",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "bash",
+      "content": "export AWS_STS_REGIONAL_ENDPOINTS=regional // Enables regional endpoints\nexport AWS_REGION=us-east-1 // Sets your AWS region",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 147
+    }
+  ],
+  "slug": "specify-mongodb-aws-authentication--environment variables",
+  "selections": {
+    "tabs": "environment variables"
+  },
+  "variantAgnostic": false
+}
