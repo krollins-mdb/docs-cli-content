@@ -7,35 +7,65 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "When you use the Node.js driver to perform a server operation, you can also\nlimit the duration allowed for the server to finish the operation. To do so,\nspecify a **client-side operation timeout (CSOT)**. The timeout applies to all\nsteps needed to complete the operation, including server selection, connection\ncheckout, and server-side execution. When the timeout expires, the\nNode.js driver raises a timeout exception.\n\n> **Note:**&#x20;\n>\n> Experimental Feature\n>\n> The CSOT feature is experimental and might change in future driver releases.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "timeoutMS Option",
       "headingLevel": 2,
-      "body": "To specify a timeout when connecting to a MongoDB deployment, set the\n`timeoutMS` connection option to the timeout length in milliseconds. You can\ndo this in two ways: by passing an argument to the `MongoClient` constructor\nor through a parameter in your connection string.The following code examples use the `timeoutMS` option to specify a timeout of\n30 seconds:**Mongoclient:**MongoClient```javascript\nconst uri = \"mongodb://<hostname>:<port>\";\nconst client = new MongoClient(uri, { timeoutMS: 30000 });\n```**Connection-string:**Connection String```javascript\nconst uri = \"mongodb://<hostname>:<port>?timeoutMS=30000\";\nconst client = new MongoClient(uri);\n```> **Note:** The `timeoutMS` connection option takes precedence over the\n> following options:\n>\n> - `socketTimeoutMS`\n>\n> - `waitQueueTimeoutMS`\n>\n> - `wTimeoutMS`\n>\n> - `maxTimeMS`\n>\n> - `maxCommitTimeMS`\n>\n> When the CSOT feature is no longer experimental, the preceding options will\n> be deprecated.If you specify the `timeoutMS` option, the driver automatically applies the\nspecified timeout per each server operation. The following code example specifies\na timeout of 10 seconds at the client level, and then calls the `insertOne()`\nmethod:```javascript\nconst uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  timeoutMS: 10000\n});\n\nasync function run() {\n    try {\n      const db = client.db(\"test-db\");\n      const coll = db.collection(\"test-collection\");\n\n      const result = await coll.insertOne({ name: \"Yngwie\" });\n      console.log(\"Insert result:\", result);\n    } finally {\n      await client.close();\n    }\n  }\n  \nrun().catch(console.dir);\n```",
+      "body": "To specify a timeout when connecting to a MongoDB deployment, set the\n`timeoutMS` connection option to the timeout length in milliseconds. You can\ndo this in two ways: by passing an argument to the `MongoClient` constructor\nor through a parameter in your connection string.\n\nThe following code examples use the `timeoutMS` option to specify a timeout of\n30 seconds:\n\nMongoClient\n\nConnection String\n\n> **Note:** The `timeoutMS` connection option takes precedence over the\n> following options:\n>\n> - `socketTimeoutMS`\n>\n> - `waitQueueTimeoutMS`\n>\n> - `wTimeoutMS`\n>\n> - `maxTimeMS`\n>\n> - `maxCommitTimeMS`\n>\n> When the CSOT feature is no longer experimental, the preceding options will\n> be deprecated.\n\nIf you specify the `timeoutMS` option, the driver automatically applies the\nspecified timeout per each server operation. The following code example specifies\na timeout of 10 seconds at the client level, and then calls the `insertOne()`\nmethod:\n\n```javascript\nconst uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  timeoutMS: 10000\n});\n\nasync function run() {\n    try {\n      const db = client.db(\"test-db\");\n      const coll = db.collection(\"test-collection\");\n\n      const result = await coll.insertOne({ name: \"Yngwie\" });\n      console.log(\"Insert result:\", result);\n    } finally {\n      await client.close();\n    }\n  }\n  \nrun().catch(console.dir);\n```",
       "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "const uri = \"mongodb://<hostname>:<port>\";\nconst client = new MongoClient(uri, { timeoutMS: 30000 });",
-          "tokenEstimate": 27
-        },
-        {
-          "language": "javascript",
-          "content": "const uri = \"mongodb://<hostname>:<port>?timeoutMS=30000\";\nconst client = new MongoClient(uri);",
-          "tokenEstimate": 25
-        },
         {
           "language": "javascript",
           "content": "const uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  timeoutMS: 10000\n});\n\nasync function run() {\n    try {\n      const db = client.db(\"test-db\");\n      const coll = db.collection(\"test-collection\");\n\n      const result = await coll.insertOne({ name: \"Yngwie\" });\n      console.log(\"Insert result:\", result);\n    } finally {\n      await client.close();\n    }\n  }\n  \nrun().catch(console.dir);",
           "tokenEstimate": 99
         }
-      ]
+      ],
+      "slug": "timeoutms-option",
+      "variantAgnostic": true
     },
     {
       "heading": "Timeout Inheritance",
       "headingLevel": 3,
       "body": "When you specify a `timeoutMS` option, the driver applies the timeout\naccording to the same inheritance behaviors as the other Node.js driver options.\nThe following table describes how the timeout value is inherited at each level:\n\n| Level       | Inheritance Description                                                                                                                   |\n| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |\n| Operation   | Takes the highest precedence and will override timeoutMS options set at any other level.                                                  |\n| Transaction | Takes precedence over timeoutMS set at the session, collection, database, or client level.                                                |\n| Session     | Applies to all transactions and operations within that session, unless the option is overridden by options set at those levels.           |\n| Database    | Applies to all sessions and operations within that database, unless the option is overridden by options set at those levels.              |\n| Collection  | Applies to all sessions and operations on that collection, unless the option is overridden by options set at those levels.                |\n| Client      | Applies to all databases, collections, sessions, transactions, and operations within that client that do not otherwise specify timeoutMS. |\n\nFor more information on overrides and specific options, see the [Overrides](node-csot-overrides) section.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "timeout-inheritance",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "timeoutMS Option",
+      "headingLevel": 2,
+      "body": "```javascript\nconst uri = \"mongodb://<hostname>:<port>\";\nconst client = new MongoClient(uri, { timeoutMS: 30000 });\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const uri = \"mongodb://<hostname>:<port>\";\nconst client = new MongoClient(uri, { timeoutMS: 30000 });",
+          "tokenEstimate": 27
+        }
+      ],
+      "slug": "timeoutms-option--mongoclient",
+      "selections": {
+        "tabs": "mongoclient"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "timeoutMS Option",
+      "headingLevel": 2,
+      "body": "```javascript\nconst uri = \"mongodb://<hostname>:<port>?timeoutMS=30000\";\nconst client = new MongoClient(uri);\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const uri = \"mongodb://<hostname>:<port>?timeoutMS=30000\";\nconst client = new MongoClient(uri);",
+          "tokenEstimate": 25
+        }
+      ],
+      "slug": "timeoutms-option--connection-string",
+      "selections": {
+        "tabs": "connection-string"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Overrides",
@@ -47,25 +77,33 @@
           "content": "// Creates a new MongoClient with a client-level timeoutMS configuration\nconst uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  // Client-level timeout: 15 seconds\n  timeoutMS: 15000\n});\n\nasync function run() {\n  try {\n    const db = client.db(\"test-db\");\n    const coll = db.collection(\"test-collection\");\n\n    // Performs a query operation with an operation-level timeoutMS configuration\n    const docs = await coll.find({}, \n        // Operation-level timeout: 10 seconds\n        { timeoutMS: 10000 })\n        .toArray(); \n\n    console.log(docs);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
           "tokenEstimate": 146
         }
-      ]
+      ],
+      "slug": "overrides",
+      "variantAgnostic": true
     },
     {
       "heading": "Transactions",
       "headingLevel": 3,
       "body": "When you create a new `ClientSession` instance to implement a transaction, use\nthe `defaultTimeoutMS` option. You can set `defaultTimeoutMS` to specify the\n`timeoutMS` values to use for:\n\n- [commitTransaction()](https://mongodb.github.io/node-mongodb-native/7.1/classes/ClientSession.html#commitTransaction)\n\n- [abortTransaction()](https://mongodb.github.io/node-mongodb-native/7.1/classes/ClientSession.html#abortTransaction)\n\n- [withTransaction()](https://mongodb.github.io/node-mongodb-native/7.1/classes/ClientSession.html#withTransaction)\n\n- [endSession()](https://mongodb.github.io/node-mongodb-native/7.1/classes/ClientSession.html#endSession)\n\nIf you do not specify `defaultTimeoutMS`, the driver uses the `timeoutMS`\nvalue set on the parent `MongoClient`.\n\nYou cannot override `defaultTimeoutMS` by setting the `timeoutMS` option on an\noperation in a transaction session provided by the `withTransaction()` callback.\nDoing so throws an error.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "transactions",
+      "variantAgnostic": true
     },
     {
       "heading": "Client Encryption",
       "headingLevel": 3,
       "body": "When you use Client-Side Field Level Encryption (CSFLE), the driver uses the\n`timeoutMS` option to limit the time allowed for encryption and decryption\noperations.\n\nIf you specify the `timeoutMS` option when you construct a\n`ClientEncryption` instance, it controls the lifetime of all operations\nperformed on that instance. If you do not provide `timeoutMS`, the instance\ninherits the `timeoutMS` setting from the `MongoClient` used in the\n`ClientEncryption` constructor.\n\nIf you set `timeoutMS` on both the client and directly in\n`ClientEncryption`, the value provided to `ClientEncryption` takes\nprecedence.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "client-encryption",
+      "variantAgnostic": true
     },
     {
       "heading": "Cursors",
       "headingLevel": 2,
       "body": "Cursors offer configurable timeout settings when using the CSOT feature. You can\nadjust cursor handling by configuring either the cursor lifetime or cursor\niteration mode if needed. To configure the mode, set the `timeoutMode` option\nto `cursorLifetime`, which is the default, or `iteration`.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "cursors",
+      "variantAgnostic": true
     },
     {
       "heading": "Cursor Lifetime Mode",
@@ -77,7 +115,9 @@
           "content": "const docs = await collection.find({}, {timeoutMS: 10000}).toArray();",
           "tokenEstimate": 17
         }
-      ]
+      ],
+      "slug": "cursor-lifetime-mode",
+      "variantAgnostic": true
     },
     {
       "heading": "Cursor Iteration Mode",
@@ -89,13 +129,33 @@
           "content": "for await (const movie of mflix.find({}, { timeoutMode: 'iteration' })) {\n   const imdbResponse = await fetch(movie.imdb_url);\n   console.log(await imdbResponse.text());\n}",
           "tokenEstimate": 40
         }
-      ]
+      ],
+      "slug": "cursor-iteration-mode",
+      "variantAgnostic": true
     },
     {
       "heading": "API Documentation",
       "headingLevel": 2,
       "body": "To learn more about using timeouts with the Node.js driver, see the following\nAPI documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [timeoutMS](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html#timeoutMS)\n\n- [ClientSession](https://mongodb.github.io/node-mongodb-native/7.1/classes/ClientSession.html)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "api-documentation",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "mongoclient",
+          "text": "mongoclient"
+        },
+        {
+          "value": "connection-string",
+          "text": "connection-string"
+        }
+      ]
     }
   ]
 }

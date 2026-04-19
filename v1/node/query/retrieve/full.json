@@ -7,7 +7,9 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "You can perform find operations to retrieve data from your MongoDB database.\nYou can perform a find operation to match documents on a set of criteria\nby calling the `find()` or `findOne()` method.\n\n> **Tip:**&#x20;\n>\n> Interactive Lab\n>\n> This page includes a short interactive lab that demonstrates how to\n> retrieve data by using the `find()` method. You can complete this lab\n> directly in your browser window without installing MongoDB or a code editor.\n>\n> To start the lab, click the **Open Interactive Tutorial** button at the\n> top of the page. To expand the lab to a full-screen format, click the\n> full-screen button (**⛶**) in the top-right corner of the lab pane.\n\nYou can also further specify the information that the find operation\nreturns by specifying optional parameters or by chaining other methods,\nas shown in the following guides:\n\n- [Specify Documents to Return](node-specify-documents-to-return)\n\n- [Specify Which Fields to Return](node-project)\n\nYou can also use an aggregation operation to retrieve data. This type of\noperation allows you to apply an ordered pipeline of transformations to the\nmatched data.\n\nIf you want to monitor the database for incoming data that matches a set of\ncriteria, you can use the watch operation to be notified in real-time when\nmatching data is inserted.\n\n> **Note:** Your query operation may return a reference to a\n> cursor that contains matching documents. To learn how to\n> examine data stored in the cursor, see the\n> [Access Data From a Cursor](node-access-cursor).\n\nYou can use the Node.js driver to connect and execute commands for\ndeployments hosted in the following environments:\n\n- [MongoDB Atlas](https://www.mongodb.com/docs/atlas): The fully\n  managed service for MongoDB deployments in the cloud\n\n- [MongoDB Enterprise](manual/administration/install-enterprise): The\n  subscription-based, self-managed version of MongoDB\n\n- [MongoDB Community](manual/administration/install-community): The\n  source-available, free-to-use, and self-managed version of MongoDB\n\nTo learn more about performing common CRUD operations in the Atlas UI for deployments hosted in MongoDB\nAtlas, see Create, View, Update, and Delete Documents.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Finding Documents",
@@ -39,57 +41,113 @@
           "content": "[\n  { name: \"Lemony Snicket\", type: \"horseradish pizza\", qty: 1, status: \"delivered\", date: ... },\n  { name: \"Lemony Snicket\", type: \"coal-fired oven pizza\", qty: 3, status: \"canceled\", date: ...},\n  ...\n]",
           "tokenEstimate": 71
         }
-      ]
+      ],
+      "slug": "finding-documents",
+      "variantAgnostic": true
     },
     {
       "heading": "findOne() Example: Full File",
       "headingLevel": 3,
-      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).The following full file example finds a single document from the `movies`\ncollection. It uses the following parameters:* **Filter** that matches documents in which the `title` value is `'The\n  Room'`.\n\n* **Sort** that organizes matched documents in descending order by\n  rating, so if our query matches multiple documents the returned\n  document will be the document with the highest rating.\n\n* **Projection** that explicitly excludes the `_id` field from\n  returned documents and explicitly includes only the `title` and\n  `imdb` object (and its embedded fields).**JavaScript:**JavaScript```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for a movie that has the title 'The Room'\n    const query = { title: \"The Room\" };\n\n    const options = {\n      // Sort matched documents in descending order by rating\n      sort: { \"imdb.rating\": -1 },\n      // Include only the `title` and `imdb` fields in the returned document\n      projection: { _id: 0, title: 1, imdb: 1 },\n    };\n\n    // Execute query\n    const movie = await movies.findOne(query, options);\n\n    // Print the document returned by findOne()\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**TypeScript:**TypeScript```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\nexport interface Movie {\n  title: string;\n  year: number;\n  released: Date;\n  plot: string;\n  type: \"movie\" | \"series\";\n  imdb: IMDB;\n}\n\ntype MovieSummary = Pick<Movie, \"title\" | \"imdb\">;\n\nasync function run(): Promise<void> {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is always optional, but it enables type hinting on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const movie = await movies.findOne<MovieSummary>(\n      { title: \"The Room\" },\n      {\n        sort: { rating: -1 },\n        projection: { _id: 0, title: 1, imdb: 1 },\n      }\n    );\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```Running the preceding example results in the following output:```javascript\n{ title: 'The Room', imdb: { rating: 3.5, votes: 25673, id: 368226 } }\n```",
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following full file example finds a single document from the `movies`\ncollection. It uses the following parameters:\n\n- **Filter** that matches documents in which the `title` value is `'The\n  Room'`.\n\n- **Sort** that organizes matched documents in descending order by\n  rating, so if our query matches multiple documents the returned\n  document will be the document with the highest rating.\n\n- **Projection** that explicitly excludes the `_id` field from\n  returned documents and explicitly includes only the `title` and\n  `imdb` object (and its embedded fields).\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example results in the following output:\n\n```javascript\n{ title: 'The Room', imdb: { rating: 3.5, votes: 25673, id: 368226 } }\n```",
       "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for a movie that has the title 'The Room'\n    const query = { title: \"The Room\" };\n\n    const options = {\n      // Sort matched documents in descending order by rating\n      sort: { \"imdb.rating\": -1 },\n      // Include only the `title` and `imdb` fields in the returned document\n      projection: { _id: 0, title: 1, imdb: 1 },\n    };\n\n    // Execute query\n    const movie = await movies.findOne(query, options);\n\n    // Print the document returned by findOne()\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 222
-        },
-        {
-          "language": "typescript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\nexport interface Movie {\n  title: string;\n  year: number;\n  released: Date;\n  plot: string;\n  type: \"movie\" | \"series\";\n  imdb: IMDB;\n}\n\ntype MovieSummary = Pick<Movie, \"title\" | \"imdb\">;\n\nasync function run(): Promise<void> {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is always optional, but it enables type hinting on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const movie = await movies.findOne<MovieSummary>(\n      { title: \"The Room\" },\n      {\n        sort: { rating: -1 },\n        projection: { _id: 0, title: 1, imdb: 1 },\n      }\n    );\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 246
-        },
         {
           "language": "javascript",
           "content": "{ title: 'The Room', imdb: { rating: 3.5, votes: 25673, id: 368226 } }",
           "tokenEstimate": 30
         }
-      ]
+      ],
+      "slug": "findone-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "findOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for a movie that has the title 'The Room'\n    const query = { title: \"The Room\" };\n\n    const options = {\n      // Sort matched documents in descending order by rating\n      sort: { \"imdb.rating\": -1 },\n      // Include only the `title` and `imdb` fields in the returned document\n      projection: { _id: 0, title: 1, imdb: 1 },\n    };\n\n    // Execute query\n    const movie = await movies.findOne(query, options);\n\n    // Print the document returned by findOne()\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for a movie that has the title 'The Room'\n    const query = { title: \"The Room\" };\n\n    const options = {\n      // Sort matched documents in descending order by rating\n      sort: { \"imdb.rating\": -1 },\n      // Include only the `title` and `imdb` fields in the returned document\n      projection: { _id: 0, title: 1, imdb: 1 },\n    };\n\n    // Execute query\n    const movie = await movies.findOne(query, options);\n\n    // Print the document returned by findOne()\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 222
+        }
+      ],
+      "slug": "findone-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "findOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\nexport interface Movie {\n  title: string;\n  year: number;\n  released: Date;\n  plot: string;\n  type: \"movie\" | \"series\";\n  imdb: IMDB;\n}\n\ntype MovieSummary = Pick<Movie, \"title\" | \"imdb\">;\n\nasync function run(): Promise<void> {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is always optional, but it enables type hinting on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const movie = await movies.findOne<MovieSummary>(\n      { title: \"The Room\" },\n      {\n        sort: { rating: -1 },\n        projection: { _id: 0, title: 1, imdb: 1 },\n      }\n    );\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\nexport interface Movie {\n  title: string;\n  year: number;\n  released: Date;\n  plot: string;\n  type: \"movie\" | \"series\";\n  imdb: IMDB;\n}\n\ntype MovieSummary = Pick<Movie, \"title\" | \"imdb\">;\n\nasync function run(): Promise<void> {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is always optional, but it enables type hinting on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const movie = await movies.findOne<MovieSummary>(\n      { title: \"The Room\" },\n      {\n        sort: { rating: -1 },\n        projection: { _id: 0, title: 1, imdb: 1 },\n      }\n    );\n    console.log(movie);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 246
+        }
+      ],
+      "slug": "findone-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "find() Example: Full File",
       "headingLevel": 3,
-      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).The following full file example finds documents from the `movies` collection. It\nuses the following parameters:* **Filter** that matches documents in which the `runtime` value is less than 15\n  minutes.\n\n* **Sort** that organizes returned documents in ascending order by\n  title (alphabetical order in which \"A\" comes before \"Z\" and \"1\" before\n  \"9\").\n\n* **Projection** that explicitly excludes the `_id` field from\n  returned documents and explicitly includes only the `title` and\n  `imdb` object (and its embedded fields).**JavaScript:**JavaScript```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**TypeScript:**TypeScript```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ntype Minutes = number;\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\ninterface Movie {\n  title: string;\n  imdb: IMDB;\n  runtime: Minutes;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    const cursor = movies.find<Movie>(query).sort(sortFields).project(projectFields);\n\n    if ((await movies.countDocuments(query)) === 0) {\n      console.warn(\"No documents found!\");\n    }\n\n    for await (const doc of cursor) {\n      console.dir(doc);\n    } \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```Running the preceding example results in the following output:```javascript\n{ title: '10 Minutes', imdb: { rating: 7.9, votes: 743, id: 339976 } }\n{ title: '3x3', imdb: { rating: 6.9, votes: 206, id: 1654725 } }\n{ title: '7:35 in the Morning', imdb: { rating: 7.3, votes: 1555, id: 406501 } }\n{ title: '8', imdb: { rating: 7.8, votes: 883, id: 1592502 } }\n...\n```> **Note:** You must chain a cursor method such as `sort()`, `limit()`,\n> `skip()`, or `project()` to a read operation before iterating the cursor.\n> If you specify a cursor method after iterating the cursor, the setting does\n> not apply to the read operation.",
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following full file example finds documents from the `movies` collection. It\nuses the following parameters:\n\n- **Filter** that matches documents in which the `runtime` value is less than 15\n  minutes.\n\n- **Sort** that organizes returned documents in ascending order by\n  title (alphabetical order in which \"A\" comes before \"Z\" and \"1\" before\n  \"9\").\n\n- **Projection** that explicitly excludes the `_id` field from\n  returned documents and explicitly includes only the `title` and\n  `imdb` object (and its embedded fields).\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example results in the following output:\n\n```javascript\n{ title: '10 Minutes', imdb: { rating: 7.9, votes: 743, id: 339976 } }\n{ title: '3x3', imdb: { rating: 6.9, votes: 206, id: 1654725 } }\n{ title: '7:35 in the Morning', imdb: { rating: 7.3, votes: 1555, id: 406501 } }\n{ title: '8', imdb: { rating: 7.8, votes: 883, id: 1592502 } }\n...\n```\n\n> **Note:** You must chain a cursor method such as `sort()`, `limit()`,\n> `skip()`, or `project()` to a read operation before iterating the cursor.\n> If you specify a cursor method after iterating the cursor, the setting does\n> not apply to the read operation.",
       "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 239
-        },
-        {
-          "language": "typescript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ntype Minutes = number;\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\ninterface Movie {\n  title: string;\n  imdb: IMDB;\n  runtime: Minutes;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    const cursor = movies.find<Movie>(query).sort(sortFields).project(projectFields);\n\n    if ((await movies.countDocuments(query)) === 0) {\n      console.warn(\"No documents found!\");\n    }\n\n    for await (const doc of cursor) {\n      console.dir(doc);\n    } \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 236
-        },
         {
           "language": "javascript",
           "content": "{ title: '10 Minutes', imdb: { rating: 7.9, votes: 743, id: 339976 } }\n{ title: '3x3', imdb: { rating: 6.9, votes: 206, id: 1654725 } }\n{ title: '7:35 in the Morning', imdb: { rating: 7.3, votes: 1555, id: 406501 } }\n{ title: '8', imdb: { rating: 7.8, votes: 883, id: 1592502 } }\n...",
           "tokenEstimate": 124
         }
-      ]
+      ],
+      "slug": "find-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "find() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 239
+        }
+      ],
+      "slug": "find-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "find() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ntype Minutes = number;\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\ninterface Movie {\n  title: string;\n  imdb: IMDB;\n  runtime: Minutes;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    const cursor = movies.find<Movie>(query).sort(sortFields).project(projectFields);\n\n    if ((await movies.countDocuments(query)) === 0) {\n      console.warn(\"No documents found!\");\n    }\n\n    for await (const doc of cursor) {\n      console.dir(doc);\n    } \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ntype Minutes = number;\n\ninterface IMDB {\n  rating: number;\n  votes: number;\n  id: number;\n}\n\ninterface Movie {\n  title: string;\n  imdb: IMDB;\n  runtime: Minutes;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    const cursor = movies.find<Movie>(query).sort(sortFields).project(projectFields);\n\n    if ((await movies.countDocuments(query)) === 0) {\n      console.warn(\"No documents found!\");\n    }\n\n    for await (const doc of cursor) {\n      console.dir(doc);\n    } \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 236
+        }
+      ],
+      "slug": "find-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Additional Information",
       "headingLevel": 3,
       "body": "For more information about the `findOne()` and `find()` methods, see the\nfollowing Server manual documentation:\n\n- [findOne()](manual/reference/method/db.collection.findOne)\n\n- [find()](manual/reference/method/db.collection.find)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "additional-information",
+      "variantAgnostic": true
     },
     {
       "heading": "Aggregate Data from Documents",
@@ -111,13 +169,17 @@
           "content": "[\n  { _id: 'delivering', count: 5 },\n  { _id: 'delivered', count: 37 },\n  { _id: 'created', count: 9 }\n]",
           "tokenEstimate": 43
         }
-      ]
+      ],
+      "slug": "aggregate-data-from-documents",
+      "variantAgnostic": true
     },
     {
       "heading": "Additional Information",
       "headingLevel": 3,
       "body": "For more information on how to construct an aggregation pipeline, see\nthe [Aggregation Operations](node-aggregation) guide or [Aggregation Operations](manual/aggregation)\nin the Server manual.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "additional-information",
+      "variantAgnostic": true
     },
     {
       "heading": "Monitor Data Changes",
@@ -129,13 +191,34 @@
           "content": "    // Set up a change stream to listen for new order insertions\n    const changeStream = orders.watch([\n      { $match: { operationType: \"insert\" } },\n      {\n        $project: {\n          \"fullDocument.name\": 1,\n          \"fullDocument.address\": 1,\n        },\n      },\n    ]);\n    changeStream.on(\"change\", change => {\n      const { name, address } = change.fullDocument;\n      console.log(`New order for ${name} at ${address}.`);\n    });",
           "tokenEstimate": 107
         }
-      ]
+      ],
+      "slug": "monitor-data-changes",
+      "variantAgnostic": true
     },
     {
       "heading": "Additional Information",
       "headingLevel": 3,
-      "body": "For a runnable example of the `watch()` method, see the [examples](node-usage-watch) section in the [Monitor Data with Change Streams](node-change-streams) guide./mongodb-docs/tracks/find-node?token=em_OVNHWCPNPMLwNOCm",
-      "codeBlocks": []
+      "body": "For a runnable example of the `watch()` method, see the [examples](node-usage-watch) section in the [Monitor Data with Change Streams](node-change-streams) guide.\n\n/mongodb-docs/tracks/find-node?token=em\\_OVNHWCPNPMLwNOCm",
+      "codeBlocks": [],
+      "slug": "additional-information",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language",
+      "text": "language",
+      "default": "javascript",
+      "selections": [
+        {
+          "value": "javascript",
+          "text": "javascript"
+        },
+        {
+          "value": "typescript",
+          "text": "typescript"
+        }
+      ]
     }
   ]
 }

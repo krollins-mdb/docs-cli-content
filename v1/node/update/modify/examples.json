@@ -6,8 +6,8 @@
     "total": 10,
     "byLanguage": {
       "javascript": 6,
-      "typescript": 2,
-      "none": 2
+      "none": 2,
+      "typescript": 2
     },
     "bySection": [
       {
@@ -40,16 +40,35 @@
         "heading": "updateOne() Example: Full File",
         "blocks": [
           {
+            "language": "none",
+            "tokenEstimate": 14
+          }
+        ]
+      },
+      {
+        "heading": "updateOne() Example: Full File",
+        "blocks": [
+          {
             "language": "javascript",
             "tokenEstimate": 278
-          },
+          }
+        ]
+      },
+      {
+        "heading": "updateOne() Example: Full File",
+        "blocks": [
           {
             "language": "typescript",
             "tokenEstimate": 269
-          },
+          }
+        ]
+      },
+      {
+        "heading": "updateMany() Example: Full File",
+        "blocks": [
           {
             "language": "none",
-            "tokenEstimate": 14
+            "tokenEstimate": 4
           }
         ]
       },
@@ -59,14 +78,15 @@
           {
             "language": "javascript",
             "tokenEstimate": 230
-          },
+          }
+        ]
+      },
+      {
+        "heading": "updateMany() Example: Full File",
+        "blocks": [
           {
             "language": "typescript",
             "tokenEstimate": 254
-          },
-          {
-            "language": "none",
-            "tokenEstimate": 4
           }
         ]
       }
@@ -98,6 +118,12 @@
       "tokenEstimate": 33
     },
     {
+      "language": "none",
+      "section": "updateOne() Example: Full File",
+      "content": "1 document(s) matched the filter, updated 1 document(s)",
+      "tokenEstimate": 14
+    },
+    {
       "language": "javascript",
       "section": "updateOne() Example: Full File",
       "content": "// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a filter for movies with the title \"Random Harvest\"\n    const filter = { title: \"Random Harvest\" };\n\n    /* Set the upsert option to insert a document if no documents match\n    the filter */\n    const options = { upsert: true };\n\n    // Specify the update to set a value for the plot field\n    const updateDoc = {\n      $set: {\n        plot: `A harvest of random numbers, such as: ${Math.random()}`\n      },\n    };\n\n    // Update the first document that matches the filter\n    const result = await movies.updateOne(filter, updateDoc, options);\n    \n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n",
@@ -111,9 +137,9 @@
     },
     {
       "language": "none",
-      "section": "updateOne() Example: Full File",
-      "content": "1 document(s) matched the filter, updated 1 document(s)",
-      "tokenEstimate": 14
+      "section": "updateMany() Example: Full File",
+      "content": "Updated 477 documents",
+      "tokenEstimate": 4
     },
     {
       "language": "javascript",
@@ -126,12 +152,6 @@
       "section": "updateMany() Example: Full File",
       "content": "/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nenum Rating {\n  G = \"G\",\n  PG = \"PG\",\n  PG_13 = \"PG-13\",\n  R = \"R\",\n  NR = \"NOT RATED\",\n}\n\n// Create a Movie interface\ninterface Movie {\n  rated: Rating;\n  random_review?: string;\n}\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    // Update all documents that match the specified filter\n    const result = await movies.updateMany(\n      { rated: Rating.G },\n      {\n        $set: {\n          random_review: `After viewing I am ${\n            100 * Math.random()\n          }% more satisfied with life.`,\n        },\n      }\n    );\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
       "tokenEstimate": 254
-    },
-    {
-      "language": "none",
-      "section": "updateMany() Example: Full File",
-      "content": "Updated 477 documents",
-      "tokenEstimate": 4
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "heading": "updateMany() Example: Full File",
+  "headingLevel": 3,
+  "body": "```typescript\n/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nenum Rating {\n  G = \"G\",\n  PG = \"PG\",\n  PG_13 = \"PG-13\",\n  R = \"R\",\n  NR = \"NOT RATED\",\n}\n\n// Create a Movie interface\ninterface Movie {\n  rated: Rating;\n  random_review?: string;\n}\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    // Update all documents that match the specified filter\n    const result = await movies.updateMany(\n      { rated: Rating.G },\n      {\n        $set: {\n          random_review: `After viewing I am ${\n            100 * Math.random()\n          }% more satisfied with life.`,\n        },\n      }\n    );\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nenum Rating {\n  G = \"G\",\n  PG = \"PG\",\n  PG_13 = \"PG-13\",\n  R = \"R\",\n  NR = \"NOT RATED\",\n}\n\n// Create a Movie interface\ninterface Movie {\n  rated: Rating;\n  random_review?: string;\n}\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    // Update all documents that match the specified filter\n    const result = await movies.updateMany(\n      { rated: Rating.G },\n      {\n        $set: {\n          random_review: `After viewing I am ${\n            100 * Math.random()\n          }% more satisfied with life.`,\n        },\n      }\n    );\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 254
+    }
+  ],
+  "slug": "updatemany-example-full-file--typescript",
+  "selections": {
+    "language": "typescript"
+  },
+  "variantAgnostic": false
+}

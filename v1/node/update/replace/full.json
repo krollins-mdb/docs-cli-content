@@ -7,7 +7,9 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "In this guide, you can learn how to use Node.js driver to perform a replace\noperation on a document in a MongoDB collection. A replace operation performs\ndifferently than an update operation. An update operation\nmodifies only the specified fields in a target document. A replace operation removes *all* fields\nin the target document and replaces them with new ones.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Replace a Document",
@@ -19,7 +21,9 @@
           "content": "{\n   <field>: {\n      <value>\n   },\n   <field>: {\n      ...\n   }\n}",
           "tokenEstimate": 22
         }
-      ]
+      ],
+      "slug": "replace-a-document",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -41,35 +45,82 @@
           "content": "{\n   _id: 501,\n   item: \"Vintage silver flatware set\",\n   price: 79.15,\n   quantity: 1,\n}",
           "tokenEstimate": 33
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "replaceOne() Example: Full File",
       "headingLevel": 3,
-      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).The following code is a complete, standalone file that performs a replace one\noperation:**JavaScript:**JavaScript```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```**TypeScript:**TypeScript```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```Running the preceding example results in the following output:```none\nModified 1 document(s)\n```",
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following code is a complete, standalone file that performs a replace one\noperation:\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example results in the following output:\n\n```none\nModified 1 document(s)\n```",
       "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 214
-        },
-        {
-          "language": "typescript",
-          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
-          "tokenEstimate": 159
-        },
         {
           "language": "none",
           "content": "Modified 1 document(s)",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "replaceone-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "replaceOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a query for documents where the title contains \"The Cat from\"\n    const query = { title: { $regex: \"The Cat from\" } };\n    \n    // Create the document that will replace the existing document\n    const replacement = {\n      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n    };\n\n    // Execute the replace operation\n    const result = await movies.replaceOne(query, replacement);\n    \n    // Print the result \n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 214
+        }
+      ],
+      "slug": "replaceone-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "replaceOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.replaceOne(\n      { title: { $regex: \"The Cat from\" } },\n      {\n        title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,\n      }\n    );\n    console.log(`Modified ${result.modifiedCount} document(s)`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 159
+        }
+      ],
+      "slug": "replaceone-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "API Documentation",
       "headingLevel": 2,
       "body": "To learn more about any of the types or methods discussed in this guide, see the\nfollowing API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [Db](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html)\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html)\n\n- [replaceOne()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#replaceOne)\n\n- [findOneAndReplace()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndReplace)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "api-documentation",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language",
+      "text": "language",
+      "default": "javascript",
+      "selections": [
+        {
+          "value": "javascript",
+          "text": "javascript"
+        },
+        {
+          "value": "typescript",
+          "text": "typescript"
+        }
+      ]
     }
   ]
 }

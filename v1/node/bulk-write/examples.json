@@ -119,15 +119,25 @@
         "blocks": [
           {
             "language": "javascript",
+            "tokenEstimate": 73
+          }
+        ]
+      },
+      {
+        "heading": "bulkWrite() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
             "tokenEstimate": 370
-          },
+          }
+        ]
+      },
+      {
+        "heading": "bulkWrite() Example: Full File",
+        "blocks": [
           {
             "language": "typescript",
             "tokenEstimate": 358
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 73
           }
         ]
       }
@@ -233,6 +243,12 @@
     {
       "language": "javascript",
       "section": "bulkWrite() Example: Full File",
+      "content": "BulkWriteResult {\n  insertedCount: 2,\n  matchedCount: 1,\n  modifiedCount: 1,\n  deletedCount: 0,\n  upsertedCount: 0,\n  upsertedIds: {},\n  insertedIds: {\n    '0': new ObjectId(\"...\"),\n    '1': new ObjectId(\"...\")\n  }\n}",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "javascript",
+      "section": "bulkWrite() Example: Full File",
       "content": "// Bulk write operation\n\n// Import MongoClient from the MongoDB node driver package\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const theaters = database.collection(\"theaters\");\n\n    // Insert a new document into the \"theaters\" collection\n    const result = await theaters.bulkWrite([\n      {\n        insertOne: {\n          document: {\n            location: {\n              address: {\n                street1: \"3 Main St.\",\n                city: \"Anchorage\",\n                state: \"AK\",\n                zipcode: \"99501\",\n              },\n            },\n          },\n        },\n      },\n      {\n        insertOne: {\n          document: {\n            location: {\n              address: {\n                street1: \"75 Penn Plaza\",\n                city: \"New York\",\n                state: \"NY\",\n                zipcode: \"10001\",\n              },\n            },\n          },\n        },\n      },\n      {\n        // Update documents that match the specified filter\n        updateMany: {\n          filter: { \"location.address.zipcode\": \"44011\" },\n          update: { $set: { is_in_ohio: true } },\n          upsert: true,\n        },\n      },\n      {\n        // Delete a document that matches the specified filter\n        deleteOne: { filter: { \"location.address.street1\": \"221b Baker St\" } },\n      },\n    ]);\n    // Log the result of the bulk write operation \n    console.log(result);\n  } finally {\n    // Close the database connection when the operations are completed or if an error occurs\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
       "tokenEstimate": 370
     },
@@ -241,12 +257,6 @@
       "section": "bulkWrite() Example: Full File",
       "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Address {\n  street1: string;\n  city: string;\n  state: string;\n  zipcode: string;\n}\n\ninterface Theater {\n  location: { address: Address };\n  is_in_ohio?: boolean;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const theaters = database.collection<Theater>(\"theaters\");\n\n    const result = await theaters.bulkWrite([\n      {\n        insertOne: {\n          document: {\n            location: {\n              address: {\n                street1: \"3 Main St.\",\n                city: \"Anchorage\",\n                state: \"AK\",\n                zipcode: \"99501\",\n              },\n            },\n          },\n        },\n      },\n      {\n        insertOne: {\n          document: {\n            location: {\n              address: {\n                street1: \"75 Penn Plaza\",\n                city: \"New York\",\n                state: \"NY\",\n                zipcode: \"10001\",\n              },\n            },\n          },\n        },\n      },\n      {\n        updateMany: {\n          // Important: You lose type safety when you use dot notation in queries\n          filter: { \"location.address.zipcode\": \"44011\" },\n          update: { $set: { is_in_ohio: true } },\n          upsert: true,\n        },\n      },\n      {\n        deleteOne: {\n          filter: { \"location.address.street1\": \"221b Baker St\" },\n        },\n      },\n    ]);\n\n    console.log(result);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
       "tokenEstimate": 358
-    },
-    {
-      "language": "javascript",
-      "section": "bulkWrite() Example: Full File",
-      "content": "BulkWriteResult {\n  insertedCount: 2,\n  matchedCount: 1,\n  modifiedCount: 1,\n  deletedCount: 0,\n  upsertedCount: 0,\n  upsertedIds: {},\n  insertedIds: {\n    '0': new ObjectId(\"...\"),\n    '1': new ObjectId(\"...\")\n  }\n}",
-      "tokenEstimate": 73
     }
   ]
 }

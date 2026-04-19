@@ -8,5 +8,7 @@
       "content": "/* Change stream listener */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nconst simulateAsyncPause = () =>\n  new Promise(resolve => {\n    setTimeout(() => resolve(), 1000);\n  });\n\nlet changeStream;\nasync function run() {\n  try {\n    const database = client.db(\"insertDB\");\n    const haikus = database.collection(\"haikus\");\n\n    // Open a Change Stream on the \"haikus\" collection\n    changeStream = haikus.watch();\n\n    // Set up a change stream listener when change events are emitted\n    changeStream.on(\"change\", next => {\n      // Print any change event\n      console.log(\"received a change to the collection: \\t\", next);\n    });\n\n    // Pause before inserting a document\n    await simulateAsyncPause();\n\n    // Insert a new document into the collection\n    await myColl.insertOne({\n      title: \"Record of a Shriveled Datum\",\n      content: \"No bytes, no problem. Just insert a document, in MongoDB\",\n    });\n\n    // Pause before closing the change stream\n    await simulateAsyncPause();\n\n    // Close the change stream and print a message to the console when it is closed\n    await changeStream.close();    \n    console.log(\"closed the change stream\");\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
       "tokenEstimate": 315
     }
-  ]
+  ],
+  "slug": "listener-function",
+  "variantAgnostic": true
 }
