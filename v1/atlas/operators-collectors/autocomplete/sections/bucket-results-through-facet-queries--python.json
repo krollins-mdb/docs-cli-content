@@ -1,0 +1,27 @@
+{
+  "heading": "Bucket Results through Facet Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to return\nunique values of movies that contain the term `Gravity` in the\n`title` field of the `movies` collection. The index definition of\nthis query limits the results returned from a\n[token](bson-data-types-token) index, where both the\n[autocomplete](autocomplete-ref) and [token](bson-data-types-token) types are on the `title` field.\n\n```python\nimport pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [{\"$searchMeta\": { \n    \"facet\": {\n        \"operator\": {\n          \"autocomplete\": {\"path\": \"title\", \"query\": \"Gravity\"}\n        },\n        \"facets\": {\n          \"titleFacet\": {\"type\": \"string\", \"path\": \"title\"}\n        }}}}]\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n\n```\n\n```json\n{\n  'count': {'lowerBound': 5},\n  'facet': {\n    'titleFacet': {\n      'buckets': [\n      {\n        '_id': 'Gravity',\n        'count': 3\n      },\n      {\n        '_id': 'Defying Gravity',\n        'count': 1\n      },\n      {\n        '_id': 'Laws of Gravity',\n        'count': 1\n      }]\n   }\n  }\n}\n```\n\nMongoDB Search returns documents that contain the term `Gravity` in the\n`title` field. The `count` field in the results indicate the number\nof documents in the collection with the same title. In the results,\nMongoDB Search found three documents in the collection with `Gravity` as its\ntitle, but MongoDB Search omitted the duplicate titles and returned only one\nmatching document.\n\nIf you want to see the duplicate titles as shown in the results below,\nrun the preceding [autocomplete](autocomplete-ref) operator query\nwithout [faceted navigation](fts-facet-ref) and use\nthe [$search](pipe.$search) stage instead. You must also use the\n[$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```python\n{ 'title': 'Gravity' }\n{ 'title': 'Gravity' }\n{ 'title': 'Gravity' }\n{ 'title': 'Defying Gravity' }\n{ 'title': 'Laws of Gravity' }\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [{\"$searchMeta\": { \n    \"facet\": {\n        \"operator\": {\n          \"autocomplete\": {\"path\": \"title\", \"query\": \"Gravity\"}\n        },\n        \"facets\": {\n          \"titleFacet\": {\"type\": \"string\", \"path\": \"title\"}\n        }}}}]\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 119
+    },
+    {
+      "language": "json",
+      "content": "{\n  'count': {'lowerBound': 5},\n  'facet': {\n    'titleFacet': {\n      'buckets': [\n      {\n        '_id': 'Gravity',\n        'count': 3\n      },\n      {\n        '_id': 'Defying Gravity',\n        'count': 1\n      },\n      {\n        '_id': 'Laws of Gravity',\n        'count': 1\n      }]\n   }\n  }\n}",
+      "tokenEstimate": 93
+    },
+    {
+      "language": "python",
+      "content": "{ 'title': 'Gravity' }\n{ 'title': 'Gravity' }\n{ 'title': 'Gravity' }\n{ 'title': 'Defying Gravity' }\n{ 'title': 'Laws of Gravity' }",
+      "tokenEstimate": 45
+    }
+  ],
+  "slug": "bucket-results-through-facet-queries--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

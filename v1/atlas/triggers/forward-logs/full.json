@@ -7,42 +7,67 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "You can configure a log forwarder to automatically store your\nTrigger and Function server-side logs in a MongoDB collection or send them to\nan external service. You can also forward logs individually as they're created,\nor batch logs together to reduce overhead.\n\nA log forwarder consists of the following components:\n\n- An **action** that controls how and where logs are forwarded.\n\n- A **filter** that controls which logs are forwarded.\n\n- A **policy** that controls whether logs are forwarded individually or in batches.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Why Should I Configure Log Forwarding?",
       "headingLevel": 3,
       "body": "Consider setting up a log forwarder if you need to do any of the\nfollowing actions:\n\n- Store logs for longer than the retention period of 10 days.\n\n- Integrate logs into an external logging service.\n\n- Access logs in MongoDB Search, Online Archive, and Charts.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "why-should-i-configure-log-forwarding",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Up a Log Forwarder",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-up-a-log-forwarder",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Create a Log Forwarder",
       "headingLevel": 3,
-      "body": "**Ui:**\n\nAtlas UI\n\nTo create a log forwarder:\n\nIn Atlas, go to the Triggers page.\n\n- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Triggers under\n  the Streaming Data heading.\n\nThe [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n- Click the **View All Apps** button.\n\n- Click into the app that contains the Trigger or Function whose logs you'd like to forward.\n\n- Navigate to the **Logs** page.\n\n- Select the **Forwarding** tab.\n\n- Click the **Create a Log Forwarder** button.\n\n- Specify a unique name for your log forwarder.\n\n**Cli:**\n\nApp Services CLI\n\nTo create a new log forwarder, add a new configuration file to the\n`log_forwarders` directory of your app. The file name should\nmatch the value in the configuration's `name` field.\n\n```json\n{\n\"name\": \"<name>\"\n}\n```",
+      "body": "Atlas UI\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "step-1-create-a-log-forwarder",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 1: Create a Log Forwarder",
+      "headingLevel": 3,
+      "body": "To create a log forwarder:\n\nIn Atlas, go to the Triggers page.\n\n- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Triggers under\n  the Streaming Data heading.\n\nThe [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n- Click the **View All Apps** button.\n\n- Click into the app that contains the Trigger or Function whose logs you'd like to forward.\n\n- Navigate to the **Logs** page.\n\n- Select the **Forwarding** tab.\n\n- Click the **Create a Log Forwarder** button.\n\n- Specify a unique name for your log forwarder.",
+      "codeBlocks": [],
+      "slug": "step-1-create-a-log-forwarder--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Create a Log Forwarder",
+      "headingLevel": 3,
+      "body": "To create a new log forwarder, add a new configuration file to the\n`log_forwarders` directory of your app. The file name should\nmatch the value in the configuration's `name` field.\n\n```json\n{\n\"name\": \"<name>\"\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n\"name\": \"<name>\"\n}",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "step-1-create-a-log-forwarder--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Choose Which Logs to Forward",
       "headingLevel": 3,
-      "body": "You can forward all of your Trigger or Function logs or send only a subset to the\ntarget collection or service. You control this subset for each log\nforwarder by defining filters for the log type (e.g. functions, triggers,\netc.) and status (i.e. success or error) that invoke the forwarder's\naction.\n\n**Ui:**\n\nAtlas UI\n\nChoose one or more types of log to forward in the **Log\nType** dropdown. Then, choose one or more statuses to forward in the\n**Log Status** dropdown.\n\n**Cli:**\n\nApp Services CLI\n\nSpecify one or more types and one or more statuses for the\nforwarder to match and forward:\n\n```json\n{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ]\n}\n```\n\nYou can forward the following log types:\n\n- `auth`\n\n- `endpoint`\n\n- `function`\n\n- `graphql`\n\n- `push`\n\n- `schema`\n\n- `service`\n\n- `trigger`\n\n- `trigger_error_handler`\n\nYou can forward the following log statuses:\n\n- `error`\n\n- `success`\n\n> **Important:** A log forwarder only forwards a given log if both its type *and* status are\n> specified in the filter.\n>\n> For example, consider a forwarder that filters for `triggers` logs with\n> an `error` status.\n>\n> The filter *would* forward the following log:\n>\n> ```json\n> { \"type\": \"triggers\", \"status\": \"error\", ... }\n> ```\n>\n> The filter *would not* forward the following logs:\n>\n> ```json\n> { \"type\": \"triggers\", \"status\": \"success\", ... }\n> { \"type\": \"functions\", \"status\": \"error\", ... }\n> ```",
+      "body": "You can forward all of your Trigger or Function logs or send only a subset to the\ntarget collection or service. You control this subset for each log\nforwarder by defining filters for the log type (e.g. functions, triggers,\netc.) and status (i.e. success or error) that invoke the forwarder's\naction.\n\nAtlas UI\n\nApp Services CLI\n\n> **Important:** A log forwarder only forwards a given log if both its type *and* status are\n> specified in the filter.\n>\n> For example, consider a forwarder that filters for `triggers` logs with\n> an `error` status.\n>\n> The filter *would* forward the following log:\n>\n> ```json\n> { \"type\": \"triggers\", \"status\": \"error\", ... }\n> ```\n>\n> The filter *would not* forward the following logs:\n>\n> ```json\n> { \"type\": \"triggers\", \"status\": \"success\", ... }\n> { \"type\": \"functions\", \"status\": \"error\", ... }\n> ```",
       "codeBlocks": [
-        {
-          "language": "json",
-          "content": "{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ]\n}",
-          "tokenEstimate": 25
-        },
         {
           "language": "json",
           "content": "{ \"type\": \"triggers\", \"status\": \"error\", ... }",
@@ -53,72 +78,220 @@
           "content": "{ \"type\": \"triggers\", \"status\": \"success\", ... }\n{ \"type\": \"functions\", \"status\": \"error\", ... }",
           "tokenEstimate": 31
         }
-      ]
+      ],
+      "slug": "step-2-choose-which-logs-to-forward",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 2: Choose Which Logs to Forward",
+      "headingLevel": 3,
+      "body": "Choose one or more types of log to forward in the **Log\nType** dropdown. Then, choose one or more statuses to forward in the\n**Log Status** dropdown.",
+      "codeBlocks": [],
+      "slug": "step-2-choose-which-logs-to-forward--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Choose Which Logs to Forward",
+      "headingLevel": 3,
+      "body": "Specify one or more types and one or more statuses for the\nforwarder to match and forward:\n\n```json\n{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ]\n}\n```\n\nYou can forward the following log types:\n\n- `auth`\n\n- `endpoint`\n\n- `function`\n\n- `graphql`\n\n- `push`\n\n- `schema`\n\n- `service`\n\n- `trigger`\n\n- `trigger_error_handler`\n\nYou can forward the following log statuses:\n\n- `error`\n\n- `success`",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ]\n}",
+          "tokenEstimate": 25
+        }
+      ],
+      "slug": "step-2-choose-which-logs-to-forward--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Configure Log Batching",
       "headingLevel": 3,
-      "body": "You can combine multiple logs into a single batched request to reduce\noverhead. The batching policy you select determines how a log forwarder groups\nlogs.\n\nYou can choose between the following batching policies:\n\n- **No Batching:** The log forwarder forwards logs individually as their\n  corresponding requests occur.\n\n- **Batching:** The log forwarder groups documents into a batch as they\n  happen. Each batch may include up to 100 log entries. When a batch is\n  full, the log forwarder forwards the entire batch in a single request.\n  The log forwarder forwards logs at least once a minute regardless of the\n  number of logs in the current batch.\n\n**Ui:**\n\nAtlas UI\n\nTo configure batching, select either the **No batch** or\n**Batching** policy.\n\n**Cli:**\n\nApp Services CLI\n\nTo configure batching, specify the policy type, either `single`\nor `batch`, in the `policy` field:\n\n```json\n{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ],\n\"policy\": { \"type\": \"<single|batch>\" }\n}\n```",
+      "body": "You can combine multiple logs into a single batched request to reduce\noverhead. The batching policy you select determines how a log forwarder groups\nlogs.\n\nYou can choose between the following batching policies:\n\n- **No Batching:** The log forwarder forwards logs individually as their\n  corresponding requests occur.\n\n- **Batching:** The log forwarder groups documents into a batch as they\n  happen. Each batch may include up to 100 log entries. When a batch is\n  full, the log forwarder forwards the entire batch in a single request.\n  The log forwarder forwards logs at least once a minute regardless of the\n  number of logs in the current batch.\n\nAtlas UI\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "step-3-configure-log-batching",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 3: Configure Log Batching",
+      "headingLevel": 3,
+      "body": "To configure batching, select either the **No batch** or\n**Batching** policy.",
+      "codeBlocks": [],
+      "slug": "step-3-configure-log-batching--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3: Configure Log Batching",
+      "headingLevel": 3,
+      "body": "To configure batching, specify the policy type, either `single`\nor `batch`, in the `policy` field:\n\n```json\n{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ],\n\"policy\": { \"type\": \"<single|batch>\" }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n\"name\": \"<name>\",\n\"log_types\": [ \"<type>\", ... ],\n\"log_statuses\": [ \"<status>\", ... ],\n\"policy\": { \"type\": \"<single|batch>\" }\n}",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "step-3-configure-log-batching--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Define an Action",
       "headingLevel": 3,
       "body": "A log forwarder can automatically store logs in a linked MongoDB\ncollection or call a custom function that sends the logs to an external\nservice.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-define-an-action",
+      "variantAgnostic": true
     },
     {
       "heading": "Store Logs in a MongoDB Collection",
       "headingLevel": 4,
-      "body": "**Ui:**\n\nAtlas UI\n\nTo store logs in a collection, select the **To\nCollection** action and enter the names of the linked cluster,\ndatabase, and collection that should hold the forwarded logs.\n\n**Cli:**\n\nApp Services CLI\n\nTo store logs in a collection, specify an `action` of type\n`collection` that includes the names of the linked cluster,\ndatabase, and collection that should hold the forwarded logs.\n\n```json\n{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"collection\",\n      \"data_source\": \"<data source name>\",\n      \"database\": \"<database name>\",\n      \"collection\": \"<collection name>\"\n   }\n}\n```",
+      "body": "Atlas UI\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "store-logs-in-a-mongodb-collection",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Store Logs in a MongoDB Collection",
+      "headingLevel": 4,
+      "body": "To store logs in a collection, select the **To\nCollection** action and enter the names of the linked cluster,\ndatabase, and collection that should hold the forwarded logs.",
+      "codeBlocks": [],
+      "slug": "store-logs-in-a-mongodb-collection--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Store Logs in a MongoDB Collection",
+      "headingLevel": 4,
+      "body": "To store logs in a collection, specify an `action` of type\n`collection` that includes the names of the linked cluster,\ndatabase, and collection that should hold the forwarded logs.\n\n```json\n{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"collection\",\n      \"data_source\": \"<data source name>\",\n      \"database\": \"<database name>\",\n      \"collection\": \"<collection name>\"\n   }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"collection\",\n      \"data_source\": \"<data source name>\",\n      \"database\": \"<database name>\",\n      \"collection\": \"<collection name>\"\n   }\n}",
           "tokenEstimate": 85
         }
-      ]
+      ],
+      "slug": "store-logs-in-a-mongodb-collection--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Forward Logs with a Custom Function",
       "headingLevel": 4,
-      "body": "To forward logs to an external service, [write a function](atlas-define-a-function) that accepts an array of log objects and calls the\nservice through an API, SDK, or library.\n\n> **Note:** Depending on your batching policy and log frequency, the log forwarder may\n> call a log forwarding function with an array of up to 100 log objects.\n\nThe function should have the same signature as the following example:\n\n```javascript\nexports = async function(logs) {\n// `logs` is an array of 1-100 log objects\n// Use an API or library to send the logs to another service.\n   await context.http.post({\n      url: \"https://api.example.com/logs\",\n      body: logs,\n      encodeBodyAsJSON: true\n   });\n}\n```\n\nAfter you write the log forwarding function, you can assign it to a\nlog forwarder by name.\n\n**Ui:**\n\nAtlas UI\n\nTo assign a function to a log forwarder, select the **To\nFunction** action and then select the function from the dropdown\ninput.\n\n**Cli:**\n\nApp Services CLI\n\nTo assign a function to a log forwarder, specify an `action` of\ntype `function` that includes the name of the log forwarding\nfunction.\n\n```json\n{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"function\",\n      \"name\": \"<function name>\"\n   }\n}\n```",
+      "body": "To forward logs to an external service, [write a function](atlas-define-a-function) that accepts an array of log objects and calls the\nservice through an API, SDK, or library.\n\n> **Note:** Depending on your batching policy and log frequency, the log forwarder may\n> call a log forwarding function with an array of up to 100 log objects.\n\nThe function should have the same signature as the following example:\n\n```javascript\nexports = async function(logs) {\n// `logs` is an array of 1-100 log objects\n// Use an API or library to send the logs to another service.\n   await context.http.post({\n      url: \"https://api.example.com/logs\",\n      body: logs,\n      encodeBodyAsJSON: true\n   });\n}\n```\n\nAfter you write the log forwarding function, you can assign it to a\nlog forwarder by name.\n\nAtlas UI\n\nApp Services CLI",
       "codeBlocks": [
         {
           "language": "javascript",
           "content": "exports = async function(logs) {\n// `logs` is an array of 1-100 log objects\n// Use an API or library to send the logs to another service.\n   await context.http.post({\n      url: \"https://api.example.com/logs\",\n      body: logs,\n      encodeBodyAsJSON: true\n   });\n}",
           "tokenEstimate": 70
-        },
+        }
+      ],
+      "slug": "forward-logs-with-a-custom-function",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Forward Logs with a Custom Function",
+      "headingLevel": 4,
+      "body": "To assign a function to a log forwarder, select the **To\nFunction** action and then select the function from the dropdown\ninput.",
+      "codeBlocks": [],
+      "slug": "forward-logs-with-a-custom-function--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Forward Logs with a Custom Function",
+      "headingLevel": 4,
+      "body": "To assign a function to a log forwarder, specify an `action` of\ntype `function` that includes the name of the log forwarding\nfunction.\n\n```json\n{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"function\",\n      \"name\": \"<function name>\"\n   }\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n   \"name\": \"<name>\",\n   \"log_types\": [ \"<type>\", ... ],\n   \"log_statuses\": [ \"<status>\", ... ],\n   \"policy\": { \"type\": \"<single|batch>\" },\n   \"action\": {\n      \"type\": \"function\",\n      \"name\": \"<function name>\"\n   }\n}",
           "tokenEstimate": 67
         }
-      ]
+      ],
+      "slug": "forward-logs-with-a-custom-function--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Save and Deploy your Changes",
       "headingLevel": 3,
-      "body": "**Ui:**\n\nAtlas UI\n\nAfter you configure the log forwarder, click **Save**.\nIf you have deployment drafts enabled, make sure to deploy your\nchanges.\n\n**Cli:**\n\nApp Services CLI\n\nAfter you configure the log forwarder, save the configuration\nfile and then push your updated app configuration:\n\n```sh\nappservices push\n```",
+      "body": "Atlas UI\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "step-5-save-and-deploy-your-changes",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 5: Save and Deploy your Changes",
+      "headingLevel": 3,
+      "body": "After you configure the log forwarder, click **Save**.\nIf you have deployment drafts enabled, make sure to deploy your\nchanges.",
+      "codeBlocks": [],
+      "slug": "step-5-save-and-deploy-your-changes--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 5: Save and Deploy your Changes",
+      "headingLevel": 3,
+      "body": "After you configure the log forwarder, save the configuration\nfile and then push your updated app configuration:\n\n```sh\nappservices push\n```",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "appservices push",
           "tokenEstimate": 3
         }
-      ]
+      ],
+      "slug": "step-5-save-and-deploy-your-changes--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Restart a Suspended Log Forwarder",
       "headingLevel": 2,
       "body": "A log forwarder might suspend in response to an event that prevents it\nfrom continuing, such as a network disruption or a change to the\nunderlying cluster that stores the logs. Once suspended, a forwarder\ncannot be invoked and does not forward any logs.\n\nYou can restart a suspended log forwarder from the **Logs >\nForwarding** screen of the Atlas UI.\n\n> **Note:** If a log forwarder is suspended, an email is sent to the Project Owner\n> to notify them about the issue.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "restart-a-suspended-log-forwarder",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "ui",
+          "text": "ui"
+        },
+        {
+          "value": "cli",
+          "text": "cli"
+        }
+      ]
     }
   ]
 }

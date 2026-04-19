@@ -1,0 +1,22 @@
+{
+  "heading": "Basic Examples",
+  "headingLevel": 4,
+  "body": "The following example uses the `queryString` operator to query for\nmovies with the title `Rocky` and either `IV`, `4`, or\n`Four` at path `title` in the `movies` collection. In the\nfollowing query, a field is specified in the `defaultPath`,\nbut no fields are specified in the `query`. The query includes\na [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except\n`title`.\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"Rocky AND (IV OR 4 OR Four)\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\nFor this query, MongoDB Search performs a search at `defaultPath`\nbecause there are no fields in the `query`. It returns the\nfollowing results:\n\n```json\n{ \"title\" : \"Rocky IV\" }\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"Rocky AND (IV OR 4 OR Four)\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"Rocky IV\" }",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "basic-examples--beg1",
+  "selections": {
+    "tabs": "beg1"
+  },
+  "variantAgnostic": false
+}

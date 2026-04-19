@@ -1,0 +1,32 @@
+{
+  "heading": "Number Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `SortByNumbers.java`\n  and paste the following code:\n\n  ```java\n  import java.util.Arrays;\n\n  import static com.mongodb.client.model.Aggregates.limit;\n  import static com.mongodb.client.model.Aggregates.project;\n  import static com.mongodb.client.model.Projections.excludeId;\n  import static com.mongodb.client.model.Projections.fields;\n  import static com.mongodb.client.model.Projections.include;\n  import com.mongodb.client.MongoClient;\n  import com.mongodb.client.MongoClients;\n  import com.mongodb.client.MongoCollection;\n  import com.mongodb.client.MongoDatabase;\n  import org.bson.Document;\n\n  public class SortByNumbers {\n    public static void main( String[] args ) {\n      // define query\n      Document agg =\n          new Document(\"$search\", \n          \t    new Document(\"index\", \"default\")\n          \t            .append(\"range\", \n          \t    new Document(\"path\", \"awards.wins\")\n          \t                .append(\"gte\", 10L))\n          \t            .append(\"sort\", \n          \t    new Document(\"awards.wins\", -1L)));\n      \n      // specify connection\n      String uri = \"<connection-string>\";\n      \n      // establish connection and set namespace\n      try (MongoClient mongoClient = MongoClients.create(uri)) {\n        MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n        MongoCollection<Document> collection = database.getCollection(\"movies\");\n  \t  \n        // run query and print results\n        collection.aggregate(Arrays.asList(agg, \n          limit(5), \n          project(fields(excludeId(), include(\"title\"), include(\"awards.wins\")))))\n          .forEach(doc -> System.out.println(doc.toJson()));\t\n      }\n    }\n  }\n\n  ```\n\n  > **Note:** To run the sample code in your Maven environment, add the\n  > following code above the import statements in your file.\n  >\n  > ```\n  > package com.mongodb.drivers;\n  > ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\njavac SortByNumbers.java\njava SortByNumbers\n```\n\n**Output:**\n\n```json\n{\"title\": \"12 Years a Slave\", \"awards\": {\"wins\": 267}}\n{\"title\": \"Gravity\", \"awards\": {\"wins\": 231}}\n{\"title\": \"Gravity\", \"awards\": {\"wins\": 231}}\n{\"title\": \"Birdman: Or (The Unexpected Virtue of Ignorance)\", \"awards\": {\"wins\": 210}}\n{\"title\": \"Boyhood\", \"awards\": {\"wins\": 185}}\n```",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import java.util.Arrays;\n\nimport static com.mongodb.client.model.Aggregates.limit;\nimport static com.mongodb.client.model.Aggregates.project;\nimport static com.mongodb.client.model.Projections.excludeId;\nimport static com.mongodb.client.model.Projections.fields;\nimport static com.mongodb.client.model.Projections.include;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class SortByNumbers {\n  public static void main( String[] args ) {\n    // define query\n    Document agg =\n        new Document(\"$search\", \n        \t    new Document(\"index\", \"default\")\n        \t            .append(\"range\", \n        \t    new Document(\"path\", \"awards.wins\")\n        \t                .append(\"gte\", 10L))\n        \t            .append(\"sort\", \n        \t    new Document(\"awards.wins\", -1L)));\n    \n    // specify connection\n    String uri = \"<connection-string>\";\n    \n    // establish connection and set namespace\n    try (MongoClient mongoClient = MongoClients.create(uri)) {\n      MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n      MongoCollection<Document> collection = database.getCollection(\"movies\");\n\t  \n      // run query and print results\n      collection.aggregate(Arrays.asList(agg, \n        limit(5), \n        project(fields(excludeId(), include(\"title\"), include(\"awards.wins\")))))\n        .forEach(doc -> System.out.println(doc.toJson()));\t\n    }\n  }\n}\n",
+      "tokenEstimate": 313
+    },
+    {
+      "language": "text",
+      "content": "package com.mongodb.drivers;",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "bash",
+      "content": "javac SortByNumbers.java\njava SortByNumbers",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "content": "{\"title\": \"12 Years a Slave\", \"awards\": {\"wins\": 267}}\n{\"title\": \"Gravity\", \"awards\": {\"wins\": 231}}\n{\"title\": \"Gravity\", \"awards\": {\"wins\": 231}}\n{\"title\": \"Birdman: Or (The Unexpected Virtue of Ignorance)\", \"awards\": {\"wins\": 210}}\n{\"title\": \"Boyhood\", \"awards\": {\"wins\": 185}}",
+      "tokenEstimate": 96
+    }
+  ],
+  "slug": "number-search-and-sort--java-sync",
+  "selections": {
+    "drivers": "java-sync"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Sort by Score",
+  "headingLevel": 3,
+  "body": "The following query uses the [$search](pipe.$search) stage to perform\nthe following actions:\n\n- Search for movies that have the term `summer` in the title.\n\n- Sort the results by score in descending order and for results\n  with identical scores, sort arbitrarily.\n\nThe query uses the [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to `5`\ndocuments. It also uses the [$project](manual/reference/operator/aggregation/project) stage to perform the\nfollowing actions:\n\n- Omit all fields except `_id` and `title` in the results.\n\n- Add a field named `score`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"sort\": {score: {$meta: \"searchScore\"}}\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1,\n      \"score\": {$meta: \"searchScore\"}\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: ObjectId(\"573a1398f29313caabcea21e\"),\n    title: 'Summer',\n    score: 3.5844719409942627\n  },\n  {\n    _id: ObjectId(\"573a13a6f29313caabd18eca\"),\n    title: 'Summer Things',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a13b8f29313caabd4c1d0\"),\n    title: 'Summer Palace',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a1394f29313caabcde8e8\"),\n    title: 'Summer Stock',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a13acf29313caabd284fa\"),\n    title: 'Wolf Summer',\n    score: 3.000213623046875\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"summer\"\n      },\n      \"sort\": {score: {$meta: \"searchScore\"}}\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1,\n      \"score\": {$meta: \"searchScore\"}\n    }\n  }\n])",
+      "tokenEstimate": 98
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: ObjectId(\"573a1398f29313caabcea21e\"),\n    title: 'Summer',\n    score: 3.5844719409942627\n  },\n  {\n    _id: ObjectId(\"573a13a6f29313caabd18eca\"),\n    title: 'Summer Things',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a13b8f29313caabd4c1d0\"),\n    title: 'Summer Palace',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a1394f29313caabcde8e8\"),\n    title: 'Summer Stock',\n    score: 3.000213623046875\n  },\n  {\n    _id: ObjectId(\"573a13acf29313caabd284fa\"),\n    title: 'Wolf Summer',\n    score: 3.000213623046875\n  }\n]",
+      "tokenEstimate": 214
+    }
+  ],
+  "slug": "sort-by-score--descending-sort",
+  "selections": {
+    "tabs": "descending-sort"
+  },
+  "variantAgnostic": false
+}

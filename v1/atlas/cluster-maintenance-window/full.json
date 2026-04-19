@@ -7,48 +7,62 @@
       "heading": "Maintenance Window Considerations",
       "headingLevel": 2,
       "body": "- **Urgent maintenance activities**: Atlas may perform urgent maintenance\n  activities (such as security patches for zero-day vulnerabilities) as soon\n  as necessary without regard to configured maintenance windows or protected\n  hours.\n\n- **Ongoing maintenance operations**: Once you schedule a maintenance window\n  for your cluster, you cannot change it until any ongoing maintenance\n  operations have completed.\n\n- **MongoDB database upgrades**: If maintenance includes a MongoDB patch\n  version upgrade, Atlas displays the current and target versions in\n  the console. If Atlas upgrades the MongoDB maintenance version on\n  one of your clusters during the next maintenance window, the cluster's\n  card displays the target MongoDB maintenance version.\n\n- **Maintenance requires replica set elections**: Atlas performs\n  maintenance the same way as the maintenance procedure described in the\n  [MongoDB Manual](manual/tutorial/perform-maintence-on-replica-set-members).\n  This procedure requires at least one [replica set election](manual/core/replica-set-elections) during the maintenance window per replica\n  set. Use the [Test Failover](test-failover) capability to ensure\n  that your application is resilient to replica set elections.\n\n- **Maintenance starts as close to the start of the window as possible**:\n  Maintenance always begins as close to the scheduled time as possible, but\n  in-progress cluster updates or unexpected system issues could delay the\n  start time.\n\n- **Potential for brief performance degradation during maintenance**: If you\n  have low [Disk IOPS](disk-io-util), your cluster could experience a\n  brief performance degradation during maintenance while MongoDB repopulates\n  the WiredTiger storage engine. To learn more, see [Journaling and the WiredTiger\n  Storage Engine](manual/core/journaling).\n\n- **Protected hours**: In addition to configuring a maintenance window, you\n  can set daily protected hours, which is a window of time during which\n  Atlas avoids performing standard updates. Atlas automatically\n  performs maintenance during the maintenance window.\n\n  However, Atlas may perform standard updates that don't involve a cluster\n  restart or impact workload performance, outside of the maintenance window.\n  When you enable protected hours, Atlas performs standard updates\n  outside of the protected hours window. The length of your protected hours\n  window can't exceed 18 hours.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "maintenance-window-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Scheduled Maintenance Operation Types",
       "headingLevel": 3,
       "body": "The **Scheduled Maintenance Operations** modal may display one or\nmore of the following maintenance types:\n\n- MongoDB Required Maintenance: Critical maintenance operations required\n  for cluster health and stability.\n\n- MongoDB Version Update: Upgrades to MongoDB patch versions or maintenance\n  releases.\n\n- OS Policy Version Update: Updates to the underlying operating system\n  policies and security patches.\n\n- Other Maintenance Operation: Additional maintenance activities required\n  for cluster management.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scheduled-maintenance-operation-types",
+      "variantAgnostic": true
     },
     {
       "heading": "Track Maintenance Completion",
       "headingLevel": 3,
       "body": "You'll see a `Maintenance window completed` event in your\n[Project Activity Feed](activity-feed) when maintenance operations finish.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "track-maintenance-completion",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Auto-Defer for Future Maintenance Windows",
       "headingLevel": 3,
       "body": "When you enable the **Automatically defer maintenance for one week**\noption, Atlas automatically defers future scheduled maintenance by one week\neach time. This means maintenance effectively runs every two weeks instead of\nweekly, since the first week is automatically deferred each time. If needed,\nyou can still manually defer maintenance an additional time.\n\n> **Important:** If you enable the **Automatically defer maintenance for one week**\n> option, Atlas configures automatic deferral for future maintenance windows.\n> To defer currently scheduled maintenance, use the **Defer 1 Week**\n> option as described in the [Defer Maintenance](cluster-maintenance-defer-maintenance)\n> section.\n\nAuto-defer allows you to:\n\n- Reduce maintenance frequency: Set up auto-defer once to space out\n  maintenance operations to occur every two weeks instead of weekly.\n\n- Batch updates: Consolidate maintenance operations into a single\n  maintenance window and reduce the total number of maintenance events.\n\n- Test in lower environments first: Set up auto-defer in production\n  environments and allow  maintenance to run weekly in development or staging.\n  This gives you time to validate updates before they reach production.\n\nTo enable auto-defer, see the section [View and Configure Maintenance Window](maintenance-window-protected-hours).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-auto-defer-for-future-maintenance-windows",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To manage maintenance windows, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access\nto the project.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedure",
+      "variantAgnostic": true
     },
     {
       "heading": "Open Your Project Settings",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "open-your-project-settings",
+      "variantAgnostic": true
     },
     {
       "heading": "View and Configure Maintenance Window",
       "headingLevel": 3,
-      "body": "**Ui:**\n\nAtlas UI\n\nTo view and configure the maintenance window using the\nAtlas UI:\n\n- Click the **Set Maintenance Window** button to display the maintenance window settings.\n\n- Set the day and time that you want Atlas to start\n  maintenance on your project.\n\n- If you want Atlas to automatically defer any scheduled\n  maintenance for one week, click\n  **Automatically defer maintenance for one week**.\n\n  Enabling this option configures automatic deferral for future maintenance\n  windows. To defer currently scheduled maintenance, use the **Defer 1 Week** button.\n\n- To set a range of protected hours in which Atlas avoids performing\n  standard updates, toggle the **Turn on protected hours**\n  setting to **On**. You can set a maximum time range of 18 hours a day.\n\n- Click **Save** to keep your changes or click\n  **Cancel** to discard them.\n\n**Atlascli:**\n\nAtlas CLI\n\nTo return the details for the maintenance window using the Atlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows describe [options]\n\n```\n\nTo update the maintenance window using the Atlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows update [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas maintenanceWindows describe](atlas/cli/current/command/atlas-maintenanceWindows-describe) and\n[atlas maintenanceWindows update](atlas/cli/current/command/atlas-maintenanceWindows-update).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)",
+      "body": "Atlas UI\n\nAtlas CLI\n\nTo return the details for the maintenance window using the Atlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows describe [options]\n\n```\n\nTo update the maintenance window using the Atlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows update [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas maintenanceWindows describe](atlas/cli/current/command/atlas-maintenanceWindows-describe) and\n[atlas maintenanceWindows update](atlas/cli/current/command/atlas-maintenanceWindows-update).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)",
       "codeBlocks": [
         {
           "language": "sh",
@@ -60,42 +74,88 @@
           "content": "\natlas maintenanceWindows update [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "view-and-configure-maintenance-window",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View and Configure Maintenance Window",
+      "headingLevel": 3,
+      "body": "To view and configure the maintenance window using the\nAtlas UI:\n\n- Click the **Set Maintenance Window** button to display the maintenance window settings.\n\n- Set the day and time that you want Atlas to start\n  maintenance on your project.\n\n- If you want Atlas to automatically defer any scheduled\n  maintenance for one week, click\n  **Automatically defer maintenance for one week**.\n\n  Enabling this option configures automatic deferral for future maintenance\n  windows. To defer currently scheduled maintenance, use the **Defer 1 Week** button.\n\n- To set a range of protected hours in which Atlas avoids performing\n  standard updates, toggle the **Turn on protected hours**\n  setting to **On**. You can set a maximum time range of 18 hours a day.\n\n- Click **Save** to keep your changes or click\n  **Cancel** to discard them.",
+      "codeBlocks": [],
+      "slug": "view-and-configure-maintenance-window--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Clear Your Maintenance Window Configuration Settings",
       "headingLevel": 3,
-      "body": "If you configured a preferred maintenance window start time, you can\nclear the settings using the Atlas CLI or the Atlas UI. Clearing your maintenance window configuration restores the default\nmaintenance window settings.\n\n**Ui:**\n\nAtlas UI\n\nTo clear the configured maintenance window using the\nAtlas UI, toggle the **Set Maintenance Window**\nsetting to **Off**.\n\n**Atlascli:**\n\nAtlas CLI\n\nTo clear the configured maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows clear [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows clear](atlas/cli/current/command/atlas-maintenanceWindows-clear).",
+      "body": "If you configured a preferred maintenance window start time, you can\nclear the settings using the Atlas CLI or the Atlas UI. Clearing your maintenance window configuration restores the default\nmaintenance window settings.\n\nAtlas UI\n\nAtlas CLI\n\nTo clear the configured maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows clear [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows clear](atlas/cli/current/command/atlas-maintenanceWindows-clear).",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas maintenanceWindows clear [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "clear-your-maintenance-window-configuration-settings",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Clear Your Maintenance Window Configuration Settings",
+      "headingLevel": 3,
+      "body": "To clear the configured maintenance window using the\nAtlas UI, toggle the **Set Maintenance Window**\nsetting to **Off**.",
+      "codeBlocks": [],
+      "slug": "clear-your-maintenance-window-configuration-settings--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Respond to Required Maintenance",
       "headingLevel": 2,
       "body": "When maintenance is required:\n\n- Between 48 and 72 hours (2-3 days) before the scheduled maintenance,\n  Atlas displays a banner in your project's cluster list showing\n  the date and time when the maintenance is scheduled. Click\n  **Show Details** to see the scheduled maintenance operations,\n  such as MongoDB version updates, OS policy updates, or other\n  maintenance types.\n\n- Atlas sends an email to users with the [Project Owner](<Project Owner>) role and updates the Atlas UI to display the option to\n  begin maintenance immediately or to defer maintenance for one week.\n\n  > **Note:** To configure how you receive scheduled maintenance window\n  > notifications, see [Configure a Maintenance Window Alert](configure-mw-alert).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "respond-to-required-maintenance",
+      "variantAgnostic": true
     },
     {
       "heading": "Begin Maintenance Now",
       "headingLevel": 3,
-      "body": "**Ui:**\n\nAtlas UI\n\nTo begin maintenance immediately:",
-      "codeBlocks": []
+      "body": "Atlas UI",
+      "codeBlocks": [],
+      "slug": "begin-maintenance-now",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Begin Maintenance Now",
+      "headingLevel": 3,
+      "body": "To begin maintenance immediately:",
+      "codeBlocks": [],
+      "slug": "begin-maintenance-now--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1",
       "headingLevel": 4,
       "body": "In the maintenance banner, click **Show Details**.\nA modal window titled **Scheduled Maintenance Operations**\nappears, showing the scheduled date and time along with the types of\nmaintenance operations planned.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2",
       "headingLevel": 4,
-      "body": "In the **Scheduled Maintenance Operations** modal,\nclick the **Begin Now** button. In the\n**Start Cluster Maintenance Now** confirmation modal,\nconfirm by clicking **Yes, start my maintenance now.**\n\n**Atlascli:**\n\nAtlas CLI\n\nTo update the maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows update [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows update](atlas/cli/current/command/atlas-maintenanceWindows-update).\n\nIMPORTANT: To trigger maintenance immediately, pass the\n`--startASAP` option.\n\n```Bash\n# Trigger immediate maintenance for the project with the ID\n# 5e2211c17a3e5a48f5497de3:\n\natlas maintenanceWindows update --startASAP --projectId 5e2211c17a3e5a48f5497de3 --output json\n```\n\n**Atlasapi:**\n\nAtlas Administration API\n\nAtlas provides the [Update One\nMaintenance Window for One Project endpoint](api/doc/atlas-admin-api-v2/operation/operation-updategroupmaintenancewindow). You can trigger maintenance\nimmediately by passing in the optional `startASAP` field with\na value of `true`.\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n```bash\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/maintenanceWindow\" \\\n  --data '\n    {\n      \"startASAP\": true\n    }'\n```",
+      "body": "In the **Scheduled Maintenance Operations** modal,\nclick the **Begin Now** button. In the\n**Start Cluster Maintenance Now** confirmation modal,\nconfirm by clicking **Yes, start my maintenance now.**\n\nAtlas CLI\n\nTo update the maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows update [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows update](atlas/cli/current/command/atlas-maintenanceWindows-update).\n\nIMPORTANT: To trigger maintenance immediately, pass the\n`--startASAP` option.\n\n```Bash\n# Trigger immediate maintenance for the project with the ID\n# 5e2211c17a3e5a48f5497de3:\n\natlas maintenanceWindows update --startASAP --projectId 5e2211c17a3e5a48f5497de3 --output json\n```\n\nAtlas Administration API\n\nAtlas provides the [Update One\nMaintenance Window for One Project endpoint](api/doc/atlas-admin-api-v2/operation/operation-updategroupmaintenancewindow). You can trigger maintenance\nimmediately by passing in the optional `startASAP` field with\na value of `true`.\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n```bash\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/maintenanceWindow\" \\\n  --data '\n    {\n      \"startASAP\": true\n    }'\n```",
       "codeBlocks": [
         {
           "language": "sh",
@@ -112,29 +172,78 @@
           "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n  --include \\\n  --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n  --header \"Content-Type: application/json\" \\\n  -X PATCH \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/maintenanceWindow\" \\\n  --data '\n    {\n      \"startASAP\": true\n    }'",
           "tokenEstimate": 90
         }
-      ]
+      ],
+      "slug": "step-2--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Defer Maintenance",
       "headingLevel": 3,
-      "body": "Use the following procedure to defer currently scheduled maintenance by one week.\nTo automatically defer all future maintenance, enable [auto-defer](auto-defer-maintenance).\n\n**Ui:**\n\nAtlas UI\n\n> **Note:** You can defer a single project maintenance event up to two\n> times.\n\nTo defer scheduled maintenance:",
-      "codeBlocks": []
+      "body": "Use the following procedure to defer currently scheduled maintenance by one week.\nTo automatically defer all future maintenance, enable [auto-defer](auto-defer-maintenance).\n\nAtlas UI",
+      "codeBlocks": [],
+      "slug": "defer-maintenance",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Defer Maintenance",
+      "headingLevel": 3,
+      "body": "> **Note:** You can defer a single project maintenance event up to two\n> times.\n\nTo defer scheduled maintenance:",
+      "codeBlocks": [],
+      "slug": "defer-maintenance--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1",
       "headingLevel": 4,
       "body": "In the maintenance banner, click **Show Details**.\nA modal window titled **Scheduled Maintenance Operations**\nappears, showing the scheduled date and time along with the types of\nmaintenance operations planned.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2",
       "headingLevel": 4,
-      "body": "In the **Scheduled Maintenance Operations** modal,\nclick the **Defer 1 Week** button. In the\n**Defer Maintenance to Next Week** confirmation modal,\nconfirm by clicking **Yes, defer maintenance until next week.**\n\n**Atlascli:**\n\nAtlas CLI\n\n> **Note:** You can defer a single project maintenance event up to two\n> times.\n\nTo defer the maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows defer [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows defer](atlas/cli/current/command/atlas-maintenanceWindows-defer).\n\n**Atlasapi:**\n\nAtlas Administration API\n\nAtlas provides the [Defer One\nMaintenance Window for One Project endpoint](api/doc/atlas-admin-api-v2/operation/operation-defergroupmaintenancewindow).\n\n> **Note:** You can defer a single project maintenance event up to two\n> times.",
+      "body": "In the **Scheduled Maintenance Operations** modal,\nclick the **Defer 1 Week** button. In the\n**Defer Maintenance to Next Week** confirmation modal,\nconfirm by clicking **Yes, defer maintenance until next week.**\n\nAtlas CLI\n\n> **Note:** You can defer a single project maintenance event up to two\n> times.\n\nTo defer the maintenance window using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas maintenanceWindows defer [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas maintenanceWindows defer](atlas/cli/current/command/atlas-maintenanceWindows-defer).\n\nAtlas Administration API\n\nAtlas provides the [Defer One\nMaintenance Window for One Project endpoint](api/doc/atlas-admin-api-v2/operation/operation-defergroupmaintenancewindow).\n\n> **Note:** You can defer a single project maintenance event up to two\n> times.",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas maintenanceWindows defer [options]\n",
           "tokenEstimate": 9
+        }
+      ],
+      "slug": "step-2--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "ui",
+          "text": "ui"
+        },
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "atlasapi",
+          "text": "atlasapi"
         }
       ]
     }

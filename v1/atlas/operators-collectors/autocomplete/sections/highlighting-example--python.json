@@ -1,0 +1,17 @@
+{
+  "heading": "Highlighting Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to:\n\n  - return the document's score.\n\n  - exclude all fields except `title`.\n\n  - add a new field called `highlights`, which contains highlighting\n    information.\n\n```python\nimport pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n    {\"$search\":{\"autocomplete\": {\"query\": \"ger\", \"path\": \"title\"}, \"highlight\": {\"path\": \"title\"}}},\n    {\"$limit\": 5},\n    {\"$project\": {\"score\": {\"$meta\": \"searchScore\"},\"_id\": 0, \"title\": 1, \"highlights\": {\"$meta\": \"searchHighlights\"}}},\n]\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n    {\"$search\":{\"autocomplete\": {\"query\": \"ger\", \"path\": \"title\"}, \"highlight\": {\"path\": \"title\"}}},\n    {\"$limit\": 5},\n    {\"$project\": {\"score\": {\"$meta\": \"searchScore\"},\"_id\": 0, \"title\": 1, \"highlights\": {\"$meta\": \"searchHighlights\"}}},\n]\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 137
+    }
+  ],
+  "slug": "highlighting-example--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

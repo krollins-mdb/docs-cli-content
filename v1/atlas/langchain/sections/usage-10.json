@@ -8,5 +8,7 @@
       "content": "from langchain_openai import ChatOpenAI\nfrom langgraph.prebuilt import create_react_agent\nfrom langchain_mongodb.agent_toolkit import (\n    MONGODB_AGENT_SYSTEM_PROMPT,\n    MongoDBDatabase,\n    MongoDBDatabaseToolkit,\n)\n\ndb_wrapper = MongoDBDatabase.from_connection_string(\nCONNECTION_STRING, database=DB_NAME\n)\nllm = ChatOpenAI(model=\"gpt-4o-mini\", timeout=60)\ntoolkit = MongoDBDatabaseToolkit(db=db_wrapper, llm=llm)\n\nsystem_message = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)\n\ntest_query = \"Which country's customers spent the most?\"\nagent = create_react_agent(llm, toolkit.get_tools(), state_modifier=system_message)\nagent.step_timeout = 60\nevents = agent.stream(\n   {\"messages\": [(\"user\", test_query)]},\n    stream_mode=\"values\",\n)\nmessages = []",
       "tokenEstimate": 181
     }
-  ]
+  ],
+  "slug": "usage",
+  "variantAgnostic": true
 }

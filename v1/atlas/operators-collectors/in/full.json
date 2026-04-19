@@ -7,7 +7,9 @@
       "heading": "Definition",
       "headingLevel": 2,
       "body": "The `in` operator in MongoDB Search performs a search for an array of BSON (Binary Javascript Object Notation) `number`,\n`date`, `boolean`, `objectId`, `uuid`, or `string` values at the given\npath and returns documents where the value of the field equals any value\nin the specified array. If the field holds an array, then the\n`in` operator selects the documents whose field holds an array that\ncontains at least one element that matches any value in the specified\narray.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "definition",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -19,19 +21,25 @@
           "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"in\": {\n      \"path\": \"<field-to-search>\",\n      \"score\": <options>,\n      \"value\": <single-or-array-of-values-to-search>\n    }\n  }\n}",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 2,
       "body": "| Field | Type                                             | Description                                                                                                                                                                                                                                                                                              | Necessity |\n| ----- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| path  | string or array of strings                       | Indexed field or fields to search. You can also specify a wildcard path to search.To search for string values in a field, you must index the field as the MongoDB Search token type.                                                                                                                     | Required  |\n| score | object                                           | Score to assign to matching search term results. Use one of the following options to modify the score:boost: multiply the result score by the given number.constant: replace the result score with the given number.function: replace the result score using the function expression.                    | Optional  |\n| value | boolean, objectId, number, date, uuid, or string | Value or values to search. Value can be either a single value or an array of values of only one of the supported BSON (Binary Javascript Object Notation) types and can't be a mix of different types.To search for string values in a field, you must index the field as the MongoDB Search token type. | Required  |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
       "body": "The following examples use the `in` operator to query collections in\nthe [sample\\_analytics.customers](sample-analytics) collection. If\nyou load the sample data on your cluster and [create a MongoDB Search index](ref-create-index) a MongoDB Search index named `default` that uses\n[dynamic mappings](static-dynamic-mappings) on the collection, you\ncan run the following queries against the collections.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
@@ -43,12 +51,22 @@
           "content": "{\n  \"mappings\": {\n    \"index\": \"default\",\n    \"dynamic\": true,\n    \"fields\": {\n      \"name\": {\n        \"normalizer\": \"lowercase\",\n        \"type\": \"token\"\n      }\n    }\n  }\n}",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "sample-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Queries",
       "headingLevel": 3,
-      "body": "**Single:**\n\nSingle Value Field Match\n\nThe following query uses the `in` operator to search the\n`birthdate` field, which contains a single value, for customers\nwho were born on given dates. The query uses the\n[$project](manual/reference/operator/aggregation/project) stage to:\n\n- Omit the `_id` field in the results.\n\n- Include only the `name` and `birthdate` fields in the\n  results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]\n```\n\nMongoDB Search returns two documents that it matches with the dates\nspecified in the query.\n\n**Multiple:**\n\nArray Value Field Match\n\nThe following query uses the `in` operator to query the\n`accounts` field, which contains an array of numbers, for\ncustomers with account numbers `371138`, `371139`, or\n`371140`. The query uses the [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Omit the `_id` field in the results.\n\n- Include only the `name` and `accounts` fields in the results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]\n```\n\nMongoDB Search returns only one document that it matches with the account\nnumber `371138` specified in the query.\n\n**Compound:**\n\nCompound Query Match\n\nThe following query uses the `text` operator to query for\ncustomers whose first name is `James` in the `name` field.\nThe query specifies preference using the `in` operator for\ncustomers associated with the given objectIds in the `_id`\nfield. The query uses [$limit](manual/reference/operator/aggregation/limit) stage to limit the output\nto 5 results and the [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Include only the `_id` and `name` fields in the results.\n\n- Add a field named `score` to the results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]\n```\n\nMongoDB Search returns documents that contain `James Sanchez` and\n`Jennifer Lawrence` in the `name` field. MongoDB Search scores the\ndocument that contains `name: 'James Sanchez'` higher because it\nmatches the `ObjectId` specified in the `should` clause.",
+      "body": "Single Value Field Match\n\nArray Value Field Match\n\nCompound Query Match",
+      "codeBlocks": [],
+      "slug": "sample-queries",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Sample Queries",
+      "headingLevel": 3,
+      "body": "The following query uses the `in` operator to search the\n`birthdate` field, which contains a single value, for customers\nwho were born on given dates. The query uses the\n[$project](manual/reference/operator/aggregation/project) stage to:\n\n- Omit the `_id` field in the results.\n\n- Include only the `name` and `birthdate` fields in the\n  results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]\n```\n\nMongoDB Search returns two documents that it matches with the dates\nspecified in the query.",
       "codeBlocks": [
         {
           "language": "json",
@@ -59,7 +77,19 @@
           "language": "json",
           "content": "[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]",
           "tokenEstimate": 71
-        },
+        }
+      ],
+      "slug": "sample-queries--single",
+      "selections": {
+        "tabs": "single"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Queries",
+      "headingLevel": 3,
+      "body": "The following query uses the `in` operator to query the\n`accounts` field, which contains an array of numbers, for\ncustomers with account numbers `371138`, `371139`, or\n`371140`. The query uses the [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Omit the `_id` field in the results.\n\n- Include only the `name` and `accounts` fields in the results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]\n```\n\nMongoDB Search returns only one document that it matches with the account\nnumber `371138` specified in the query.",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"accounts\",\n        \"value\": [371138, 371139, 371140]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"accounts\": 1\n    }\n  }\n])",
@@ -69,7 +99,19 @@
           "language": "json",
           "content": "[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  }\n]",
           "tokenEstimate": 41
-        },
+        }
+      ],
+      "slug": "sample-queries--multiple",
+      "selections": {
+        "tabs": "multiple"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Queries",
+      "headingLevel": 3,
+      "body": "The following query uses the `text` operator to query for\ncustomers whose first name is `James` in the `name` field.\nThe query specifies preference using the `in` operator for\ncustomers associated with the given objectIds in the `_id`\nfield. The query uses [$limit](manual/reference/operator/aggregation/limit) stage to limit the output\nto 5 results and the [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Include only the `_id` and `name` fields in the results.\n\n- Add a field named `score` to the results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]\n```\n\nMongoDB Search returns documents that contain `James Sanchez` and\n`Jennifer Lawrence` in the `name` field. MongoDB Search scores the\ndocument that contains `name: 'James Sanchez'` higher because it\nmatches the `ObjectId` specified in the `should` clause.",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])",
@@ -80,7 +122,12 @@
           "content": "[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]",
           "tokenEstimate": 76
         }
-      ]
+      ],
+      "slug": "sample-queries--compound",
+      "selections": {
+        "tabs": "compound"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Facet Query",
@@ -96,6 +143,28 @@
           "language": "json",
           "content": "[\n  {\n    count: { lowerBound: Long('1') },\n    facet: {\n      birthdateFacet: {\n        buckets: [\n          {\n            _id: ISODate('1970-01-01T00:00:00.000Z'),\n            count: Long('1')\n          },\n          {\n            _id: ISODate('1980-01-01T00:00:00.000Z'),\n            count: Long('0')\n          },\n          {\n            _id: ISODate('1990-01-01T00:00:00.000Z'),\n            count: Long('0')\n          }\n        ]\n      }\n    }\n  }\n]",
           "tokenEstimate": 141
+        }
+      ],
+      "slug": "facet-query",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "single",
+          "text": "single"
+        },
+        {
+          "value": "multiple",
+          "text": "multiple"
+        },
+        {
+          "value": "compound",
+          "text": "compound"
         }
       ]
     }

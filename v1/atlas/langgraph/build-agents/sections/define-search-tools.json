@@ -8,5 +8,7 @@
       "content": "from langchain.agents import tool\nfrom langchain_mongodb.retrievers.full_text_search import MongoDBAtlasFullTextSearchRetriever\nfrom config import vector_store, collection\n\n@tool\ndef plot_search(user_query: str) -> str:\n    \"\"\"\n    Retrieve information on the movie's plot to answer a user query by using vector search.\n    \"\"\"\n    \n    retriever = vector_store.as_retriever(\n        search_type=\"similarity\",\n        search_kwargs={\"k\": 5}  # Retrieve top 5 most similar documents\n    )\n\n    results = retriever.invoke(user_query)\n   \n    # Concatenate the results into a string\n    context = \"\\n\\n\".join([f\"{doc.metadata['title']}: {doc.page_content}\" for doc in results])\n    return context\n\n@tool\ndef title_search(user_query: str) -> str:\n    \"\"\"\n    Retrieve movie plot content based on the provided title by using full-text search.\n    \"\"\"\n    \n    # Initialize the retriever\n    retriever = MongoDBAtlasFullTextSearchRetriever(\n        collection=collection,            # MongoDB Collection\n        search_field=\"title\",             # Name of the field to search\n        search_index_name=\"search_index\", # Name of the MongoDB Search index\n        top_k=1,                          # Number of top results to return       \n    ) \n    results = retriever.invoke(user_query)\n   \n    for doc in results:\n        if doc:\n            return doc.metadata[\"fullplot\"]\n        else:\n            return \"Movie not found\"\n\n# List of search tools\nSEARCH_TOOLS = [ plot_search, title_search ]\n",
       "tokenEstimate": 333
     }
-  ]
+  ],
+  "slug": "define-search-tools",
+  "variantAgnostic": true
 }

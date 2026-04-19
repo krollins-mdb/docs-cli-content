@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"dynamic\": true,\n          \"fields\": {\n            \"en_US\": {\n              \"analyzer\": \"htmlStrippingAnalyzer\",\n              \"type\": \"string\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"htmlStrippingAnalyzer\",\n        \"charFilters\": [\n          {\n            \"type\": \"htmlStrip\",\n            \"ignoredTags\": [\"a\"]\n          }\n        ],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": []\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"head\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  {\n    _id: 2,\n    text: { en_US: \"The head of the sales department spoke first.\" }\n  },\n  {\n    _id: 3,\n    text: {\n      en_US: \"<body>We'll head out to the conference room by noon.</body>\"\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"dynamic\": true,\n          \"fields\": {\n            \"en_US\": {\n              \"analyzer\": \"htmlStrippingAnalyzer\",\n              \"type\": \"string\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"htmlStrippingAnalyzer\",\n        \"charFilters\": [\n          {\n            \"type\": \"htmlStrip\",\n            \"ignoredTags\": [\"a\"]\n          }\n        ],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": []\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"head\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])",
+      "tokenEstimate": 66
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 2,\n    text: { en_US: \"The head of the sales department spoke first.\" }\n  },\n  {\n    _id: 3,\n    text: {\n      en_US: \"<body>We'll head out to the conference room by noon.</body>\"\n    }\n  }\n]",
+      "tokenEstimate": 67
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

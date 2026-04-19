@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"diacriticFolder\",\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"fields\": {\n            \"sv_FI\": {\n              \"analyzer\": \"diacriticFolder\",\n              \"type\": \"string\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"diacriticFolder\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"keyword\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuFolding\"\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"*avdelning*\",\n        \"path\": \"text.sv_FI\",\n        \"allowAnalyzedField\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.sv_FI\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  {\n    _id: 1,\n    text: { sv_FI: 'Den här sidan behandlar avdelningsmöten' }\n  },\n  {\n    _id: 2,\n    text: { sv_FI: 'Först talade chefen för försäljningsavdelningen' }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"diacriticFolder\",\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"fields\": {\n            \"sv_FI\": {\n              \"analyzer\": \"diacriticFolder\",\n              \"type\": \"string\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"diacriticFolder\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"keyword\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuFolding\"\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"*avdelning*\",\n        \"path\": \"text.sv_FI\",\n        \"allowAnalyzedField\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.sv_FI\": 1\n    }\n  }\n])",
+      "tokenEstimate": 90
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 1,\n    text: { sv_FI: 'Den här sidan behandlar avdelningsmöten' }\n  },\n  {\n    _id: 2,\n    text: { sv_FI: 'Först talade chefen för försäljningsavdelningen' }\n  }\n]",
+      "tokenEstimate": 74
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

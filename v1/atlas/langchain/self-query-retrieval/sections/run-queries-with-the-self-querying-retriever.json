@@ -1,57 +1,8 @@
 {
   "heading": "Run Queries with the Self-Querying Retriever",
   "headingLevel": 2,
-  "body": "Run the following queries to see how the self-querying retriever\nexecutes different types of queries:\n\n**With-filters:**\n\nQuery with filters\n\n**Input:**\n\n```python\n# This example specifies a filter (rating > 9)\nretriever.invoke(\"What are some highly rated movies (above 9)?\")\n```\n\n**Output:**\n\n```text\n[Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]\n```\n\n**Input:**\n\n```python\n# This example specifies a semantic search and a filter (rating > 9)\nretriever.invoke(\"I want to watch a movie about toys rated higher than 9\")\n```\n\n**Output:**\n\n```text\n[Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\"),\n Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone')]\n```\n\n**Input:**\n\n```python\n# This example specifies a composite filter (rating >= 9 and genre = thriller)\nretriever.invoke(\"What's a highly rated (above or equal 9) thriller film?\")\n```\n\n**Output:**\n\n```text\n[Document(id='686e84de13668e4048bf9ff4', metadata={'_id': '686e84de13668e4048bf9ff4', 'year': 2006, 'genre': 'thriller', 'rating': 9.0}, page_content='A psychologist / detective gets lost in a series of dreams within dreams within dreams and Inception reused the idea')]\n```\n\n**Input:**\n\n```python\n# This example specifies a query and composite filter (year > 1990 and year < 2005 and genre = action)\nretriever.invoke(\n    \"What's a movie after 1990 but before 2005 that's all about dinosaurs, \" +\n    \"and preferably has the action genre\"\n)\n```\n\n**Output:**\n\n```text\n[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff0', metadata={'_id': '686e84de13668e4048bf9ff0', 'year': 1994, 'rating': 8.7, 'genre': 'action'}, page_content='A fight club that is not a fight club, but is a fight club')]\n```\n\n**No-filters:**\n\nQuery with no filters\n\n**Input:**\n\n```python\n# This example only specifies a semantic search query\nretriever.invoke(\"What are some movies about dinosaurs\")\n```\n\n**Output:**\n\n```text\n[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff1', metadata={'_id': '686e84de13668e4048bf9ff1', 'year': 2010, 'genre': 'thriller', 'rating': 8.2}, page_content='Leo DiCaprio gets lost in a dream within a dream within a dream within a ...'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]\n```",
-  "codeBlocks": [
-    {
-      "language": "python",
-      "content": "# This example specifies a filter (rating > 9)\nretriever.invoke(\"What are some highly rated movies (above 9)?\")",
-      "tokenEstimate": 29
-    },
-    {
-      "language": "text",
-      "content": "[Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]",
-      "tokenEstimate": 232
-    },
-    {
-      "language": "python",
-      "content": "# This example specifies a semantic search and a filter (rating > 9)\nretriever.invoke(\"I want to watch a movie about toys rated higher than 9\")",
-      "tokenEstimate": 35
-    },
-    {
-      "language": "text",
-      "content": "[Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\"),\n Document(id='686e84de13668e4048bf9ff3', metadata={'_id': '686e84de13668e4048bf9ff3', 'year': 1979, 'rating': 9.9, 'genre': 'science fiction'}, page_content='Three men walk into the Zone, three men walk out of the Zone')]",
-      "tokenEstimate": 232
-    },
-    {
-      "language": "python",
-      "content": "# This example specifies a composite filter (rating >= 9 and genre = thriller)\nretriever.invoke(\"What's a highly rated (above or equal 9) thriller film?\")",
-      "tokenEstimate": 38
-    },
-    {
-      "language": "text",
-      "content": "[Document(id='686e84de13668e4048bf9ff4', metadata={'_id': '686e84de13668e4048bf9ff4', 'year': 2006, 'genre': 'thriller', 'rating': 9.0}, page_content='A psychologist / detective gets lost in a series of dreams within dreams within dreams and Inception reused the idea')]",
-      "tokenEstimate": 85
-    },
-    {
-      "language": "python",
-      "content": "# This example specifies a query and composite filter (year > 1990 and year < 2005 and genre = action)\nretriever.invoke(\n    \"What's a movie after 1990 but before 2005 that's all about dinosaurs, \" +\n    \"and preferably has the action genre\"\n)",
-      "tokenEstimate": 64
-    },
-    {
-      "language": "text",
-      "content": "[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff0', metadata={'_id': '686e84de13668e4048bf9ff0', 'year': 1994, 'rating': 8.7, 'genre': 'action'}, page_content='A fight club that is not a fight club, but is a fight club')]",
-      "tokenEstimate": 150
-    },
-    {
-      "language": "python",
-      "content": "# This example only specifies a semantic search query\nretriever.invoke(\"What are some movies about dinosaurs\")",
-      "tokenEstimate": 22
-    },
-    {
-      "language": "text",
-      "content": "[Document(id='686e84de13668e4048bf9fef', metadata={'_id': '686e84de13668e4048bf9fef', 'year': 1993, 'rating': 7.7, 'genre': 'action'}, page_content='A bunch of scientists bring back dinosaurs and mayhem breaks loose'),\n Document(id='686e84de13668e4048bf9ff5', metadata={'_id': '686e84de13668e4048bf9ff5', 'year': 1995, 'genre': 'animated', 'rating': 9.3}, page_content='Toys come alive and have a blast doing so'),\n Document(id='686e84de13668e4048bf9ff1', metadata={'_id': '686e84de13668e4048bf9ff1', 'year': 2010, 'genre': 'thriller', 'rating': 8.2}, page_content='Leo DiCaprio gets lost in a dream within a dream within a dream within a ...'),\n Document(id='686e84de13668e4048bf9ff6', metadata={'_id': '686e84de13668e4048bf9ff6', 'year': 1997, 'genre': 'animated', 'rating': 9.1}, page_content=\"The toys come together to save their friend from a kid who doesn't know how to play with them\")]",
-      "tokenEstimate": 308
-    }
-  ]
+  "body": "Run the following queries to see how the self-querying retriever\nexecutes different types of queries:\n\nQuery with filters\n\nQuery with no filters",
+  "codeBlocks": [],
+  "slug": "run-queries-with-the-self-querying-retriever",
+  "variantAgnostic": true
 }

@@ -1,0 +1,22 @@
+{
+  "heading": "Normalize the Score",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```json\ndb.movies.aggregate([{\n    \"$search\": {\n      \"text\": {\n        \"query\": \"Helsinki\",\n        \"path\": \"plot\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": 1,\n      \"maxScore\": 1,\n      \"normalizedScore\": 1\n    }\n  },\n  {\n    \"$addFields\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    }\n  },\n  {\n    \"$setWindowFields\": {\n      \"output\": {\n        \"maxScore\": {\n          \"$max\": \"$score\"\n        }\n      }\n    }\n  },\n  {\n    \"$addFields\": {\n      \"normalizedScore\": {\n        \"$divide\": [\n          \"$score\", \"$maxScore\"\n        ]\n      }\n    }\n}])\n```\n\n**Output:**\n\n```javascript\n[\n    {\n      title: 'Drifting Clouds',\n      score: 4.5660295486450195,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 1\n    },\n    {\n      title: 'Sairaan kaunis maailma',\n      score: 4.041563034057617,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.8851372929150143\n    },\n    {\n      title: 'Bad Luck Love',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    },\n    {\n      title: 'Bad Luck Love',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    },\n    {\n      title: 'Forbidden Fruit',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([{\n    \"$search\": {\n      \"text\": {\n        \"query\": \"Helsinki\",\n        \"path\": \"plot\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": 1,\n      \"maxScore\": 1,\n      \"normalizedScore\": 1\n    }\n  },\n  {\n    \"$addFields\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    }\n  },\n  {\n    \"$setWindowFields\": {\n      \"output\": {\n        \"maxScore\": {\n          \"$max\": \"$score\"\n        }\n      }\n    }\n  },\n  {\n    \"$addFields\": {\n      \"normalizedScore\": {\n        \"$divide\": [\n          \"$score\", \"$maxScore\"\n        ]\n      }\n    }\n}])",
+      "tokenEstimate": 192
+    },
+    {
+      "language": "javascript",
+      "content": "[\n    {\n      title: 'Drifting Clouds',\n      score: 4.5660295486450195,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 1\n    },\n    {\n      title: 'Sairaan kaunis maailma',\n      score: 4.041563034057617,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.8851372929150143\n    },\n    {\n      title: 'Bad Luck Love',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    },\n    {\n      title: 'Bad Luck Love',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    },\n    {\n      title: 'Forbidden Fruit',\n      score: 3.6251673698425293,\n      maxScore: 4.5660295486450195,\n      normalizedScore: 0.79394303764817\n    }\n]",
+      "tokenEstimate": 262
+    }
+  ],
+  "slug": "normalize-the-score--Basic",
+  "selections": {
+    "tabs": "Basic"
+  },
+  "variantAgnostic": false
+}

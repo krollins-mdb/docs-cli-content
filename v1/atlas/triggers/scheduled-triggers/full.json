@@ -6,7 +6,26 @@
     {
       "heading": "Create a Scheduled Trigger",
       "headingLevel": 2,
-      "body": "You can create a new scheduled Trigger from the Atlas UI or using the\nApp Services CLI.\n\n**Ui:**\n\nAtlas UI\n\n- In Atlas, go to the Triggers page.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Triggers under\n    the Streaming Data heading.\n\n  The [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n- Click **Add Trigger** to open the Trigger configuration page.\n\n- Select **Scheduled** Trigger type.\n\n- Configure the Trigger, then click **Save**.\n\n**Cli:**\n\nApp Services CLI\n\n- Authenticate a MongoDB Atlas user:\n\n  Use your [API Access Lists endpoint](atlas-admin-api-access) to\n  log in to the App Services CLI:\n\n  ```shell\n  appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"\n  ```\n\n- Pull your App's latest configuration files:\n\n  Run the following command to get a local copy of your configuration files:\n\n  ```shell\n  appservices pull --remote=<App ID>\n  ```\n\n  By default, the command pulls files into the current working directory. You can\n  specify a directory path with the optional `--local` flag.\n\n- Add a scheduled Trigger [configuration file](atlas/app-services/reference/config/triggers) to the `triggers` subdirectory of your local\n  application directory.\n\n  > **Note:** You cannot create a Trigger that runs on a **Basic**\n  > schedule using the App Services CLI. All imported scheduled Trigger\n  > configurations *must* specify a [CRON expression](atlas-CRON-expressions).\n\n  Scheduled Trigger configuration files have the following form:\n\n  ```json\n  {\n     \"type\": \"SCHEDULED\",\n     \"name\": \"<Trigger Name>\",\n     \"function_name\": \"<Trigger Function Name>\",\n     \"config\": {\n       \"schedule\": \"<CRON expression>\"\n     },\n     \"disabled\": <boolean>\n  }\n  ```\n\n- Deploy your changes:\n\n  Run the following command to [deploy](atlas/app-services/apps/update) your changes:\n\n  ```shell\n  appservices push\n  ```",
+      "body": "You can create a new scheduled Trigger from the Atlas UI or using the\nApp Services CLI.\n\nAtlas UI\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "create-a-scheduled-trigger",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Create a Scheduled Trigger",
+      "headingLevel": 2,
+      "body": "- In Atlas, go to the Triggers page.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Triggers under\n    the Streaming Data heading.\n\n  The [Triggers](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Ftriggers) page displays.\n\n- Click **Add Trigger** to open the Trigger configuration page.\n\n- Select **Scheduled** Trigger type.\n\n- Configure the Trigger, then click **Save**.",
+      "codeBlocks": [],
+      "slug": "create-a-scheduled-trigger--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Create a Scheduled Trigger",
+      "headingLevel": 2,
+      "body": "- Authenticate a MongoDB Atlas user:\n\n  Use your [API Access Lists endpoint](atlas-admin-api-access) to\n  log in to the App Services CLI:\n\n  ```shell\n  appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"\n  ```\n\n- Pull your App's latest configuration files:\n\n  Run the following command to get a local copy of your configuration files:\n\n  ```shell\n  appservices pull --remote=<App ID>\n  ```\n\n  By default, the command pulls files into the current working directory. You can\n  specify a directory path with the optional `--local` flag.\n\n- Add a scheduled Trigger [configuration file](atlas/app-services/reference/config/triggers) to the `triggers` subdirectory of your local\n  application directory.\n\n  > **Note:** You cannot create a Trigger that runs on a **Basic**\n  > schedule using the App Services CLI. All imported scheduled Trigger\n  > configurations *must* specify a [CRON expression](atlas-CRON-expressions).\n\n  Scheduled Trigger configuration files have the following form:\n\n  ```json\n  {\n     \"type\": \"SCHEDULED\",\n     \"name\": \"<Trigger Name>\",\n     \"function_name\": \"<Trigger Function Name>\",\n     \"config\": {\n       \"schedule\": \"<CRON expression>\"\n     },\n     \"disabled\": <boolean>\n  }\n  ```\n\n- Deploy your changes:\n\n  Run the following command to [deploy](atlas/app-services/apps/update) your changes:\n\n  ```shell\n  appservices push\n  ```",
       "codeBlocks": [
         {
           "language": "shell",
@@ -28,25 +47,36 @@
           "content": "appservices push",
           "tokenEstimate": 3
         }
-      ]
+      ],
+      "slug": "create-a-scheduled-trigger--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configuration",
       "headingLevel": 2,
       "body": "Scheduled Triggers have the following configuration options:\n\n| Field                                                    | Description                                                                                                                                                                                                                                                             |\n| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Trigger Typetype: \\<string>                              | Select Scheduled.                                                                                                                                                                                                                                                       |\n| Schedule Typeconfig.schedule: \\<string>                  | Required. You can select Basic or Advanced. A Basic schedule executes the Trigger periodically based on the interval you set, such as \"every five minutes\" or \"every Monday\".An Advanced schedule runs the Trigger based on the custom CRON expression that you define. |\n| Skip Events on Re-Enableskip\\_catchup\\_event: \\<boolean> | Disabled by default. If enabled, any change events that occurred while this Trigger was disabled will not be processed.                                                                                                                                                 |\n| Event Typefunction\\_name: \\<string>                      | Within the Event Type section, you choose what action is taken when the Trigger fires. You can choose to run a Function or use AWS EventBridge.A Scheduled Trigger does not pass any arguments to its linked Function.                                                  |\n| Trigger Namename: \\<string>                              | The name of the trigger.                                                                                                                                                                                                                                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configuration",
+      "variantAgnostic": true
     },
     {
       "heading": "CRON Expressions",
       "headingLevel": 2,
       "body": "CRON expressions are user-defined strings that use standard\n[cron](https://en.wikipedia.org/wiki/Cron) job syntax to define when a scheduled\nTrigger should execute. Atlas executes Trigger CRON expressions based on\n[UTC time](https://en.wikipedia.org/wiki/Coordinated_Universal_Time). Whenever all of the fields\nin a CRON expression match the current date and time, Atlas fires the\nTrigger associated with the expression.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "cron-expressions",
+      "variantAgnostic": true
     },
     {
       "heading": "Expression Syntax",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "expression-syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Format",
@@ -58,18 +88,22 @@
           "content": "* * * * *\n│ │ │ │ └── weekday...........[0 (SUN) - 6 (SAT)]\n│ │ │ └──── month.............[1 (JAN) - 12 (DEC)]\n│ │ └────── dayOfMonth........[1 - 31]\n│ └──────── hour..............[0 - 23]\n└────────── minute............[0 - 59]",
           "tokenEstimate": 89
         }
-      ]
+      ],
+      "slug": "format",
+      "variantAgnostic": true
     },
     {
       "heading": "Field Values",
       "headingLevel": 3,
       "body": "Each field in a CRON expression can contain either a specific value or\nan expression that evaluates to a set of values. The following table\ndescribes valid field values and expressions:\n\n| Expression Type                                      | Description                                                                                                                                                                                                                                                                                                                                             |\n| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| All Values(\\*)                                       | Matches all possible field values.Available in all expression fields.The following CRON expression schedules a Trigger to execute once every minute of every day:\\* \\* \\* \\* \\*                                                                                                                                                                         |\n| Specific Value(\\<Value>)                             | Matches a specific field value. For fields other than weekday and month this value will always be an integer. A weekday or month field can be either an integer or a three-letter string (e.g. TUE or AUG).Available in all expression fields.The following CRON expression schedules a Trigger to execute once every day at 11:00 AM UTC:0 11 \\* \\* \\* |\n| List of Values(\\<Expression1>,\\<Expression2>,...)    | Matches a list of two or more field expressions or specific values.Available in all expression fields.The following CRON expression schedules a Trigger to execute once every day in January, March, and July at 11:00 AM UTC:0 11 \\* 1,3,7 \\*                                                                                                          |\n| Range of Values(\\<Start Value>-\\<End Value>)         | Matches a continuous range of field values between and including two specific field values.Available in all expression fields.The following CRON expression schedules a Trigger to execute once every day from January 1st through the end of April at 11:00 AM UTC:0 11 \\* 1-4 \\*                                                                      |\n| Modular Time Step(\\<Field Expression>/\\<Step Value>) | Matches any time where the step value evenly divides the field value with no remainder (i.e. when Value % Step == 0).Available in the minute and hour expression fields.The following CRON expression schedules a Trigger to execute on the 0th, 25th, and 50th minutes of every hour:\\*/25 \\* \\* \\* \\*                                                 |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "field-values",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
       "headingLevel": 2,
-      "body": "An online store wants to generate a daily report of all sales from the\nprevious day. They record all orders in the `store.orders` collection\nas documents that resemble the following:\n\n```json\n{\n  _id: ObjectId(\"59cf1860a95168b8f685e378\"),\n  customerId: ObjectId(\"59cf17e1a95168b8f685e377\"),\n  orderDate: ISODate(\"2018-06-26T16:20:42.313Z\"),\n  shipDate: ISODate(\"2018-06-27T08:20:23.311Z\"),\n  orderContents: [\n    { qty: 1, name: \"Earl Grey Tea Bags - 100ct\", price: Decimal128(\"10.99\") }\n  ],\n  shippingLocation: [\n    { location: \"Memphis\", time: ISODate(\"2018-06-27T18:22:33.243Z\") },\n  ]\n}\n```\n\n**Ui:**\n\nAtlas UI\n\n| Field                 | Setting   |\n| --------------------- | --------- |\n| Trigger Type          | Scheduled |\n| Schedule Type         | Advanced  |\n| Set a CHRON schedule. | 07\\*\\*\\*  |\n\n**Cli:**\n\nApp Services CLI\n\n```json\n{\n  \"type\": \"SCHEDULED\",\n  \"name\": \"reportDailyOrders\",\n  \"function_name\": \"generateDailyReport\",\n  \"config\": {\n    \"schedule\": \"0 7 * * *\"\n  },\n  \"disabled\": false\n}\n```\n\nTo generate the daily report, the store creates a scheduled Trigger\nthat fires every day at `7:00 AM UTC`. When the\nTrigger fires, it calls its linked Atlas Function,\n`generateDailyReport`, which runs an aggregation\nquery on the `store.orders` collection to generate the report. The\nFunction then stores the result of the aggregation in the\n`store.reports` collection.\n\n```javascript\nexports = function() {\n  // Instantiate MongoDB collection handles\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const orders = mongodb.db(\"store\").collection(\"orders\");\n  const reports = mongodb.db(\"store\").collection(\"reports\");\n\n  // Generate the daily report\n  return orders.aggregate([\n    // Only report on orders placed since yesterday morning\n    { $match: {\n        orderDate: {\n          $gte: makeYesterdayMorningDate(),\n          $lt: makeThisMorningDate()\n        }\n    } },\n    // Add a boolean field that indicates if the order has already shipped\n    { $addFields: {\n        orderHasShipped: {\n          $cond: {\n            if: \"$shipDate\", // if shipDate field exists\n            then: 1,\n            else: 0\n          }\n        }\n    } },\n    // Unwind individual items within each order\n    { $unwind: {\n        path: \"$orderContents\"\n    } },\n    // Calculate summary metrics for yesterday's orders\n    { $group: {\n        _id: \"$orderDate\",\n        orderIds: { $addToSet: \"$_id\" },\n        numSKUsOrdered: { $sum: 1 },\n        numItemsOrdered: { $sum: \"$orderContents.qty\" },\n        totalSales: { $sum: \"$orderContents.price\" },\n        averageOrderSales: { $avg: \"$orderContents.price\" },\n        numItemsShipped: { $sum: \"$orderHasShipped\" },\n    } },\n    // Add the total number of orders placed\n    { $addFields: {\n        numOrders: { $size: \"$orderIds\" }\n    } }\n  ]).next()\n    .then(dailyReport => {\n      reports.insertOne(dailyReport);\n    })\n    .catch(err => console.error(\"Failed to generate report:\", err));\n};\n\nfunction makeThisMorningDate() {\n  return setTimeToMorning(new Date());\n}\n\nfunction makeYesterdayMorningDate() {\n  const thisMorning = makeThisMorningDate();\n  const yesterdayMorning = new Date(thisMorning);\n  yesterdayMorning.setDate(thisMorning.getDate() - 1);\n  return yesterdayMorning;\n}\n\nfunction setTimeToMorning(date) {\n  date.setHours(7);\n  date.setMinutes(0);\n  date.setSeconds(0);\n  date.setMilliseconds(0);\n  return date;\n}\n```",
+      "body": "An online store wants to generate a daily report of all sales from the\nprevious day. They record all orders in the `store.orders` collection\nas documents that resemble the following:\n\n```json\n{\n  _id: ObjectId(\"59cf1860a95168b8f685e378\"),\n  customerId: ObjectId(\"59cf17e1a95168b8f685e377\"),\n  orderDate: ISODate(\"2018-06-26T16:20:42.313Z\"),\n  shipDate: ISODate(\"2018-06-27T08:20:23.311Z\"),\n  orderContents: [\n    { qty: 1, name: \"Earl Grey Tea Bags - 100ct\", price: Decimal128(\"10.99\") }\n  ],\n  shippingLocation: [\n    { location: \"Memphis\", time: ISODate(\"2018-06-27T18:22:33.243Z\") },\n  ]\n}\n```\n\nAtlas UI\n\nApp Services CLI\n\nTo generate the daily report, the store creates a scheduled Trigger\nthat fires every day at `7:00 AM UTC`. When the\nTrigger fires, it calls its linked Atlas Function,\n`generateDailyReport`, which runs an aggregation\nquery on the `store.orders` collection to generate the report. The\nFunction then stores the result of the aggregation in the\n`store.reports` collection.\n\n```javascript\nexports = function() {\n  // Instantiate MongoDB collection handles\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const orders = mongodb.db(\"store\").collection(\"orders\");\n  const reports = mongodb.db(\"store\").collection(\"reports\");\n\n  // Generate the daily report\n  return orders.aggregate([\n    // Only report on orders placed since yesterday morning\n    { $match: {\n        orderDate: {\n          $gte: makeYesterdayMorningDate(),\n          $lt: makeThisMorningDate()\n        }\n    } },\n    // Add a boolean field that indicates if the order has already shipped\n    { $addFields: {\n        orderHasShipped: {\n          $cond: {\n            if: \"$shipDate\", // if shipDate field exists\n            then: 1,\n            else: 0\n          }\n        }\n    } },\n    // Unwind individual items within each order\n    { $unwind: {\n        path: \"$orderContents\"\n    } },\n    // Calculate summary metrics for yesterday's orders\n    { $group: {\n        _id: \"$orderDate\",\n        orderIds: { $addToSet: \"$_id\" },\n        numSKUsOrdered: { $sum: 1 },\n        numItemsOrdered: { $sum: \"$orderContents.qty\" },\n        totalSales: { $sum: \"$orderContents.price\" },\n        averageOrderSales: { $avg: \"$orderContents.price\" },\n        numItemsShipped: { $sum: \"$orderHasShipped\" },\n    } },\n    // Add the total number of orders placed\n    { $addFields: {\n        numOrders: { $size: \"$orderIds\" }\n    } }\n  ]).next()\n    .then(dailyReport => {\n      reports.insertOne(dailyReport);\n    })\n    .catch(err => console.error(\"Failed to generate report:\", err));\n};\n\nfunction makeThisMorningDate() {\n  return setTimeToMorning(new Date());\n}\n\nfunction makeYesterdayMorningDate() {\n  const thisMorning = makeThisMorningDate();\n  const yesterdayMorning = new Date(thisMorning);\n  yesterdayMorning.setDate(thisMorning.getDate() - 1);\n  return yesterdayMorning;\n}\n\nfunction setTimeToMorning(date) {\n  date.setHours(7);\n  date.setMinutes(0);\n  date.setSeconds(0);\n  date.setMilliseconds(0);\n  return date;\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
@@ -77,22 +111,66 @@
           "tokenEstimate": 162
         },
         {
-          "language": "json",
-          "content": "{\n  \"type\": \"SCHEDULED\",\n  \"name\": \"reportDailyOrders\",\n  \"function_name\": \"generateDailyReport\",\n  \"config\": {\n    \"schedule\": \"0 7 * * *\"\n  },\n  \"disabled\": false\n}",
-          "tokenEstimate": 55
-        },
-        {
           "language": "javascript",
           "content": "exports = function() {\n  // Instantiate MongoDB collection handles\n  const mongodb = context.services.get(\"mongodb-atlas\");\n  const orders = mongodb.db(\"store\").collection(\"orders\");\n  const reports = mongodb.db(\"store\").collection(\"reports\");\n\n  // Generate the daily report\n  return orders.aggregate([\n    // Only report on orders placed since yesterday morning\n    { $match: {\n        orderDate: {\n          $gte: makeYesterdayMorningDate(),\n          $lt: makeThisMorningDate()\n        }\n    } },\n    // Add a boolean field that indicates if the order has already shipped\n    { $addFields: {\n        orderHasShipped: {\n          $cond: {\n            if: \"$shipDate\", // if shipDate field exists\n            then: 1,\n            else: 0\n          }\n        }\n    } },\n    // Unwind individual items within each order\n    { $unwind: {\n        path: \"$orderContents\"\n    } },\n    // Calculate summary metrics for yesterday's orders\n    { $group: {\n        _id: \"$orderDate\",\n        orderIds: { $addToSet: \"$_id\" },\n        numSKUsOrdered: { $sum: 1 },\n        numItemsOrdered: { $sum: \"$orderContents.qty\" },\n        totalSales: { $sum: \"$orderContents.price\" },\n        averageOrderSales: { $avg: \"$orderContents.price\" },\n        numItemsShipped: { $sum: \"$orderHasShipped\" },\n    } },\n    // Add the total number of orders placed\n    { $addFields: {\n        numOrders: { $size: \"$orderIds\" }\n    } }\n  ]).next()\n    .then(dailyReport => {\n      reports.insertOne(dailyReport);\n    })\n    .catch(err => console.error(\"Failed to generate report:\", err));\n};\n\nfunction makeThisMorningDate() {\n  return setTimeToMorning(new Date());\n}\n\nfunction makeYesterdayMorningDate() {\n  const thisMorning = makeThisMorningDate();\n  const yesterdayMorning = new Date(thisMorning);\n  yesterdayMorning.setDate(thisMorning.getDate() - 1);\n  return yesterdayMorning;\n}\n\nfunction setTimeToMorning(date) {\n  date.setHours(7);\n  date.setMinutes(0);\n  date.setSeconds(0);\n  date.setMilliseconds(0);\n  return date;\n}",
           "tokenEstimate": 488
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "| Field                 | Setting   |\n| --------------------- | --------- |\n| Trigger Type          | Scheduled |\n| Schedule Type         | Advanced  |\n| Set a CHRON schedule. | 07\\*\\*\\*  |",
+      "codeBlocks": [],
+      "slug": "example--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"type\": \"SCHEDULED\",\n  \"name\": \"reportDailyOrders\",\n  \"function_name\": \"generateDailyReport\",\n  \"config\": {\n    \"schedule\": \"0 7 * * *\"\n  },\n  \"disabled\": false\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n  \"type\": \"SCHEDULED\",\n  \"name\": \"reportDailyOrders\",\n  \"function_name\": \"generateDailyReport\",\n  \"config\": {\n    \"schedule\": \"0 7 * * *\"\n  },\n  \"disabled\": false\n}",
+          "tokenEstimate": 55
+        }
+      ],
+      "slug": "example--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Performance Optimization",
       "headingLevel": 2,
       "body": "Use the Query API with a [$match](manual/reference/operator/aggregation/match)\nexpression to reduce the number of documents your Function looks at.\nThis helps your Function improve performance and not reach\n[Atlas Function constraints](atlas-function-constraints).\n\nSee also the [Example section for a Scheduled Trigger using a $match expression](atlas-scheduled-trigger-example).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "performance-optimization",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "ui",
+          "text": "ui"
+        },
+        {
+          "value": "cli",
+          "text": "cli"
+        }
+      ]
     }
   ]
 }

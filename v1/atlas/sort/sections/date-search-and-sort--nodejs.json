@@ -1,0 +1,27 @@
+{
+  "heading": "Date Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-date.js`\n  and paste the following code:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Replace the uri string with your MongoDB deployments connection string.\n  const uri =\n    \"<connection-string>\";\n\n  const client = new MongoClient(uri);\n\n  async function run() {\n    try {\n      await client.connect();\n\n      // set namespace\n      const database = client.db(\"sample_mflix\");\n      const coll = database.collection(\"movies\");\n\n      // define pipeline\n      const agg = [\n        {$search: {\n          index: \"default\",\n          compound: {\n            filter: {wildcard: {query: \"Summer*\", path: \"title\"}},\n            must: [{near: {path: \"released\", origin: new Date(\"2014-04-18T00:00:00.000Z\"), pivot: 13149000000}}]\n          },\n          sort: { released: -1 }\n        }},\n      {$limit: 5},\n      {$project: {_id: 0, title: 1, released: 1, score: {$meta: \"searchScore\"}}}\n    ];\n             \n      // run pipeline\n      const result = await coll.aggregate(agg);\n\n      // print results\n      await result.forEach((doc) => console.log(doc));\n      \n    } finally {\n      await client.close();\n    }\n  }\n  run().catch(console.dir);\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\nnode sort-by-date.js\n```\n\n**Output:**\n\n```json\n{\n  title: 'Summer Nights',\n  released: 2015-01-28T00:00:00.000Z,\n  score: 0.348105788230896\n}\n{\n  title: 'Summertime',\n  released: 2014-08-01T00:00:00.000Z,\n  score: 0.5917375683784485\n}\n{\n  title: 'Summer of Blood',\n  released: 2014-04-17T00:00:00.000Z,\n  score: 0.9934720396995544\n}\n{\n  title: 'Summer Games',\n  released: 2012-02-08T00:00:00.000Z,\n  score: 0.15982933342456818\n}\n{\n  title: 'Summer of Goliath',\n  released: 2011-07-08T00:00:00.000Z,\n  score: 0.13038821518421173\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the uri string with your MongoDB deployments connection string.\nconst uri =\n  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    await client.connect();\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const coll = database.collection(\"movies\");\n\n    // define pipeline\n    const agg = [\n      {$search: {\n        index: \"default\",\n        compound: {\n          filter: {wildcard: {query: \"Summer*\", path: \"title\"}},\n          must: [{near: {path: \"released\", origin: new Date(\"2014-04-18T00:00:00.000Z\"), pivot: 13149000000}}]\n        },\n        sort: { released: -1 }\n      }},\n    {$limit: 5},\n    {$project: {_id: 0, title: 1, released: 1, score: {$meta: \"searchScore\"}}}\n  ];\n           \n    // run pipeline\n    const result = await coll.aggregate(agg);\n\n    // print results\n    await result.forEach((doc) => console.log(doc));\n    \n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 263
+    },
+    {
+      "language": "bash",
+      "content": "node sort-by-date.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "json",
+      "content": "{\n  title: 'Summer Nights',\n  released: 2015-01-28T00:00:00.000Z,\n  score: 0.348105788230896\n}\n{\n  title: 'Summertime',\n  released: 2014-08-01T00:00:00.000Z,\n  score: 0.5917375683784485\n}\n{\n  title: 'Summer of Blood',\n  released: 2014-04-17T00:00:00.000Z,\n  score: 0.9934720396995544\n}\n{\n  title: 'Summer Games',\n  released: 2012-02-08T00:00:00.000Z,\n  score: 0.15982933342456818\n}\n{\n  title: 'Summer of Goliath',\n  released: 2011-07-08T00:00:00.000Z,\n  score: 0.13038821518421173\n}",
+      "tokenEstimate": 214
+    }
+  ],
+  "slug": "date-search-and-sort--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

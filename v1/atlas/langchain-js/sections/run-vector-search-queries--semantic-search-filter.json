@@ -1,0 +1,27 @@
+{
+  "heading": "Run Vector Search Queries",
+  "headingLevel": 2,
+  "body": "You can pre-filter your data by using an\nMQL (MongoDB Query Language) match expression\nthat compares the indexed field with another value in\nyour collection. You must index any metadata fields that you want to\nfilter by as the `filter` type. To learn more, see\n[index definition](avs-types-vector-search).\n\n> **Note:** You specified the `loc.pageNumber` field as a filter\n> when you [created the index](langchain-create-index)\n> for this tutorial.\n\nThe following code uses the `similaritySearch` method\nto perform a semantic search for the string `MongoDB Atlas security`.\nIt specifies the following parameters:\n\n- The number of documents to return as `3`.\n\n- A pre-filter on the `loc.pageNumber` field that uses the [$eq](manual/reference/operator/query/eq) operator\n  to match documents appearing on page 17 only.\n\nIt returns a list of documents ranked by relevance with only the\n`pageContent` and `pageNumber` fields.\n\n```javascript\n// Semantic search with metadata filter\nconst filteredOutput = await vectorStore.similaritySearch(\"MongoDB Atlas Search\", 3, {\n   preFilter: {\n      \"loc.pageNumber\": {\"$eq\": 22 },\n   }\n});\nconst filteredResults = filteredOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search with Filtering Results:\")\nconsole.log(filteredResults)\n```\n\n**Input:**\n\n```sh\nnode get-started.js\n```\n\n**Output:**\n\n```json\nSemantic Search with Filtering Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'Figure 9: Atlas Search queries are expressed through the MongoDB Query API and backed by the leading search engine library, \\n' +\n      'Apache Lucene.',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'consider using Atlas Search. The service is built on fully managed Apache Lucene but exposed to users \\n' +\n      'through the MongoDB Aggregation Framework.',\n    pageNumber: 22\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// Semantic search with metadata filter\nconst filteredOutput = await vectorStore.similaritySearch(\"MongoDB Atlas Search\", 3, {\n   preFilter: {\n      \"loc.pageNumber\": {\"$eq\": 22 },\n   }\n});\nconst filteredResults = filteredOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search with Filtering Results:\")\nconsole.log(filteredResults)",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "sh",
+      "content": "node get-started.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "json",
+      "content": "Semantic Search with Filtering Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'Figure 9: Atlas Search queries are expressed through the MongoDB Query API and backed by the leading search engine library, \\n' +\n      'Apache Lucene.',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'consider using Atlas Search. The service is built on fully managed Apache Lucene but exposed to users \\n' +\n      'through the MongoDB Aggregation Framework.',\n    pageNumber: 22\n  }\n]",
+      "tokenEstimate": 134
+    }
+  ],
+  "slug": "run-vector-search-queries--semantic-search-filter",
+  "selections": {
+    "tabs": "semantic-search-filter"
+  },
+  "variantAgnostic": false
+}

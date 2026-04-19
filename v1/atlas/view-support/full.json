@@ -6,7 +6,15 @@
     {
       "heading": "Example: Filter Documents",
       "headingLevel": 2,
-      "body": "To create a View, you must have the\n[CREATE\\_COLLECTION](manual/reference/privilege-actions) privilege.\n\nYou can filter documents to partially index a collection. The following\nexample creates a View on the `sample_mflix.embedded_movies`\ncollection so that only documents that have a vector embedding field are\nindexed.\n\n***\n\n➤ Use the **Select your language** drop-down menu to set the\ninterface for the examples on this page.\n\ndrivers\n\n***\n\n**Atlas UI:**\n\nAtlas UI\n\nTo learn more, see [MongoDB Shell](connect-mongo-shell).\n\n```sh\nuse sample_mflix\n```\n\n```sh\ndb.createView(\n  \"moviesWithEmbeddings\",\n  \"embedded_movies\",\n  [\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$ne\": [\n            {\n              \"$type\": \"$plot_embedding_voyage_3_large\"\n            },\n            \"missing\"\n          ]\n        }\n      }\n    }\n  ]\n)\n```\n\n- Specify the following index definition:\n\n  ```json\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": 2048,\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n  ```\n\n- Click Next.\n\n**Shell:**\n\nMongoDB Shell\n\nTo learn more, see [MongoDB Shell](connect-mongo-shell).\n\n```sh\nuse sample_mflix\n```\n\n```sh\ndb.createView(\n  \"moviesWithEmbeddings\",\n  \"embedded_movies\",\n  [\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$ne\": [\n            {\n              \"$type\": \"$plot_embedding_voyage_3_large\"\n            },\n            \"missing\"\n          ]\n        }\n      }\n    }\n  ]\n)\n```\n\n```sh\ndb.moviesWithEmbeddings.createSearchIndex(\n  \"embeddingsIndex\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": 2048,\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n)\n```",
+      "body": "To create a View, you must have the\n[CREATE\\_COLLECTION](manual/reference/privilege-actions) privilege.\n\nYou can filter documents to partially index a collection. The following\nexample creates a View on the `sample_mflix.embedded_movies`\ncollection so that only documents that have a vector embedding field are\nindexed.\n\n***\n\n➤ Use the **Select your language** drop-down menu to set the\ninterface for the examples on this page.\n\ndrivers\n\n***\n\nAtlas UI\n\nMongoDB Shell",
+      "codeBlocks": [],
+      "slug": "example-filter-documents",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example: Filter Documents",
+      "headingLevel": 2,
+      "body": "To learn more, see [MongoDB Shell](connect-mongo-shell).\n\n```sh\nuse sample_mflix\n```\n\n```sh\ndb.createView(\n  \"moviesWithEmbeddings\",\n  \"embedded_movies\",\n  [\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$ne\": [\n            {\n              \"$type\": \"$plot_embedding_voyage_3_large\"\n            },\n            \"missing\"\n          ]\n        }\n      }\n    }\n  ]\n)\n```\n\n- Specify the following index definition:\n\n  ```json\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": 2048,\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n  ```\n\n- Click Next.",
       "codeBlocks": [
         {
           "language": "sh",
@@ -22,7 +30,19 @@
           "language": "json",
           "content": "{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"numDimensions\": 2048,\n      \"path\": \"plot_embedding_voyage_3_large\",\n      \"similarity\": \"cosine\"\n    }\n  ]\n}",
           "tokenEstimate": 52
-        },
+        }
+      ],
+      "slug": "example-filter-documents--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example: Filter Documents",
+      "headingLevel": 2,
+      "body": "To learn more, see [MongoDB Shell](connect-mongo-shell).\n\n```sh\nuse sample_mflix\n```\n\n```sh\ndb.createView(\n  \"moviesWithEmbeddings\",\n  \"embedded_movies\",\n  [\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$ne\": [\n            {\n              \"$type\": \"$plot_embedding_voyage_3_large\"\n            },\n            \"missing\"\n          ]\n        }\n      }\n    }\n  ]\n)\n```\n\n```sh\ndb.moviesWithEmbeddings.createSearchIndex(\n  \"embeddingsIndex\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": 2048,\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n)\n```",
+      "codeBlocks": [
         {
           "language": "sh",
           "content": "use sample_mflix",
@@ -38,31 +58,60 @@
           "content": "db.moviesWithEmbeddings.createSearchIndex(\n  \"embeddingsIndex\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": 2048,\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"similarity\": \"cosine\"\n      }\n    ]\n  }\n)",
           "tokenEstimate": 75
         }
-      ]
+      ],
+      "slug": "example-filter-documents--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Performance Considerations",
       "headingLevel": 2,
       "body": "Highly complex view transformations can lead to slower performance when Atlas reads\nthe view to filter and transform the source collection. In this scenario, consider\ncreating a [materialized view](manual/core/materialized-views) to avoid additional\nreplication load on Atlas. To avoid query latency caused by the view transformation,\nyou can query the source collection directly to retrieve the original documents.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "performance-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Troubleshoot",
       "headingLevel": 2,
       "body": "Indexes change to the `FAILED` status in the following scenarios:\n\n- You create an index on a View that is incompatible with\n  MongoDB Vector Search.\n\n- You edit a View in a way that does not meet the MongoDB Vector Search\n  compatibility requirements.\n\n- You remove or change a View's source collection.\n\n  For example, if one View is created on another View, and you\n  change the parent View source to another collection.\n\n  > **Note:** This limitation also applies if a View is a descendent\n  > of other Views. For example, you can't change or remove\n  > the source collection that all descendents originate from.\n\nIndexes change to the `STALE` status in the following scenarios:\n\n> **Warning:** If the aggregation pipeline defined in your View is incompatible\n> with the documents in the collection, search replication fails.\n> For example, if a `$toDouble` expression operates on a document\n> field that contains an array, the replication fails. Ensure your\n> View works with all documents in the collection without errors.\n\n- If the View definition causes an aggregation failure\n  while an index is `READY`, the index becomes `STALE`. The\n  index will return to `READY` after you resolve the document or\n  change the view definition so that it doesn't fail anymore. When\n  `STALE`, the index remains queryable. If the index falls off the\n  [oplog](manual/reference/glossary), an index rebuild is triggered.\n\n- If the View definition causes an aggregation pipeline\n  failure while the index is `BUILDING`, the index build is stuck\n  until you fix the document. The index will return to\n  `READY` after you resolve the document or change the view\n  definition so that it doesn't fail anymore.\n\nYou can view index statuses in the Atlas UI on the\n[index status details](fts-index-statuses) page.\n\nThis error appears when you query a view using a MongoDB version\nbefore 8.1.\n\n- If you use a MongoDB version before 8.0, we recommend you upgrade to\n  8.1+ to query the view directly. You can upgrade to 8.0 to query the\n  source collection.\n\n- If you use MongoDB 8.0, you must query the view index against the\n  source collection. For example, run `.aggregate()` on the\n  collection instead of the view.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "troubleshoot",
+      "variantAgnostic": true
     },
     {
       "heading": "Index Process",
       "headingLevel": 2,
       "body": "When you create an MongoDB Vector Search index on a View, the `mongot`\nprocess performs the same tasks as when you create an MongoDB Vector Search\nindex on a regular collection. The `mongot` process:\n\n- Creates MongoDB Vector Search indexes based on the rules in the index definition for\n  the collection.\n\n- Monitors change streams for the current state of the documents and\n  indexes for the collections for which you defined the MongoDB Vector Search\n  indexes.\n\n- Processes MongoDB Vector Search queries and returns the document IDs and\n  other search metadata for the matching documents to `mongod`,\n  which then does a full document lookup and returns the results to the client.\n\nWhen you create an MongoDB Vector Search index on a View, the View\ndefinition is applied during Step 1 and 2, and the transformed\ndocuments are indexed based on the search index definition, then stored\non disk.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "index-process",
+      "variantAgnostic": true
     },
     {
       "heading": "Learn More",
       "headingLevel": 2,
       "body": "To learn more about Views, see [Views](manual/core/views).\n\nTo create a MongoDB Search index on a View, see\n[Use Views with MongoDB Search](fts-transform-documents-collections).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "learn-more",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "drivers",
+      "text": "drivers",
+      "selections": [
+        {
+          "value": "atlas-ui",
+          "text": "atlas-ui"
+        },
+        {
+          "value": "shell",
+          "text": "shell"
+        }
+      ]
     }
   ]
 }

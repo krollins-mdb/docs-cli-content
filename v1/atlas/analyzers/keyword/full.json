@@ -6,7 +6,7 @@
     {
       "heading": "Example",
       "headingLevel": 2,
-      "body": "The following example index definition specifies an index on\nthe `title` field in the [Sample Mflix Dataset](sample-mflix)\ncollection using the whitespace analyzer. To follow along with this\nexample, [Load Sample Data Into Atlas](sample-data) on your cluster\nand either use [mongosh](mongodb-shell) or navigate to the Create a Search\nIndex page in the Atlas UI following the steps in the [Create a MongoDB Search index](create-fts-index) tutorial.\n\nThen, using the `movies` collection as your data source, follow\nthe example procedure to create an index from [mongosh](mongodb-shell) or the\nAtlas UI Visual Editor or JSON editor.\n\n***\n\n➤ Use the **Select your language** drop-down menu to set the\nlanguage of the example on this page.\n\n***\n\ndrivers\n\n**Atlas UI:**\n\nAtlas UI\n\nVisual Editor\n\n- Click Refine Your Index to configure your index.\n\n- In the Index Configurations section, toggle\n  Dynamic Mapping to off.\n\n- In the Field Mappings section, click\n  Add Field to open the Add Field Mapping\n  window.\n\n- Click Customized Configuration.\n\n- Select `title` from the Field Name dropdown.\n\n- Click the Data Type dropdown and select\n  String if it isn't already selected.\n\n- Expand String Properties and make the following\n  changes:\n\n  | Index Analyzer  | Select lucene.keyword from the dropdown. |\n  | --------------- | ---------------------------------------- |\n  | Search Analyzer | Select lucene.keyword from the dropdown. |\n  | Index Options   | Use the default offsets.                 |\n  | Store           | Use the default true.                    |\n  | Ignore Above    | Keep the default setting.                |\n  | Norms           | Use the default include.                 |\n\n- Click Add.\n\n- Click Save Changes.\n\n- Click Create Search Index.\n\nJSON Editor\n\n- Replace the default index definition with the following index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"lucene.keyword\"\n        }\n      }\n    }\n  }\n  ```\n\n- Click Next.\n\n- Click Create Search Index.\n\n**Shell:**\n\nMongoDB Shell\n\n```javascript\ndb.movies.createSearchIndex(\n  \"default\",\n    {\n      \"mappings\": {\n        \"fields\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.keyword\"\n          }\n        }\n      }\n    }\n)\n```\n\nThe following query searches for the phrase `Class Action` in the\n`title` field.\n\n**Atlas UI:**\n\nAtlas UI\n\n- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Find:\n\n  **Input:**\n\n  ```json\n  [\n    {\n      \"$search\": {\n        \"text\": {\n          \"query\": \"Class Action\",\n          \"path\": \"title\"\n        }\n      }\n    }\n  ]\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 4.346973419189453   _id:  \"573a1399f29313caabcec6b7\"\n     awards: Object\n     cast: Array (4)\n     countries: Array (1)\n     directors: Array (1)\n     fullplot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n     genres: Array (2)\n     imdb: Object\n     languages: Array (1)\n     lastupdated: \"2015-09-06 00:42:51.167000000\"\n     metacritic: 58\n     num_mflix_comments: 2\n     plot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n     poster: \"https://m.media-amazon.com/images/M/MV5BNWY5Mjk4ZmItMTAzYS00NWE3LWEzYz…\"\n     rated: \"R\"\n     released: 1991-03-15T00:00:00.000+00:00\n     runtime: 110\n     title: \"Class Action\"\n     tomatoes: Object\n     type: \"movie\"\n     writers: Array (3)\n     year: 1991\n  ```\n\n**Shell:**\n\nMongoDB Shell\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n         \"query\": \"Class Action\",\n         \"path\": \"title\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    title: 'Class Action'\n  }\n]\n```\n\nMongoDB Search returned the document because it matched the query term `Class\nAction` to the single token `Class Action` that it creates for the\ntext in the field using the `lucene.keyword` analyzer. By contrast,\nMongoDB Search doesn't return any results for the following query:\n\n```json\ndb.cases.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n])\n```\n\nMany documents in the collection contain the string `action`, but the\n`keyword` analyzer only matches documents in which the search term\nmatches the entire contents of the field exactly. For the preceding\nquery, the `keyword` analyzer wouldn't return any results. However, if\nyou indexed the field using the [standard analyzer](ref-standard-analyzer) or\n[whitespace analyzer](ref-simple-analyzer), MongoDB Search would return multiple documents in the\nresults, including the document with the title field value `Class\nAction`, because it would create tokens similar to the following, which\nit would then match to the query term:\n\n| Analyzer                 | Output Tokens | Matches action | Matches Class Action |\n| ------------------------ | ------------- | -------------- | -------------------- |\n| Keyword Analyzer Tokens  | Class Action  | X              | √                    |\n| Standard Analyzer Tokens | class, action | √              | √                    |\n| Simple Analyzer Tokens   | class, action | √              | √                    |",
+      "body": "The following example index definition specifies an index on\nthe `title` field in the [Sample Mflix Dataset](sample-mflix)\ncollection using the whitespace analyzer. To follow along with this\nexample, [Load Sample Data Into Atlas](sample-data) on your cluster\nand either use [mongosh](mongodb-shell) or navigate to the Create a Search\nIndex page in the Atlas UI following the steps in the [Create a MongoDB Search index](create-fts-index) tutorial.\n\nThen, using the `movies` collection as your data source, follow\nthe example procedure to create an index from [mongosh](mongodb-shell) or the\nAtlas UI Visual Editor or JSON editor.\n\n***\n\n➤ Use the **Select your language** drop-down menu to set the\nlanguage of the example on this page.\n\n***\n\ndrivers\n\nAtlas UI\n\nVisual Editor\n\n- Click Refine Your Index to configure your index.\n\n- In the Index Configurations section, toggle\n  Dynamic Mapping to off.\n\n- In the Field Mappings section, click\n  Add Field to open the Add Field Mapping\n  window.\n\n- Click Customized Configuration.\n\n- Select `title` from the Field Name dropdown.\n\n- Click the Data Type dropdown and select\n  String if it isn't already selected.\n\n- Expand String Properties and make the following\n  changes:\n\n  | Index Analyzer  | Select lucene.keyword from the dropdown. |\n  | --------------- | ---------------------------------------- |\n  | Search Analyzer | Select lucene.keyword from the dropdown. |\n  | Index Options   | Use the default offsets.                 |\n  | Store           | Use the default true.                    |\n  | Ignore Above    | Keep the default setting.                |\n  | Norms           | Use the default include.                 |\n\n- Click Add.\n\n- Click Save Changes.\n\n- Click Create Search Index.\n\nJSON Editor\n\n- Replace the default index definition with the following index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"lucene.keyword\"\n        }\n      }\n    }\n  }\n  ```\n\n- Click Next.\n\n- Click Create Search Index.\n\nMongoDB Shell\n\nThe following query searches for the phrase `Class Action` in the\n`title` field.\n\nAtlas UI\n\nMongoDB Shell\n\nMongoDB Search returned the document because it matched the query term `Class\nAction` to the single token `Class Action` that it creates for the\ntext in the field using the `lucene.keyword` analyzer. By contrast,\nMongoDB Search doesn't return any results for the following query:\n\n```json\ndb.cases.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n])\n```\n\nMany documents in the collection contain the string `action`, but the\n`keyword` analyzer only matches documents in which the search term\nmatches the entire contents of the field exactly. For the preceding\nquery, the `keyword` analyzer wouldn't return any results. However, if\nyou indexed the field using the [standard analyzer](ref-standard-analyzer) or\n[whitespace analyzer](ref-simple-analyzer), MongoDB Search would return multiple documents in the\nresults, including the document with the title field value `Class\nAction`, because it would create tokens similar to the following, which\nit would then match to the query term:\n\n| Analyzer                 | Output Tokens | Matches action | Matches Class Action |\n| ------------------------ | ------------- | -------------- | -------------------- |\n| Keyword Analyzer Tokens  | Class Action  | X              | √                    |\n| Standard Analyzer Tokens | class, action | √              | √                    |\n| Simple Analyzer Tokens   | class, action | √              | √                    |",
       "codeBlocks": [
         {
           "language": "json",
@@ -14,19 +14,23 @@
           "tokenEstimate": 41
         },
         {
+          "language": "json",
+          "content": "db.cases.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n])",
+          "tokenEstimate": 38
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "```javascript\ndb.movies.createSearchIndex(\n  \"default\",\n    {\n      \"mappings\": {\n        \"fields\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.keyword\"\n          }\n        }\n      }\n    }\n)\n```\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n         \"query\": \"Class Action\",\n         \"path\": \"title\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    title: 'Class Action'\n  }\n]\n```",
+      "codeBlocks": [
+        {
           "language": "javascript",
           "content": "db.movies.createSearchIndex(\n  \"default\",\n    {\n      \"mappings\": {\n        \"fields\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.keyword\"\n          }\n        }\n      }\n    }\n)",
           "tokenEstimate": 54
-        },
-        {
-          "language": "json",
-          "content": "[\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"Class Action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n]",
-          "tokenEstimate": 35
-        },
-        {
-          "language": "js",
-          "content": "SCORE: 4.346973419189453   _id:  \"573a1399f29313caabcec6b7\"\n   awards: Object\n   cast: Array (4)\n   countries: Array (1)\n   directors: Array (1)\n   fullplot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n   genres: Array (2)\n   imdb: Object\n   languages: Array (1)\n   lastupdated: \"2015-09-06 00:42:51.167000000\"\n   metacritic: 58\n   num_mflix_comments: 2\n   plot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n   poster: \"https://m.media-amazon.com/images/M/MV5BNWY5Mjk4ZmItMTAzYS00NWE3LWEzYz…\"\n   rated: \"R\"\n   released: 1991-03-15T00:00:00.000+00:00\n   runtime: 110\n   title: \"Class Action\"\n   tomatoes: Object\n   type: \"movie\"\n   writers: Array (3)\n   year: 1991",
-          "tokenEstimate": 267
         },
         {
           "language": "json",
@@ -37,11 +41,49 @@
           "language": "json",
           "content": "[\n  {\n    title: 'Class Action'\n  }\n]",
           "tokenEstimate": 13
-        },
+        }
+      ],
+      "slug": "example--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "- Click the Query button for your index.\n\n- Click Edit Query to edit the query.\n\n- Click on the query bar and select the database and collection.\n\n- Replace the default query with the following and click\n  Find:\n\n  **Input:**\n\n  ```json\n  [\n    {\n      \"$search\": {\n        \"text\": {\n          \"query\": \"Class Action\",\n          \"path\": \"title\"\n        }\n      }\n    }\n  ]\n  ```\n\n  **Output:**\n\n  ```js\n  SCORE: 4.346973419189453   _id:  \"573a1399f29313caabcec6b7\"\n     awards: Object\n     cast: Array (4)\n     countries: Array (1)\n     directors: Array (1)\n     fullplot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n     genres: Array (2)\n     imdb: Object\n     languages: Array (1)\n     lastupdated: \"2015-09-06 00:42:51.167000000\"\n     metacritic: 58\n     num_mflix_comments: 2\n     plot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n     poster: \"https://m.media-amazon.com/images/M/MV5BNWY5Mjk4ZmItMTAzYS00NWE3LWEzYz…\"\n     rated: \"R\"\n     released: 1991-03-15T00:00:00.000+00:00\n     runtime: 110\n     title: \"Class Action\"\n     tomatoes: Object\n     type: \"movie\"\n     writers: Array (3)\n     year: 1991\n  ```",
+      "codeBlocks": [
         {
           "language": "json",
-          "content": "db.cases.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n])",
-          "tokenEstimate": 38
+          "content": "[\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"Class Action\",\n        \"path\": \"title\"\n      }\n    }\n  }\n]",
+          "tokenEstimate": 35
+        },
+        {
+          "language": "js",
+          "content": "SCORE: 4.346973419189453   _id:  \"573a1399f29313caabcec6b7\"\n   awards: Object\n   cast: Array (4)\n   countries: Array (1)\n   directors: Array (1)\n   fullplot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n   genres: Array (2)\n   imdb: Object\n   languages: Array (1)\n   lastupdated: \"2015-09-06 00:42:51.167000000\"\n   metacritic: 58\n   num_mflix_comments: 2\n   plot: \"Jeb Ward is an attorney who specializes in whistle blower, David vs. G…\"\n   poster: \"https://m.media-amazon.com/images/M/MV5BNWY5Mjk4ZmItMTAzYS00NWE3LWEzYz…\"\n   rated: \"R\"\n   released: 1991-03-15T00:00:00.000+00:00\n   runtime: 110\n   title: \"Class Action\"\n   tomatoes: Object\n   type: \"movie\"\n   writers: Array (3)\n   year: 1991",
+          "tokenEstimate": 267
+        }
+      ],
+      "slug": "example--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "drivers",
+      "text": "drivers",
+      "selections": [
+        {
+          "value": "atlas-ui",
+          "text": "atlas-ui"
+        },
+        {
+          "value": "shell",
+          "text": "shell"
         }
       ]
     }

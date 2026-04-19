@@ -7,7 +7,9 @@
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- An environment to run interactive Python notebooks\n  such as [Colab](https://colab.research.google.com).\n\n> **Note:**&#x20;\n>\n> Check the requirements of the\n> [langchain-voyageai](https://pypi.org/project/langchain-voyageai/) package\n> to ensure you're using a compatible Python version.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Up the Environment",
@@ -34,7 +36,9 @@
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Use MongoDB as a Vector Store",
@@ -46,12 +50,22 @@
           "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = VoyageAIEmbeddings(model = \"voyage-3-large\", output_dimension = 2048),\n   namespace = \"sample_mflix.embedded_movies\",\n   text_key = \"plot\",\n   embedding_key = \"plot_embedding_voyage_3_large\",\n   relevance_score_fn = \"dotProduct\"\n)",
           "tokenEstimate": 114
         }
-      ]
+      ],
+      "slug": "use-mongodb-as-a-vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the Indexes",
       "headingLevel": 2,
-      "body": "To enable hybrid search queries on your vector store,\ncreate a MongoDB Vector Search and MongoDB Search index on the collection.\nYou can create the indexes by using either the\nLangChain helper methods or the\n[PyMongo Driver](pymongo) method:\n\n**Langchain:**\n\nLangChain\n\nRun the following code to create\na [index definition](avs-types-vector-search) that indexes the\n`plot_embedding_voyage_3_large` field in the collection.\n\n```python\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 2048 # The dimensions of the vector embeddings to be indexed\n)\n```\n\n> **Tip:** [create\\_vector\\_search\\_index API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)\n\nRun the following code in your notebook to create a\n[MongoDB Search indexes](fts-manage-indexes)\nthat indexes the `plot` field in the collection.\n\n```python\nfrom langchain_mongodb.index import create_fulltext_search_index\nfrom pymongo import MongoClient\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\n\n# Use helper method to create the search index\ncreate_fulltext_search_index(\n   collection = client[\"sample_mflix\"][\"embedded_movies\"],\n   field = \"plot\",\n   index_name = \"search_index\"\n)\n```\n\n> **Tip:** [create\\_fulltext\\_search\\_index API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_fulltext_search_index.html)\n\n**Pymongo:**\n\nPyMongo\n\nRun the following code to create\na [index definition](avs-types-vector-search) that indexes the\n`plot_embedding_voyage_3_large` field in the collection.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"sample_mflix\"][\"embedded_movies\"]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"plot_embedding_voyage_3_large\",\n         \"numDimensions\": 2048,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)\n```\n\nRun the following code to create a\n[MongoDB Search indexes](fts-manage-indexes)\nthat indexes the `plot` field in the collection.\n\n```python\n# Create your search index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n               \"plot\": {\n                  \"type\": \"string\"\n               }\n            }\n      }\n   },\n   name=\"search_index\"\n)\ncollection.create_search_index(model=search_index_model)\n```\n\nThe indexes should take about one minute to build. While they build,\nthe indexes are in an [initial sync process](troubleshoot-initial-sync)\nstate. When they finish building, you can start querying the data\nin your collection.",
+      "body": "To enable hybrid search queries on your vector store,\ncreate a MongoDB Vector Search and MongoDB Search index on the collection.\nYou can create the indexes by using either the\nLangChain helper methods or the\n[PyMongo Driver](pymongo) method:\n\nLangChain\n\nPyMongo\n\nThe indexes should take about one minute to build. While they build,\nthe indexes are in an [initial sync process](troubleshoot-initial-sync)\nstate. When they finish building, you can start querying the data\nin your collection.",
+      "codeBlocks": [],
+      "slug": "create-the-indexes",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Create the Indexes",
+      "headingLevel": 2,
+      "body": "Run the following code to create\na [index definition](avs-types-vector-search) that indexes the\n`plot_embedding_voyage_3_large` field in the collection.\n\n```python\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 2048 # The dimensions of the vector embeddings to be indexed\n)\n```\n\n> **Tip:** [create\\_vector\\_search\\_index API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)\n\nRun the following code in your notebook to create a\n[MongoDB Search indexes](fts-manage-indexes)\nthat indexes the `plot` field in the collection.\n\n```python\nfrom langchain_mongodb.index import create_fulltext_search_index\nfrom pymongo import MongoClient\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\n\n# Use helper method to create the search index\ncreate_fulltext_search_index(\n   collection = client[\"sample_mflix\"][\"embedded_movies\"],\n   field = \"plot\",\n   index_name = \"search_index\"\n)\n```\n\n> **Tip:** [create\\_fulltext\\_search\\_index API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_fulltext_search_index.html)",
       "codeBlocks": [
         {
           "language": "python",
@@ -62,7 +76,19 @@
           "language": "python",
           "content": "from langchain_mongodb.index import create_fulltext_search_index\nfrom pymongo import MongoClient\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\n\n# Use helper method to create the search index\ncreate_fulltext_search_index(\n   collection = client[\"sample_mflix\"][\"embedded_movies\"],\n   field = \"plot\",\n   index_name = \"search_index\"\n)",
           "tokenEstimate": 74
-        },
+        }
+      ],
+      "slug": "create-the-indexes--langchain",
+      "selections": {
+        "tabs": "langchain"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Create the Indexes",
+      "headingLevel": 2,
+      "body": "Run the following code to create\na [index definition](avs-types-vector-search) that indexes the\n`plot_embedding_voyage_3_large` field in the collection.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"sample_mflix\"][\"embedded_movies\"]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"plot_embedding_voyage_3_large\",\n         \"numDimensions\": 2048,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)\n```\n\nRun the following code to create a\n[MongoDB Search indexes](fts-manage-indexes)\nthat indexes the `plot` field in the collection.\n\n```python\n# Create your search index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n               \"plot\": {\n                  \"type\": \"string\"\n               }\n            }\n      }\n   },\n   name=\"search_index\"\n)\ncollection.create_search_index(model=search_index_model)\n```",
+      "codeBlocks": [
         {
           "language": "python",
           "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[\"sample_mflix\"][\"embedded_movies\"]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"plot_embedding_voyage_3_large\",\n         \"numDimensions\": 2048,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)",
@@ -73,7 +99,12 @@
           "content": "# Create your search index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"mappings\": {\n            \"dynamic\": False,\n            \"fields\": {\n               \"plot\": {\n                  \"type\": \"string\"\n               }\n            }\n      }\n   },\n   name=\"search_index\"\n)\ncollection.create_search_index(model=search_index_model)",
           "tokenEstimate": 77
         }
-      ]
+      ],
+      "slug": "create-the-indexes--pymongo",
+      "selections": {
+        "tabs": "pymongo"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Run a Hybrid Search Query",
@@ -90,7 +121,9 @@
           "content": "Title: Timecop\nPlot: An officer for a security agency that regulates time travel, must fend for his life against a shady politician who has a tie to his past.\nSearch score: 0.019230769230769232\nVector Search score: 0.018518518518518517\nTotal score: 0.03774928774928775\n\nTitle: A.P.E.X.\nPlot: A time-travel experiment in which a robot probe is sent from the year 2073 to the year 1973 goes terribly wrong thrusting one of the project scientists, a man named Nicholas Sinclair into a...\nSearch score: 0.018518518518518517\nVector Search score: 0.018867924528301886\nTotal score: 0.0373864430468204\n\nTitle: About Time\nPlot: At the age of 21, Tim discovers he can travel in time and change what happens and has happened in his own life. His decision to make his world a better place by getting a girlfriend turns out not to be as easy as you might think.\nSearch score: 0\nVector Search score: 0.0196078431372549\nTotal score: 0.0196078431372549\n\nTitle: The Time Traveler's Wife\nPlot: A romantic drama about a Chicago librarian with a gene that causes him to involuntarily time travel, and the complications it creates for his marriage.\nSearch score: 0.0196078431372549\nVector Search score: 0\nTotal score: 0.0196078431372549\n\nTitle: Retroactive\nPlot: A psychiatrist makes multiple trips through time to save a woman that was murdered by her brutal husband.\nSearch score: 0\nVector Search score: 0.019230769230769232\nTotal score: 0.019230769230769232",
           "tokenEstimate": 389
         }
-      ]
+      ],
+      "slug": "run-a-hybrid-search-query",
+      "variantAgnostic": true
     },
     {
       "heading": "Pass Results to a RAG Pipeline",
@@ -106,6 +139,32 @@
           "language": "text",
           "content": "Certainly! Here are some movies about time travel from the context provided:\n\n1. **Timecop (1994)**\n   Genre: Action, Crime, Sci-Fi\n   Plot: A law enforcement officer working for the Time Enforcement Commission battles a shady politician with a personal tie to his past.\n   IMDb Rating: 5.8\n\n2. **A.P.E.X. (1994)**\n   Genre: Action, Sci-Fi\n   Plot: A time-travel experiment gone wrong thrusts a scientist into an alternate timeline plagued by killer robots.\n   IMDb Rating: 4.3\n\n3. **About Time (2013)**\n   Genre: Drama, Fantasy, Romance\n   Plot: A young man discovers he can time travel and uses this ability to improve his life, especially his love life, but learns the limitations and challenges of his gift.\n   IMDb Rating: 7.8\n\n4. **The Time Traveler's Wife (2009)**\n   Genre: Drama, Fantasy, Romance\n   Plot: A Chicago librarian with a gene causing him to involuntarily time travel struggles with its impact on his romantic relationship and marriage.\n   IMDb Rating: 7.1\n\n5. **Retroactive (1997)**\n   Genre: Action, Crime, Drama\n   Plot: A woman accidentally time-travels to prevent a violent event, but her attempts to fix the situation lead to worsening consequences due to repeated time cycles.\n   IMDb Rating: 6.3\n\nEach movie covers time travel with unique perspectives, from action-packed adventures to romantic dramas.",
           "tokenEstimate": 323
+        }
+      ],
+      "slug": "pass-results-to-a-rag-pipeline",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
+        },
+        {
+          "value": "langchain",
+          "text": "langchain"
+        },
+        {
+          "value": "pymongo",
+          "text": "pymongo"
         }
       ]
     }

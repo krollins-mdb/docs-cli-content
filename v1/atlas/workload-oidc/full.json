@@ -7,265 +7,450 @@
       "heading": "How it Works",
       "headingLevel": 2,
       "body": "Workload Identity Federation allows your applications access to MongoDB\nclusters with OAuth2.0 access tokens. The access tokens can be issued by\nany external Identity Provider including Azure Entra ID and Google Cloud\nPlatform. Atlas stores the user identifiers and privileges, but\nnot the secrets. This authentication mechanism for your applications\nis only supported by MongoDB drivers. Other MongoDB tools like\n[mongosh](mongodb-shell) and MongoDB Compass don't support this authentication mechanism.\n\nMongoDB Drivers support two types of authentication flow for Workload Identity Federation:\nBuilt-in Authentication and Callback Authentication.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "how-it-works",
+      "variantAgnostic": true
     },
     {
       "heading": "Built-in Authentication",
       "headingLevel": 3,
       "body": "You can use built-in authentication if you deploy your application on a\nsupported infrastructure with a supported principal type. Your application\ncan access Atlas clusters without supplying a password or\nmanually requesting a JWT from your cloud provider's metadata service. Instead,\nyour chosen MongoDB driver uses your existing principal identifier to request a\nJWT access token under the hood, which is then passed to the Atlas cluster\nautomatically when your application connects.\n\nFor more implementation details, see [Connect your application to Atlas with a MongoDB Driver](oauth-supported-drivers).\n\n**Built-in Authentication Supported Infrastructure and Principal Types**\n\n| Environment | Compute Resource                | Principal Type                                    |\n| ----------- | ------------------------------- | ------------------------------------------------- |\n| GCP         | Compute Engine                  | GCP Service Account                               |\n|             | App Engine Standard Environment |                                                   |\n|             | App Engine Flexible Environment |                                                   |\n|             | Cloud Functions                 |                                                   |\n|             | Cloud Run                       |                                                   |\n|             | Google Kubernetes Engine        |                                                   |\n|             | Cloud Build                     |                                                   |\n| Azure       | Azure VM                        | Azure Managed Identity (user and system assigned) |\n| Kubernetes  | Azure Kubernetes Service        | Azure Managed Identity (user and system assigned) |\n|             | Google Kubernetes Engine        | GCP Service Account                               |\n|             | AWS Elastic Kubernetes Service  | AWS IAM Role                                      |\n|             | Self-managed Kubernetes Pods    | Kubernetes Service Account                        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "built-in-authentication",
+      "variantAgnostic": true
     },
     {
       "heading": "Callback Authentication",
       "headingLevel": 3,
       "body": "If you cannot use built-in authentication methods, you can use callback authentication\nwith any OAuth 2.0 authorization service. With callback authentication, the MongoDB driver\ncalls a provided callback method to get a JWT token for database access. Within your\ncallback method, retrieve the token from your authorization provider using your preferred\nmechanism, such as certificate authentication, client credentials\nflow, or an SDK.\n\nTo confirm that your chosen driver supports Workload Identity Federation authentication and review additional\nimplementation details, see the list of [Connect your application to Atlas with a MongoDB Driver](oauth-supported-drivers).\n\nThe following list provides examples of how you could retrieve your access token for applications running on cloud or\non-premises resources:\n\n- Azure Managed Identities: Use the Microsoft Authentication Library (MSAL) to grant\n  access for applications if your application runs on [Azure compute resources supporting managed identities](https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/managed-identities-status).\n\n- Azure Service Principals: Use the client-credentials flow or certificate authentication\n  to retrieve the access token and grant access for applications.\n\n- External Authorization Providers: Use a service account from providers like GitHub,\n  Okta, ForgeRock, or Ping Identity to grant access for applications.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "callback-authentication",
+      "variantAgnostic": true
     },
     {
       "heading": "Security with Azure Managed Identities",
       "headingLevel": 2,
       "body": "Workload Identity Federation with Azure Managed Identities provides the most secure way to\nauthenticate to MongoDB Atlas clusters running on Azure. This approach offers\nthe following security advantages:\n\n- Leverages Managed Identities: This allows your applications running on Azure\n  services (like Azure VMs, AKS, Azure Functions) to authenticate to MongoDB Atlas\n  using their assigned Azure Managed Identities without needing to\n  manage separate MongoDB credentials.\n\n- Secure \"Passwordless\" Authentication: Your applications obtain short-lived\n  OAuth 2.0 access tokens from the Azure metadata server, which MongoDB Atlas\n  then verifies. This eliminates the need to store and manage sensitive database\n  usernames and passwords within your application code or configurations.\n\n- Centralized Identity Management: You manage the identities of your Azure\n  workloads within the Azure Entra ID framework, providing a single\n  source of truth for identity management.\n\n- Enhanced Auditing: Azure provides audit logs for service account activity,\n  enhancing traceability and security monitoring capabilities.\n\nFor the best security to access MongoDB Atlas clusters, you can combine\nWorkload Identity Federation with [Azure Private Link](https://azure.microsoft.com/en-us/services/private-link/).\nThis setup leverages the security and management capabilities of Azure,\nwhile ensuring [private and secure network connectivity](private-endpoint-concepts)\nto your database.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "security-with-azure-managed-identities",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedures",
       "headingLevel": 2,
       "body": "To configure MongoDB's Workload Identity Federation:\n\n- [Configure Workload Identity Provider (one-time setup)](set-up-in-cloud-provider).\n\n  - Configure your external identity provider.\n\n  - Configure Workload Identity Provider in Atlas and\n    enable it for your Atlas organization(s).\n\n- [Grant external identities (service principals) or groups access to MongoDB clusters](configure-wif-in-atlas).\n\n- [Connect your application to Atlas with a MongoDB Driver](oauth-supported-drivers).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedures",
+      "variantAgnostic": true
     },
     {
       "heading": "Prepare Your External Identity Provider",
       "headingLevel": 3,
-      "body": "**Azure-oauth:**\n\nAzure\n\nIn order to access MongoDB Atlas clusters with Azure Managed Identities\nor Azure Service Principals, you need to register an Azure Entra ID\napplication. If you have an existing application registration for\n[Workforce](oidc-authentication-workforce) (human user) access, we recommended that you register a separate\napplication for Workload access.",
-      "codeBlocks": []
+      "body": "Azure",
+      "codeBlocks": [],
+      "slug": "prepare-your-external-identity-provider",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Prepare Your External Identity Provider",
+      "headingLevel": 3,
+      "body": "In order to access MongoDB Atlas clusters with Azure Managed Identities\nor Azure Service Principals, you need to register an Azure Entra ID\napplication. If you have an existing application registration for\n[Workforce](oidc-authentication-workforce) (human user) access, we recommended that you register a separate\napplication for Workload access.",
+      "codeBlocks": [],
+      "slug": "prepare-your-external-identity-provider--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Register an application.",
       "headingLevel": 4,
       "body": "- Navigate to **App registrations**.\n\n  - In your [Azure portal](https://portal.azure.com/) account, search and click **Microsoft Entra ID**.\n\n  - In the **Manage** section of the left navigation, click **App registrations**.\n\n- Click **New registration**.\n\n- Apply the following values.\n\n  | Field                   | Value                                                          |\n  | ----------------------- | -------------------------------------------------------------- |\n  | Name                    | Atlas Database - Workload                                      |\n  | Supported Account Types | Accounts in this organizational directory only (single tenant) |\n  | Redirect URI            | Web                                                            |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-register-an-application--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: (Optional) Add groups claim.",
       "headingLevel": 4,
       "body": "It is a best practice to use service principal identifiers as MongoDB user\nidentifiers while defining access rights in Atlas. If you plan to\nuse this common approach, skip this step. However, if you prefer to use\ngroup identifiers such as Azure AD Security Group identifier\ninstead, you can set groups claim in your application registration\nwith below steps.\n\n- Navigate to **Token Configuration**.\n\n  In the **Manage** section of the left navigation,\n  click **Token Configuration**.\n\n- Click **Add groups claim**.\n\n- In the **Edit groups claim** modal, select **Security**.\n\n  What groups you select depend on the type of groups you configured\n  in your Azure environment. You may need to select a different\n  type of group to send the appropriate group information.\n\n- In the **Customize token properties by type** section, ensure that you only select **Group ID**.\n\n  When you select **Group Id**, Azure sends the\n  security group's Object ID.\n\n- Click **Add**.\n\n  To learn more about adding a group claim, see [Azure Documentation](https://learn.microsoft.com/en-us/azure/active-directory/hybrid/connect/how-to-connect-fed-group-claims).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-optional-add-groups-claim--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Enable an Application ID URI.",
       "headingLevel": 4,
       "body": "- Navigate to **Expose an API**\n  in the left sidebar and enable Application ID URI.\n\n- Enable an Application ID URI.\n\n  - Keep the default Application ID URI assigned by Azure,\n    which is `<application_client_id>`. Copy and store this value,\n    as MongoDB Atlas and all MongoDB drivers require this value\n    for Workload Identity Federation configuration.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-enable-an-application-id-uri--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Update the manifest.",
       "headingLevel": 4,
       "body": "- In the **Manage** section of the left navigation, click **Manifest**.\n\n- Update the **requestedAccessTokenVersion** from `null` to `2`.\n\n  The number `2` represents Version 2 of Microsoft's access\n  tokens. Other applications can use this as a signed\n  attestation of the Active Directory-managed user's identity.\n  Version 2 ensures that the token is a JSON Web Token that\n  MongoDB understands.\n\n- Click **Save**.\n\nTo learn more about adding an optional claim, see [Azure Documentation](https://learn.microsoft.com/en-us/azure/active-directory/develop/reference-app-manifest).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-update-the-manifest--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Remember metadata.",
       "headingLevel": 4,
-      "body": "- In the left navigation, click **Overview**.\n\n  Copy the **Application (client) ID** value.\n\n- In the top navigation, click **Endpoints**.\n\n  Copy the **OpenID Connect metadata document** value\n  without the `/.well-known/openid-configuration` part.\n\n  You can also retrieve this value by following the\n  **OpenID Connect metadata document** URL (Uniform Resource Locator) and\n  copying the value for `issuer`.\n\nThe following table shows what these Microsoft Entra ID UI values map to in our Atlas Configuration Properties:\n\n| Microsoft Entra ID UI                                                        | Atlas Configuration Property |\n| ---------------------------------------------------------------------------- | ---------------------------- |\n| OpenID Connect metadata document (without /.well-known/openid-configuration) | Issuer URI.                  |\n| Application (client) ID                                                      | Client ID.                   |\n| Application ID URI (\\<Application ID>)                                       | Audience                     |\n\n**Gcp-oauth:**\n\nGCP\n\nYou don't need to make any configuration changes in your Google Cloud account.",
-      "codeBlocks": []
+      "body": "- In the left navigation, click **Overview**.\n\n  Copy the **Application (client) ID** value.\n\n- In the top navigation, click **Endpoints**.\n\n  Copy the **OpenID Connect metadata document** value\n  without the `/.well-known/openid-configuration` part.\n\n  You can also retrieve this value by following the\n  **OpenID Connect metadata document** URL (Uniform Resource Locator) and\n  copying the value for `issuer`.\n\nThe following table shows what these Microsoft Entra ID UI values map to in our Atlas Configuration Properties:\n\n| Microsoft Entra ID UI                                                        | Atlas Configuration Property |\n| ---------------------------------------------------------------------------- | ---------------------------- |\n| OpenID Connect metadata document (without /.well-known/openid-configuration) | Issuer URI.                  |\n| Application (client) ID                                                      | Client ID.                   |\n| Application ID URI (\\<Application ID>)                                       | Audience                     |\n\nGCP\n\nYou don't need to make any configuration changes in your Google Cloud account.",
+      "codeBlocks": [],
+      "slug": "step-5-remember-metadata--azure-oauth",
+      "selections": {
+        "tabs": "azure-oauth"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure Workload Identity Federation Authentication",
       "headingLevel": 3,
-      "body": "> **Note:**&#x20;\n>\n> Prerequisite\n>\n> This procedure requires you to have [Organization Owner](<Organization Owner>)\n> access and assumes you have already configured your external IdP (Identity Provider). To learn\n> how to configure an IdP (Identity Provider), see [Configure An External Identity Provider Application](configure-idp-oidc).\n\nYou can configure Workload Identity Federation for database access in Atlas\nfrom the **Federation Management Console**.\n\n**Azure:**\n\nAzure\n\nTo configure a Workload Identity Federation Identity Provider with Azure Entra ID in Atlas:",
-      "codeBlocks": []
+      "body": "> **Note:**&#x20;\n>\n> Prerequisite\n>\n> This procedure requires you to have [Organization Owner](<Organization Owner>)\n> access and assumes you have already configured your external IdP (Identity Provider). To learn\n> how to configure an IdP (Identity Provider), see [Configure An External Identity Provider Application](configure-idp-oidc).\n\nYou can configure Workload Identity Federation for database access in Atlas\nfrom the **Federation Management Console**.\n\nAzure",
+      "codeBlocks": [],
+      "slug": "configure-workload-identity-federation-authentication",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Click  on the left sidebar.",
       "headingLevel": 4,
       "body": "- Click **Set Up Identity Provider** or **Configure Identity Provider**\n\n- Select **Workload Identity Provider** and click **Continue**.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 2: Enter the following Workload Identity Federation settings.",
-      "headingLevel": 4,
-      "body": "| Setting                   | Necessity   | Value                                                                                                                                                                                                                                                                       |\n| ------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Configuration Name        | Required    | Specify a human-readable label that identifies this configuration. This label is visible to Atlas users.                                                                                                                                                                    |\n| Configuration Description | Optional    | Describe this configuration.                                                                                                                                                                                                                                                |\n| Issuer URI                | Required    | Specify the issuer URI value provided by your Microsoft Entra ID application registration. To learn more, see the table in Prepare your External Identity.                                                                                                                  |\n| Audience                  | Required    | Specify the application ID URI value from your Azure Entra ID application registration. To learn more, see the table in Prepare your External Identity.                                                                                                                     |\n| Authorization Type        | Required    | Select Group Membership to grant authorization based on group membership, or select User ID to authorize an individual user.It is more common to use User ID for application access.                                                                                        |\n| Groups Claim              | Conditional | Specify the identifier of the claim that includes the principal's IdP (Identity Provider) user group membership information. If you select Groups Membership as authorization type, you must specify this field. Leave the value set to the default, groups.Default: groups |\n| User Claim                | Required    | Don't modify the default value, sub.Default: sub                                                                                                                                                                                                                            |",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 3: Click .",
-      "headingLevel": 4,
-      "body": "",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 4: Enable your Workload Identity for an organization.",
-      "headingLevel": 4,
-      "body": "- Click **Connect Organizations**.\n\n- For the organization that you want to connect to Workload Identity Federation, click\n  **Configure Access**.\n\n- Click **Connect Identity Provider**.\n\n  > **Note:** If you already configured another IdP (Identity Provider), Atlas displays\n  > a **Connect Identity Provider(s)** button instead.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 5: Select a Workload Identity Provider.",
-      "headingLevel": 4,
-      "body": "In the **Connect Identity Provider(s)** modal, select\na Workload Identity Provider where the **Purpose** is\n**Workload Identity Federation**.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 6: Click .",
-      "headingLevel": 4,
-      "body": "When you connect your Workload Identity Provider to an\norganization, Atlas enables Workload Identity Federation for all the\nprojects within that organization.\n\n**GCP:**\n\nGCP\n\nTo configure a Workload Identity Federation Identity Provider with Google Cloud in Atlas:",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 1: Click  on the left sidebar.",
-      "headingLevel": 4,
-      "body": "- Click **Set Up Identity Provider** or **Configure Identity Provider**\n\n- Select **Workload Identity Provider** and click **Continue**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-click-on-the-left-sidebar--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Enter the following Workload Identity Federation settings.",
       "headingLevel": 4,
       "body": "| Setting                   | Necessity | Value                                                                                                                                                                              |\n| ------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Configuration Name        | Required  | Specify a human-readable label that identifies this configuration. This label is visible to Atlas users.                                                                           |\n| Configuration Description | Optional  | Describe this configuration.                                                                                                                                                       |\n| Issuer URI                | Required  | Enter the URI https\\://accounts.google.com.                                                                                                                                        |\n| Audience                  | Required  | Specify any custom value. Audience is used while calling MongoDB drivers.                                                                                                          |\n| Authorization Type        | Required  | Select Group Membership to grant authorization based on group membership, or select User ID to authorize individual users.It is more common to use User ID for application access. |\n| User Claim                | Required  | Don't modify the default value, sub.Default: sub                                                                                                                                   |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-enter-the-following-workload-identity-federation-settings--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Click .",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-click--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Enable your Workload Identity in an organization.",
       "headingLevel": 4,
       "body": "- Click **Connect Organizations**.\n\n- For the organization you want to connect to Workload Identity Federation, click\n  **Configure Access**.\n\n- Click **Connect Identity Provider**.\n\n  > **Note:** If you already configured another IdP (Identity Provider), Atlas displays\n  > a **Connect Identity Provider(s)** button instead.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-enable-your-workload-identity-in-an-organization--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Select a Workload Identity Provider.",
       "headingLevel": 4,
       "body": "In the **Connect Identity Provider(s)** modal, select\na Workload Identity Provider where the **Purpose** is\n**Workload Identity Federation**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-select-a-workload-identity-provider--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 6: Click .",
       "headingLevel": 4,
       "body": "When you connect your Workload Identity Provider to an\norganization, Atlas enables Workload Identity Federation for all the\nprojects within that organization.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-6-click--GCP",
+      "selections": {
+        "tabs": "GCP"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Configure Workload Identity Federation Authentication",
+      "headingLevel": 3,
+      "body": "To configure a Workload Identity Federation Identity Provider with Azure Entra ID in Atlas:",
+      "codeBlocks": [],
+      "slug": "configure-workload-identity-federation-authentication--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Click  on the left sidebar.",
+      "headingLevel": 4,
+      "body": "- Click **Set Up Identity Provider** or **Configure Identity Provider**\n\n- Select **Workload Identity Provider** and click **Continue**.",
+      "codeBlocks": [],
+      "slug": "step-1-click-on-the-left-sidebar--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Enter the following Workload Identity Federation settings.",
+      "headingLevel": 4,
+      "body": "| Setting                   | Necessity   | Value                                                                                                                                                                                                                                                                       |\n| ------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Configuration Name        | Required    | Specify a human-readable label that identifies this configuration. This label is visible to Atlas users.                                                                                                                                                                    |\n| Configuration Description | Optional    | Describe this configuration.                                                                                                                                                                                                                                                |\n| Issuer URI                | Required    | Specify the issuer URI value provided by your Microsoft Entra ID application registration. To learn more, see the table in Prepare your External Identity.                                                                                                                  |\n| Audience                  | Required    | Specify the application ID URI value from your Azure Entra ID application registration. To learn more, see the table in Prepare your External Identity.                                                                                                                     |\n| Authorization Type        | Required    | Select Group Membership to grant authorization based on group membership, or select User ID to authorize an individual user.It is more common to use User ID for application access.                                                                                        |\n| Groups Claim              | Conditional | Specify the identifier of the claim that includes the principal's IdP (Identity Provider) user group membership information. If you select Groups Membership as authorization type, you must specify this field. Leave the value set to the default, groups.Default: groups |\n| User Claim                | Required    | Don't modify the default value, sub.Default: sub                                                                                                                                                                                                                            |",
+      "codeBlocks": [],
+      "slug": "step-2-enter-the-following-workload-identity-federation-settings--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3: Click .",
+      "headingLevel": 4,
+      "body": "",
+      "codeBlocks": [],
+      "slug": "step-3-click--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 4: Enable your Workload Identity for an organization.",
+      "headingLevel": 4,
+      "body": "- Click **Connect Organizations**.\n\n- For the organization that you want to connect to Workload Identity Federation, click\n  **Configure Access**.\n\n- Click **Connect Identity Provider**.\n\n  > **Note:** If you already configured another IdP (Identity Provider), Atlas displays\n  > a **Connect Identity Provider(s)** button instead.",
+      "codeBlocks": [],
+      "slug": "step-4-enable-your-workload-identity-for-an-organization--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 5: Select a Workload Identity Provider.",
+      "headingLevel": 4,
+      "body": "In the **Connect Identity Provider(s)** modal, select\na Workload Identity Provider where the **Purpose** is\n**Workload Identity Federation**.",
+      "codeBlocks": [],
+      "slug": "step-5-select-a-workload-identity-provider--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 6: Click .",
+      "headingLevel": 4,
+      "body": "When you connect your Workload Identity Provider to an\norganization, Atlas enables Workload Identity Federation for all the\nprojects within that organization.\n\nGCP\n\nTo configure a Workload Identity Federation Identity Provider with Google Cloud in Atlas:",
+      "codeBlocks": [],
+      "slug": "step-6-click--Azure",
+      "selections": {
+        "tabs": "Azure"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Database User Using Workload Identity Federation Authentication",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-database-user-using-workload-identity-federation-authentication",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 4,
       "body": "Before you begin, you must have the following to add a database user:\n\n- [Project Owner](<Project Owner>) access\n\n- Workload Identity Federation configured in Atlas and enabled for your Organization.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Open the  dialog box.",
       "headingLevel": 5,
       "body": "- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Database & Network Access under\n  the Security heading.\n\nThe [Database & Network Access](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fdatabase) page\ndisplays.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-open-the-dialog-box",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Select .",
       "headingLevel": 5,
       "body": "In the **Authentication Method** section, select **Federated Auth**.\n\n> **Note:** Until you [enable Workload IdP for your organization](configure-oidc),\n> you can't select this box.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-select",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Select an Identity Provider and Identifier.",
       "headingLevel": 5,
       "body": "- In the **Select Identity Provider** section, select a configured\n  Workload Identity Provider.\n\n- Specify either the user identifier or group identifier associated with\n  your configured Workload Identity Provider.\n\n> **Note:**&#x20;\n>\n> - For Azure Entra ID users, this value maps to the Object Id\n>   of your Azure user group rather than user group name.\n>\n> - For GCP users, this value maps to the Unique Id of your\n>   GCP Service Account.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-select-an-identity-provider-and-identifier",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Assign user or group privileges.",
       "headingLevel": 5,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-assign-user-or-group-privileges",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 5: Add the new database user or group.",
       "headingLevel": 5,
       "body": "- If you added a user, click the **Add User** button.\n\n- If you added a group, click the **Add Group** button.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-add-the-new-database-user-or-group",
+      "variantAgnostic": true
     },
     {
       "heading": "Connect an Application to MongoDB with Workload Identity Federation",
       "headingLevel": 3,
       "body": "Use the listed version or higher of the following MongoDB Drivers to connect an\napplication to MongoDB with Workload Identity Federation authentication:\n\n- [Java](java/sync/upcoming/security/auth/oidc) v5.1+\n\n- [C#/.NET](csharp/security/authentication/oidc) v2.25+\n\n- [Go](go/fundamentals/enterprise-auth) v1.17+\n\n- [PyMongo](languages/python/pymongo-driver/security/authentication) v4.7+\n\n- [Node](node/security/authentication/oidc) / [Typescript](typescript) v6.7+\n\n- [Kotlin](kotlin/coroutine/current/fundamentals/enterprise-auth) v5.1+\n\n- [Rust Driver](rust/security/authentication/oidc) v3.2+",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "connect-an-application-to-mongodb-with-workload-identity-federation",
+      "variantAgnostic": true
     },
     {
       "heading": "Manage an Existing Workload Identity Federation Configuration",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "manage-an-existing-workload-identity-federation-configuration",
+      "variantAgnostic": true
     },
     {
       "heading": "Revoke JWKS",
       "headingLevel": 3,
       "body": "> **Note:** This procedure is only for users who manage their own signing keys.\n>\n> Don't use this feature to rotate your signing keys. When you rotate\n> your Workload Identity Federation signing keys, MongoDB fetches\n> the JWKS automatically upon expiration of the existing access tokens.\n\nIf your private key is compromised, you can immediately revoke your JSON\nWeb Key Sets (JWKS) cached in MongoDB nodes:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "revoke-jwks",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Update your signing keys in your Workload Identity provider.",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-update-your-signing-keys-in-your-workload-identity-provider",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Click  in the left sidebar.",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-click-in-the-left-sidebar",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Scroll to the Workload Identity Federation card.",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-scroll-to-the-workload-identity-federation-card",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Click the  button under the  dropdown.",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-click-the-button-under-the-dropdown",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 5: Click .",
       "headingLevel": 4,
       "body": "After you click **Revoke**, MongoDB fetches the new keys\nthrough your JWKS endpoint. You must restart your clients (such as\n[mongosh](mongodb-shell) or [Compass](compass)) after you revoke JWKS.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-click",
+      "variantAgnostic": true
     },
     {
       "heading": "Delete Workload Identity Federation Configuration",
       "headingLevel": 3,
       "body": "To delete your Workload Identity Federation configuration:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "delete-workload-identity-federation-configuration",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Disconnect each organization you connected to your Workload Identity Provider.",
       "headingLevel": 4,
       "body": "- Click **Organizations** in the left sidebar.\n\n- Click the organization that has Workload Identity Federation enabled.\n\n- Click **Disconnect** under the **Manage** dropdown on the Workload Identity Federation card.\n\n- In the **Disconnect identity provider?** modal, click\n  **Disconnect**.\n\n  When you disconnect an IdP (Identity Provider), users who authenticate using the\n  IdP (Identity Provider) lose access to Workload Identity Federation in the Atlas projects\n  listed in the **Project** table.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-disconnect-each-organization-you-connected-to-your-workload-identity-provider",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2",
       "headingLevel": 4,
       "body": "Click **Identity Providers** in the left side navigation\nbar.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Click  under the  dropdown on the Workload Identity Federation card.",
       "headingLevel": 4,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-click-under-the-dropdown-on-the-workload-identity-federation-card",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4",
       "headingLevel": 4,
       "body": "In the **Delete Identity Provider?** modal, click\n**Delete**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "azure-oauth",
+          "text": "azure-oauth"
+        },
+        {
+          "value": "gcp-oauth",
+          "text": "gcp-oauth"
+        },
+        {
+          "value": "Azure",
+          "text": "Azure"
+        },
+        {
+          "value": "GCP",
+          "text": "GCP"
+        }
+      ]
     }
   ]
 }

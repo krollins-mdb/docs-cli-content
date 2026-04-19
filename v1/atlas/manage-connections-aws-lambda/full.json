@@ -6,43 +6,135 @@
     {
       "heading": "Best Practices",
       "headingLevel": 2,
-      "body": "Use the following best practices to properly manage connections\nbetween [AWS Lambda](http://docs.aws.amazon.com/lambda/latest/dg/welcome.html)\nand Atlas:\n\n- Define the client to the MongoDB server outside\n  the [AWS Lambda handler function](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html).\n\n  Don't define a new client object each time that you invoke your\n  function. Doing so causes the driver to create a new database\n  connection with each function call. This can be expensive and\n  can result in your application exceeding database connection limits.\n  For best performance, follow these guidelines:\n\n  - Create the client object once.\n\n  - Store the object so your function can reuse the client\n    across function invocations.\n\n  The [Connection Example](lambda-aws-example) reuses existing\n  database connections to speed up communication with the database and\n  keep connection counts to the database at a reasonable level with\n  respect to application traffic.\n\n**C:**\n\nC\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n**Cpp:**\n\nC++11\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see the [Specify Connection Options](languages/cpp/cpp-driver/current/connect/connection-options)\n  guide.\n\n**C#:**\n\nC#\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](csharp/fundamentals/connection/connection-options).\n\n**Go:**\n\nGo\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](go/fundamentals/connection).\n\n**Java-sync:**\n\nJava (Sync)\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](java/sync/current/fundamentals/connection/connection-options).\n\n**Kotlin-coroutine:**\n\nKotlin (Coroutine)\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](kotlin/coroutine/current/fundamentals/connection/connection-options).\n\n**Kotlin-sync:**\n\nKotlin (Sync)\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](languages/kotlin/kotlin-sync-driver/current/connect/connection-options/kotlin-sync-connection-options).\n\n**Nodejs:**\n\nNode.js\n\n- If your handler takes a callback as its last argument, set the\n  `callbackWaitsForEmptyEventLoop` property on the\n  [AWS Lambda Context](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html#nodejs-prog-model-context-properties)\n  object to **false**.\n\n  ```js\n  context.callbackWaitsForEmptyEventLoop = false;\n  ```\n\n  This allows a Lambda function to return its result to the caller\n  without requiring that the MongoDB database connection be closed.\n  Setting this property is not applicable for [async handlers](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html).\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](node/fundamentals/connection/connection-options).\n\n**PHP:**\n\nPHP\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](php-library/connect/connection-options).\n\n- To deploy serverless PHP applications to AWS Lambda, use the\n  [Bref](https://bref.sh/) framework. To install the prerequisites\n  and configure Bref, follow the [Setup](https://bref.sh/docs/setup)\n  tutorial in the Bref documentation.\n\n  Next, you can create a project directory, install the MongoDB and Bref\n  dependencies, and initialize the serverless configuration by running\n  the following commands:\n\n  ```bash\n  mkdir bref-mongodb-app && cd bref-mongodb-app\n  composer init\n  composer require bref/bref bref/extra-php-extensions mongodb/mongodb\n  vendor/bin/bref init\n  ```\n\n  Finally, add the MongoDB PHP extension to your project. The `bref/extra-php-extensions`\n  Composer package provides a Serverless Framework plugin that adds the MongoDB PHP extension\n  as a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html).\n  Update your `serverless.yml` file to include the following highlighted\n  lines:\n\n  ```yaml\n  plugins:\n      - ./vendor/bref/bref\n      - ./vendor/bref/extra-php-extensions\n\n  functions:\n      api:\n          handler: index.php\n          runtime: php-85-fpm\n          layers:\n              - ${bref-extra:mongodb2-php-85}\n  ```\n\n**Python:**\n\nPython\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Tools for Connecting to MongoDB](https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html).\n\n**Ruby:**\n\nRuby\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [URI options](ruby-driver/master/reference/create-client).\n\n**Rust:**\n\nRust\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](rust/fundamentals/connections/connection-options).\n\n**Scala:**\n\nScala\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n* Restrict network access to your Atlas cluster.\n\n  Connect to your Atlas cluster over private networking using a\n  Network Peering connection\n  between your Atlas cluster and your AWS (Amazon Web Services) Lambda function, or,\n  alternatively, a private endpoint,\n  so that you can allow only private IP addresses from your\n  IP access list.\n\n  If you don't use private networking, consider connecting to your\n  Atlas cluster via a [NAT gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)\n  with a mapped Elastic IP address. Otherwise, you must\n  allow all IP addresses (0.0.0.0/0) to access your service cluster.\n\n  > **Warning:** Adding `0.0.0.0/0` to your IP access list\n  > allows cluster access from anywhere in the public internet.\n  > Ensure that you're using strong credentials for all database\n  > users when allowing access from anywhere.\n\n> **Note:** If you add the `0.0.0.0/0` CIDR to a project access list,\n> Atlas sends an alert email to all users directly\n> granted a role to the project, or indirectly granted a role through\n> team membership (if the team is granted a role to the\n> project).\n\n- Set [maxIdleTimeMS](manual/reference/connection-string)\n  to `60000` to automatically close your connections after 1 minute\n  of idle time. Tuning your `maxIdleTimeMS` can help reduce the\n  occurrence of timeout errors from your serverless functions.\n\n* Set Up Unified AWS Access and use AWS (Amazon Web Services) IAM authentication where possible.\n\n  You can connect to your Atlas clusters using AWS (Amazon Web Services) [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html)\n  instead of hardcoding your credentials in Lambda. Hardcoded credentials are\n  viewable by anyone who accesses your AWS Lambda environment, which can pose\n  a security risk. With AWS (Amazon Web Services) IAM authentication, Atlas accesses AWS (Amazon Web Services) Lambda\n  through an [assumed IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/using-service-linked-roles.html),\n  so you don't need credentials in your connection strings.\n\n  Atlas supports AWS (Amazon Web Services) IAM authentication for clusters running\n  MongoDB version 7.0 or higher. We strongly advise using AWS (Amazon Web Services) IAM\n  authentication for Lambda connections if your cluster meets the\n  requirements.\n\n* The amount of memory allocated to a Lambda function defaults to 128\n  MB. You can configure the amount of memory allocated to a Lambda\n  function, between 128 MB and 10,240 MB. Ensure you allocate enough\n  memory. Increase the memory to increase the amount of virtual CPU\n  available and improve MongoDB driver performance. To learn more, see\n  [Memory and computing power](https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html).\n\n* Set your [AWS\\_STS\\_REGIONAL\\_ENDPOINTS](http://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html) and\n  [AWS\\_REGION](http://docs.aws.amazon.com/sdkref/latest/guide/feature-region.html) environment\n  variables.",
+      "body": "Use the following best practices to properly manage connections\nbetween [AWS Lambda](http://docs.aws.amazon.com/lambda/latest/dg/welcome.html)\nand Atlas:\n\n- Define the client to the MongoDB server outside\n  the [AWS Lambda handler function](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html).\n\n  Don't define a new client object each time that you invoke your\n  function. Doing so causes the driver to create a new database\n  connection with each function call. This can be expensive and\n  can result in your application exceeding database connection limits.\n  For best performance, follow these guidelines:\n\n  - Create the client object once.\n\n  - Store the object so your function can reuse the client\n    across function invocations.\n\n  The [Connection Example](lambda-aws-example) reuses existing\n  database connections to speed up communication with the database and\n  keep connection counts to the database at a reasonable level with\n  respect to application traffic.\n\nC\n\nC++11\n\nC#\n\nGo\n\nJava (Sync)\n\nKotlin (Coroutine)\n\nKotlin (Sync)\n\nNode.js\n\nPHP\n\nPython\n\nRuby\n\nRust\n\nScala\n\n- Restrict network access to your Atlas cluster.\n\n  Connect to your Atlas cluster over private networking using a\n  Network Peering connection\n  between your Atlas cluster and your AWS (Amazon Web Services) Lambda function, or,\n  alternatively, a private endpoint,\n  so that you can allow only private IP addresses from your\n  IP access list.\n\n  If you don't use private networking, consider connecting to your\n  Atlas cluster via a [NAT gateway](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html)\n  with a mapped Elastic IP address. Otherwise, you must\n  allow all IP addresses (0.0.0.0/0) to access your service cluster.\n\n  > **Warning:** Adding `0.0.0.0/0` to your IP access list\n  > allows cluster access from anywhere in the public internet.\n  > Ensure that you're using strong credentials for all database\n  > users when allowing access from anywhere.\n\n> **Note:** If you add the `0.0.0.0/0` CIDR to a project access list,\n> Atlas sends an alert email to all users directly\n> granted a role to the project, or indirectly granted a role through\n> team membership (if the team is granted a role to the\n> project).\n\n- Set [maxIdleTimeMS](manual/reference/connection-string)\n  to `60000` to automatically close your connections after 1 minute\n  of idle time. Tuning your `maxIdleTimeMS` can help reduce the\n  occurrence of timeout errors from your serverless functions.\n\n* Set Up Unified AWS Access and use AWS (Amazon Web Services) IAM authentication where possible.\n\n  You can connect to your Atlas clusters using AWS (Amazon Web Services) [IAM roles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html)\n  instead of hardcoding your credentials in Lambda. Hardcoded credentials are\n  viewable by anyone who accesses your AWS Lambda environment, which can pose\n  a security risk. With AWS (Amazon Web Services) IAM authentication, Atlas accesses AWS (Amazon Web Services) Lambda\n  through an [assumed IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/using-service-linked-roles.html),\n  so you don't need credentials in your connection strings.\n\n  Atlas supports AWS (Amazon Web Services) IAM authentication for clusters running\n  MongoDB version 7.0 or higher. We strongly advise using AWS (Amazon Web Services) IAM\n  authentication for Lambda connections if your cluster meets the\n  requirements.\n\n* The amount of memory allocated to a Lambda function defaults to 128\n  MB. You can configure the amount of memory allocated to a Lambda\n  function, between 128 MB and 10,240 MB. Ensure you allocate enough\n  memory. Increase the memory to increase the amount of virtual CPU\n  available and improve MongoDB driver performance. To learn more, see\n  [Memory and computing power](https://docs.aws.amazon.com/lambda/latest/operatorguide/computing-power.html).\n\n* Set your [AWS\\_STS\\_REGIONAL\\_ENDPOINTS](http://docs.aws.amazon.com/sdkref/latest/guide/feature-sts-regionalized-endpoints.html) and\n  [AWS\\_REGION](http://docs.aws.amazon.com/sdkref/latest/guide/feature-region.html) environment\n  variables.",
+      "codeBlocks": [],
+      "slug": "best-practices",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```",
       "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--c",
+      "selections": {
+        "drivers": "c"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see the [Specify Connection Options](languages/cpp/cpp-driver/current/connect/connection-options)\n  guide.",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--cpp",
+      "selections": {
+        "drivers": "cpp"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](csharp/fundamentals/connection/connection-options).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--csharp",
+      "selections": {
+        "drivers": "csharp"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](go/fundamentals/connection).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--go",
+      "selections": {
+        "drivers": "go"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](java/sync/current/fundamentals/connection/connection-options).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--java-sync",
+      "selections": {
+        "drivers": "java-sync"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](kotlin/coroutine/current/fundamentals/connection/connection-options).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--kotlin-coroutine",
+      "selections": {
+        "drivers": "kotlin-coroutine"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](languages/kotlin/kotlin-sync-driver/current/connect/connection-options/kotlin-sync-connection-options).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--kotlin-sync",
+      "selections": {
+        "drivers": "kotlin-sync"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If your handler takes a callback as its last argument, set the\n  `callbackWaitsForEmptyEventLoop` property on the\n  [AWS Lambda Context](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html#nodejs-prog-model-context-properties)\n  object to **false**.\n\n  ```js\n  context.callbackWaitsForEmptyEventLoop = false;\n  ```\n\n  This allows a Lambda function to return its result to the caller\n  without requiring that the MongoDB database connection be closed.\n  Setting this property is not applicable for [async handlers](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html).\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](node/fundamentals/connection/connection-options).",
+      "codeBlocks": [
         {
           "language": "js",
           "content": "context.callbackWaitsForEmptyEventLoop = false;",
@@ -52,7 +144,19 @@
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](php-library/connect/connection-options).\n\n- To deploy serverless PHP applications to AWS Lambda, use the\n  [Bref](https://bref.sh/) framework. To install the prerequisites\n  and configure Bref, follow the [Setup](https://bref.sh/docs/setup)\n  tutorial in the Bref documentation.\n\n  Next, you can create a project directory, install the MongoDB and Bref\n  dependencies, and initialize the serverless configuration by running\n  the following commands:\n\n  ```bash\n  mkdir bref-mongodb-app && cd bref-mongodb-app\n  composer init\n  composer require bref/bref bref/extra-php-extensions mongodb/mongodb\n  vendor/bin/bref init\n  ```\n\n  Finally, add the MongoDB PHP extension to your project. The `bref/extra-php-extensions`\n  Composer package provides a Serverless Framework plugin that adds the MongoDB PHP extension\n  as a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html).\n  Update your `serverless.yml` file to include the following highlighted\n  lines:\n\n  ```yaml\n  plugins:\n      - ./vendor/bref/bref\n      - ./vendor/bref/extra-php-extensions\n\n  functions:\n      api:\n          handler: index.php\n          runtime: php-85-fpm\n          layers:\n              - ${bref-extra:mongodb2-php-85}\n  ```",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
@@ -67,45 +171,89 @@
           "language": "yaml",
           "content": "plugins:\n    - ./vendor/bref/bref\n    - ./vendor/bref/extra-php-extensions\n\nfunctions:\n    api:\n        handler: index.php\n        runtime: php-85-fpm\n        layers:\n            - ${bref-extra:mongodb2-php-85}",
           "tokenEstimate": 59
-        },
-        {
-          "language": "text",
-          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
-          "tokenEstimate": 33
-        },
-        {
-          "language": "text",
-          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
-          "tokenEstimate": 33
-        },
-        {
-          "language": "text",
-          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
-          "tokenEstimate": 33
-        },
+        }
+      ],
+      "slug": "best-practices--php",
+      "selections": {
+        "drivers": "php"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Tools for Connecting to MongoDB](https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
           "tokenEstimate": 33
         }
-      ]
+      ],
+      "slug": "best-practices--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [URI options](ruby-driver/master/reference/create-client).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+          "tokenEstimate": 33
+        }
+      ],
+      "slug": "best-practices--ruby",
+      "selections": {
+        "drivers": "ruby"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](rust/fundamentals/connections/connection-options).",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+          "tokenEstimate": 33
+        }
+      ],
+      "slug": "best-practices--rust",
+      "selections": {
+        "drivers": "rust"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Best Practices",
+      "headingLevel": 2,
+      "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+          "tokenEstimate": 33
+        }
+      ],
+      "slug": "best-practices--scala",
+      "selections": {
+        "drivers": "scala"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Connection Example",
       "headingLevel": 2,
-      "body": "**C:**\n\nC\n\n```c\n#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}\n```\n\n**Cpp:**\n\nC++11\n\n```cpp\n#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}\n```\n\n**C#:**\n\nC#",
-      "codeBlocks": [
-        {
-          "language": "c",
-          "content": "#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}",
-          "tokenEstimate": 184
-        },
-        {
-          "language": "cpp",
-          "content": "#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}",
-          "tokenEstimate": 440
-        }
-      ]
+      "body": "C\n\nC++11\n\nC#",
+      "codeBlocks": [],
+      "slug": "connection-example",
+      "variantAgnostic": true
     },
     {
       "heading": "AWS (Amazon Web Services) IAM Authentication",
@@ -117,12 +265,17 @@
           "content": "string username = Environment.GetEnvironmentVariable(\"AWS_ACCESS_KEY_ID\");\nstring password = Environment.GetEnvironmentVariable(\"AWS_SECRET_ACCESS_KEY\");\nstring awsSessionToken = Environment.GetEnvironmentVariable(\"AWS_SESSION_TOKEN\");\n\nvar awsCredentials =\n    new MongoCredential(\"MONGODB-AWS\", new MongoExternalIdentity(username), new PasswordEvidence(password))\n    .WithMechanismProperty(\"AWS_SESSION_TOKEN\", awsSessionToken);\n\nvar mongoUrl = MongoUrl.Create($\"<MONGODB_URI>\");\n\nvar mongoClientSettings = MongoClientSettings.FromUrl(mongoUrl);\nmongoClientSettings.Credential = awsCredentials;\nmongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n\nreturn new MongoClient(mongoClientSettings);",
           "tokenEstimate": 142
         }
-      ]
+      ],
+      "slug": "aws-amazon-web-services-iam-authentication--csharp",
+      "selections": {
+        "drivers": "csharp"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Other Authentication",
       "headingLevel": 3,
-      "body": "```csharp\nprivate static MongoClient MongoClient { get; set; }\nprivate static MongoClient CreateMongoClient()\n{\n    var mongoClientSettings = MongoClientSettings.FromConnectionString($\"<MONGODB_URI>\");\n    mongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n    return new MongoClient(mongoClientSettings);\n}\n\nstatic ShareMongoClientLambdaHandler()\n{\n    MongoClient = CreateMongoClient();\n}\n\npublic string HandleRequest(ILambdaContext context)\n{\n    var database = MongoClient.GetDatabase(\"db\");\n    var collection = database.GetCollection<BsonDocument>(\"coll\");\n    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();\n    return result.ToString();\n}\n```\n\n**Go:**\n\nGo\n\n```go\nimport (\n\t\"context\"\n\t\"os\"\n\n\truntime \"github.com/aws/aws-lambda-go/lambda\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar client, err = mongo.Connect(options.Client().ApplyURI(os.Getenv(\"MONGODB_URI\")))\n\nfunc HandleRequest(ctx context.Context) error {\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn client.Ping(context.TODO(), nil)\n}\n\n```\n\n**Java-sync:**\n\nJava (Sync)\n\n```java\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport org.bson.Document;\n\npublic class ExampleAwsLambdaHandler implements RequestHandler<String, String> {\n    private final MongoClient client;\n\n    public ExampleAwsLambdaHandler() {\n        client = MongoClients.create(System.getenv(\"MONGODB_URI\"));\n    }\n\n    @Override\n    public String handleRequest(final String input, final Context context) {\n        return client.getDatabase(\"admin\").runCommand(new Document(\"ping\", 1)).toJson();\n    }\n}\n```\n\n**Kotlin-coroutine:**\n\nKotlin (Coroutine)\n\n```kotlin\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport com.mongodb.kotlin.client.coroutine.MongoDatabase\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String = runBlocking {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        result.toJson()\n    }\n}\n```\n\n**Kotlin-sync:**\n\nKotlin (Sync)\n\n```kotlin\nimport com.mongodb.kotlin.client.MongoClient\nimport com.mongodb.kotlin.client.MongoDatabase\nimport org.bson.Document\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        return result.toJson()\n    }\n}\n```\n\n**Nodejs:**\n\nNode.js",
+      "body": "```csharp\nprivate static MongoClient MongoClient { get; set; }\nprivate static MongoClient CreateMongoClient()\n{\n    var mongoClientSettings = MongoClientSettings.FromConnectionString($\"<MONGODB_URI>\");\n    mongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n    return new MongoClient(mongoClientSettings);\n}\n\nstatic ShareMongoClientLambdaHandler()\n{\n    MongoClient = CreateMongoClient();\n}\n\npublic string HandleRequest(ILambdaContext context)\n{\n    var database = MongoClient.GetDatabase(\"db\");\n    var collection = database.GetCollection<BsonDocument>(\"coll\");\n    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();\n    return result.ToString();\n}\n```\n\nGo\n\n```go\nimport (\n\t\"context\"\n\t\"os\"\n\n\truntime \"github.com/aws/aws-lambda-go/lambda\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar client, err = mongo.Connect(options.Client().ApplyURI(os.Getenv(\"MONGODB_URI\")))\n\nfunc HandleRequest(ctx context.Context) error {\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn client.Ping(context.TODO(), nil)\n}\n\n```\n\nJava (Sync)\n\n```java\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport org.bson.Document;\n\npublic class ExampleAwsLambdaHandler implements RequestHandler<String, String> {\n    private final MongoClient client;\n\n    public ExampleAwsLambdaHandler() {\n        client = MongoClients.create(System.getenv(\"MONGODB_URI\"));\n    }\n\n    @Override\n    public String handleRequest(final String input, final Context context) {\n        return client.getDatabase(\"admin\").runCommand(new Document(\"ping\", 1)).toJson();\n    }\n}\n```\n\nKotlin (Coroutine)\n\n```kotlin\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport com.mongodb.kotlin.client.coroutine.MongoDatabase\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String = runBlocking {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        result.toJson()\n    }\n}\n```\n\nKotlin (Sync)\n\n```kotlin\nimport com.mongodb.kotlin.client.MongoClient\nimport com.mongodb.kotlin.client.MongoDatabase\nimport org.bson.Document\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        return result.toJson()\n    }\n}\n```\n\nNode.js",
       "codeBlocks": [
         {
           "language": "csharp",
@@ -149,7 +302,12 @@
           "content": "import com.mongodb.kotlin.client.MongoClient\nimport com.mongodb.kotlin.client.MongoDatabase\nimport org.bson.Document\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        return result.toJson()\n    }\n}",
           "tokenEstimate": 124
         }
-      ]
+      ],
+      "slug": "other-authentication--csharp",
+      "selections": {
+        "drivers": "csharp"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "AWS (Amazon Web Services) IAM Authentication",
@@ -161,19 +319,29 @@
           "content": "const { MongoClient } = require('mongodb');\n\n// Get the URI for the cluster then set AWS_ACCESS_KEY_ID as the username in the\n// URI and AWS_SECRET_ACCESS_KEY as the password, then set the appropriate auth\n// options. Note that MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI, {\n  auth: {\n    username: process.env.AWS_ACCESS_KEY_ID,\n    password: process.env.AWS_SECRET_ACCESS_KEY\n  },\n  authSource: '$external',\n  authMechanism: 'MONGODB-AWS'\n});\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};",
           "tokenEstimate": 171
         }
-      ]
+      ],
+      "slug": "aws-amazon-web-services-iam-authentication--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Other Authentication",
       "headingLevel": 3,
-      "body": "```js\nconst { MongoClient } = require('mongodb');\n\n// MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};\n```\n\n**PHP:**\n\nPHP",
+      "body": "```js\nconst { MongoClient } = require('mongodb');\n\n// MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};\n```\n\nPHP",
       "codeBlocks": [
         {
           "language": "js",
           "content": "const { MongoClient } = require('mongodb');\n\n// MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};",
           "tokenEstimate": 85
         }
-      ]
+      ],
+      "slug": "other-authentication--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Set AWS Credentials",
@@ -185,7 +353,12 @@
           "content": "provider:\n   environment:\n      MONGODB_URI: \"<connection string without credentials>\"",
           "tokenEstimate": 16
         }
-      ]
+      ],
+      "slug": "set-aws-credentials--php",
+      "selections": {
+        "drivers": "php"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Define Your Lambda Function",
@@ -197,12 +370,17 @@
           "content": "require 'vendor/autoload.php';\n\nuse MongoDB\\Client;\n\n// Create the MongoDB client outside the handler function\n$client = new Client(getenv('MONGODB_URI'));\n\nfunction handler($event, $context) {\n    global $client;\n    \n    $database = $client->getDatabase('admin');\n    $result = $database->command(['ping' => 1]);\n    \n    return [\n        'statusCode' => 200,\n        'body' => json_encode($result)\n    ];\n}",
           "tokenEstimate": 98
         }
-      ]
+      ],
+      "slug": "define-your-lambda-function--php",
+      "selections": {
+        "drivers": "php"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Deploy Your Application",
       "headingLevel": 3,
-      "body": "To deploy your application, run the following command:\n\n```bash\nserverless deploy\n```\n\n**Python:**\n\nPython\n\n```python\nimport os\n\nfrom pymongo import MongoClient\n\nclient = MongoClient(host=os.environ[\"MONGODB_URI\"])\n\ndef lambda_handler(event, context):\n    return client.db.command(\"ping\")\n\n```\n\n**Ruby:**\n\nRuby",
+      "body": "To deploy your application, run the following command:\n\n```bash\nserverless deploy\n```\n\nPython\n\n```python\nimport os\n\nfrom pymongo import MongoClient\n\nclient = MongoClient(host=os.environ[\"MONGODB_URI\"])\n\ndef lambda_handler(event, context):\n    return client.db.command(\"ping\")\n\n```\n\nRuby",
       "codeBlocks": [
         {
           "language": "bash",
@@ -214,7 +392,12 @@
           "content": "import os\n\nfrom pymongo import MongoClient\n\nclient = MongoClient(host=os.environ[\"MONGODB_URI\"])\n\ndef lambda_handler(event, context):\n    return client.db.command(\"ping\")\n",
           "tokenEstimate": 34
         }
-      ]
+      ],
+      "slug": "deploy-your-application--php",
+      "selections": {
+        "drivers": "php"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "AWS (Amazon Web Services) IAM Authentication",
@@ -226,19 +409,29 @@
           "content": "\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance using AWS IAM authentication.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new([ENV.fetch(\"MONGODB_HOST\")],\n                           auth_mech: :aws,\n                           user: ENV.fetch(\"AWS_ACCESS_KEY_ID\"),\n                           password: ENV.fetch(\"AWS_SECRET_ACCESS_KEY\"),\n                           auth_mech_properties: {\n                             aws_session_token: ENV.fetch(\"AWS_SESSION_TOKEN\"),\n                           },\n                           database: ENV.fetch(\"MONGODB_DATABASE\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n",
           "tokenEstimate": 154
         }
-      ]
+      ],
+      "slug": "aws-amazon-web-services-iam-authentication--ruby",
+      "selections": {
+        "drivers": "ruby"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Other Authentication",
       "headingLevel": 3,
-      "body": "```ruby\n\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new(ENV.fetch(\"MONGODB_URI\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n\n```\n\n**Rust:**\n\nRust",
+      "body": "```ruby\n\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new(ENV.fetch(\"MONGODB_URI\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n\n```\n\nRust",
       "codeBlocks": [
         {
           "language": "ruby",
           "content": "\n# Require the driver library.\nrequire \"mongo\"\n\n# Create a Mongo::Client instance.\n# CRITICAL: You must create the client instance outside the handler\n# so that the client can be reused across function invocations.\nclient = Mongo::Client.new(ENV.fetch(\"MONGODB_URI\"))\n\ndef lambda_handler(event:, context:)\n  # Use the client to return the name of the configured database.\n  client.database.name\nend\n",
           "tokenEstimate": 88
         }
-      ]
+      ],
+      "slug": "other-authentication--ruby",
+      "selections": {
+        "drivers": "ruby"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "AWS IAM Authentication",
@@ -250,12 +443,17 @@
           "content": "use lambda_runtime::{service_fn, LambdaEvent};\nuse mongodb::{\n    bson::doc,\n    options::{AuthMechanism, ClientOptions, Credential},\n    Client,\n};\nuse serde_json::Value;\nuse tokio::sync::OnceCell;\n\n// Initialize a global static MongoDB Client with AWS authentication. The following environment\n// variables should also be set: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and, optionally,\n// AWS_SESSION_TOKEN.\nstatic MONGODB_CLIENT: OnceCell<Client> = OnceCell::const_new();\n\nasync fn get_mongodb_client() -> &'static Client {\n    MONGODB_CLIENT\n        .get_or_init(|| async {\n            let uri = std::env::var(\"MONGODB_URI\")\n                .expect(\"MONGODB_URI must be set to the URI of the MongoDB deployment\");\n            let mut options = ClientOptions::parse(&uri)\n                .await\n                .expect(\"Failed to parse options from URI\");\n            let credential = Credential::builder()\n                .mechanism(AuthMechanism::MongoDbAws)\n                .build();\n            options.credential = Some(credential);\n            Client::with_options(options).expect(\"Failed to create MongoDB Client\")\n        })\n        .await\n}\n\n// Runs a ping operation on the \"db\" database and returns the response.\nasync fn handler(_: LambdaEvent<Value>) -> Result<Value, lambda_runtime::Error> {\n    let client = get_mongodb_client().await;\n    let response = client\n        .database(\"db\")\n        .run_command(doc! { \"ping\": 1 })\n        .await?;\n    let json = serde_json::to_value(response)?;\n    Ok(json)\n}\n\n#[tokio::main]\nasync fn main() -> Result<(), lambda_runtime::Error> {\n    let service = service_fn(handler);\n    lambda_runtime::run(service).await?;\n    Ok(())\n}",
           "tokenEstimate": 376
         }
-      ]
+      ],
+      "slug": "aws-iam-authentication--rust",
+      "selections": {
+        "drivers": "rust"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Other Authentication",
       "headingLevel": 3,
-      "body": "```rust\nuse lambda_runtime::{service_fn, LambdaEvent};\nuse mongodb::{bson::doc, Client};\nuse serde_json::Value;\nuse tokio::sync::OnceCell;\n\n// Initialize a global static MongoDB Client.\nstatic MONGODB_CLIENT: OnceCell<Client> = OnceCell::const_new();\n\nasync fn get_mongodb_client() -> &'static Client {\n    MONGODB_CLIENT\n        .get_or_init(|| async {\n            let uri = std::env::var(\"MONGODB_URI\")\n                .expect(\"MONGODB_URI must be set to the URI of the MongoDB deployment\");\n            Client::with_uri_str(uri)\n                .await\n                .expect(\"Failed to create MongoDB Client\")\n        })\n        .await\n}\n\n// Runs a ping operation on the \"db\" database and returns the response.\nasync fn handler(_: LambdaEvent<Value>) -> Result<Value, lambda_runtime::Error> {\n    let client = get_mongodb_client().await;\n    let response = client\n        .database(\"db\")\n        .run_command(doc! { \"ping\": 1 })\n        .await?;\n    let json = serde_json::to_value(response)?;\n    Ok(json)\n}\n\n#[tokio::main]\nasync fn main() -> Result<(), lambda_runtime::Error> {\n    let service = service_fn(handler);\n    lambda_runtime::run(service).await?;\n    Ok(())\n}\n```\n\n**Scala:**\n\nScala\n\n```scala\nimport org.mongodb.scala.{MongoClient, Document}\nimport scala.concurrent.Await\nimport scala.concurrent.duration.Duration\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler extends RequestHandler[String, String] {\n\n    private val client: MongoClient = MongoClient(System.getenv(\"MONGODB_URI\"))\n\n    override def handleRequest(input: String, context: Context): String = {\n        val database = client.getDatabase(\"admin\")\n        val command = Document(\"ping\" -> 1)\n        val futureResult = database.runCommand(command).toFuture()\n\n        val result = Await.result(futureResult, Duration(30, \"second\"))\n        result.toJson()\n    }\n}\n```",
+      "body": "```rust\nuse lambda_runtime::{service_fn, LambdaEvent};\nuse mongodb::{bson::doc, Client};\nuse serde_json::Value;\nuse tokio::sync::OnceCell;\n\n// Initialize a global static MongoDB Client.\nstatic MONGODB_CLIENT: OnceCell<Client> = OnceCell::const_new();\n\nasync fn get_mongodb_client() -> &'static Client {\n    MONGODB_CLIENT\n        .get_or_init(|| async {\n            let uri = std::env::var(\"MONGODB_URI\")\n                .expect(\"MONGODB_URI must be set to the URI of the MongoDB deployment\");\n            Client::with_uri_str(uri)\n                .await\n                .expect(\"Failed to create MongoDB Client\")\n        })\n        .await\n}\n\n// Runs a ping operation on the \"db\" database and returns the response.\nasync fn handler(_: LambdaEvent<Value>) -> Result<Value, lambda_runtime::Error> {\n    let client = get_mongodb_client().await;\n    let response = client\n        .database(\"db\")\n        .run_command(doc! { \"ping\": 1 })\n        .await?;\n    let json = serde_json::to_value(response)?;\n    Ok(json)\n}\n\n#[tokio::main]\nasync fn main() -> Result<(), lambda_runtime::Error> {\n    let service = service_fn(handler);\n    lambda_runtime::run(service).await?;\n    Ok(())\n}\n```\n\nScala\n\n```scala\nimport org.mongodb.scala.{MongoClient, Document}\nimport scala.concurrent.Await\nimport scala.concurrent.duration.Duration\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler extends RequestHandler[String, String] {\n\n    private val client: MongoClient = MongoClient(System.getenv(\"MONGODB_URI\"))\n\n    override def handleRequest(input: String, context: Context): String = {\n        val database = client.getDatabase(\"admin\")\n        val command = Document(\"ping\" -> 1)\n        val futureResult = database.runCommand(command).toFuture()\n\n        val result = Await.result(futureResult, Duration(30, \"second\"))\n        result.toJson()\n    }\n}\n```",
       "codeBlocks": [
         {
           "language": "rust",
@@ -266,6 +464,105 @@
           "language": "scala",
           "content": "import org.mongodb.scala.{MongoClient, Document}\nimport scala.concurrent.Await\nimport scala.concurrent.duration.Duration\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler extends RequestHandler[String, String] {\n\n    private val client: MongoClient = MongoClient(System.getenv(\"MONGODB_URI\"))\n\n    override def handleRequest(input: String, context: Context): String = {\n        val database = client.getDatabase(\"admin\")\n        val command = Document(\"ping\" -> 1)\n        val futureResult = database.runCommand(command).toFuture()\n\n        val result = Await.result(futureResult, Duration(30, \"second\"))\n        result.toJson()\n    }\n}",
           "tokenEstimate": 142
+        }
+      ],
+      "slug": "other-authentication--rust",
+      "selections": {
+        "drivers": "rust"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Connection Example",
+      "headingLevel": 2,
+      "body": "```c\n#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "c",
+          "content": "#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}",
+          "tokenEstimate": 184
+        }
+      ],
+      "slug": "connection-example--c",
+      "selections": {
+        "drivers": "c"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Connection Example",
+      "headingLevel": 2,
+      "body": "```cpp\n#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "cpp",
+          "content": "#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}",
+          "tokenEstimate": 440
+        }
+      ],
+      "slug": "connection-example--cpp",
+      "selections": {
+        "drivers": "cpp"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "drivers",
+      "text": "drivers",
+      "selections": [
+        {
+          "value": "c",
+          "text": "c"
+        },
+        {
+          "value": "cpp",
+          "text": "cpp"
+        },
+        {
+          "value": "csharp",
+          "text": "csharp"
+        },
+        {
+          "value": "go",
+          "text": "go"
+        },
+        {
+          "value": "java-sync",
+          "text": "java-sync"
+        },
+        {
+          "value": "kotlin-coroutine",
+          "text": "kotlin-coroutine"
+        },
+        {
+          "value": "kotlin-sync",
+          "text": "kotlin-sync"
+        },
+        {
+          "value": "nodejs",
+          "text": "nodejs"
+        },
+        {
+          "value": "php",
+          "text": "php"
+        },
+        {
+          "value": "python",
+          "text": "python"
+        },
+        {
+          "value": "ruby",
+          "text": "ruby"
+        },
+        {
+          "value": "rust",
+          "text": "rust"
+        },
+        {
+          "value": "scala",
+          "text": "scala"
         }
       ]
     }

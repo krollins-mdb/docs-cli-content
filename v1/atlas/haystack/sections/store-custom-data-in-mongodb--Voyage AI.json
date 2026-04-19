@@ -1,0 +1,27 @@
+{
+  "heading": "Store Custom Data in MongoDB",
+  "headingLevel": 3,
+  "body": "In this section, you instantiate MongoDB as a vector database,\nalso called a [document store](https://docs.haystack.deepset.ai/docs/mongodbatlasdocumentstore).\nThen, you create vector embeddings from custom data and store\nthese documents in a collection in MongoDB. Paste and\nrun the following code snippets in your notebook.\n\nRun the following code to instantiate Atlas as a document store.\nThis code establishes a connection to your\nAtlas cluster and specifies the following:\n\n- `haystack_db` and `test` as the Atlas database and collection\n  used to store the documents.\n\n- `vector_index` as the index used to run semantic search queries.\n\n```python\ndocument_store = MongoDBAtlasDocumentStore(\n   database_name=\"haystack_db\",\n   collection_name=\"test\",\n   vector_search_index=\"vector_index\",\n   full_text_search_index=\"search_index\" # Declared but not used in this example\n)\n```\n\nThis code defines a few sample documents and runs a\n[pipeline](https://docs.haystack.deepset.ai/docs/pipelines)\nwith the following components:\n\n- An [embedder](https://docs.haystack.deepset.ai/docs/embedders) from OpenAI to\n  convert your document into vector embeddings.\n\n- A [document writer](https://docs.haystack.deepset.ai/docs/documentwriter) to\n  populate your document store with the sample documents\n  and their embeddings.\n\n**Input:**\n\n```python\n# Create some example documents\ndocuments = [\n   Document(content=\"My name is Jean and I live in Paris.\"),\n   Document(content=\"My name is Mark and I live in Berlin.\"),\n   Document(content=\"My name is Giorgio and I live in Rome.\"),\n]\n\n# Initializing a document embedder to convert text content into vectorized form.\ndoc_embedder = VoyageDocumentEmbedder()\n\n# Setting up a document writer to handle the insertion of documents into the MongoDB collection.\ndoc_writer = DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP)\n\n# Creating a pipeline for indexing documents. The pipeline includes embedding and writing documents.\nindexing_pipe = Pipeline()\nindexing_pipe.add_component(instance=doc_embedder, name=\"doc_embedder\")\nindexing_pipe.add_component(instance=doc_writer, name=\"doc_writer\")\n\n# Connecting the components of the pipeline for document flow.\nindexing_pipe.connect(\"doc_embedder.documents\", \"doc_writer.documents\")\n\n# Running the pipeline with the list of documents to index them in MongoDB.\nindexing_pipe.run({\"doc_embedder\": {\"documents\": documents}})\n```\n\n**Output:**\n\n```\nCalculating embeddings: 100%|██████████| 1/1 [00:00<00:00,  4.42it/s]\n{'doc_embedder': {'meta': {'total_tokens': 32}},\n 'doc_writer': {'documents_written': 3}}\n```\n\n> **Tip:** After running the sample code, if you're using Atlas, you can verify your vector embeddings\n> by navigating to the `haystack_db.test` namespace\n> [in the Atlas UI](atlas-ui-view-collections).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "document_store = MongoDBAtlasDocumentStore(\n   database_name=\"haystack_db\",\n   collection_name=\"test\",\n   vector_search_index=\"vector_index\",\n   full_text_search_index=\"search_index\" # Declared but not used in this example\n)",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "python",
+      "content": "# Create some example documents\ndocuments = [\n   Document(content=\"My name is Jean and I live in Paris.\"),\n   Document(content=\"My name is Mark and I live in Berlin.\"),\n   Document(content=\"My name is Giorgio and I live in Rome.\"),\n]\n\n# Initializing a document embedder to convert text content into vectorized form.\ndoc_embedder = VoyageDocumentEmbedder()\n\n# Setting up a document writer to handle the insertion of documents into the MongoDB collection.\ndoc_writer = DocumentWriter(document_store=document_store, policy=DuplicatePolicy.SKIP)\n\n# Creating a pipeline for indexing documents. The pipeline includes embedding and writing documents.\nindexing_pipe = Pipeline()\nindexing_pipe.add_component(instance=doc_embedder, name=\"doc_embedder\")\nindexing_pipe.add_component(instance=doc_writer, name=\"doc_writer\")\n\n# Connecting the components of the pipeline for document flow.\nindexing_pipe.connect(\"doc_embedder.documents\", \"doc_writer.documents\")\n\n# Running the pipeline with the list of documents to index them in MongoDB.\nindexing_pipe.run({\"doc_embedder\": {\"documents\": documents}})",
+      "tokenEstimate": 222
+    },
+    {
+      "language": "text",
+      "content": "Calculating embeddings: 100%|██████████| 1/1 [00:00<00:00,  4.42it/s]\n{'doc_embedder': {'meta': {'total_tokens': 32}},\n 'doc_writer': {'documents_written': 3}}",
+      "tokenEstimate": 59
+    }
+  ],
+  "slug": "store-custom-data-in-mongodb--Voyage AI",
+  "selections": {
+    "tabs": "Voyage AI"
+  },
+  "variantAgnostic": false
+}

@@ -7,48 +7,81 @@
       "heading": "About Customer-Managed Keys with Azure Key Vault",
       "headingLevel": 2,
       "body": "Customer key management in Atlas follows a process called envelope encryption.\nThis process creates multiple layers of encryption by encrypting one key with another\nkey. To enable customer key management, Atlas uses the following encryption keys:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-customer-managed-keys-with-azure-key-vault",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
       "headingLevel": 3,
       "body": "Consider the following encryption hierarchy for a three-node replica set.\nAtlas uses the CMK (customer-managed key) from Google Cloud KMS to encrypt a unique\nMongoDB Master Key for each node in the cluster. Each node also contains\nthree databases, each of which is encrypted with a unique\nper-database encryption key. When the cluster starts up,\nAtlas decrypts the MongoDB Master Key by using the CMK (customer-managed key) from\nGoogle Cloud KMS and supplies this to the MongoDB Server.\n\n> **Note:** If you revoke Atlas's access to the CMK (customer-managed key), Atlas shuts down the\n> nodes in your cluster and you can't access your data until\n> you restore access to the CMK (customer-managed key).\n\n![Diagram of CMK workflow with AKV and Atlas](/images/azure-kms-cmk-diagram.png)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "What You Need to Know",
       "headingLevel": 2,
       "body": "After configuring Atlas to use your AKV (Azure Key Vault) CMK (customer-managed key), learn more\n[About Rotating Your Azure Key Identifier](azure-kms-rotate-key) and [About Azure Key Vault Failover During an Outage](akv-failover).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "what-you-need-to-know",
+      "variantAgnostic": true
     },
     {
       "heading": "About Rotating Your Azure Key Identifier",
       "headingLevel": 3,
       "body": "> **Note:** This feature is not available for any of the following deployments:\n>\n> - Free clusters\n>\n> - Flex clusters\n>\n> To learn more, see [Limits](limits).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-rotating-your-azure-key-identifier",
+      "variantAgnostic": true
     },
     {
       "heading": "MongoDB Master Key - MongoDB Responsibility",
       "headingLevel": 4,
       "body": "When you use your own cloud provider KMS (Key Management Service), Atlas automatically rotates\nMongoDB Master Keys at least every 90 days. Your key rotation will begin\nduring a [Configure Maintenance Window](configure-maintenance-window),\nif you have one configured. Deferring maintenance (either manually or automatically)\nmay cause the key to be rotated past the 90-day mark.\nKeys are rotated on a\nrolling basis and the process does not require the data to be rewritten.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "mongodb-master-key-mongodb-responsibility",
+      "variantAgnostic": true
     },
     {
       "heading": "Rotate your Azure Key ID - Your Responsibility",
       "headingLevel": 4,
       "body": "Atlas does *not* automatically rotate the Key Identifier used for\nAzure Key Vault.\n\nAtlas automatically creates an [encryption key rotation alert](<Azure encryption key elapsed time since last rotation is above (n) days>) to remind you to rotate your Azure Key Identifier every 90 days by\ndefault when you [Manage Customer Keys with Azure Key Vault](security-azure-kms)\nfor an Atlas project.\n\nYou can [rotate](https://learn.microsoft.com/en-us/azure/container-registry/tutorial-rotate-revoke-customer-managed-keys)\nCMK (customer-managed key) stored in Azure Key Vault yourself or configure\nyour Azure Key Vault to automatically rotate your keys. If you\nconfigure [automatic rotation](https://learn.microsoft.com/en-us/azure/virtual-machines/disk-encryption#automatic-key-rotation-of-customer-managed-keys)\nin Azure Key Vault, the default time period for rotation is\napproximately 365 days.\n\nIf you have already set up an automatic rotation in Azure Key Vault and\ndon't want to receive the Atlas alert to rotate your Azure Key\nIdentifier every 90 days, you can [Configure Alert Settings](configure-alerts) the\ndefault alert period to be greater than 365 days.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "rotate-your-azure-key-id-your-responsibility",
+      "variantAgnostic": true
     },
     {
       "heading": "About Azure Key Vault Failover During an Outage",
       "headingLevel": 3,
       "body": "During a regional outage, your AKV (Azure Key Vault) region might become unavailable. If\nthis happens, Azure (Microsoft Azure) automatically routes incoming Key Vault requests\nto a pre-assigned secondary region. To learn more, see [Azure Key\nVault Failover](https://docs.microsoft.com/en-us/azure/key-vault/general/disaster-recovery-guidance#failover)\nand [Regional Pairings](https://docs.microsoft.com/en-us/azure/reliability/cross-region-replication-azure#azure-cross-region-replication-pairings-for-all-geographies).\n\nIf both regions are down, you can manually migrate your key to a\nregion outside of the regional pairing. To learn more, see\n[Move a Key Vault across Regions](https://docs.microsoft.com/en-us/azure/key-vault/general/move-region).\n\n> **Note:** If you've enabled [Encryption at Rest using Customer Key Management](security-kms-encryption), you can perform\n> encrypt and decrypt operations while at least one node is still\n> available during the outage. Atlas won't shut down your\n> clusters.\n\nFor certain regions, Azure (Microsoft Azure) doesn't support automatic failover. To\nlearn more, see [Azure documentation](https://docs.microsoft.com/en-us/azure/key-vault/general/disaster-recovery-guidance).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-azure-key-vault-failover-during-an-outage",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 2,
-      "body": "To configure customer key management, you must have [Project Owner](<Project Owner>)\naccess to the project.\n\nUsers with [Organization Owner](<Organization Owner>) access must add themselves to the\nproject as a `Project Owner`.\n\nYou must grant Atlas access to your AKV (Azure Key Vault) using a\n**Permission Model**. You can grant access by using a Key Vault\nAccess Policy or Azure (Microsoft Azure) RBAC (Role Based Access Control).\n\n**Access-policy:**\n\nVault Access Policy\n\nIf you use access policies, do the following in the Azure (Microsoft Azure) UI to\ngrant Atlas access to your AKV (Azure Key Vault).\n\n- Under **Access Control (IAM)** settings, grant the\n  `Microsoft.KeyVault/vaults/read` permission to your application.\n\n- In the **Access Policies** page, create an access\n  policy with the following **Key Permissions**:\n\n  | Grant this permission... | To...                                                                                                          |\n  | ------------------------ | -------------------------------------------------------------------------------------------------------------- |\n  | Get                      | Read the metadata about the key stored in your AKV (Azure Key Vault).                                          |\n  | Encrypt                  | Use the keys in your AKV (Azure Key Vault) to encrypt data.                                                    |\n  | Decrypt                  | Use the keys in your AKV (Azure Key Vault) to decrypt data that has been previously encrypted with those keys. |\n\n- Add the same app as the principal and configure the access policy.\n\n**Rbac:**\n\nAzure RBAC\n\nIf your AKV (Azure Key Vault) uses RBAC (Role Based Access Control), you\nmust do the following in the Azure (Microsoft Azure) UI **Access Control\n(IAM)** settings to grant Atlas access to your AKV (Azure Key Vault).\n\n- Grant the following `actions` permissions to the application.\n\n  | Grant this permission...            | To...                                                                 |\n  | ----------------------------------- | --------------------------------------------------------------------- |\n  | Microsoft.KeyVault/vaults/read      | Read the properties of a Key Vault                                    |\n  | Microsoft.KeyVault/vaults/keys/read | Read the metadata about the key stored in your AKV (Azure Key Vault). |\n\n  ```json\n  {\n    \"permissions\": [\n       {\n         \"actions\": [\n           \"Microsoft.KeyVault/vaults/read\"\n           \"Microsoft.KeyVault/vaults/keys/read\"\n         ]\n       }\n       ...\n    ]\n  }\n  ```\n\n- Grant the following `dataActions` permissions to the application.\n\n  | Grant this permission...                      | To...                                                                                            |\n  | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |\n  | Microsoft.KeyVault/vaults/keys/read           | Read the metadata about the key stored in your AKV (Azure Key Vault).                            |\n  | Microsoft.KeyVault/vaults/keys/encrypt/action | Use the keys in your AKV (Azure Key Vault) to encrypt data.                                      |\n  | Microsoft.KeyVault/vaults/keys/decrypt/action | Use the keys in your AKV (Azure Key Vault) to decrypt data previously encrypted with those keys. |\n\n  ```json\n  {\n    \"permissions\": [\n       ...\n       {\n         \"dataActions\": [\n           \"Microsoft.KeyVault/vaults/keys/read\",\n           \"Microsoft.KeyVault/vaults/keys/encrypt/action\",\n           \"Microsoft.KeyVault/vaults/keys/decrypt/action\"\n         ]\n       }\n    ]\n  }\n  ```",
+      "body": "To configure customer key management, you must have [Project Owner](<Project Owner>)\naccess to the project.\n\nUsers with [Organization Owner](<Organization Owner>) access must add themselves to the\nproject as a `Project Owner`.\n\nYou must grant Atlas access to your AKV (Azure Key Vault) using a\n**Permission Model**. You can grant access by using a Key Vault\nAccess Policy or Azure (Microsoft Azure) RBAC (Role Based Access Control).\n\nVault Access Policy\n\nAzure RBAC",
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "If you use access policies, do the following in the Azure (Microsoft Azure) UI to\ngrant Atlas access to your AKV (Azure Key Vault).\n\n- Under **Access Control (IAM)** settings, grant the\n  `Microsoft.KeyVault/vaults/read` permission to your application.\n\n- In the **Access Policies** page, create an access\n  policy with the following **Key Permissions**:\n\n  | Grant this permission... | To...                                                                                                          |\n  | ------------------------ | -------------------------------------------------------------------------------------------------------------- |\n  | Get                      | Read the metadata about the key stored in your AKV (Azure Key Vault).                                          |\n  | Encrypt                  | Use the keys in your AKV (Azure Key Vault) to encrypt data.                                                    |\n  | Decrypt                  | Use the keys in your AKV (Azure Key Vault) to decrypt data that has been previously encrypted with those keys. |\n\n- Add the same app as the principal and configure the access policy.",
+      "codeBlocks": [],
+      "slug": "required-access--access-policy",
+      "selections": {
+        "tabs": "access-policy"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Required Access",
+      "headingLevel": 2,
+      "body": "If your AKV (Azure Key Vault) uses RBAC (Role Based Access Control), you\nmust do the following in the Azure (Microsoft Azure) UI **Access Control\n(IAM)** settings to grant Atlas access to your AKV (Azure Key Vault).\n\n- Grant the following `actions` permissions to the application.\n\n  | Grant this permission...            | To...                                                                 |\n  | ----------------------------------- | --------------------------------------------------------------------- |\n  | Microsoft.KeyVault/vaults/read      | Read the properties of a Key Vault                                    |\n  | Microsoft.KeyVault/vaults/keys/read | Read the metadata about the key stored in your AKV (Azure Key Vault). |\n\n  ```json\n  {\n    \"permissions\": [\n       {\n         \"actions\": [\n           \"Microsoft.KeyVault/vaults/read\"\n           \"Microsoft.KeyVault/vaults/keys/read\"\n         ]\n       }\n       ...\n    ]\n  }\n  ```\n\n- Grant the following `dataActions` permissions to the application.\n\n  | Grant this permission...                      | To...                                                                                            |\n  | --------------------------------------------- | ------------------------------------------------------------------------------------------------ |\n  | Microsoft.KeyVault/vaults/keys/read           | Read the metadata about the key stored in your AKV (Azure Key Vault).                            |\n  | Microsoft.KeyVault/vaults/keys/encrypt/action | Use the keys in your AKV (Azure Key Vault) to encrypt data.                                      |\n  | Microsoft.KeyVault/vaults/keys/decrypt/action | Use the keys in your AKV (Azure Key Vault) to decrypt data previously encrypted with those keys. |\n\n  ```json\n  {\n    \"permissions\": [\n       ...\n       {\n         \"dataActions\": [\n           \"Microsoft.KeyVault/vaults/keys/read\",\n           \"Microsoft.KeyVault/vaults/keys/encrypt/action\",\n           \"Microsoft.KeyVault/vaults/keys/decrypt/action\"\n         ]\n       }\n    ]\n  }\n  ```",
       "codeBlocks": [
         {
           "language": "json",
@@ -60,19 +93,44 @@
           "content": "{\n  \"permissions\": [\n     ...\n     {\n       \"dataActions\": [\n         \"Microsoft.KeyVault/vaults/keys/read\",\n         \"Microsoft.KeyVault/vaults/keys/encrypt/action\",\n         \"Microsoft.KeyVault/vaults/keys/decrypt/action\"\n       ]\n     }\n  ]\n}",
           "tokenEstimate": 63
         }
-      ]
+      ],
+      "slug": "required-access--rbac",
+      "selections": {
+        "tabs": "rbac"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Next Steps",
       "headingLevel": 2,
       "body": "You can use a customer-managed key (CMK) from Azure Key Vault (AKV) over\na public network or over Azure (Microsoft Azure) Private Endpoints. To learn more, see\nthe following:\n\n- [Manage Customer Keys with Azure Key Vault Over Private Endpoints](security-azure-kms-pvt-endpoint)\n\n- [Manage Customer Keys with Azure Key Vault Over a Public Network](security-azure-kms-public-network)\n\n> **Note:** If you've enabled [Encryption at Rest using Customer Key Management](security-kms-encryption), you can\n> perform encrypt and decrypt operations while at least one node\n> is still available during the outage.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "next-steps",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Customer-Managed Keys for Search Nodes",
       "headingLevel": 3,
       "body": "By default, MongoDB and [search processes](about-mongot) run on the same nodes.\nWith this architecture, customer-managed encryption applies to your database data,\nbut it does not apply to search indexes.\n\nWhen you enable [Search Nodes](what-is-search-node), search processes run on separate nodes. This allows\nyou to enable [Enable Customer Key Management for Search Nodes](enable-search-node-encryption),\nso you can encrypt both database data and search indexes with the same\ncustomer-managed keys for comprehensive encryption coverage.\n\n> **Note:** Database nodes and Search Nodes use different encryption methods\n> with the same customer-managed keys. Database nodes use the\n> [WiredTiger Encrypted Storage Engine](manual/core/security-encryption-at-rest),\n> while Search Nodes use encryption at the disk level.\n\n> **Important:**&#x20;\n>\n> This feature is available across KMS (Key Management Service) providers, but the\n> Search Nodes must be on AWS (Amazon Web Services).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-customer-managed-keys-for-search-nodes",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "access-policy",
+          "text": "access-policy"
+        },
+        {
+          "value": "rbac",
+          "text": "rbac"
+        }
+      ]
     }
   ]
 }

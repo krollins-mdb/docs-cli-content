@@ -1,0 +1,17 @@
+{
+  "heading": "Modify a Stream Processor with a Window",
+  "headingLevel": 4,
+  "body": "```javascript\nsp.foo.stop();\nsp.foo.modify([\n  {$source: {\n    connectionName: \"StreamsAtlasConnection\",\n    db: \"test\",\n    coll: \"test\"\n  }},\n  {$replaceRoot: {newRoot: \"$fullDocument\"}},\n  {$match: {cost: {$gt: 500}}},\n  {$tumblingWindow: {\n    interval: {unit: \"day\", size: 1},\n    pipeline: [\n     {$group: {_id: \"$customerId\", sum: {$sum: \"$cost\"}, avg: {$avg: \"$cost\"}}}\n    ]\n  }},\n  {$merge: {\n    into: {\n    connectionName: \"StreamsAtlasConnection\",\n    db: \"testout\",\n    coll: \"testout\"\n   }\n  }}\n], {resumeFromCheckpoint: false});\nsp.foo.start();\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "sp.foo.stop();\nsp.foo.modify([\n  {$source: {\n    connectionName: \"StreamsAtlasConnection\",\n    db: \"test\",\n    coll: \"test\"\n  }},\n  {$replaceRoot: {newRoot: \"$fullDocument\"}},\n  {$match: {cost: {$gt: 500}}},\n  {$tumblingWindow: {\n    interval: {unit: \"day\", size: 1},\n    pipeline: [\n     {$group: {_id: \"$customerId\", sum: {$sum: \"$cost\"}, avg: {$avg: \"$cost\"}}}\n    ]\n  }},\n  {$merge: {\n    into: {\n    connectionName: \"StreamsAtlasConnection\",\n    db: \"testout\",\n    coll: \"testout\"\n   }\n  }}\n], {resumeFromCheckpoint: false});\nsp.foo.start();",
+      "tokenEstimate": 166
+    }
+  ],
+  "slug": "modify-a-stream-processor-with-a-window--mongosh",
+  "selections": {
+    "interface": "mongosh"
+  },
+  "variantAgnostic": false
+}

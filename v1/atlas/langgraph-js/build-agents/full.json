@@ -7,13 +7,17 @@
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "Before you begin, ensure that you have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- [npm and Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)\n  installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n> **Note:** This tutorial uses models from OpenAI and Voyage AI, but\n> you can modify the code to use your models of choice.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set up the Environment",
       "headingLevel": 2,
       "body": "To set up the environment, complete the following steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Initialize the project and install dependencies.",
@@ -30,35 +34,65 @@
           "content": "├── .env\n├── index.ts\n├── agent.ts\n├── seed-database.ts\n├── package.json\n├── tsconfig.json",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "step-1-initialize-the-project-and-install-dependencies",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Create the environment file.",
       "headingLevel": 3,
-      "body": "Create a `.env` file in your project root and add your API keys and connection string:\n\n```env\nOPENAI_API_KEY = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\nVOYAGEAI_API_KEY = \"<voyage-api-key>\"\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n*Duration: 30 Minutes*\n\n[https://www.youtube.com/watch?v=qXDrWKVSx1w](https://www.youtube.com/watch?v=qXDrWKVSx1w)",
+      "body": "Create a `.env` file in your project root and add your API keys and connection string:\n\n```env\nOPENAI_API_KEY = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\nVOYAGEAI_API_KEY = \"<voyage-api-key>\"\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nLocal or Self-Managed\n\n*Duration: 30 Minutes*\n\n[https://www.youtube.com/watch?v=qXDrWKVSx1w](https://www.youtube.com/watch?v=qXDrWKVSx1w)",
       "codeBlocks": [
         {
           "language": "env",
           "content": "OPENAI_API_KEY = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\nVOYAGEAI_API_KEY = \"<voyage-api-key>\"",
           "tokenEstimate": 32
-        },
+        }
+      ],
+      "slug": "step-2-create-the-environment-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 2: Create the environment file.",
+      "headingLevel": 3,
+      "body": "Your connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
           "tokenEstimate": 21
-        },
+        }
+      ],
+      "slug": "step-2-create-the-environment-file--cloud",
+      "selections": {
+        "tabs": "cloud"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Create the environment file.",
+      "headingLevel": 3,
+      "body": "Your connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-2-create-the-environment-file--local",
+      "selections": {
+        "tabs": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure your MongoDB Cluster",
       "headingLevel": 2,
       "body": "In this section, you configure\nand ingest sample data into your MongoDB cluster\nto enable vector search over your data.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-your-mongodb-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Create a file to connect to MongoDB.",
@@ -70,7 +104,9 @@
           "content": "import { MongoClient } from \"mongodb\";\nimport 'dotenv/config';\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    // ... rest of the server setup\n  } catch (error) {\n    console.error(\"Error connecting to MongoDB:\", error);\n    process.exit(1);\n  }\n}\nstartServer();",
           "tokenEstimate": 108
         }
-      ]
+      ],
+      "slug": "step-1-create-a-file-to-connect-to-mongodb",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Seed sample data into your cluster.",
@@ -82,7 +118,9 @@
           "content": "import { ChatOpenAI } from \"@langchain/openai\";\nimport { StructuredOutputParser } from \"@langchain/core/output_parsers\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nconst llm = new ChatOpenAI({\n  modelName: \"gpt-4o-mini\",\n  temperature: 0.7,\n});\n\nconst EmployeeSchema = z.object({\n  employee_id: z.string(),\n  first_name: z.string(),\n  last_name: z.string(),\n  date_of_birth: z.string(),\n  address: z.object({\n    street: z.string(),\n    city: z.string(),\n    state: z.string(),\n    postal_code: z.string(),\n    country: z.string(),\n  }),\n  contact_details: z.object({\n    email: z.string().email(),\n    phone_number: z.string(),\n  }),\n  job_details: z.object({\n    job_title: z.string(),\n    department: z.string(),\n    hire_date: z.string(),\n    employment_type: z.string(),\n    salary: z.number(),\n    currency: z.string(),\n  }),\n  work_location: z.object({\n    nearest_office: z.string(),\n    is_remote: z.boolean(),\n  }),\n  reporting_manager: z.string().nullable(),\n  skills: z.array(z.string()),\n  performance_reviews: z.array(\n    z.object({\n      review_date: z.string(),\n      rating: z.number(),\n      comments: z.string(),\n    })\n  ),\n  benefits: z.object({\n    health_insurance: z.string(),\n    retirement_plan: z.string(),\n    paid_time_off: z.number(),\n  }),\n  emergency_contact: z.object({\n    name: z.string(),\n    relationship: z.string(),\n    phone_number: z.string(),\n  }),\n  notes: z.string(),\n});\n\ntype Employee = z.infer<typeof EmployeeSchema>;\nconst parser = StructuredOutputParser.fromZodSchema(z.array(EmployeeSchema));\n\nasync function generateSyntheticData(): Promise<Employee[]> {\n  \n  const prompt = `You are a helpful assistant that generates employee data. Generate 10 fictional employee records. Each record should include the following fields: employee_id, first_name, last_name, date_of_birth, address, contact_details, job_details, work_location, reporting_manager, skills, performance_reviews, benefits, emergency_contact, notes. Ensure variety in the data and realistic values.\n\n  ${parser.getFormatInstructions()}`;\n\n  console.log(\"Generating synthetic data...\");\n\n  const response = await llm.invoke(prompt);\n  return parser.parse(response.content as string);\n}\n\nasync function createEmployeeSummary(employee: Employee): Promise<string> {\n  return new Promise((resolve) => {\n    const jobDetails = `${employee.job_details.job_title} in ${employee.job_details.department}`;\n    const skills = employee.skills.join(\", \");\n    const performanceReviews = employee.performance_reviews\n      .map(\n        (review) =>\n          `Rated ${review.rating} on ${review.review_date}: ${review.comments}`\n      )\n      .join(\" \");\n    const basicInfo = `${employee.first_name} ${employee.last_name}, born on ${employee.date_of_birth}`;\n    const workLocation = `Works at ${employee.work_location.nearest_office}, Remote: ${employee.work_location.is_remote}`;\n    const notes = employee.notes;\n    const summary = `${basicInfo}. Job: ${jobDetails}. Skills: ${skills}. Reviews: ${performanceReviews}. Location: ${workLocation}. Notes: ${notes}`;\n    resolve(summary);\n  });\n}\n\nconst fetchEmbeddings = async (records: { pageContent: string }[]) => {\n  const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n  const apiKey = process.env.VOYAGEAI_API_KEY;\n  \n  const inputs = records.map(record => record.pageContent); \n  const requestBody = {  \n    input: inputs,\n    model: \"voyage-3.5\",  \n  };  \n  \n  try {  \n    const response = await fetch(apiUrl, {  \n      method: \"POST\",  \n      headers: {  \n        Authorization: `Bearer ${apiKey}`,  \n        \"Content-Type\": \"application/json\",  \n      },  \n      body: JSON.stringify(requestBody),  \n    });  \n  \n    if (!response.ok) {  \n      throw new Error(`Error: ${response.status} ${response.statusText}`);  \n    }  \n  \n    const data = await response.json();  \n    return data;\n  } catch (error) {  \n    console.error(\"Error while fetching embeddings:\", error);  \n  }  \n};\n\nasync function seedDatabase(): Promise<void> {\n  try {\n    const client = new MongoClient(process.env.MONGODB_URI as string);\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n\n    const db = client.db(\"hr_database\");\n    const collection = db.collection(\"employees\");\n    await collection.deleteMany({});\n    \n    const syntheticData = await generateSyntheticData();\n    const recordsWithSummaries = await Promise.all(\n      syntheticData.map(async (record) => ({\n        pageContent: await createEmployeeSummary(record),\n        metadata: {...record},\n      }))\n    );\n\n    for (const record of recordsWithSummaries ) {\n        const db = client.db(\"hr_database\");\n        const collection = db.collection(\"employees\");\n        const embedding = await fetchEmbeddings([record]);\n        const enrichedRecord = {\n            pageContent: record.pageContent,\n            metadata: record.metadata,\n            embedding: embedding.data[0].embedding\n        }\n        const result = await collection.insertOne(enrichedRecord);\n        console.log(\"Successfully added database record:\", result);\n    }\n    await client.close();\n  } catch (error) {\n    console.error(\"Error seeding database:\", error);\n}}\n\nseedDatabase().catch(console.error);\n",
           "tokenEstimate": 1191
         }
-      ]
+      ],
+      "slug": "step-2-seed-sample-data-into-your-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Run the seeding script.",
@@ -99,7 +137,9 @@
           "content": "Pinged your deployment. You successfully connected to MongoDB!\nGenerating synthetic data...\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f0')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89d966545cfb242790f1')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f2')\n}\nSuccessfully added database record: {\n  acknowledged: true,\n  insertedId: new ObjectId('685d89da66545cfb242790f3')\n}",
           "tokenEstimate": 143
         }
-      ]
+      ],
+      "slug": "step-3-run-the-seeding-script",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Create a MongoDB Vector Search index.",
@@ -111,13 +151,17 @@
           "content": "{\n  \"fields\": [\n    {\n      \"numDimensions\": 1024,\n      \"path\": \"embedding\",\n      \"similarity\": \"cosine\",\n      \"type\": \"vector\"\n    }\n  ]\n}",
           "tokenEstimate": 45
         }
-      ]
+      ],
+      "slug": "step-4-create-a-mongodb-vector-search-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Build the Agent",
       "headingLevel": 2,
       "body": "In this section, you build a [graph](https://langchain-ai.github.io/langgraphjs/concepts/low_level/#graphs)\nto orchestrate the agent's workflow. The graph defines the sequence of steps that\nthe agent takes to respond to a query.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "build-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Create an  file.",
@@ -129,7 +173,9 @@
           "content": "import { ChatOpenAI } from \"@langchain/openai\";\nimport { AIMessage, BaseMessage, HumanMessage } from \"@langchain/core/messages\";\nimport { ChatPromptTemplate, MessagesPlaceholder } from \"@langchain/core/prompts\";\nimport { StateGraph } from \"@langchain/langgraph\";\nimport { Annotation } from \"@langchain/langgraph\";\nimport { tool } from \"@langchain/core/tools\";\nimport { ToolNode } from \"@langchain/langgraph/prebuilt\";\nimport { MongoDBSaver } from \"@langchain/langgraph-checkpoint-mongodb\";\nimport { MongoDBAtlasVectorSearch } from \"@langchain/mongodb\";\nimport { MongoClient } from \"mongodb\";\nimport { z } from \"zod\";\nimport \"dotenv/config\";\n\nexport async function callAgent(client: MongoClient, query: string, thread_id: string) {\n  // Define the MongoDB database and collection\n  const dbName = \"hr_database\";\n  const db = client.db(dbName);\n  const collection = db.collection(\"employees\");\n  // ... (Add rest of code here)\n}",
           "tokenEstimate": 214
         }
-      ]
+      ],
+      "slug": "step-1-create-an-file",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Define the agent state.",
@@ -141,7 +187,9 @@
           "content": "const GraphState = Annotation.Root({\n  messages: Annotation<BaseMessage[]>({\n    reducer: (x, y) => x.concat(y),\n  }),\n});",
           "tokenEstimate": 31
         }
-      ]
+      ],
+      "slug": "step-2-define-the-agent-state",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Define tools.",
@@ -153,7 +201,9 @@
           "content": "  const executeQuery = async (embedding:[], n: number) => {\n    try {\n        const client = new MongoClient(process.env.MONGODB_URI as string);\n        const database = client.db(\"hr_database\");\n        const coll = database.collection(\"employees\");\n        const agg = [\n            {\n              '$vectorSearch': {\n                'index': 'vector_index',\n                'path': 'embedding',\n                'queryVector': embedding,\n                'numCandidates': 150,\n                'limit': n\n              }\n            }, {\n              '$project': {\n                '_id': 0,\n                'pageContent': 1,\n                'score': {\n                  '$meta': 'vectorSearchScore'\n                }\n              }\n            }\n          ];\n        const result = await coll.aggregate(agg).toArray();\n        return result\n\n    } catch(error) {\n        console.log(\"Error while querying:\", error)\n    }\n  }\n\n  const fetchEmbeddings = async (query: string) => {\n    const apiUrl = \"https://ai.mongodb.com/v1/embeddings\";  \n    const apiKey = process.env.VOYAGEAI_API_KEY;\n    const requestBody = {  \n      input: query,\n      model: \"voyage-3.5\",  \n    };  \n    \n    try {  \n      const response = await fetch(apiUrl, {  \n        method: \"POST\",  \n        headers: {  \n          Authorization: `Bearer ${apiKey}`,  \n          \"Content-Type\": \"application/json\",  \n        },  \n        body: JSON.stringify(requestBody),  \n      });  \n    \n      if (!response.ok) {  \n        throw new Error(`Error: ${response.status} ${response.statusText}`);  \n      }  \n    \n      const data = await response.json(); \n      return data.data[0].embedding;\n    } catch (error) {  \n      console.error(\"Error while fetching embedding:\", error);  \n    }  \n  };\n\n  const employeeLookupTool = tool(\n   async ({ query, n = 10 }) => {\n     console.log(\"Employee lookup tool called\");\n     const embedding = await fetchEmbeddings(query)\n     const response = await executeQuery(embedding, n)\n     const result = JSON.stringify(response)\n     return result;\n   },\n   {\n     name: \"employee_lookup\",\n     description: \"Gathers employee details from the HR database\",\n     schema: z.object({\n       query: z.string().describe(\"The search query\"),\n       n: z.number().optional().default(10).describe(\"Number of results to return\"),\n     }),\n   }\n  );\n\n  const tools = [employeeLookupTool];\n  const toolNode = new ToolNode<typeof GraphState.State>(tools);\n",
           "tokenEstimate": 541
         }
-      ]
+      ],
+      "slug": "step-3-define-tools",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Configure the chat model.",
@@ -165,7 +215,9 @@
           "content": "const model = new ChatOpenAI({\n  model: \"gpt-4o\"\n  }).bindTools(tools);",
           "tokenEstimate": 25
         }
-      ]
+      ],
+      "slug": "step-4-configure-the-chat-model",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 5: Define additional functions.",
@@ -182,7 +234,9 @@
           "content": "function shouldContinue(state: typeof GraphState.State) {\n  const messages = state.messages;\n  const lastMessage = messages[messages.length - 1] as AIMessage;\n  if (lastMessage.tool_calls?.length) {\n    return \"tools\";\n  }\n  return \"__end__\";\n}",
           "tokenEstimate": 60
         }
-      ]
+      ],
+      "slug": "step-5-define-additional-functions",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 6: Define the agent's workflow.",
@@ -194,13 +248,17 @@
           "content": "const workflow = new StateGraph(GraphState)\n  .addNode(\"agent\", callModel)\n  .addNode(\"tools\", toolNode)\n  .addEdge(\"__start__\", \"agent\")\n  .addConditionalEdges(\"agent\", shouldContinue)\n  .addEdge(\"tools\", \"agent\");",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "step-6-define-the-agents-workflow",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Memory to the Agent",
       "headingLevel": 2,
       "body": "To improve the agent's performance, you can [persist](https://langchain-ai.github.io/langgraphjs/concepts/persistence/) its state\nby using the MongoDB Checkpointer. Persistence allows the agent to store information about previous interactions,\nwhich the agent can use in future interactions to provide more contextually\nrelevant responses.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-memory-to-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Configure the MongoDB Checkpointer.",
@@ -212,7 +270,9 @@
           "content": "const checkpointer = new MongoDBSaver({ client, dbName });\nconst app = workflow.compile({ checkpointer });",
           "tokenEstimate": 22
         }
-      ]
+      ],
+      "slug": "step-1-configure-the-mongodb-checkpointer",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Complete the agent function.",
@@ -224,13 +284,17 @@
           "content": "const finalState = await app.invoke(\n  {\n    messages: [new HumanMessage(query)],\n  },\n  { recursionLimit: 15, configurable: { thread_id: thread_id } }\n);\nconsole.log(finalState.messages[finalState.messages.length - 1].content);\nreturn finalState.messages[finalState.messages.length - 1].content;",
           "tokenEstimate": 71
         }
-      ]
+      ],
+      "slug": "step-2-complete-the-agent-function",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the Server and Test the Agent",
       "headingLevel": 2,
       "body": "In this section, you create a server to\ninteract with your agent and test its functionality.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "create-the-server-and-test-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Configure the Express.js server.",
@@ -242,7 +306,9 @@
           "content": "import 'dotenv/config';\nimport express, { Express, Request, Response } from \"express\";\nimport { MongoClient } from \"mongodb\";\nimport { callAgent } from './agent';\nconst app: Express = express();\napp.use(express.json());\nconst client = new MongoClient(process.env.MONGODB_URI as string);\nasync function startServer() {\n  try {\n    await client.connect();\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Pinged your deployment. You successfully connected to MongoDB!\");\n    app.get('/', (req: Request, res: Response) => {\n      res.send('LangGraph Agent Server');\n    });\n    app.post('/chat', async (req: Request, res: Response) => {\n      const initialMessage = req.body.message;\n      const threadId = Date.now().toString();\n      try {\n        const response = await callAgent(client, initialMessage, threadId);\n        res.json({ threadId, response });\n      } catch (error) {\n        console.error('Error starting conversation:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    app.post('/chat/:threadId', async (req: Request, res: Response) => {\n      const { threadId } = req.params;\n      const { message } = req.body;\n      try {\n        const response = await callAgent(client, message, threadId);\n        res.json({ response });\n      } catch (error) {\n        console.error('Error in chat:', error);\n        res.status(500).json({ error: 'Internal server error' });\n      }\n    });\n    const PORT = process.env.PORT || 3000;\n    app.listen(PORT, () => {\n      console.log(`Server running on port ${PORT}`);\n    });\n  } catch (error) {\n    console.error('Error connecting to MongoDB:', error);\n    process.exit(1);\n  }\n}\nstartServer();",
           "tokenEstimate": 394
         }
-      ]
+      ],
+      "slug": "step-1-configure-the-expressjs-server",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Start the server.",
@@ -254,7 +320,9 @@
           "content": "npx ts-node index.ts",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "step-2-start-the-server",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Test the agent.",
@@ -280,6 +348,24 @@
           "language": "text",
           "content": "# Sample response\n{\"response\": \"For leading this project, a suitable choice would be someone...\" (truncated)}\n\n# Plaintext output in the terminal\n### Best Candidate for Leadership:\n- **Emily Davis**:\n  - **Role**: HR Manager\n  - **Skills**: Employee Relations, Recruitment, Conflict Resolution\n  - **Experience**:\n    - Demonstrated leadership in complex situations, as evidenced by strong performance reviews (4.7/5).\n    - Mentored junior associates, indicating capability in guiding a team.\n  - **Advantages**:\n    - Remote-friendly, enabling flexible communication across team locations.\n    - Experience in managing people and processes, which would be crucial for coordinating a diverse team.\n\n**Recommendation:** Emily Davis is the best candidate to lead the project given her proven leadership skills and ability to manage collaboration effectively.\n\nLet me know if you'd like me to prepare a structured proposal or explore alternative options.",
           "tokenEstimate": 189
+        }
+      ],
+      "slug": "step-3-test-the-agent",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
         }
       ]
     }

@@ -7,48 +7,62 @@
       "heading": "Atlas Configuration Options",
       "headingLevel": 2,
       "body": "You can change the following options of your Atlas cluster:\n\n| Setting                                                 | Action                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Limitations                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |\n| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Cluster Type                                            | Change the cluster type.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | You can move from a Flex cluster to a dedicated cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |\n| Global Cluster Configuration                            | Enable Global Writes for your cluster or change existing global cluster configurations.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | After you enable Global Writes for a cluster, you can't disable them.When Global Writes are enabled, Global Clusters do not support dedicated search nodes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |\n| Cloud Provider & Region                                 | Select a different provider to change the cloud provider for your dedicated clusters.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | If you add or move a node to a region without an existing primary or secondary node, Atlas requires each newly migrated replica set member to perform a Cloud-based initial sync.If you created an Atlas cluster on Google Cloud or Azure (Microsoft Azure) before November 2, 2020, when Atlas added support for multi-cloud clusters, changing to a different provider changes the connection string to your new cluster. Consider scheduling a time to update your applications with the new connection string to connect to the cluster again.To learn more, see Should I update the connection string if I change cloud provider on a dedicated cluster?For clusters on Azure (Microsoft Azure), if you change a region, some storage capabilities might be unavailable in that region. The Atlas UI notifies you that your IOPS (Input/Output Operations per Second) will be reduced, which might impact your application performance. To learn more, see regions that support extended storage, and Change Storage Capacity and IOPS (Input/Output Operations per Second) on Azure (Microsoft Azure). |\n| Deploy or Configure a multi-cloud, multi-region cluster | Deploy or modify a multi-cloud, multi-region cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | For clusters on Azure (Microsoft Azure), if you change to a multi-region cluster, some storage volume capabilities might be unavailable in one of the regions. The Atlas UI notifies you that your IOPS (Input/Output Operations per Second) will be reduced, which might impact your application performance. To learn more, see regions that support extended storage, and Change Storage Capacity and IOPS (Input/Output Operations per Second) on Azure (Microsoft Azure).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| Cluster Tier                                            | Change the cluster tier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | If your cluster uses NVMe storage, Atlas must perform an initial sync.A File Copy Based Initial Sync will always be used to sync all of the nodes of an NVME cluster whenever an initial sync is required.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Cluster Storage Options                                 | Change the storage options for the cluster tier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Clusters using NVMe (non-volatile memory express) storage have a fixed size for each cluster tier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |\n| Cluster Autoscaling Options                             | Change the cluster's auto-scaling options, including storage auto-scaling. Depending on whether you choose to use storage auto-scaling, Atlas manages the oplog entries based on either the minimum oplog retention window, or the oplog size. To learn more, see Oplog Size Behavior. Atlas enables storage auto-scaling by default.                                                                                                                                                                                                                                                                                             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| MongoDB Version                                         | Upgrade the major MongoDB version of the cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | You can't downgrade the MongoDB version unless you pinned the cluster's FCV (Feature Compatibility Version) before upgrading.You can't upgrade to a version that is 2 versions above the pinned FCV (Feature Compatibility Version) version. If a cluster is pinned to FCV (Feature Compatibility Version) 6.0, you can only upgrade to 7.0, not 8.0+.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |\n| Deploy a Sharded Cluster                                | Scale up a replica set to a sharded cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | You can't reverse this operation.Atlas allows Sharded Clusters for M30 or larger clusters.You can convert a replica set to a sharded cluster when a database trigger is running with the Document Preimage configuration option enabled if your cluster runs MongoDB 5.3 or later. For clusters running MongoDB versions earlier than 5.3, you must disable the Document Preimage configuration option before converting to a sharded cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| Modify the Number of Shards                             | Set the number of shards for a sharded cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Reducing the number of shards takes some time. Atlas removes shards in descending order based on the number in in their \"\\_id\" field. Any subsequent MongoDB configuration changes start after Atlas removes the shards.IMPORTANT: When you remove a shard in 8.0, Atlas uses the moveCollection command to move any unsharded collections in that shard to a remaining shard. All unsharded collections remain online during this process.All sharded collections remain online and available during the shard removal process. You must turn on the balancer to drain the sharded collections from the removed shard.Atlas moves any unsharded collections that can't be drained by moveCollection command by using the movePrimary command. To learn more about the limitations of moveCollection, see Restrictions. movePrimary is an offline operation.For more information about shard removal, see Remove Shards from a Sharded Cluster.Atlas allows Sharded Clusters for M30 or larger clusters.                                                                                                     |\n| Enable or Disable Backup                                | Enable or disable backups for the cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Atlas enables backups for Flex clusters automatically. You can't disable backup for clusters on those tiers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| Enable or Disable the Business Intelligence Connector   | Enable or disable the BI Connector for Atlas for the cluster.The MongoDB Connector for Business Intelligence for Atlas (BI Connector) is only available for M10 and larger clusters.The BI Connector is a powerful tool which provides users SQL-based access to their MongoDB databases. As a result, the BI Connector performs operations which may be CPU and memory intensive. Given the limited hardware resources on M10 and M20 cluster tiers, you may experience performance degradation of the cluster when enabling the BI Connector. If this occurs, scale up to an M30 or larger cluster or disable the BI Connector. |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| Manage your own encryption keys                         | Enable or disable using your own encryption keys with the cluster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n\nClick [Apply Changes](scale-cluster-payment) after you complete any\nof these modifications.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "atlas-configuration-options",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Migration, Availability, and Performance Impact",
       "headingLevel": 3,
       "body": "Making changes to a cluster often requires migrating to new servers\nand storage volumes. The time required for an [initial sync](manual/reference/glossary) and\nresynchronizing data across storage volumes increases linearly with the\namount of data in the cluster.\n\n[A File Copy Based Initial Sync](manual/core/replica-set-sync) will always be used to\nsync all of the nodes of an NVME cluster whenever an initial sync is required.\n\nThe following migrations require an [initial sync](manual/reference/glossary):\n\n- Scaling up from a Free cluster (formerly known as `M0`) or a Flex cluster to a higher cluster tier.\n\n- Changes from general to [NVMe storage volumes](nvme-storage) and\n  from NVMe to general storage.\n\n- Scaling up or scaling down from one NVMe (non-volatile memory express) cluster tier to another,\n  initiated either manually or via auto-scaling. NVMe (non-volatile memory express) clusters\n  auto-scale to the next higher tier when 90% of the available storage\n  space is consumed.\n\n- Changes that require a replacement of an NVMe-backed Atlas\n  cluster, such as region changes.\n\n- For clusters deployed to Azure (Microsoft Azure), changes to the [class](storage-class-ui).\n\nTo maximize availability:\n\n- For a replica set, Atlas migrates one node at a time, starting\n  with the secondary nodes first and then the primary.\n\n- For a sharded cluster, Atlas performs the migration of the shards\n  independently of each other. For each shard, such as a replica set,\n  Atlas migrates one node at a time, starting with the secondary\n  nodes first and then the primary.\n\n[Retryable writes](manual/core/retryable-writes) should prevent any\nwrite errors during the election of a new primary. On average, an\nelection can take five seconds.\n\nMigration can affect performance if your primary is already reaching\noperational capacity. Each newly migrated replica set node must\nperform an [initial sync](manual/reference/glossary) from the primary, adding to the\noperational load. Migrations can also affect performance if you set\n[read preferences](manual/core/read-preference) to read from\nsecondaries. The replica set is down one secondary during the\nmigration.\n\nIf the workload on the Atlas cluster is such that it impedes\noperations, including the ability to scale, MongoDB Atlas might, in\nsome situations, create indexes in your cluster as a safeguard.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "migration-availability-and-performance-impact",
+      "variantAgnostic": true
     },
     {
       "heading": "Billing",
       "headingLevel": 3,
       "body": "As you change your cluster, you can compare the costs of different\noptions before applying them. The **Cluster Overview** box\ndisplays the cost of the selected configuration, excluding data\ntransfer.\n\n> **Important:**&#x20;\n>\n> Free Clusters\n>\n> Upgrading a Free cluster to a paid\n> tier cluster starts billing for the cluster. See Manage Billing for\n> complete documentation on Atlas billing.\n\nThe following sections provide complete documentation for each of the\nAtlas cluster scaling configuration options.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "billing",
+      "variantAgnostic": true
     },
     {
       "heading": "Backup",
       "headingLevel": 3,
       "body": "See [Cloud Backup](backup-cloud-provider) for more information on\nbacking up your cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "backup",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To modify a cluster, you must have [Project Cluster Manager](<Project Cluster Manager>)\naccess or higher to the project.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Cloud-based Initial Sync",
       "headingLevel": 2,
       "body": "When you add or replace a node in an Atlas cluster, Atlas\nperforms a Cloud-based initial sync, which leverages your cloud provider's native\ncapabilities to create a snapshot of the source node's data and restore\nit to the new node. Atlas prioritizes restoring from a primary\nnode over secondary nodes to maximize data freshness.\n\nIf your Atlas cluster has nodes in multiple regions, including at\nleast one AWS (Amazon Web Services) region, you can [Enable Faster Cross-Region Initial Sync for AWS Clusters](enable_time_based_initial_sync_aws) in your\ncluster's **Additional Settings** for an additional cost. This\nallows Atlas to use [AWS time-based snapshot copies](https://docs.aws.amazon.com/ebs/latest/userguide/time-based-copies.html)\nto speed up cross-region data copy between AWS (Amazon Web Services) nodes during Cloud-based initial sync.\nTo learn more about this setting, see\n[Enable Faster Cross-Region Initial Sync for AWS Clusters](enable_time_based_initial_sync_aws).\n\nCross-region Cloud-based initial sync is available for AWS (Amazon Web Services) clusters only. For\nMicrosoft Azure and Google Cloud clusters, Cloud-based initial sync is only available when adding or\nreplacing nodes in the same region as the source node. You can add or\nreplace nodes in your cluster when you [edit the cluster configuration](edit-cluster-atlas).\n\n> **Note:**&#x20;\n>\n> Self-Managed Initial Sync Disambiguation\n>\n> For self-managed deployments, initial sync is the process that\n> MongoDB uses to add a new node to a replica set. Starting in MongoDB\n> 5.2, the initial sync process can be *logical* or *file copy based*.\n> These processes are different from Cloud-based initial syncs available in MongoDB\n> Atlas, which leverage your cloud provider's native capabilities\n> to create a snapshot of the source node's data and restore it to the\n> new node. To learn more about the self-managed initial sync process,\n> see [Initial Syncs](manual/core/replica-set-sync) in\n> the MongoDB manual.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "cloud-based-initial-sync",
+      "variantAgnostic": true
     },
     {
       "heading": "Edit a Cluster",
       "headingLevel": 2,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\nYou can modify any of the cluster settings on this page using the Atlas CLI.\n\nTo update an Atlas cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas clusters update [clusterName] [options]\n\n```\n\nTo upgrade the cluster tier, disk size, and/or MongoDB version for an `M0` or Flex Atlas cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas clusters upgrade [clusterName] [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas clusters update](atlas/cli/current/command/atlas-clusters-update) and\n[atlas clusters upgrade](atlas/cli/current/command/atlas-clusters-upgrade).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)",
+      "body": "Atlas CLI\n\nTo update an Atlas cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas clusters update [clusterName] [options]\n\n```\n\nTo upgrade the cluster tier, disk size, and/or MongoDB version for an `M0` or Flex Atlas cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas clusters upgrade [clusterName] [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas clusters update](atlas/cli/current/command/atlas-clusters-update) and\n[atlas clusters upgrade](atlas/cli/current/command/atlas-clusters-upgrade).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)",
       "codeBlocks": [
         {
           "language": "sh",
@@ -60,61 +74,96 @@
           "content": "\natlas clusters upgrade [clusterName] [options]\n",
           "tokenEstimate": 12
         }
-      ]
+      ],
+      "slug": "edit-a-cluster",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 1: Edit the configuration",
+      "headingLevel": 3,
+      "body": "For the cluster you want to modify, click the\nellipsis-h icon, and then select **Edit Configuration**.\n\nAlternatively, if you are already viewing the specific\ncluster, click the **Configuration** button. For\nFree clusters, you can also click the\n**Upgrade** button for the cluster.",
+      "codeBlocks": [],
+      "slug": "step-1-edit-the-configuration--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Edit a Cluster",
+      "headingLevel": 2,
+      "body": "You can modify any of the cluster settings on this page using the Atlas CLI.",
+      "codeBlocks": [],
+      "slug": "edit-a-cluster--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Edit Advanced Settings",
       "headingLevel": 3,
-      "body": "To update the advanced configuration settings for one cluster using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters advancedSettings update <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters advancedSettings update](atlas/cli/current/command/atlas-clusters-advancedSettings-update).\n\n**Ui:**\n\nAtlas UI",
+      "body": "To update the advanced configuration settings for one cluster using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters advancedSettings update <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters advancedSettings update](atlas/cli/current/command/atlas-clusters-advancedSettings-update).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas clusters advancedSettings update <clusterName> [options]\n",
           "tokenEstimate": 14
         }
-      ]
-    },
-    {
-      "heading": "Step 1: Edit the configuration",
-      "headingLevel": 3,
-      "body": "For the cluster you want to modify, click the\nellipsis-h icon, and then select **Edit Configuration**.\n\nAlternatively, if you are already viewing the specific\ncluster, click the **Configuration** button. For\nFree clusters, you can also click the\n**Upgrade** button for the cluster.",
-      "codeBlocks": []
+      ],
+      "slug": "edit-advanced-settings--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Modify the Cluster Type",
       "headingLevel": 2,
       "body": "If you have a Free cluster or Flex cluster, you can change it to a dedicated\ncluster.\n\nTo scale up your Free cluster or Flex cluster to an `M10+` cluster, complete the following steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-the-cluster-type",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Click  and select your cluster from the drop-down menu.",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-click-and-select-your-cluster-from-the-drop-down-menu",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: At the top of your configuration settings, click the  tab.",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-at-the-top-of-your-configuration-settings-click-the-tab",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Select your preferred cluster tier.",
       "headingLevel": 3,
       "body": "To learn more, see [Modify the Cluster Tier](scale-cluster-instance).\n\n> **Note:**&#x20;\n>\n> Considerations\n>\n> You can't change a dedicated cluster to a Free cluster or a Flex cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-select-your-preferred-cluster-tier",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify the Global Cluster Configuration",
       "headingLevel": 2,
       "body": "> **Important:** You can't disable Global Writes for a cluster once deployed.\n\nYou can enable global writes for your cluster or modify\nexisting global cluster configurations.\n\n> **See Also:**&#x20;\n>\n> - [Manage Global Clusters](global-clusters).\n>\n> - [Create a Global Cluster](create-new-global-write-cluster).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-the-global-cluster-configuration",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify the Cloud Provider & Region",
       "headingLevel": 2,
       "body": "> **Note:**&#x20;\n>\n> Considerations\n>\n> Free cluster Tier Clusters\n>\n> You can modify the cloud provider and region only when\n> you scale up your Free cluster to a larger cluster.\n>\n> Flex cluster or larger Tier Clusters\n>\n> You can modify the cloud provider and region when you\n> modify your cluster or scale up to a larger cluster.\n>\n> Changing to a different provider could change the connection string to\n> your new cluster if your old cluster was deployed on Google Cloud or\n> Azure (Microsoft Azure) before October 2020. Consider scheduling a time to [update your applications with the new connection string](atlas-faq-migrate-providers) to resume connectivity to the cluster.\n> Atlas migrates data to the new cluster.\n\n- To view the current cloud providers and regions for your cluster,\n  select **Cloud Provider & Region**.\n\n- To modify the cloud providers and regions applied to your cluster,\n  follow the procedures on [highest priority region](deploy-across-multiple-regions).\n\n- To add electable nodes to your cluster during a regional outage,\n  follow the procedure on [Reconfigure a Replica Set During a Regional Outage](reconfigure-rs-during-regional-outage).\n\n- To scale up from an Atlas Free cluster or Flex cluster,\n  select from the available cloud providers.\n\n- If your cluster contains [Search Nodes](configure-search-nodes),\n  you can only move it to regions that support Search Nodes. For a\n  full list of regions that don't support Search Nodes, see\n  [Cloud Provider Regions](fts-cloud-provider-regions).\n\n- If you change the primary region for a cluster with Cloud Backup\n  enabled, Atlas takes an on-demand snapshot and stores it in the\n  new primary region without waiting for the next scheduled snapshot. If\n  the new primary region was previously a secondary backup region for\n  [snapshot copy distribution](snapshot-distribution), Atlas\n  automatically updates your [cluster-level backup policy](configure-backup-policy) to distribute snapshot copies from the new\n  primary region to the original primary region and other secondary\n  regions.\n\n- To remove or deploy additional Search Nodes, adjust the\n  **Number of Search Nodes** setting under **Search\n  nodes for workload isolation**. You can deploy between 2 and 32 search\n  nodes on your cluster.\n\n  If you delete all existing Search Nodes on your cluster, there will\n  be an interruption in processing your search query results while\n  Atlas migrates from `mongot` processes running separately on\n  dedicated Search Nodes to `mongot` processes running alongside\n  `mongod`. You can't run queries while indexes are building on the\n  node that hosts both the `mongot` and `mongod` processes, and you\n  will experience query downtime.\n\n  When you add Search Nodes to a cluster that doesn't have any search\n  nodes, the existing `mongot` processes running alongside `mongod`\n  tail writes to the database that happen after MongoDB Search completed the\n  initial sync and the `mongot` processes on the new dedicated search\n  nodes perform an initial sync on the required collections. This\n  results in dual reads during the migration process.\n\n  To learn more, see [Add Dedicated Search Nodes](fts-add-search-nodes-to-prod).\n\n> **See Also:**&#x20;\n>\n> - [Cloud Providers and Regions](create-cluster-cloud-provider-region).\n>\n> - [Move a Cluster to a Different Region](move-cluster).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-the-cloud-provider-region",
+      "variantAgnostic": true
     },
     {
       "heading": "View Available Regions",
@@ -126,121 +175,178 @@
           "content": "\natlas clusters availableRegions list [options]\n",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "view-available-regions",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify the Cluster Tier",
       "headingLevel": 2,
       "body": "You can change the cluster tier, as well as the memory, storage,\nand IOPS (Input/Output Operations per Second) (speed) specifications for the selected cluster. If you\ndeployed Search Nodes separately for an `M10` or higher cluster,\nyou can also change your search tier.\n\n> **Note:** If you have a [Backup Compliance Policy enabled](backup-compliance-policy), you\n> can't modify the cluster tier to a tier that doesn't support\n> cloud backup.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-the-cluster-tier",
+      "variantAgnostic": true
     },
     {
       "heading": "Free Cluster and Flex Cluster Considerations",
       "headingLevel": 3,
       "body": "- You can't scale down an `M10+` dedicated cluster to a\n  Free cluster or a Flex cluster.\n\n- Changing the cluster tier requires downtime in the following\n  scenarios:\n\n- You change from a Free cluster or a Flex cluster to\n  an `M10` or larger cluster tier.\n\n- You change from a Free cluster to a Flex cluster.\n\n  To prevent data corruption, halt write operations to your cluster\n  for the duration of your scale operation.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "free-cluster-and-flex-cluster-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Tier for Cluster Nodes",
       "headingLevel": 3,
       "body": "Select your preferred cluster tier. If you deployed Search Nodes\nseparately, in the **Base Tier** tab, select your preferred\ncluster tier. The selected instance size dictates\nthe memory, storage, vCPUs, and IOPS (Input/Output Operations per Second) specification for each\ndata-bearing server [^data-bearing] in the cluster.\n\n> **Warning:** Upgrading from a free or Flex cluster to a dedicated cluster\n> tier deletes the current cluster. To keep your existing snapshots,\n> [download those snapshots](restore-overview) before upgrading\n> your cluster.\n\n> **Note:** Atlas reboots all nodes in your cluster when you modify the cluster tier.\n\n> **See Also:**&#x20;\n>\n> - [base snapshot schedule](cloud-provider-retention-policy)\n>\n> - [Select Cluster Tier](create-cluster-instance)\n\nFrom the **Cluster Tier** section, you can also:\n\n- [Customize Cluster Storage](create-cluster-storage)\n\n- [Cluster Auto-Scaling](cluster-autoscaling)\n\nYou can [Select Cluster Tier](create-cluster-instance) appropriately\nsized for your analytics workload. To learn more, see [Analytics Nodes for Workload Isolation](deploy-analytics-nodes).\n\n> **Important:** After upgrading a free to a dedicated cluster, a free to a\n> Flex cluster, or a Flex cluster to a dedicated cluster, you\n> must restart your applications before connecting to the upgraded\n> cluster.\n\nIf you deploy [read-only nodes](manual/reference/glossary) and want your\ncluster to scale faster, consider adjusting your [Replica Set Scaling Mode](replica-set-scaling-mode).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "tier-for-cluster-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Tier for Search Nodes",
       "headingLevel": 3,
       "body": "In the **Search Tier** tab, select your preferred search tier.\nIf the search tier that you select is not available in your region,\nAtlas automatically switches to the next higher search tier in your\nregion. The selected instance size dictates the memory, storage, IOPS (Input/Output Operations per Second)\nspecification, and cost of each search node on your cluster.\n\n> **Note:** Atlas reboots all nodes in your cluster when you modify the search tier.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "tier-for-search-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify Additional Settings",
       "headingLevel": 2,
       "body": "You can set the following options:\n\n- [modifying the cluster](scale-cluster-version)\n\n- [Enable or Disable Backup for the Cluster](scale-cluster-backups)\n\n- [Enable or Disable Termination Protection for the Cluster](scale-cluster-termination-protection)\n\n- [Scale your Replica Set to a Sharded Cluster](scale-cluster-sharding)\n\n- [increase the number of shards](scale-cluster-shardNum)\n\n- [Enable or Disable BI Connector for Atlas for the Cluster](scale-cluster-enable-bi)\n\n- [Encryption at Rest](scale-cluster-enable-encryption)\n\n- [Configure Additional Configuration Options](scale-cluster-more-configuration-options)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-additional-settings",
+      "variantAgnostic": true
     },
     {
       "heading": "Upgrade the MongoDB Version of the Cluster",
       "headingLevel": 3,
       "body": "> **Important:** Before you upgrade your cluster, refer to the current\n> recommended best practices for major version upgrades.\n\n- Select **Additional Settings** to view the currently\n  configured MongoDB version for the cluster.\n\n  Atlas always upgrades the cluster to the latest patch release of\n  the specified major version. The upgrade uses a rolling update\n  process to maintain cluster availability.\n\n  You can't downgrade the cluster to an earlier MongoDB version unless\n  you pinned the cluster's FCV (Feature Compatibility Version) before upgrading.\n\n  You can switch from using the Latest Release to using a\n  specific release only if the latest MongoDB version is a major\n  release.\n\n- From the **Select a version** dropdown, select the new\n  MongoDB version.\n\n  Atlas supports the following upgrade paths:\n\n  - MongoDB 6.0 -> MongoDB 7.0\n\n  - MongoDB 7.0 -> MongoDB 8.0\n\n  - MongoDB 8.0 -> Latest Release",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "upgrade-the-mongodb-version-of-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable or Disable Backup for the Cluster",
       "headingLevel": 3,
       "body": "Atlas automatically enables backups for Flex clusters and you\ncan't disable this setting. To learn more, see [Flex Cluster Backups](flex-snapshots).\n\nTo enable Cloud Backup for an `M10+` Atlas cluster, set\nthe Turn on Cloud Backup toggle to On. When\nenabled, Atlas takes snapshots of your databases at regular\nintervals and retains them according to your project's [base snapshot schedule](cloud-provider-retention-policy).\n\nTo disable Cloud Backup for an `M10+` Atlas cluster, set the\nTurn on Cloud Backup toggle to Off. This\nalso disables Continuous Cloud Backup for the cluster. To retain any existing\nsnapshots after Cloud Backup is disabled, set the Keep\nexisting snapshots after backups disabled? toggle to On\nbefore you apply your changes to the cluster. This option instructs\nAtlas to retain the existing snapshots and [oplog](manual/reference/glossary) for the\ncluster according to your cluster's [cluster-level backup policy](configure-backup-policy).\n\nFor detailed descriptions of the available backup options, see\n[Configure Backup Options for the Cluster](create-cluster-backups).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-or-disable-backup-for-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable or Disable Termination Protection for the Cluster",
       "headingLevel": 3,
       "body": "To enable **Termination Protection** for a cluster, toggle\n**Termination Protection** to **Yes**.\n\nIf enabled, Atlas prevents users from deleting the\ncluster. To delete a cluster that has termination protection\nenabled, you must first disable termination protection. By default,\nAtlas disables termination protection for\nall clusters.\n\n> **See Also:** [Terminate active clusters](terminate-cluster).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-or-disable-termination-protection-for-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Scale your Replica Set to a Sharded Cluster",
       "headingLevel": 3,
       "body": "You can convert a replica set to a sharded cluster when\na [database trigger](atlas-database-trigger) is running\nwith the Document Preimage configuration option enabled\nif your cluster runs MongoDB 5.3 or later. For clusters running\nMongoDB versions earlier than 5.3, you must disable the\nDocument Preimage configuration option before converting\nto a sharded cluster.\n\nTo deploy your cluster as a [sharded cluster](manual/reference/glossary),\ntoggle **Shard your cluster (M30 and up)** to `Yes`.\n\nTo scale up a replica set to a multi-sharded cluster,\nyou must scale up to a **single** shard cluster first,\nrestart your application and **reconnect to the cluster**, and then add\nadditional shards.\n\nIf you don't restart the application clients, your data might be inconsistent\nonce Atlas begins distributing data across shards.\n\nIf you don't reconnect the application clients, your application may suffer\nfrom data outages.\n\n- If you are using a\n  [DNS Seed List](manual/reference/connection-string)\n  connection string, your application automatically connects to the\n  [mongos](manual/reference/program/mongos) for your sharded cluster.\n\n- If you are using a\n  [standard connection string](manual/reference/connection-string),\n  you must update your connection string to reflect your new cluster\n  topology.\n\n> **See Also:** [Deploy a Sharded Cluster](create-cluster-sharding).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scale-your-replica-set-to-a-sharded-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify the Number of Shards",
       "headingLevel": 3,
       "body": "This field is visible only if the deployment is a sharded cluster.\n\nYour cluster can have between 1 and 70 shards, inclusive.\n\nTo scale up a replica set to a multi-sharded cluster,\nyou must scale up to a **single** shard cluster first,\nrestart your application and **reconnect to the cluster**, and then add\nadditional shards.\n\nIf you don't reconnect the application clients, your application may suffer\nfrom data outages.\n\nAfter you scale up a replica set cluster to a single-shard cluster,\nyou can set the number of shards to deploy with the sharded cluster.\n\nIf you are reducing the number of shards in your sharded cluster,\nAtlas removes shards in descending order based on the number in the\n`\"_id\"` field (see [Sharded Cluster Configuration](manual/tutorial/view-sharded-cluster-configuration)).\nFor example, consider a sharded cluster with the following three shards:\n\n- `\"shard0\"`\n\n- `\"shard1\"`\n\n- `\"shard2\"`\n\nIf you set the number of shards to two, Atlas\nremoves `\"shard2\"` from the cluster.\n\nIMPORTANT: When you remove a shard in 8.0, Atlas uses the\n[moveCollection](manual/reference/command/moveCollection) command to move any unsharded collections in\nthat shard to a remaining shard. All unsharded collections remain online\nduring this process.\n\n- All sharded collections remain online and available during the shard removal\n  process. You must turn on the balancer to drain the sharded collections from\n  the removed shard.\n\n- Atlas moves any unsharded collections that can't be drained by `moveCollection` command\n  by using the [movePrimary](manual/reference/command/movePrimary) command. To learn more about\n  the limitations of `moveCollection`, see [Restrictions](manual/reference/command/moveCollection).\n  `movePrimary` is an offline operation.\n\n- For more information about shard removal, see\n  [Remove Shards from a Sharded Cluster](manual/tutorial/remove-shards-from-cluster).\n\nDon't create a sharded cluster with a single shard for production\nenvironments. Single-shard sharded clusters don't provide the same\nbenefits as multi-shard configurations. After you create a single-shard\ncluster, restart your application, reconnect to the cluster,\nand then add more shards to your cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-the-number-of-shards",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable or Disable BI Connector for Atlas for the Cluster",
       "headingLevel": 3,
       "body": "To enable [BI Connector for Atlas](bi-connector) for this cluster, toggle\n**Enable Business Intelligence Connector (M10 and up)** to\n**Yes**.\n\n> **See Also:** [Enable BI Connector for Atlas](create-cluster-enable-bi).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-or-disable-bi-connector-for-atlas-for-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Encryption at Rest",
       "headingLevel": 3,
       "body": "To enable Atlas Encryption at Rest for this cluster using your\nKMS (Key Management Service), toggle **Manage your own encryption keys (M10 and up)**\nto **Yes**. To learn more, see\n[Manage Your Own Encryption Keys](create-cluster-enable-encryption).\n\n> **Note:** All changes to [customer KMS](manual/security-kms-encryption)\n> require an [initial sync](manual/core/replica-set-sync).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-encryption-at-rest",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Additional Configuration Options",
       "headingLevel": 3,
       "body": "Configure additional options for your cluster from this section.\n\nFor details on these options, see\n[Configure Additional Options](create-cluster-more-configuration-options).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-additional-configuration-options",
+      "variantAgnostic": true
     },
     {
       "heading": "Modify Cluster Details",
       "headingLevel": 2,
       "body": "Add tags, view existing tags, and manage tags. To learn more, see\n[Manage cluster Tags When You Modify an Existing Cluster](manage-tags-modify-cluster).\n\n> **Important:** Don't include sensitive information such as Personally Identifiable\n> Information (PII) or Protected Health Information (PHI) in your\n> resource tags. Other MongoDB services, such as Billing, can access\n> resource tags. MongoDB also sends cluster resource tags to DataDog\n> and Prometheus integrations. Resource tags are *not* intended for\n> private and sensitive data. To learn more, see\n> [sensitive information](sensitive-info).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "modify-cluster-details",
+      "variantAgnostic": true
     },
     {
       "heading": "Save Your Changes for Later",
       "headingLevel": 2,
       "body": "Click **Save Draft** at the end of your cluster configuration form\nto save your changes.\n\nClicking **Save Draft** the first time prompts Atlas to send an email to the\nemail address associated with your Atlas account with a button to\nreturn to your modified cluster configuration form.\n\nYou can return to the form to:\n\n- Continue making changes by clicking **Continue** on the pop-up that appears.\n\n- Reset your changes made by clicking **Reset** on\n  the pop-up that appears.\n\n- [Review and apply](review-apply-cluster-changes) your cluster changes by\n  clicking **Continue** on the pop-up that appears, then **Review Changes**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "save-your-changes-for-later",
+      "variantAgnostic": true
     },
     {
       "heading": "Review and Apply Your Changes",
       "headingLevel": 2,
       "body": "Click **Review Changes** to review the changes you have made.\n\nThe **Review Changes** page displays a complete side-by-side\nsummary of the modified attributes with any warnings or notes\npertaining to the changes. The original attribute settings are listed\non the left and the corresponding new settings with changes in pricing\nare listed on the right.\n\nAtlas displays all warnings and notes related to the change at the\ntop. These include changes that:\n\n- Can't be rolled back.\n\n- Require an [initial sync](manual/core/replica-set-sync).\n\n- Result in expected delays in execution, increase in workload, or\n  downtime.\n\nOnce you have reviewed the changes, click **Apply Changes** to\napply them to your cluster.\n\nIf you are upgrading from a Free cluster, Atlas\nprompts you to enter payment information before applying your changes.\n\n[^data-bearing]: For replica sets, the data-bearing servers are the servers hosting the\n    replica set nodes. For sharded clusters, the data-bearing servers are the\n    servers hosting the shards. For sharded clusters, Atlas also deploys\n    servers for the [config servers](manual/core/sharded-cluster-config-servers); these are\n    charged at a rate separate from the cluster costs.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "review-and-apply-your-changes",
+      "variantAgnostic": true
     },
     {
       "heading": "Convert a Replica Set to a Sharded Cluster",
       "headingLevel": 2,
       "body": "You can convert a [replica set](manual/reference/glossary) to a [sharded cluster](manual/reference/glossary).\n\n> **Note:** Atlas reboots all nodes in your [replica set](manual/reference/glossary) when you\n> convert it to a [sharded cluster](manual/reference/glossary).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "convert-a-replica-set-to-a-sharded-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 3,
       "body": "To convert your replica set to a sharded cluster:\n\n- Your cluster must be an `M30+` cluster.\n\n- You must have the [Project Cluster Manager](<Project Cluster Manager>) or higher role.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 3,
       "body": "- For the cluster you want to modify, click ,\n  then select Edit Configuration.\n\n- Expand Additional Settings to modify your cluster\n  configuration.\n\n- Enable sharding in the Shard your cluster section\n  by setting the toggle to On.\n\n  IMPORTANT: After you convert a replica set to a sharded\n  cluster, you can't convert it again to a replica set.\n\n  Atlas automatically selects 1 Shard from the\n  drop-down menu. You can increase the number of shards in a later\n  step after you restart your application clients.\n\n  WARNING\n\n  Queries using [$unionWith](manual/reference/operator/aggregation/unionWith) with [$search](pipe.$search) in the\n  sub-pipeline might fail during an upgrade from a replica set to a\n  sharded cluster running MongoDB v7.0 if the collection is not spread\n  across multiple shards. To mitigate this, deploy more than one shard\n  on your cluster and shard the collection such that multiple chunks\n  are spread across multiple shards.\n\n- Click Review Changes to review the changes to\n  billing and click Apply Changes.\n\nIt may take some time for Atlas to deploy the changes. Please\nwait until Atlas has converted your cluster before proceeding to\nthe next step.\n\nIf you don't restart the application clients, your data might be\ninconsistent after Atlas begins distributing data across shards.\n\n- If you are using a [DNS Seed List](manual/reference/connection-string)\n  connection string, your application automatically connects to the\n  [mongos](manual/reference/program/mongos) for your sharded cluster after you restart your\n  application.\n\n- If you are using a [standard connection string](manual/reference/connection-string),\n  you must update your connection string to reflect your new cluster\n  topology.\n\n- If you are using private endpoints to connect to your Atlas\n  cluster, your cluster experiences downtime during the\n  conversion.\n\nTo learn more, see Connect to an Atlas Cluster.\n\n- For the cluster you want to modify, click ,\n  then select Edit Configuration.\n\n- Expand Additional Settings to modify your cluster\n  configuration.\n\n- Select the number of shards from the drop-down menu.\n\n- Click Review Changes to review the changes to\n  billing and click Apply Changes.\n\nSharding supports high throughput and large datasets, and you can\nincrease the number of shards as data requirements grow.\n\nTo shard the collection whose data you want to distribute, see\n[sh.shardCollection()](manual/reference/method/sh.shardCollection) for more\ninformation.\n\nWARNING: If you shard a collection that already has a MongoDB Search\nindex, you might experience a brief period of incomplete search results\nwhile the index is building on a shard. Also, if you add a shard for\nan already sharded collection that contains a MongoDB Search index, your search\nqueries against that collection might return incomplete results until\nthe initial sync process completes on the added shards. To learn more,\nsee [initial sync process](troubleshoot-initial-sync).\n\nIf you want to make further changes to the [sharded cluster](manual/reference/glossary), see [modify all configuration options](scale-cluster) for more information\non the cluster-wide settings that you can modify.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedure",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

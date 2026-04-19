@@ -7,7 +7,9 @@
       "heading": "When to Use Functions",
       "headingLevel": 2,
       "body": "Functions can run arbitrary JavaScript code that you define, which means\nyou can use them for almost anything. Common use cases include\nlow-latency, short-running tasks like data movement, transformations,\nand validation. You can also use them to connect to external services\nand abstract away implementation details from your client applications.\n\n[Atlas Triggers](atlas-triggers) automatically call Functions to handle specific\nevents. For example, whenever a Database Trigger observes a change event it\ncalls its associated Function with the change event as an argument. In the\nTrigger Function, you can then access information from the change event and\nrespond appropriately.\n\n> **Note:** Database and Scheduled Triggers always execute in the context of a\n> system user.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "when-to-use-functions",
+      "variantAgnostic": true
     },
     {
       "heading": "How to Write a Function",
@@ -49,67 +51,17 @@
           "content": "\"{\\\"pi\\\":3.14159,\\\"today\\\":\\\"2022-05-11T19:27:32.207Z\\\"}\"",
           "tokenEstimate": 28
         }
-      ]
+      ],
+      "slug": "how-to-write-a-function",
+      "variantAgnostic": true
     },
     {
       "heading": "Define a Function",
       "headingLevel": 2,
-      "body": "You can create and manage Functions in your application from the Atlas UI or\nby importing the Function configuration and source code using the App Services\nCLI or GitHub deployment.\n\n**Ui:**\n\nAtlas UI\n\nYou can define a new server-side Function from the Atlas UI:",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 1: Navigate to the  Page",
-      "headingLevel": 3,
-      "body": "- Click the **Linked App Service: Triggers** link.\n\n- In the sidebar, click **Functions** under the **Build** heading.\n\n- Click **Create a Function**. The **Settings** tab displays by default.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 2: Name the New Function",
-      "headingLevel": 3,
-      "body": "Enter a name for the Function in the **Name** field. This name\nmust be unique from all other Functions in the application.\n\n> **Tip:** You can define Functions inside of nested folders. Function names\n> are slash-separated paths, so a Function named `utils/add` maps\n> to `functions/utils/add.js` in the app's configuration files.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 3: Configure User Authentication",
-      "headingLevel": 3,
-      "body": "Functions in Atlas always execute in the context of a specific\napplication user or as a system user that bypasses rules. To configure the\nFunction's execution user, specify the type of authentication that\nAtlas should use.\n\n> **Note:** Functions for Database and Scheduled Triggers always execute in the\n> context of a system user.\n\n| Authentication Type                     | Description                                                                                                                                                                                                                                                                                       |\n| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Application Authentication (Deprecated) | Deprecated. This type of authentication configures a Function to run in the context of the existing application user that was logged in when the client application called the Function. If the Function was called from another Function then it inherits the execution user from that Function. |\n| System                                  | This type of authentication configures a Function to run as a system user that has full access to MongoDB CRUD and Aggregation APIs and is not affected by any rules, roles, or permissions.                                                                                                      |\n| User ID (Deprecated)                    | Deprecated. This type of authentication configures a Function to always run as a specific application user.                                                                                                                                                                                       |\n| Script                                  | This type of authentication configures a Function to run as a specific application user determined based on the result of a custom Function that you define. The Function must return a specific user's id string or can specify a system user by returning \\{ \"runAsSystem\": true }.             |",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 4: Configure Function Logs",
-      "headingLevel": 3,
-      "body": "By default, Atlas includes the arguments that a Function received in\nthe log entry for each execution of the Function.\n\nTo prevent Atlas from logging the arguments,\ndisable **Log Function Arguments**.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 5: Specify an Authorization Expression",
-      "headingLevel": 3,
-      "body": "You can dynamically authorize requests based on the contents of each request\nby defining a **Can Evaluate** [expression variables](atlas/app-services/rules/expressions).\nAtlas evaluates the expression whenever the Function is called. If\nyou do not specify an expression, Atlas automatically\nauthorizes all authenticated incoming requests.\n\nThe expression can expand standard [expression variables](atlas/app-services/rules/expressions),\nincluding the [%%request](atlas/app-services/rules/expressions) and [%%user](atlas/app-services/rules/expressions)\nexpansions.\n\n![The Function's Can Evaluate JSON expression input in the UI](/atlas-ui/images/triggers/function-can-evaluate-realm-ui.png)",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 6: Configure the Function's Privacy Level",
-      "headingLevel": 3,
-      "body": "By default, you can call a Function from client applications as well\nas other Functions in the same application. You can prevent client\napplications from seeing or calling a Function by setting\n**Private** to `true`.\n\nYou can still call a private Function from [expression variables](atlas/app-services/rules/expressions) and\nother Functions, including incoming webhooks and Triggers.\n\n![The private Function toggle in the UI](/atlas-ui/images/triggers/private-function-toggle.png)",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 7: Write the Function Code",
-      "headingLevel": 3,
-      "body": "After you've created and configured the new Function, you can\nwrite the JavaScript code that runs when you call the Function.\n\nYou can write the code directly in the Atlas UI using the Function editor.\n\n- From the **Create Function** page, click the **Function Editor** tab.\n\n- Add JavaScript code to the Function. At minimum, the code must\n  assign a Function to `exports`, as in the following example:\n\n  ```javascript\n  exports = function() {\n     return \"Hello, world!\";\n  };\n  ```\n\n  > **Note:** You can use most modern (ES6+) JavaScript features in Functions,\n  > including async/await, destructuring, and template literals.",
-      "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "exports = function() {\n   return \"Hello, world!\";\n};",
-          "tokenEstimate": 13
-        }
-      ]
-    },
-    {
-      "heading": "Step 8: Save the Function",
-      "headingLevel": 3,
-      "body": "Click **Save**. After you save the Function, you can begin using it immediately.\n\n**Cli:**\n\nApp Services CLI",
-      "codeBlocks": []
+      "body": "You can create and manage Functions in your application from the Atlas UI or\nby importing the Function configuration and source code using the App Services\nCLI or GitHub deployment.\n\nAtlas UI",
+      "codeBlocks": [],
+      "slug": "define-a-function",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Authenticate a MongoDB  User",
@@ -121,7 +73,12 @@
           "content": "appservices login --api-key=\"<API KEY>\" --private-api-key=\"<PRIVATE KEY>\"",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "step-1-authenticate-a-mongodb-user--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Pull Your App's Latest Configuration Files",
@@ -133,7 +90,12 @@
           "content": "appservices pull --remote=<App ID>",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "step-2-pull-your-apps-latest-configuration-files--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Write the Function Source Code",
@@ -150,7 +112,12 @@
           "content": "exports = async function hello(...args) {\n  // Write your function logic here! You can...\n  // Import dependencies\n  const assert = require(\"assert\")\n  assert(typeof args[0] === \"string\")\n  // Use ES6+ syntax\n  const sayHello = (name = \"world\") => {\n    console.log(`Hello, ${name}.`)\n  }\n  // Return values back to clients or other functions\n  return sayHello(args[0])\n}",
           "tokenEstimate": 97
         }
-      ]
+      ],
+      "slug": "step-3-write-the-function-source-code--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Configure the Function",
@@ -182,7 +149,12 @@
           "content": "{\n   \"%%request.remoteIPAddress\": {\n      \"$nin\": [\n         \"248.88.57.58\",\n         \"19.241.23.116\",\n         \"147.64.232.1\"\n      ]\n   }\n}",
           "tokenEstimate": 49
         }
-      ]
+      ],
+      "slug": "step-4-configure-the-function--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Deploy Your Changes:",
@@ -194,7 +166,117 @@
           "content": "appservices push",
           "tokenEstimate": 3
         }
-      ]
+      ],
+      "slug": "step-5-deploy-your-changes--cli",
+      "selections": {
+        "interface": "cli"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Define a Function",
+      "headingLevel": 2,
+      "body": "You can define a new server-side Function from the Atlas UI:",
+      "codeBlocks": [],
+      "slug": "define-a-function--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Navigate to the  Page",
+      "headingLevel": 3,
+      "body": "- Click the **Linked App Service: Triggers** link.\n\n- In the sidebar, click **Functions** under the **Build** heading.\n\n- Click **Create a Function**. The **Settings** tab displays by default.",
+      "codeBlocks": [],
+      "slug": "step-1-navigate-to-the-page--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Name the New Function",
+      "headingLevel": 3,
+      "body": "Enter a name for the Function in the **Name** field. This name\nmust be unique from all other Functions in the application.\n\n> **Tip:** You can define Functions inside of nested folders. Function names\n> are slash-separated paths, so a Function named `utils/add` maps\n> to `functions/utils/add.js` in the app's configuration files.",
+      "codeBlocks": [],
+      "slug": "step-2-name-the-new-function--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3: Configure User Authentication",
+      "headingLevel": 3,
+      "body": "Functions in Atlas always execute in the context of a specific\napplication user or as a system user that bypasses rules. To configure the\nFunction's execution user, specify the type of authentication that\nAtlas should use.\n\n> **Note:** Functions for Database and Scheduled Triggers always execute in the\n> context of a system user.\n\n| Authentication Type                     | Description                                                                                                                                                                                                                                                                                       |\n| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Application Authentication (Deprecated) | Deprecated. This type of authentication configures a Function to run in the context of the existing application user that was logged in when the client application called the Function. If the Function was called from another Function then it inherits the execution user from that Function. |\n| System                                  | This type of authentication configures a Function to run as a system user that has full access to MongoDB CRUD and Aggregation APIs and is not affected by any rules, roles, or permissions.                                                                                                      |\n| User ID (Deprecated)                    | Deprecated. This type of authentication configures a Function to always run as a specific application user.                                                                                                                                                                                       |\n| Script                                  | This type of authentication configures a Function to run as a specific application user determined based on the result of a custom Function that you define. The Function must return a specific user's id string or can specify a system user by returning \\{ \"runAsSystem\": true }.             |",
+      "codeBlocks": [],
+      "slug": "step-3-configure-user-authentication--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 4: Configure Function Logs",
+      "headingLevel": 3,
+      "body": "By default, Atlas includes the arguments that a Function received in\nthe log entry for each execution of the Function.\n\nTo prevent Atlas from logging the arguments,\ndisable **Log Function Arguments**.",
+      "codeBlocks": [],
+      "slug": "step-4-configure-function-logs--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 5: Specify an Authorization Expression",
+      "headingLevel": 3,
+      "body": "You can dynamically authorize requests based on the contents of each request\nby defining a **Can Evaluate** [expression variables](atlas/app-services/rules/expressions).\nAtlas evaluates the expression whenever the Function is called. If\nyou do not specify an expression, Atlas automatically\nauthorizes all authenticated incoming requests.\n\nThe expression can expand standard [expression variables](atlas/app-services/rules/expressions),\nincluding the [%%request](atlas/app-services/rules/expressions) and [%%user](atlas/app-services/rules/expressions)\nexpansions.\n\n![The Function's Can Evaluate JSON expression input in the UI](/atlas-ui/images/triggers/function-can-evaluate-realm-ui.png)",
+      "codeBlocks": [],
+      "slug": "step-5-specify-an-authorization-expression--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 6: Configure the Function's Privacy Level",
+      "headingLevel": 3,
+      "body": "By default, you can call a Function from client applications as well\nas other Functions in the same application. You can prevent client\napplications from seeing or calling a Function by setting\n**Private** to `true`.\n\nYou can still call a private Function from [expression variables](atlas/app-services/rules/expressions) and\nother Functions, including incoming webhooks and Triggers.\n\n![The private Function toggle in the UI](/atlas-ui/images/triggers/private-function-toggle.png)",
+      "codeBlocks": [],
+      "slug": "step-6-configure-the-functions-privacy-level--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 7: Write the Function Code",
+      "headingLevel": 3,
+      "body": "After you've created and configured the new Function, you can\nwrite the JavaScript code that runs when you call the Function.\n\nYou can write the code directly in the Atlas UI using the Function editor.\n\n- From the **Create Function** page, click the **Function Editor** tab.\n\n- Add JavaScript code to the Function. At minimum, the code must\n  assign a Function to `exports`, as in the following example:\n\n  ```javascript\n  exports = function() {\n     return \"Hello, world!\";\n  };\n  ```\n\n  > **Note:** You can use most modern (ES6+) JavaScript features in Functions,\n  > including async/await, destructuring, and template literals.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "exports = function() {\n   return \"Hello, world!\";\n};",
+          "tokenEstimate": 13
+        }
+      ],
+      "slug": "step-7-write-the-function-code--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 8: Save the Function",
+      "headingLevel": 3,
+      "body": "Click **Save**. After you save the Function, you can begin using it immediately.\n\nApp Services CLI",
+      "codeBlocks": [],
+      "slug": "step-8-save-the-function--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Call a Function",
@@ -206,7 +288,9 @@
           "content": "// sum: adds two numbers\nexports = function sum(a, b) {\n  return a + b;\n};",
           "tokenEstimate": 23
         }
-      ]
+      ],
+      "slug": "call-a-function",
+      "variantAgnostic": true
     },
     {
       "heading": "Call from a Function",
@@ -218,7 +302,9 @@
           "content": "// difference: subtracts b from a using the sum function\nexports = function difference(a, b) {\n  return context.functions.execute(\"sum\", a, -1 * b);\n};",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "call-from-a-function",
+      "variantAgnostic": true
     },
     {
       "heading": "Call from the App Services CLI",
@@ -235,13 +321,34 @@
           "content": "appservices function run \\\n  --name=sum \\\n  --args=1 --args=2 \\\n  --user=61a50d82532cbd0de95c7c89",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "call-from-the-app-services-cli",
+      "variantAgnostic": true
     },
     {
       "heading": "Constraints",
       "headingLevel": 2,
       "body": "- Functions are capped at 300 seconds of runtime\n  per request, after which a Function will time out and fail.\n\n- Functions may use up to 350MB of memory at any time.\n\n- Functions are limited to 1000 async operations.\n\n- Functions support most commonly used ES6+ features and Node.js\n  built-in modules. However, some features that are uncommon or unsuited\n  to serverless workloads are not supported. For more information, see\n  [JavaScript Support](atlas-js-support).\n\n- A Function may open a maximum of 25 sockets using the [net](https://nodejs.org/docs/v10.18.1/api/net.html) built-in module.\n\n- Incoming requests are limited to a maximum size of 18 MB. This limit\n  applies to the total size of all arguments passed to the Function.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "constraints",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "ui",
+          "text": "ui"
+        },
+        {
+          "value": "cli",
+          "text": "cli"
+        }
+      ]
     }
   ]
 }

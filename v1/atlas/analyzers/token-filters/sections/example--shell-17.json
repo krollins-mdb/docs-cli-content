@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"fields\": {\n      \"text\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"fr_CA\": {\n            \"type\": \"string\",\n            \"analyzer\": \"frenchStemmer\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"frenchStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"snowballStemming\",\n          \"stemmerName\": \"french\"\n        }\n      ]\n    }\n  ]\n})\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"réunion\",\n        \"path\": \"text.fr_CA\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.fr_CA\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  {\n    _id: 1,\n    text: {\n      fr_CA: 'Cette page traite des réunions de département'\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"fields\": {\n      \"text\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"fr_CA\": {\n            \"type\": \"string\",\n            \"analyzer\": \"frenchStemmer\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"frenchStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"snowballStemming\",\n          \"stemmerName\": \"french\"\n        }\n      ]\n    }\n  ]\n})\n",
+      "tokenEstimate": 161
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"réunion\",\n        \"path\": \"text.fr_CA\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.fr_CA\": 1\n    }\n  }\n])",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 1,\n    text: {\n      fr_CA: 'Cette page traite des réunions de département'\n    }\n  }\n]",
+      "tokenEstimate": 36
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

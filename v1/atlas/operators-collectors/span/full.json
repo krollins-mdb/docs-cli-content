@@ -7,7 +7,9 @@
       "heading": "Definition",
       "headingLevel": 2,
       "body": "> **Note:** The `span` operator is deprecated. Instead, use the\n> [Phrase](phrase-ref).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "definition",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -19,13 +21,17 @@
           "content": "{\n   $search: {\n     \"index\": <index name>, // optional, defaults to \"default\"\n     \"span\": {\n       \"term\" | <positional-operator>\": {\n         <operator-specification>\n       }\n     }\n   }\n}",
           "tokenEstimate": 52
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Term Operator",
       "headingLevel": 2,
       "body": "You can use the `term` operator to specify the terms to search. The\n`term` operator is required and when you use it with `span`\n[positional operators](span-positional-operators-ref) operators, it must be\nthe innermost child of the positional operators.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "term-operator",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -37,25 +43,33 @@
           "content": "\"term\": {\n  \"path\": \"<path-to-field>\",\n  \"query\": \"<terms-to-search>\"\n}",
           "tokenEstimate": 23
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 3,
       "body": "The `term` operator takes the following fields:\n\n| Option | Type   | Required? | Description               |\n| ------ | ------ | --------- | ------------------------- |\n| path   | string | yes       | Indexed field to search.  |\n| query  | string | yes       | Term or phrase to search. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Positional Operators",
       "headingLevel": 2,
       "body": "You can use the positional operators to specify the position of the\nterms that you want to search with the [term](span-term-ref)\noperator. The positional operators are of type `document`. You must\nspecify at least one positional operator in your `span` operator\nquery. The positional operators can take other `span` positional\noperators, recursively.\n\n> **Note:**&#x20;\n>\n> About the Examples\n>\n> The examples on this page use the `sample_mflix.movies` collection.\n> If you [Load Sample Data Into Atlas](sample-data)\n> and [create a MongoDB Search index](ref-create-index) a [dynamic mappings](static-dynamic-mappings) index named `default` on the\n> [Sample Mflix Dataset](sample-mflix) , you can run the following\n> [$search](pipe.$search) sample queries against the collection. The sample\n> queries use the [$limit](manual/reference/operator/aggregation/limit) stage to limit the results to\n> `5` documents and the [$project](manual/reference/operator/aggregation/project) stage to exclude all\n> fields except the `title` field in the results.\n\n`span` takes the following optional positional operators.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "positional-operators",
+      "variantAgnostic": true
     },
     {
       "heading": "contains",
       "headingLevel": 3,
       "body": "The `contains` positional operator matches terms that are contained\nwithin other terms. You can use [positional operators](span-positional-operators-ref) recursively or just the [term](span-term-ref) operator within `contains` to specify the search\nterms.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "contains",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -67,13 +81,17 @@
           "content": "{\n  \"$search\": {\n    \"span\": {\n      \"contains\": {\n        \"spanToReturn\": \"inner\"|\"outer\",\n        \"little\": { <positional-or-term-operator-specification> },\n        \"big\": { <positional-or-term-operator-specification> }\n      }\n    }\n  }\n}",
           "tokenEstimate": 65
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 4,
       "body": "The `contains` positional operator takes the following fields:\n\n| Fields       | Type     | Required? | Description                                                                                                                                                                                                                                                                                                                                    |\n| ------------ | -------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| big          | document | yes       | One or more positional operators specified recursively or just the term operator. The following table shows the type of query that span executes for big based on the value of spanToReturn.outerspan matches terms from big that contain at least one term from little.innerspan matches terms from little that are within terms from big.    |\n| little       | document | yes       | One or more positional operators specified recursively or just the term operator. The following table shows the type of query that span executes for little based on the value of spanToReturn.innerspan matches terms from little that are within terms from big.outerspan matches terms from big that contain at least one term from little. |\n| score        | document | no        | Score to apply to the results of this search.                                                                                                                                                                                                                                                                                                  |\n| spanToReturn | string   | yes       | Type of query to execute and matching results to return. Value can be one of the following:inner - to execute a within query that matches terms from little that are inside of terms from bigouter - to execute a contains query that matches terms from big that contain at least one term from little                                        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -90,13 +108,17 @@
           "content": "[\n  { title: 'The Great Train Robbery' },\n  { title: 'The Great Train Robbery' },\n  { title: \"The Great St. Trinian's Train Robbery\" }\n]",
           "tokenEstimate": 44
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "first",
       "headingLevel": 3,
       "body": "The `first` positional operator identifies the position of the search\nterm by using a specified number. You can specify the search terms using\n[positional operators](span-positional-operators-ref) recursively,\nor just the [term](span-term-ref) operator. `span` matches\ndocuments where the position of the search term is less than or equal to\nthe specified number.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "first",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -108,18 +130,30 @@
           "content": "{\n  \"$search\": {\n    \"span\": {\n      \"first\": {\n        \"endPositionLte\": <term-position>,\n        \"operator\": { <span-positional-or-term-operator-specification> },\n        \"score\": { <score-options> }\n      }\n    }\n  }\n}",
           "tokenEstimate": 60
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 4,
       "body": "The `first` positional operator takes the following fields:\n\n| Option         | Type     | Required? | Description                                                                                                                                                                             |\n| -------------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| endPositionLte | int      | no        | Number that specifies the position of the search term. If you specify a search for multiple terms, the last term should be less than or equal to this value. If omitted, defaults to 3. |\n| operator       | document | yes       | Document that contains the positional operators or term operator options.                                                                                                               |\n| score          | document | no        | Score to apply to the results of this search.                                                                                                                                           |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
       "headingLevel": 4,
-      "body": "The following example queries use `span.first` to find documents\nin which the specified string appears in the `title` field. The\n`endPositionLte` parameter has a value of `2`, which means that the\nsearch term specified using the `term` operator must be the first or\nsecond word in the field.\n\n**Term-eg:**\n\nterm Example\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"dance\"\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]\n```\n\nMongoDB Search returns the documents that contain search word `dance`\nin the first or second position of the `title` field.\n\n**Or-eg:**\n\nor Example\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]\n```\n\nMongoDB Search returns documents that contain the search word `man`\nor `woman` in the first or second position of the `title`\nfield. MongoDB Search does not return both search terms in the same `title`\nbecause the example includes the `or` operator `clauses`\nto specify the search terms.",
+      "body": "The following example queries use `span.first` to find documents\nin which the specified string appears in the `title` field. The\n`endPositionLte` parameter has a value of `2`, which means that the\nsearch term specified using the `term` operator must be the first or\nsecond word in the field.\n\nterm Example\n\nor Example",
+      "codeBlocks": [],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 4,
+      "body": "**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"term\": {\n              \"path\": \"title\",\n              \"query\": \"dance\"\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]\n```\n\nMongoDB Search returns the documents that contain search word `dance`\nin the first or second position of the `title` field.",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -130,7 +164,19 @@
           "language": "json",
           "content": "[\n  { title: 'Dance Program' },\n  { title: 'Slam Dance' },\n  { title: 'Last Dance' },\n  { title: 'War Dance' },\n  { title: 'Delhi Dance' }\n]",
           "tokenEstimate": 50
-        },
+        }
+      ],
+      "slug": "example--term-eg",
+      "selections": {
+        "tabs": "term-eg"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 4,
+      "body": "**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]\n```\n\nMongoDB Search returns documents that contain the search word `man`\nor `woman` in the first or second position of the `title`\nfield. MongoDB Search does not return both search terms in the same `title`\nbecause the example includes the `or` operator `clauses`\nto specify the search terms.",
+      "codeBlocks": [
         {
           "language": "javascript",
           "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"span\": {\n        \"first\": {\n          \"endPositionLte\": 2,\n          \"operator\": {\n            \"or\": {\n              \"clauses\": [\n                { \"term\": { \"path\": \"title\", \"query\": \"man\" } },\n                { \"term\": { \"path\": \"title\", \"query\": \"woman\" } }\n              ]\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
@@ -141,13 +187,20 @@
           "content": "[\n  { title: \"Everybody's Woman\" },\n  { title: 'Marked Woman' },\n  { title: 'Wonder Man' },\n  { title: 'Designing Woman' },\n  { title: 'Watermelon Man' }\n]",
           "tokenEstimate": 51
         }
-      ]
+      ],
+      "slug": "example--or-eg",
+      "selections": {
+        "tabs": "or-eg"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "near",
       "headingLevel": 3,
       "body": "The `near` positional operator matches two or more clauses that\ncontain the search term near each other. You can specify the search\nterms using a list of [positional operators](span-positional-operators-ref) recursively or just the [term](span-term-ref) operator.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "near",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -159,13 +212,17 @@
           "content": "{\n  \"$search\": {\n    \"span\": {\n      \"near\": {\n        \"clauses\": [\n          { <span-positional-or-term-operator-specification> },\n          ...\n        ],\n        \"slop\": <distance-number>,\n        \"inOrder\": true|false\n      }\n    }\n  }\n}",
           "tokenEstimate": 64
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 4,
       "body": "The `near` positional operator takes the following fields:\n\n| Field   | Type               | Required? | Description                                                                                                                                                                                                                                                                                                                                       |\n| ------- | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| clauses | array of documents | yes       | Span clauses that must be near one another. Clauses can't be empty. Each document contains span positional or just the term operator options.                                                                                                                                                                                                     |\n| inOrder | boolean            | no        | Flag that specifies whether the search for terms in the clauses must be in the order specified and must not be overlapping.Value can be one of the following:true - to search for terms in the clauses in the specified order specified, without overlappingfalse - to search for terms in the clauses in any orderIf omitted, defaults to false. |\n| score   | document           | no        | Score to apply to the results of this search.                                                                                                                                                                                                                                                                                                     |\n| slop    | integer            | no        | Allowable distance between terms in the clauses. Lower values allow less positional distance between the terms and greater values allow more distance between the words to satisfy the query. The default is 0, which means that words in the different clauses must be adjacent to be considered a match.                                        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -182,13 +239,17 @@
           "content": "[ { title: 'The Prince and the Pauper' } ]",
           "tokenEstimate": 14
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "or",
       "headingLevel": 3,
       "body": "The `or` positional operator matches any of two or more clauses. You\ncan specify the search terms using a list of [positional operators](span-positional-operators-ref) recursively or just the [term](span-term-ref) operator.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "or",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -200,13 +261,17 @@
           "content": "{\n  \"$search\": {\n    \"span\": {\n      \"or\": {\n        \"clauses\": [\n          { <span-positional-or-term-operator-specification> },\n          ...\n        ],\n        \"score\": { <scoring-options> }\n      }\n    }\n  }\n}",
           "tokenEstimate": 57
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 4,
       "body": "The `or` positional operator takes the following fields:\n\n| Option  | Type               | Required? | Description                                                                                                                                                                                                          |\n| ------- | ------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| clauses | array of documents | yes       | Span clauses that specify the search terms. One of the clauses must match, and clauses can't be empty. Each document must contain span positional operators specified recursively or just the term operator options. |\n| score   | document           | no        | Score to apply to the results of this search.                                                                                                                                                                        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -223,13 +288,17 @@
           "content": "[\n  { title: 'Country' },\n  { title: 'City Lights' },\n  { title: 'King & Country' },\n  { title: 'Fat City' },\n  { title: 'Atlantic City' }\n]",
           "tokenEstimate": 47
         }
-      ]
+      ],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "subtract",
       "headingLevel": 3,
       "body": "The `subtract` positional operator removes matches that overlap with\nanother match. You can specify the search terms using a list of\n[positional operators](span-positional-operators-ref) recursively\nor just the [term](span-term-ref) operator. The `subtract`\nclause can be used to exclude certain strings from your search results.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "subtract",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -241,13 +310,17 @@
           "content": "{\n  \"$search\": {\n    \"span\": {\n      \"subtract\": {\n        \"include\": { <span-positional-or-term-operator-specification> },\n        \"exclude\": { <span-positional-or-term-operator-specification> }\n      }\n    }\n  }\n}",
           "tokenEstimate": 55
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Fields",
       "headingLevel": 4,
       "body": "The `subtract` positional operator takes the following fields:\n\n| Option  | Type     | Required? | Description                                                                                                                                                                                                                             |\n| ------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| exclude | document | yes       | Document that specifies the term or phrase matches to remove that overlap with the term or phrase matches specified in the include field. You can specify the term or phrase using any span positional operators and the term operator. |\n| include | document | yes       | Document that specifies the term matches to include using any positional operators or just the term operator.                                                                                                                           |\n| score   | document | no        | Score to apply to the results of this search.                                                                                                                                                                                           |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
@@ -263,6 +336,24 @@
           "language": "json",
           "content": "[\n  { title: 'Father, Son & Holy Cow' },\n  { title: 'My Father and My Son' },\n  { title: 'Jimmy Rosenberg: The Father, the Son & the Talent' }\n]",
           "tokenEstimate": 45
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "term-eg",
+          "text": "term-eg"
+        },
+        {
+          "value": "or-eg",
+          "text": "or-eg"
         }
       ]
     }

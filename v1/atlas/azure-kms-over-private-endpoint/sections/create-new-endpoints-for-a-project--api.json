@@ -1,0 +1,27 @@
+{
+  "heading": "Create New Endpoints for a Project",
+  "headingLevel": 3,
+  "body": "Send a `POST` request to the [endpoint](api/doc/atlas-admin-api-v2/operation/operation-createencryptionatrestprivateendpoint) with the Azure (Microsoft Azure)\nregion in which you want Atlas to create the private\nendpoint. You must send a separate request for each region\nin which you want Atlas to create a private endpoint.\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n> **Example:**&#x20;\n>\n> ```json\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n> --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n> --header \"Content-Type: application/vnd.atlas.2023-01-01+json\" \\\n> --include \\\n> --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AZURE/privateEndpoints\" \\\n> --data '\n>   {\n>     \"regionName\": \"US_CENTRAL\"\n>   }'\n> ```\n\nYou can use the Azure (Microsoft Azure) [UI](https://docs.microsoft.com/en-us/azure/private-link/manage-private-endpoint),\n[CLI](https://learn.microsoft.com/en-us/cli/azure/network/private-endpoint-connection), or\nTerraform to approve the private endpoint connections.\n\nTo check the status of the private endpoint, send a `GET`\nrequest to the `encryptionAtRest` [endpoint](api/doc/atlas-admin-api-v2/operation/operation-listgroupencryptionatrestprivateendpoints).\n\n> **Example:** **Input:**\n>\n> ```json\n> curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n> --header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n> --header \"Content-Type: application/vnd.atlas.2023-01-01+json\" \\\n> --include \\\n> --request GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AZURE/privateEndpoints\"\n> ```\n>\n> **Output:**\n>\n> ```shell\n> {\n>   \"links\": [\n>     {\n>       \"href\": \"https://cloud.mongodb.com/api/atlas\",\n>       \"rel\": \"self\"\n>     }\n>   ],\n>   \"results\": [\n>     {\n>       \"cloudProvider\": \"AZURE\",\n>       \"errorMessage\": \"string\",\n>       \"id\": \"24-hexadecimal-digit-string\",\n>       \"regionName\": \"string\",\n>       \"status\": \"INITIATING\",\n>       \"privateEndpointConnectionName\": \"string\"\n>     }\n>   ],\n>   \"totalCount\": 0\n> }\n> ```\n\nAfter you approve the private endpoint, it can take Atlas up\nto three minutes to reflect the current status of your private\nendpoint. The private endpoint can have one of the following\nstatuses:\n\n| INITATING           | Indicates that Atlas is in the process of creating the private endpoint.                                                                              |\n| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |\n| PENDING\\_ACCEPTANCE | Indicates that the private endpoint hasn't yet been approved. You must accept the private endpoint to allow Atlas to use it.                          |\n| ACTIVE              | Indicates that the private endpoint is approved and Atlas can or is using it.                                                                         |\n| PENDING\\_RECREATION | Indicates that the private endpoint was either rejected or removed and Atlas is in the process of creating a new private endpoint in the same region. |\n| FAILED              | Indicates that the private endpoint creation failed.                                                                                                  |\n| DELETING            | Indicates that Atlas is in the process of deleting the private endpoint.                                                                              |",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n--header \"Content-Type: application/vnd.atlas.2023-01-01+json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AZURE/privateEndpoints\" \\\n--data '\n  {\n    \"regionName\": \"US_CENTRAL\"\n  }'",
+      "tokenEstimate": 105
+    },
+    {
+      "language": "json",
+      "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/vnd.atlas.2023-01-01+json\" \\\n--header \"Content-Type: application/vnd.atlas.2023-01-01+json\" \\\n--include \\\n--request GET \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/encryptionAtRest/AZURE/privateEndpoints\"",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "shell",
+      "content": "{\n  \"links\": [\n    {\n      \"href\": \"https://cloud.mongodb.com/api/atlas\",\n      \"rel\": \"self\"\n    }\n  ],\n  \"results\": [\n    {\n      \"cloudProvider\": \"AZURE\",\n      \"errorMessage\": \"string\",\n      \"id\": \"24-hexadecimal-digit-string\",\n      \"regionName\": \"string\",\n      \"status\": \"INITIATING\",\n      \"privateEndpointConnectionName\": \"string\"\n    }\n  ],\n  \"totalCount\": 0\n}",
+      "tokenEstimate": 107
+    }
+  ],
+  "slug": "create-new-endpoints-for-a-project--api",
+  "selections": {
+    "interface": "api"
+  },
+  "variantAgnostic": false
+}

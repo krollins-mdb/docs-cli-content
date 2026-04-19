@@ -7,91 +7,206 @@
       "heading": "Plan Your Search Experience",
       "headingLevel": 2,
       "body": "When planning your MongoDB Search implementation, start by defining the search experience you want to deliver:\n\n- Clearly identify what types of searches your application needs to perform.\n  Are you building a search feature for a blog website that needs full-text search and autocomplete for article titles,\n  or an e-commerce site that requires faceted search and filtering by product categories?\n\n- Determine how users will interact with your application. Prioritize features that will enhance the user experience, such as\n  quick response times or accurate autocomplete suggestions.\n\nThen, consider the following questions to help determine the structure of your MongoDB Search indexes and queries based on those user needs:\n\nConsider whether your application users want to return the content of documents or metadata about your documents:\n\n- If users want document content,\n  use the [$search](pipe.$search) aggregation stage to return documents that match their search criteria.\n\n- If users want metadata about their search results,\n  use the [$searchMeta](pipe.$searchMeta) stage to return customizable counts of matching documents and facets.\n\nIdentify the specific fields within your collections that users are likely to search so that you know which fields to index.\nEach MongoDB Search query searches a single MongoDB Search index, which contains terms that are extracted from one or more specified\nfields within a collection. When planning your MongoDB Search queries, decide whether to index only key fields or every field in your\nspecified collection by enabling [dynamic mappings](static-dynamic-mappings).\nYou can query across multiple fields by specifying the [query path](ref-path-intro) as an array of fields,\nor by using the [queryString](querystring-ref) operator.\n\nYour users' common search terms may be **exact**, **similar** , or **partial** matches for the data in your cluster.\nFor example, users of a movie review application may want to filter for movies from an *exact* year, or see\nmovie recommendations that are *similar* to their favorite film.\n\nDetermine the type of matches your users are searching for to inform which [operators](fts-operators) to use in your MongoDB Search queries:\n\n- For **exact** matches, use operators like [equals](equals-ref) or [in](in-ref) to match documents that contain\n  terms that are identical to the specified `query` value. You can also use the [text](text-ref) operator to match documents\n  that contain `any` or `all` of the strings in the `query` value.\n\n- For **similar** matches, use operators like [near](near-ref), [autocomplete](more-like-this-ref), or [Phrase](phrase-ref) to match documents that contain\n  numeric values, documents, or string orderings that are similar to the specified search terms. You can also use the [range](range-ref) operator to match\n  documents that contain a value within a specified range of values.\n\n- For **partial** matches, such as search-as-you-type queries, use operators like [autocomplete](autocomplete-ref), [regex](regex-ref), or [wildcard](wildcard-ref) to\n  implement search-as-you-type functionality or match terms using regular expressions.\n\n- Use the [compound](compound-ref) operator to blend multiple matching behaviors in a single query.\n\nFor applications that require text normalization, multi-language support, stemming, or more, leverage\nMongoDB Search text analysis tools:\n\n- Choose a [built-in analyzers](ref-built-in-analyzers) in your index definition to match the language and nature of your text data.\n  Analyzers break text into terms or tokens and can adjust text to remove punctuation and capitalization, convert words to their root form,\n  and more.\n\n- Configure [Custom analyzers](custom-analyzers) if your application has specific requirements like handling domain-specific jargon or\n  parsing formatted text like email addresses or dash-separated IDs.\n  Custom analyzers enable you to filter text by character,\n  define the number of characters to include in each token chunk, or enable stemming or redaction.\n\n- Define [Synonym](synonyms-ref) to improve search accuracy for terms with the same or similar meanings.\n\nYou can adjust the presentation of search results based on your users' filtering, sorting, or\nrelevancy demands:\n\n- Use the [relevance scoring](scoring-ref) query option to modify the relevance score of documents and affect the order in which\n  users view results.\n  MongoDB Search queries associate a relevance-based score with every document in the result set, and returns documents in order from\n  the highest to the lowest score.\n\n- Set the [sorting](sort-ref) query option for indexed fields that users are likely to sort in ascending or descending order,\n  such as dates or numeric fields.\n\n- Use the [How to Paginate the Results](fts-paginate-results) query options to display results as a set of pages\n  that users can navigate sequentially or skip through.\n\n- Use the [faceted navigation](fts-facet-ref) collector to allow users to filter results by categories or other dimensions.\n  This can significantly improve the relevance of search results, offering users a more guided search experience.\n\nMongoDB Search query performance is affected by your index configuration and the complexity of your queries.\nFocus on indexing fields that are critical to your application's search functionality and aim for a\nlogical balance between query complexity and speed.\n\nTo further optimize performance, consider the following query options:\n\n- Use the [Parallelize Query Execution Across Segments](concurrent-ref) query option to set the number of concurrent\n  search requests that are executed when evaluating a query.\n  This option is useful for complex queries or large datasets.\n\n- Use the [Return Stored Source Fields](fts-return-stored-source-option) query option in combination with the [storedSource](fts-stored-source-definition) index option\n  to determine whether to return original source documents, stored as part of the index, alongside the search results.\n  This option is useful for applications where you display summaries or highlights based on search criteria.\n\n- Use the [numPartitions](fts-index-partition) index option to partition your index,\n  distributing index objects between sub-indexes in an optimal way.\n\nFor more recommendations on how to optimize your query performance, see [MongoDB Search Query Performance](query-perf).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "plan-your-search-experience",
+      "variantAgnostic": true
     },
     {
       "heading": "Define Your Index",
       "headingLevel": 2,
       "body": "Before you can search your data using MongoDB Search, you must create one or more MongoDB Search indexes\nto be used during your MongoDB Search query. This section demonstrates how to apply your query preferences\nto the JSON (Javascript Object Notation) configuration syntax of a MongoDB Search index.\n\nTo use the JSON (Javascript Object Notation) syntax in this section in your index definition, replace the placeholders with valid values and\nensure that your full index definition contains the [option](index-definition-options).\n\nTo learn how to add your MongoDB Search index to your cluster, see the [index builder](fts-tutorial-ref).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "define-your-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Choose which fields to index.",
       "headingLevel": 3,
-      "body": "If you know which fields you want to query in your collection,\nenable static mappings and specify the fields in your MongoDB Search index\ndefinition. Otherwise, you can enable dynamic mappings to\nautomatically index all fields based on a default or configured\nset of field types (`typeSet`).\n\nTo learn more, see [dynamic mappings](static-dynamic-mappings).\n\n> **Note:** See [Considerations for MongoDB Search Indexes](ref-index-considerations) for more details on MongoDB Search indexes behaviour\n> and limitations.\n\n**Dynamic-mappings-syntax:**\n\nDynamic Mappings\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false\n  }\n}\n```\n\n**Static-mappings-syntax:**\n\nStatic Mappings\n\n```json\n{\n  \"mappings\": { \n    \"dynamic\": true|false, \n    \"fields\": { \n      \"<field-name>\": {\n        \"type\": \"<field-type>\",\n        ...\n      },\n      ...  \n    }\n  }\n}\n```",
+      "body": "If you know which fields you want to query in your collection,\nenable static mappings and specify the fields in your MongoDB Search index\ndefinition. Otherwise, you can enable dynamic mappings to\nautomatically index all fields based on a default or configured\nset of field types (`typeSet`).\n\nTo learn more, see [dynamic mappings](static-dynamic-mappings).\n\n> **Note:** See [Considerations for MongoDB Search Indexes](ref-index-considerations) for more details on MongoDB Search indexes behaviour\n> and limitations.\n\nDynamic Mappings\n\nStatic Mappings",
+      "codeBlocks": [],
+      "slug": "step-1-choose-which-fields-to-index",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 1: Choose which fields to index.",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"mappings\": {\n    \"dynamic\": false\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"mappings\": {\n    \"dynamic\": false\n  }\n}",
           "tokenEstimate": 16
-        },
+        }
+      ],
+      "slug": "step-1-choose-which-fields-to-index--dynamic-mappings-syntax",
+      "selections": {
+        "tabs": "dynamic-mappings-syntax"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Choose which fields to index.",
+      "headingLevel": 3,
+      "body": "```json\n{\n  \"mappings\": { \n    \"dynamic\": true|false, \n    \"fields\": { \n      \"<field-name>\": {\n        \"type\": \"<field-type>\",\n        ...\n      },\n      ...  \n    }\n  }\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"mappings\": { \n    \"dynamic\": true|false, \n    \"fields\": { \n      \"<field-name>\": {\n        \"type\": \"<field-type>\",\n        ...\n      },\n      ...  \n    }\n  }\n}",
           "tokenEstimate": 50
         }
-      ]
+      ],
+      "slug": "step-1-choose-which-fields-to-index--static-mappings-syntax",
+      "selections": {
+        "tabs": "static-mappings-syntax"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2:  Apply text analysis rules.",
       "headingLevel": 3,
-      "body": "If you have special language, parsing, or scoring requirements for\nyour `string` data, you can apply the following options to your\nindex definition:\n\n**Analyzers-syntax:**\n\nBuilt-in Analyzers\n\nTo specify how MongoDB Search breaks your text fields into tokens,\nyou can set [built-in analyzers](ref-built-in-analyzers) in your MongoDB Search index.\n\n```json\n{\n  \"analyzer\": \"<index-analyzer-name>\", // top-level index analyzer, used if no analyzer is set in the field mappings\n  \"searchAnalyzer\": \"<search-analyzer-name>\", // query text analyzer, typically the same as the index analyzer\n  \"mappings\": {\n    \"dynamic\": <boolean>,\n    \"fields\":{\n      \"<field-name>\": [\n        {\n          \"type\": \"string|autocomplete\",\n          \"analyzer\": \"<field-analyzer-name>\" // field-specific index analyzer\n          \"multi\": {\n            \"<multi-option-name>\": {\n              \"type\": \"string|autocomplete\",\n              \"analyzer\": \"<alternate-analyzer-name>\" // multi-option specific index analyzer\n            }\n          }\n        }\n      ]\n    }\n  }\n}\n```\n\n**Custom-analyzers-syntax:**\n\nCustom Analyzers\n\nTo customize how MongoDB Search breaks text into tokens, you can\ndefine a [Custom analyzers](custom-analyzers) in the\n`analyzers` field of your MongoDB Search index.\n\n```json\n{\n  \"analyzers\": [\n    {\n      \"name\": \"<custom-analyzer-name>\",\n      \"tokenizer\": {\n        \"type\": \"<tokenizer-type>\"\n      }\n    },\n    ...\n  ]\n}\n```\n\n**Synonyms-syntax:**\n\nSynonyms\n\nTo run queries with the [text](text-ref) operator that\naccount for terms with the same or similar meanings, you can\ndefine [Synonym](synonyms-ref) in the `synonyms`\nfield of your MongoDB Search index.\n\n```json\n{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n\n```\n\n**Scoring-syntax:**\n\nScoring\n\nTo set which similarity algorithm MongoDB Search uses to calculate\nrelevance scores during queries, specify an algorithm in the\n`similarity.type` property for your `string` fields\nindexed as the MongoDB Search [string](bson-data-types-string)\nor [tokenization](bson-data-types-autocomplete) type.\n\nThis option determines how the [text](text-ref),\n[Phrase](phrase-ref), [queryString](querystring-ref), and [autocomplete](more-like-this-ref) operators calculate relevance scores.\nTo learn more about the different similarity algorithms, see\n[Score Details](fts-similarity-algorithms).\n\n```json\n  \"mappings\": {\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"string|autocomplete\",\n        \"similarity\": {\n          \"type\": \"bm25|boolean|stableTfl\"\n        },\n      },\n      \"<field-name>\": {\n        \"type\": \"string\",\n        \"multi\": {\n          \"<multi-option-name>\": {\n            \"type\": \"string\",\n            \"similarity\": {\n              \"type\": \"bm25|boolean|stableTfl\"\n            }\n          }\n        }\n      }\n    }\n  }\n\n```",
+      "body": "If you have special language, parsing, or scoring requirements for\nyour `string` data, you can apply the following options to your\nindex definition:\n\nBuilt-in Analyzers\n\nCustom Analyzers\n\nSynonyms\n\nScoring",
+      "codeBlocks": [],
+      "slug": "step-2-apply-text-analysis-rules",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 2:  Apply text analysis rules.",
+      "headingLevel": 3,
+      "body": "To specify how MongoDB Search breaks your text fields into tokens,\nyou can set [built-in analyzers](ref-built-in-analyzers) in your MongoDB Search index.\n\n```json\n{\n  \"analyzer\": \"<index-analyzer-name>\", // top-level index analyzer, used if no analyzer is set in the field mappings\n  \"searchAnalyzer\": \"<search-analyzer-name>\", // query text analyzer, typically the same as the index analyzer\n  \"mappings\": {\n    \"dynamic\": <boolean>,\n    \"fields\":{\n      \"<field-name>\": [\n        {\n          \"type\": \"string|autocomplete\",\n          \"analyzer\": \"<field-analyzer-name>\" // field-specific index analyzer\n          \"multi\": {\n            \"<multi-option-name>\": {\n              \"type\": \"string|autocomplete\",\n              \"analyzer\": \"<alternate-analyzer-name>\" // multi-option specific index analyzer\n            }\n          }\n        }\n      ]\n    }\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"analyzer\": \"<index-analyzer-name>\", // top-level index analyzer, used if no analyzer is set in the field mappings\n  \"searchAnalyzer\": \"<search-analyzer-name>\", // query text analyzer, typically the same as the index analyzer\n  \"mappings\": {\n    \"dynamic\": <boolean>,\n    \"fields\":{\n      \"<field-name>\": [\n        {\n          \"type\": \"string|autocomplete\",\n          \"analyzer\": \"<field-analyzer-name>\" // field-specific index analyzer\n          \"multi\": {\n            \"<multi-option-name>\": {\n              \"type\": \"string|autocomplete\",\n              \"analyzer\": \"<alternate-analyzer-name>\" // multi-option specific index analyzer\n            }\n          }\n        }\n      ]\n    }\n  }\n}",
           "tokenEstimate": 158
-        },
+        }
+      ],
+      "slug": "step-2-apply-text-analysis-rules--analyzers-syntax",
+      "selections": {
+        "tabs": "analyzers-syntax"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2:  Apply text analysis rules.",
+      "headingLevel": 3,
+      "body": "To customize how MongoDB Search breaks text into tokens, you can\ndefine a [Custom analyzers](custom-analyzers) in the\n`analyzers` field of your MongoDB Search index.\n\n```json\n{\n  \"analyzers\": [\n    {\n      \"name\": \"<custom-analyzer-name>\",\n      \"tokenizer\": {\n        \"type\": \"<tokenizer-type>\"\n      }\n    },\n    ...\n  ]\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"analyzers\": [\n    {\n      \"name\": \"<custom-analyzer-name>\",\n      \"tokenizer\": {\n        \"type\": \"<tokenizer-type>\"\n      }\n    },\n    ...\n  ]\n}",
           "tokenEstimate": 41
-        },
+        }
+      ],
+      "slug": "step-2-apply-text-analysis-rules--custom-analyzers-syntax",
+      "selections": {
+        "tabs": "custom-analyzers-syntax"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2:  Apply text analysis rules.",
+      "headingLevel": 3,
+      "body": "To run queries with the [text](text-ref) operator that\naccount for terms with the same or similar meanings, you can\ndefine [Synonym](synonyms-ref) in the `synonyms`\nfield of your MongoDB Search index.\n\n```json\n{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{ \n  \"synonyms\": [\n    {\n      \"name\": \"<synonym-mapping-name>\",\n      \"source\": {\n        \"collection\": \"<source-collection-name>\"\n      },\n      \"analyzer\": \"<synonym-mapping-analyzer>\"\n    }\n  ] \n}\n",
           "tokenEstimate": 56
-        },
+        }
+      ],
+      "slug": "step-2-apply-text-analysis-rules--synonyms-syntax",
+      "selections": {
+        "tabs": "synonyms-syntax"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2:  Apply text analysis rules.",
+      "headingLevel": 3,
+      "body": "To set which similarity algorithm MongoDB Search uses to calculate\nrelevance scores during queries, specify an algorithm in the\n`similarity.type` property for your `string` fields\nindexed as the MongoDB Search [string](bson-data-types-string)\nor [tokenization](bson-data-types-autocomplete) type.\n\nThis option determines how the [text](text-ref),\n[Phrase](phrase-ref), [queryString](querystring-ref), and [autocomplete](more-like-this-ref) operators calculate relevance scores.\nTo learn more about the different similarity algorithms, see\n[Score Details](fts-similarity-algorithms).\n\n```json\n  \"mappings\": {\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"string|autocomplete\",\n        \"similarity\": {\n          \"type\": \"bm25|boolean|stableTfl\"\n        },\n      },\n      \"<field-name>\": {\n        \"type\": \"string\",\n        \"multi\": {\n          \"<multi-option-name>\": {\n            \"type\": \"string\",\n            \"similarity\": {\n              \"type\": \"bm25|boolean|stableTfl\"\n            }\n          }\n        }\n      }\n    }\n  }\n\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "  \"mappings\": {\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"string|autocomplete\",\n        \"similarity\": {\n          \"type\": \"bm25|boolean|stableTfl\"\n        },\n      },\n      \"<field-name>\": {\n        \"type\": \"string\",\n        \"multi\": {\n          \"<multi-option-name>\": {\n            \"type\": \"string\",\n            \"similarity\": {\n              \"type\": \"bm25|boolean|stableTfl\"\n            }\n          }\n        }\n      }\n    }\n  }\n",
           "tokenEstimate": 117
         }
-      ]
+      ],
+      "slug": "step-2-apply-text-analysis-rules--scoring-syntax",
+      "selections": {
+        "tabs": "scoring-syntax"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3:  Add options to optimize query performance.",
       "headingLevel": 3,
-      "body": "If you want to optimize your query performance on a large dataset, you can add the following\noptions to your index definition to limit the amount of data that your MongoDB Search query must traverse:\n\n**NumPartitions-syntax:**\n\nnumPartitions\n\nUse the [numPartitions](fts-index-partition) option to configure partitions for your index.\nWhen you partition your index, MongoDB Search automatically distributes the index objects between sub-indexes in an optimal way.\n\n```json\n{\n  \"numPartitions\": <integer>,\n}\n```\n\n**StoredSource-syntax:**\n\nstoredSource\n\nUse the [storedSource](fts-stored-source-definition) option to specify fields in the source document that MongoDB Search must store.\n\n```json\n{\n  \"storedSource\": true | false | {\n    \"include\" | \"exclude\": [\n      \"<field-name>\",\n      ...\n    ]\n  }\n}\n```",
+      "body": "If you want to optimize your query performance on a large dataset, you can add the following\noptions to your index definition to limit the amount of data that your MongoDB Search query must traverse:\n\nnumPartitions\n\nstoredSource",
+      "codeBlocks": [],
+      "slug": "step-3-add-options-to-optimize-query-performance",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 3:  Add options to optimize query performance.",
+      "headingLevel": 3,
+      "body": "Use the [numPartitions](fts-index-partition) option to configure partitions for your index.\nWhen you partition your index, MongoDB Search automatically distributes the index objects between sub-indexes in an optimal way.\n\n```json\n{\n  \"numPartitions\": <integer>,\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"numPartitions\": <integer>,\n}",
           "tokenEstimate": 11
-        },
+        }
+      ],
+      "slug": "step-3-add-options-to-optimize-query-performance--numPartitions-syntax",
+      "selections": {
+        "tabs": "numPartitions-syntax"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3:  Add options to optimize query performance.",
+      "headingLevel": 3,
+      "body": "Use the [storedSource](fts-stored-source-definition) option to specify fields in the source document that MongoDB Search must store.\n\n```json\n{\n  \"storedSource\": true | false | {\n    \"include\" | \"exclude\": [\n      \"<field-name>\",\n      ...\n    ]\n  }\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"storedSource\": true | false | {\n    \"include\" | \"exclude\": [\n      \"<field-name>\",\n      ...\n    ]\n  }\n}",
           "tokenEstimate": 32
         }
-      ]
+      ],
+      "slug": "step-3-add-options-to-optimize-query-performance--storedSource-syntax",
+      "selections": {
+        "tabs": "storedSource-syntax"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Define Your Query",
       "headingLevel": 2,
       "body": "After you create an [index definitions](ref-index-definitions)\nfor all the fields that you want to search in your collection, you can run a MongoDB Search query.\nThis section demonstrates how to apply your [goals for your application's search experience](fts-plan-query) to the JSON (Javascript Object Notation) syntax of a MongoDB Search query.\n\nTo use the JSON (Javascript Object Notation) syntax in this section in your MongoDB Search query aggregation pipeline, replace the placeholders with valid values and\nensure that your full query pipeline contains the required [$search fields](fts-search-fields) or [$searchMeta fields](fts-searchMeta-fields).\n\nTo learn how to run a Search query, see the [index builder](fts-tutorial-ref).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "define-your-query",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Choose your initial  pipeline stage.",
       "headingLevel": 3,
       "body": "The first stage of your MongoDB Search query aggregation pipeline must be either the [$search](pipe.$search) or [$searchMeta](pipe.$searchMeta) stage,\ndepending on whether you're searching for documents or metadata:\n\n| Aggregation Pipeline Stage | Purpose                                          |\n| -------------------------- | ------------------------------------------------ |\n| $search                    | Return the search results of a full-text search. |\n| $searchMeta                | Return metadata about your search results.       |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-choose-your-initial-pipeline-stage",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Apply operators to define your search criteria.",
       "headingLevel": 3,
-      "body": "To define your search criteria, you must apply one or more [operators](fts-operators) or [collectors](fts-collectors)\nto your [$search](pipe.$search) or [$searchMeta](pipe.$searchMeta) pipeline stage.\n\nMongoDB Search operators allow you to locate and retrieve relevant data from your cluster according to content, format, or data tyoe.\nTo learn which operators support searches for each [supported](bson-data-types), see the table in the [operators](fts-operators) reference section.\nYou must specify one or more indexed search fields in the operator's [query path](ref-path) parameter:\n\n**Search-equals-operator:**\n\n$search\n\n**Input:**\n\n```json\n{\n  $search: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}\n```\n\n**Output:**\n\n```\n[\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  ...\n]\n```\n\n**SearchMeta-equals-operator:**\n\n$searchMeta\n\n**Input:**\n\n```json\n{\n  $searchMeta: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}\n```\n\n**Output:**\n\n```\n[\n  {\n    count: {\n      total: <results-count>\n    }\n  }\n]\n```\n\n> **Tip:** You can combine multiple operators into one operation using the [compound](compound-ref) operator.\n> You can also use the [compound](compound-ref) operator's *filter* clause to filter for query output that matches a given clause.",
+      "body": "To define your search criteria, you must apply one or more [operators](fts-operators) or [collectors](fts-collectors)\nto your [$search](pipe.$search) or [$searchMeta](pipe.$searchMeta) pipeline stage.\n\nMongoDB Search operators allow you to locate and retrieve relevant data from your cluster according to content, format, or data tyoe.\nTo learn which operators support searches for each [supported](bson-data-types), see the table in the [operators](fts-operators) reference section.\nYou must specify one or more indexed search fields in the operator's [query path](ref-path) parameter:\n\n$search\n\n$searchMeta\n\n> **Tip:** You can combine multiple operators into one operation using the [compound](compound-ref) operator.\n> You can also use the [compound](compound-ref) operator's *filter* clause to filter for query output that matches a given clause.",
+      "codeBlocks": [],
+      "slug": "step-2-apply-operators-to-define-your-search-criteria",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 2: Apply operators to define your search criteria.",
+      "headingLevel": 3,
+      "body": "**Input:**\n\n```json\n{\n  $search: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}\n```\n\n**Output:**\n\n```\n[\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  ...\n]\n```",
       "codeBlocks": [
         {
           "language": "json",
@@ -102,7 +217,19 @@
           "language": "text",
           "content": "[\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  {\n    _id: <result-document-id>,\n    ...\n  },\n  ...\n]",
           "tokenEstimate": 34
-        },
+        }
+      ],
+      "slug": "step-2-apply-operators-to-define-your-search-criteria--search-equals-operator",
+      "selections": {
+        "tabs": "search-equals-operator"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Apply operators to define your search criteria.",
+      "headingLevel": 3,
+      "body": "**Input:**\n\n```json\n{\n  $searchMeta: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}\n```\n\n**Output:**\n\n```\n[\n  {\n    count: {\n      total: <results-count>\n    }\n  }\n]\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  $searchMeta: {\n    \"<operator-name>\"|\"<collector-name>\": {\n      <operator-specification>|<collector-specification>\n    }\n  }\n}",
@@ -113,48 +240,142 @@
           "content": "[\n  {\n    count: {\n      total: <results-count>\n    }\n  }\n]",
           "tokenEstimate": 19
         }
-      ]
+      ],
+      "slug": "step-2-apply-operators-to-define-your-search-criteria--searchMeta-equals-operator",
+      "selections": {
+        "tabs": "searchMeta-equals-operator"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3:  Apply options or collectors to return metadata.",
       "headingLevel": 3,
-      "body": "If you want to retrieve metadata from your MongoDB Search query, you can apply one of the following configurations\nto choose between the [count](count-ref) or [faceted navigation](fts-facet-ref) type of metadata results document:\n\n**Count-option:**\n\nCount Metadata\n\nTo return the total or lower-bounded count of your search results, set the [count](count-ref) option in your aggregation stage.\n\nThe [$searchMeta](pipe.$searchMeta) stage returns the `count` metadata results, while the [$search](pipe.$search) stage stores the metadata results in the\n[$$SEARCH\\_META aggregation variable](fts-aggregation-variable) and returns only the search results.\nFor an example of how to retrieve the `count` metadata results from the `$$SEARCH_META` variable, see [Count Results](count-results).\n\n```json\n{\n  \"$search\" | \"$searchMeta\": {\n    \"<operator-name>\": {\n      <operator-specifications>\n    },\n    \"count\": {\n      \"type\": \"lowerBound\" | \"total\",\n      \"threshold\": <number-of-documents> // Optional\n    }\n  }\n}\n```\n\n**Facet-collector:**\n\nFacet Metadata\n\nTo run a facet query, which groups results by values or ranges and returns the count for each of these groups,\nuse the [faceted navigation](fts-facet-ref) collector in your aggregation stage.\n\nThe [$searchMeta](pipe.$searchMeta) stage returns `facet` metadata results, while the [$search](pipe.$search) stage stores the metadata results in the\n[$$SEARCH\\_META aggregation variable](fts-aggregation-variable) and returns only the search results.\nFor an example of how to retrieve the `facet` metadata results from the `$$SEARCH_META` variable, see [Facet Results](fts-facet-results).\n\n```json\n{\n  \"$search\" | \"$searchMeta\": {\n    \"facet\": {\n      \"facets\": {\n        <facet-definitions>\n      }\n    }\n  }\n}\n```",
+      "body": "If you want to retrieve metadata from your MongoDB Search query, you can apply one of the following configurations\nto choose between the [count](count-ref) or [faceted navigation](fts-facet-ref) type of metadata results document:\n\nCount Metadata\n\nFacet Metadata",
+      "codeBlocks": [],
+      "slug": "step-3-apply-options-or-collectors-to-return-metadata",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 3:  Apply options or collectors to return metadata.",
+      "headingLevel": 3,
+      "body": "To return the total or lower-bounded count of your search results, set the [count](count-ref) option in your aggregation stage.\n\nThe [$searchMeta](pipe.$searchMeta) stage returns the `count` metadata results, while the [$search](pipe.$search) stage stores the metadata results in the\n[$$SEARCH\\_META aggregation variable](fts-aggregation-variable) and returns only the search results.\nFor an example of how to retrieve the `count` metadata results from the `$$SEARCH_META` variable, see [Count Results](count-results).\n\n```json\n{\n  \"$search\" | \"$searchMeta\": {\n    \"<operator-name>\": {\n      <operator-specifications>\n    },\n    \"count\": {\n      \"type\": \"lowerBound\" | \"total\",\n      \"threshold\": <number-of-documents> // Optional\n    }\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"$search\" | \"$searchMeta\": {\n    \"<operator-name>\": {\n      <operator-specifications>\n    },\n    \"count\": {\n      \"type\": \"lowerBound\" | \"total\",\n      \"threshold\": <number-of-documents> // Optional\n    }\n  }\n}",
           "tokenEstimate": 61
-        },
+        }
+      ],
+      "slug": "step-3-apply-options-or-collectors-to-return-metadata--count-option",
+      "selections": {
+        "tabs": "count-option"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3:  Apply options or collectors to return metadata.",
+      "headingLevel": 3,
+      "body": "To run a facet query, which groups results by values or ranges and returns the count for each of these groups,\nuse the [faceted navigation](fts-facet-ref) collector in your aggregation stage.\n\nThe [$searchMeta](pipe.$searchMeta) stage returns `facet` metadata results, while the [$search](pipe.$search) stage stores the metadata results in the\n[$$SEARCH\\_META aggregation variable](fts-aggregation-variable) and returns only the search results.\nFor an example of how to retrieve the `facet` metadata results from the `$$SEARCH_META` variable, see [Facet Results](fts-facet-results).\n\n```json\n{\n  \"$search\" | \"$searchMeta\": {\n    \"facet\": {\n      \"facets\": {\n        <facet-definitions>\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"$search\" | \"$searchMeta\": {\n    \"facet\": {\n      \"facets\": {\n        <facet-definitions>\n      }\n    }\n  }\n}",
           "tokenEstimate": 35
         }
-      ]
+      ],
+      "slug": "step-3-apply-options-or-collectors-to-return-metadata--facet-collector",
+      "selections": {
+        "tabs": "facet-collector"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4:  Add search options to your $search stage to retrieve additional information about your  query.",
       "headingLevel": 3,
       "body": "You can retrieve additional information about your [$search](pipe.$search) stage results using the following options:\n\n| Option      | Use Case                                                                                                                                                            |\n| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| highlight   | Display your search terms in their original context as fields in your query result.                                                                                 |\n| scoreDetail | Retrieve a detailed breakdown of the score for each document MongoDB Search returns.                                                                                |\n| explain     | Retrieve analytics about which Lucene queries MongoDB Search executed to satify your query, and how much time your query spends in the various stages of execution. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-add-search-options-to-your-search-stage-to-retrieve-additional-information-about-your-query",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 5:  Add $search options to define result ranking.",
       "headingLevel": 3,
       "body": "You can implement special ordering functionality for your [$search](pipe.$search) results with the following options:\n\n| Option                   | Use Case                                                                                                      |\n| ------------------------ | ------------------------------------------------------------------------------------------------------------- |\n| score                    | Modify the relevance score of the documents in the results to ensure MongoDB Search returns relevant results. |\n| sort                     | Sort your results by number, string, and date fields, or by score.                                            |\n| searchBefore/searchAfter | Set a reference point to stop or start your ordered results                                                   |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-add-search-options-to-define-result-ranking",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 6:  Add $search options to optimize query performance.",
       "headingLevel": 3,
       "body": "Optimize query performance using the following [$search](pipe.$search) options:\n\n| Option             | Use Case                                                                                                                                                         |\n| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| returnStoredSource | Run your MongoDB Search query more efficiently by only retrieving fields stored on mongot as specified in your MongoDB Search index definition for a collection. |\n| concurrent         | Parallelize search across segments on dedicated search nodes.                                                                                                    |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-6-add-search-options-to-optimize-query-performance",
+      "variantAgnostic": true
     },
     {
       "heading": "Learn More",
       "headingLevel": 2,
       "body": "To learn how to build and run a MongoDB Search index and MongoDB Search query, see the [index builder](fts-tutorial-ref).\n\nTo learn more about the MongoDB Search query configuration options mentioned in this tutorial,\nsee the following reference pages:\n\n- [Choose the Aggregation Pipeline Stage](fts-pipeline-stage)\n\n- [MongoDB Search operators](operators-ref)\n\n- [search options](fts-search-options)\n\n- [relevance scoring](scoring-ref)\n\n- [Define Performance Options](fts-performance-options)\n\nTo learn more about the MongoDB Search index configuration options mentioned in this tutorial,\nsee the following reference pages:\n\n- [Define Field Mappings](fts-field-mappings)\n\n- [Process Data with Analyzers](analyzers-ref)\n\n- [Custom analyzers](custom-analyzers)\n\n- [storedSource](fts-stored-source-definition)\n\n- [Synonym](synonyms-ref)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "learn-more",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "dynamic-mappings-syntax",
+          "text": "dynamic-mappings-syntax"
+        },
+        {
+          "value": "static-mappings-syntax",
+          "text": "static-mappings-syntax"
+        },
+        {
+          "value": "analyzers-syntax",
+          "text": "analyzers-syntax"
+        },
+        {
+          "value": "custom-analyzers-syntax",
+          "text": "custom-analyzers-syntax"
+        },
+        {
+          "value": "synonyms-syntax",
+          "text": "synonyms-syntax"
+        },
+        {
+          "value": "scoring-syntax",
+          "text": "scoring-syntax"
+        },
+        {
+          "value": "numPartitions-syntax",
+          "text": "numPartitions-syntax"
+        },
+        {
+          "value": "storedSource-syntax",
+          "text": "storedSource-syntax"
+        },
+        {
+          "value": "search-equals-operator",
+          "text": "search-equals-operator"
+        },
+        {
+          "value": "searchMeta-equals-operator",
+          "text": "searchMeta-equals-operator"
+        },
+        {
+          "value": "count-option",
+          "text": "count-option"
+        },
+        {
+          "value": "facet-collector",
+          "text": "facet-collector"
+        }
+      ]
     }
   ]
 }

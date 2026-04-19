@@ -1,0 +1,22 @@
+{
+  "heading": "Step 2: Define the query in the file.",
+  "headingLevel": 4,
+  "body": "```javascript\nimport pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n\n# define pipeline\npipeline = [\n  {\n    '$vectorSearch': {\n      'index': '<INDEX-NAME>', \n      'path': '<FIELD-NAME>', \n      'query': '<QUERY-TEXT>', \n      'numCandidates': <NUMBER-OF-CANDIDATES-TO-CONSIDER>,\n      'limit': <NUMBER-OF-DOCUMENTS-TO-RETURN>\n    }\n  }\n]\n\n# run pipeline\nresult = client[\"<DATABASE-NAME>\"][\"<COLLECTION-NAME>\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n \n```\n\n> **Example:** For example, in the `automated-embeddings-query.py`\n> file, copy paste the following code to define a query\n> against the `fullplot` field in the `movies`\n> collection for a semantic search for movies semantically\n> similar to `young heroes caught in epic struggles\n> between light and darkness`.\n>\n> ```javascript\n> import pymongo\n>\n> # connect to your Atlas cluster\n> client = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n>\n> # define pipeline\n> pipeline = [\n>   {\n>     '$vectorSearch': {\n>       'index': 'movies_automated_embeddings',\n>       'path': 'fullplot',\n>       'query': \"young heroes caught in epic struggles between light and darkness\",\n>       'numCandidates': 100,\n>       'limit': 10\n>     },\n>   },\n>   {\n>     '$project': {\n>       '_id': 0,\n>       'title': 1,\n>       'fullplot': 1,\n>       'score': {'$meta': 'vectorSearchScore'}\n>     }\n>   }\n> ]\n>\n> # run pipeline\n> result = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n>\n> # print results\n> for i in result:\n>     print(i)\n>  \n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n\n# define pipeline\npipeline = [\n  {\n    '$vectorSearch': {\n      'index': '<INDEX-NAME>', \n      'path': '<FIELD-NAME>', \n      'query': '<QUERY-TEXT>', \n      'numCandidates': <NUMBER-OF-CANDIDATES-TO-CONSIDER>,\n      'limit': <NUMBER-OF-DOCUMENTS-TO-RETURN>\n    }\n  }\n]\n\n# run pipeline\nresult = client[\"<DATABASE-NAME>\"][\"<COLLECTION-NAME>\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n ",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "javascript",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n\n# define pipeline\npipeline = [\n  {\n    '$vectorSearch': {\n      'index': 'movies_automated_embeddings',\n      'path': 'fullplot',\n      'query': \"young heroes caught in epic struggles between light and darkness\",\n      'numCandidates': 100,\n      'limit': 10\n    },\n  },\n  {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'fullplot': 1,\n      'score': {'$meta': 'vectorSearchScore'}\n    }\n  }\n]\n\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n ",
+      "tokenEstimate": 170
+    }
+  ],
+  "slug": "step-2-define-the-query-in-the-file--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

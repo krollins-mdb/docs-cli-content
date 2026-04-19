@@ -1,0 +1,32 @@
+{
+  "heading": "Date Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `SortByDate.java`\n  and paste the following code:\n\n  ```java\n  import java.util.Arrays;\n  import java.util.List;\n\n  import static com.mongodb.client.model.Aggregates.limit;\n  import static com.mongodb.client.model.Aggregates.project;\n  import static com.mongodb.client.model.Projections.*;\n  import com.mongodb.client.MongoClient;\n  import com.mongodb.client.MongoClients;\n  import com.mongodb.client.MongoCollection;\n  import com.mongodb.client.MongoDatabase;\n  import org.bson.Document;\n\n  import java.time.Instant;\n  import java.util.Date;\n\n  public class SortByDate {\n    public static void main( String[] args ) {\n      // define query\n  \t    Document agg =\n  \t        new Document(\"$search\", \n  \t        \t    new Document(\"index\", \"default\")\n  \t                .append(\"compound\", \n  \t        new Document(\"filter\", Arrays.asList(new Document(\"wildcard\", \n  \t                        new Document(\"query\", \"Summer*\")\n  \t                                .append(\"path\", \"title\"))))\n  \t                    .append(\"must\", Arrays.asList(new Document(\"near\", \n  \t                        new Document(\"pivot\", 13149000000L)\n  \t                                .append(\"path\", \"released\")\n  \t                                .append(\"origin\", Date.from(Instant.parse(\"2014-04-18T00:00:00.000+00:00\")))))))\n  \t                .append(\"sort\", new Document(\"released\", -1)));\n\n      // specify connection\n      String uri = \"<connection-string>\";\n\n      // establish connection and set namespace\n      try (MongoClient mongoClient = MongoClients.create(uri)) {\n        MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n        MongoCollection<Document> collection = database.getCollection(\"movies\");\n  \t  // run query and print results\n        collection.aggregate(Arrays.asList(agg, \n          limit(5), \n          project(fields(exclude(\"_id\"), include(\"title\"), include(\"released\"), computed(\"score\", new Document(\"$meta\", \"searchScore\"))))))\n          .forEach(doc -> System.out.println(doc.toJson()));\t\n      }\n    }\n  }\n\n  ```\n\n  > **Note:** To run the sample code in your Maven environment, add the\n  > following code above the import statements in your file.\n  >\n  > ```\n  > package com.mongodb.drivers;\n  > ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\njavac SortByDate.java\njava SortByDate\n```\n\n**Output:**\n\n```json\n{\"title\": \"Summer Nights\", \"released\": {\"$date\": \"2015-01-28T00:00:00Z\"}, \"score\": 0.348105788230896}\n{\"title\": \"Summertime\", \"released\": {\"$date\": \"2014-08-01T00:00:00Z\"}, \"score\": 0.5917375683784485}\n{\"title\": \"Summer of Blood\", \"released\": {\"$date\": \"2014-04-17T00:00:00Z\"}, \"score\": 0.9934720396995544}\n{\"title\": \"Summer Games\", \"released\": {\"$date\": \"2012-02-08T00:00:00Z\"}, \"score\": 0.15982933342456818}\n{\"title\": \"Summer of Goliath\", \"released\": {\"$date\": \"2011-07-08T00:00:00Z\"}, \"score\": 0.13038821518421173}\n```",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import java.util.Arrays;\nimport java.util.List;\n\nimport static com.mongodb.client.model.Aggregates.limit;\nimport static com.mongodb.client.model.Aggregates.project;\nimport static com.mongodb.client.model.Projections.*;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\nimport java.time.Instant;\nimport java.util.Date;\n\npublic class SortByDate {\n  public static void main( String[] args ) {\n    // define query\n\t    Document agg =\n\t        new Document(\"$search\", \n\t        \t    new Document(\"index\", \"default\")\n\t                .append(\"compound\", \n\t        new Document(\"filter\", Arrays.asList(new Document(\"wildcard\", \n\t                        new Document(\"query\", \"Summer*\")\n\t                                .append(\"path\", \"title\"))))\n\t                    .append(\"must\", Arrays.asList(new Document(\"near\", \n\t                        new Document(\"pivot\", 13149000000L)\n\t                                .append(\"path\", \"released\")\n\t                                .append(\"origin\", Date.from(Instant.parse(\"2014-04-18T00:00:00.000+00:00\")))))))\n\t                .append(\"sort\", new Document(\"released\", -1)));\n\n    // specify connection\n    String uri = \"<connection-string>\";\n\n    // establish connection and set namespace\n    try (MongoClient mongoClient = MongoClients.create(uri)) {\n      MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n      MongoCollection<Document> collection = database.getCollection(\"movies\");\n\t  // run query and print results\n      collection.aggregate(Arrays.asList(agg, \n        limit(5), \n        project(fields(exclude(\"_id\"), include(\"title\"), include(\"released\"), computed(\"score\", new Document(\"$meta\", \"searchScore\"))))))\n        .forEach(doc -> System.out.println(doc.toJson()));\t\n    }\n  }\n}\n",
+      "tokenEstimate": 387
+    },
+    {
+      "language": "text",
+      "content": "package com.mongodb.drivers;",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "bash",
+      "content": "javac SortByDate.java\njava SortByDate",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "json",
+      "content": "{\"title\": \"Summer Nights\", \"released\": {\"$date\": \"2015-01-28T00:00:00Z\"}, \"score\": 0.348105788230896}\n{\"title\": \"Summertime\", \"released\": {\"$date\": \"2014-08-01T00:00:00Z\"}, \"score\": 0.5917375683784485}\n{\"title\": \"Summer of Blood\", \"released\": {\"$date\": \"2014-04-17T00:00:00Z\"}, \"score\": 0.9934720396995544}\n{\"title\": \"Summer Games\", \"released\": {\"$date\": \"2012-02-08T00:00:00Z\"}, \"score\": 0.15982933342456818}\n{\"title\": \"Summer of Goliath\", \"released\": {\"$date\": \"2011-07-08T00:00:00Z\"}, \"score\": 0.13038821518421173}",
+      "tokenEstimate": 214
+    }
+  ],
+  "slug": "date-search-and-sort--java-sync",
+  "selections": {
+    "drivers": "java-sync"
+  },
+  "variantAgnostic": false
+}

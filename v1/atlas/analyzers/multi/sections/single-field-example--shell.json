@@ -1,0 +1,27 @@
+{
+  "heading": "Single Field Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.movies.createSearchIndex(\n  \"default\",\n    {\n      \"mappings\": {\n        \"dynamic\": false,\n        \"fields\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.standard\",\n            \"multi\": {\n              \"frenchAnalyzer\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.french\"\n              }\n          }\n        }\n      }\n    }\n  }\n)\n```\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"liberte\",\n        \"path\": { \"value\": \"title\", \"multi\": \"frenchAnalyzer\" }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"title\": 1,\n      \"year\": 1,\n      \"_id\": 0\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[ { title: 'è Nous la Libertè', year: 1931 } ]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.createSearchIndex(\n  \"default\",\n    {\n      \"mappings\": {\n        \"dynamic\": false,\n        \"fields\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"analyzer\": \"lucene.standard\",\n            \"multi\": {\n              \"frenchAnalyzer\": {\n                \"type\": \"string\",\n                \"analyzer\": \"lucene.french\"\n              }\n          }\n        }\n      }\n    }\n  }\n)",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"liberte\",\n        \"path\": { \"value\": \"title\", \"multi\": \"frenchAnalyzer\" }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"title\": 1,\n      \"year\": 1,\n      \"_id\": 0\n    }\n  }\n])",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "json",
+      "content": "[ { title: 'è Nous la Libertè', year: 1931 } ]",
+      "tokenEstimate": 18
+    }
+  ],
+  "slug": "single-field-example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

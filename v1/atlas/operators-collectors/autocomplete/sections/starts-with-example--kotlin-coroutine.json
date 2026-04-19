@@ -1,0 +1,22 @@
+{
+  "heading": "Starts With Example",
+  "headingLevel": 4,
+  "body": "Each query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 4 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\",\n            Document(\n                \"autocomplete\",\n                Document(\"query\", \"Fast &\")\n                    .append(\"path\", \"title\")\n                    .append(\"tokenOrder\", \"sequential\")\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(4),\n                project(fields(excludeId(), include(\"title\")))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```\n\n```none\nDocument{{title=Fast & Furious}}\nDocument{{title=Fast & Furious 6}}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\",\n            Document(\n                \"autocomplete\",\n                Document(\"query\", \"Fast &\")\n                    .append(\"path\", \"title\")\n                    .append(\"tokenOrder\", \"sequential\")\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(4),\n                project(fields(excludeId(), include(\"title\")))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 201
+    },
+    {
+      "language": "none",
+      "content": "Document{{title=Fast & Furious}}\nDocument{{title=Fast & Furious 6}}",
+      "tokenEstimate": 18
+    }
+  ],
+  "slug": "starts-with-example--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}
