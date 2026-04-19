@@ -41,15 +41,25 @@
         "blocks": [
           {
             "language": "python",
+            "tokenEstimate": 106
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
+          {
+            "language": "python",
             "tokenEstimate": 160
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Usage",
+        "blocks": [
           {
             "language": "python",
             "tokenEstimate": 162
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 106
           }
         ]
       },
@@ -90,6 +100,12 @@
     {
       "language": "python",
       "section": "Usage",
+      "content": "# Retrieve memories from MongoDB collection\nwith MongoDBStore.from_conn_string(\n    conn_string=MONGODB_URI,\n    db_name=\"<database-name>\",\n    collection_name=\"<collection-name>\",\n    index_config=index_config\n) as store:\n     results = store.search(\n         (\"user\", \"memories\"),\n         query=\"<query-text>\",\n         limit=3\n     )\n     for result in results:\n         print(result.value)\n\n# To delete memories, use store.delete(namespace, key)\n# To batch operations, use store.batch(ops)",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "python",
+      "section": "Usage",
       "content": "from langgraph.store.mongodb import MongoDBStore, create_vector_index_config\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Vector search index configuration with client-side embedding\nindex_config = create_vector_index_config(\n    embed = VoyageAIEmbeddings(),\n    dims = <dimensions>,\n    fields = [\"<field-name>\"],\n    filters = [\"<filter-field-name>\", ...] # Optional\n)\n\n# Store memories in MongoDB collection\nwith MongoDBStore.from_conn_string(\n     conn_string=MONGODB_URI,\n     db_name=\"<database-name>\",\n     collection_name=\"<collection-name>\",\n     index_config=index_config\n ) as store:\n     store.put(\n         namespace=(\"user\", \"memories\"),\n         key=f\"memory_{hash(content)}\",\n         value={\"content\": content}\n     )",
       "tokenEstimate": 160
     },
@@ -98,12 +114,6 @@
       "section": "Usage",
       "content": "from langgraph.store.mongodb import MongoDBStore, create_vector_index_config\nfrom langchain_mongodb import AutoEmbeddings\n\n# Vector search index configuration with server-side Automated Embedding\nindex_config = create_vector_index_config(\n    embed = AutoEmbeddings(model_name=\"voyage-4\"),\n    fields = [\"<field-name>\"],\n    filters = [\"<filter-field-name>\", ...] # Optional\n)\n\n# Store memories - text is embedded server-side\nwith MongoDBStore.from_conn_string(\n     conn_string=MONGODB_URI,\n     db_name=\"<database-name>\",\n     collection_name=\"<collection-name>\",\n     index_config=index_config\n ) as store:\n     store.put(\n         namespace=(\"user\", \"memories\"),\n         key=f\"memory_{hash(content)}\",\n         value={\"content\": content}\n     )",
       "tokenEstimate": 162
-    },
-    {
-      "language": "python",
-      "section": "Usage",
-      "content": "# Retrieve memories from MongoDB collection\nwith MongoDBStore.from_conn_string(\n    conn_string=MONGODB_URI,\n    db_name=\"<database-name>\",\n    collection_name=\"<collection-name>\",\n    index_config=index_config\n) as store:\n     results = store.search(\n         (\"user\", \"memories\"),\n         query=\"<query-text>\",\n         limit=3\n     )\n     for result in results:\n         print(result.value)\n\n# To delete memories, use store.delete(namespace, key)\n# To batch operations, use store.batch(ops)",
-      "tokenEstimate": 106
     },
     {
       "language": "python",

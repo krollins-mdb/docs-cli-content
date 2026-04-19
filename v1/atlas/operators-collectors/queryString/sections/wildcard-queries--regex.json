@@ -1,0 +1,22 @@
+{
+  "heading": "Wildcard Queries",
+  "headingLevel": 3,
+  "body": "The following query uses a regular expression to search the\n`title` field for movie titles that contain characters that\nstart with any character followed by the characters `tal`\nand either `y` or `ian` after `tal`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"/.tal(y|ian)/\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'The Italian' },\n  { title: 'Journey to Italy' },\n  { title: 'Divorce Italian Style' },\n  { title: 'Marriage Italian Style' },\n  { title: 'Jealousy, Italian Style' }\n]\n```\n\nThe documents in the results match because the `title`\nfield contains the term `Italy` or `Italian`, which matches\nthe query criteria for any character (`I` in the results)\nfollowed by `tal` with either `y` (as in `Italy` in the\nresults) or `ian` (as in `Italian` in the results).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"/.tal(y|ian)/\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: 'The Italian' },\n  { title: 'Journey to Italy' },\n  { title: 'Divorce Italian Style' },\n  { title: 'Marriage Italian Style' },\n  { title: 'Jealousy, Italian Style' }\n]",
+      "tokenEstimate": 57
+    }
+  ],
+  "slug": "wildcard-queries--regex",
+  "selections": {
+    "tabs": "regex"
+  },
+  "variantAgnostic": false
+}

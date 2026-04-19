@@ -1,0 +1,27 @@
+{
+  "heading": "Bucket Results through Facet Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to return\nunique values of movies that contain the term `Gravity` in the\n`title` field of the `movies` collection. The index definition of\nthis query limits the results returned from a\n[token](bson-data-types-token) index, where both the\n[autocomplete](autocomplete-ref) and [token](bson-data-types-token) types are on the `title` field.\n\n```javascript\ndb.movies.aggregate([{\n  $searchMeta: {\n    \"facet\": {\n      \"operator\": {\n        \"autocomplete\": {\n          \"query\": \"Gravity\",\n          \"path\": \"title\"\n        }\n      },\n      \"facets\": {\n        \"titleFacet\": {\n          \"type\": \"string\",\n          \"path\": \"title\"\n        }\n      }\n    }\n  }\n}])\n\n```\n\n```\n[{\n   count: { lowerBound: Long(\"5\") },\n   facet: {\n      titleFacet: {\n      buckets: [\n         { _id: 'Gravity', count: Long(\"3\") },\n         { _id: 'Defying Gravity', count: Long(\"1\") },\n         { _id: 'Laws of Gravity', count: Long(\"1\") }\n      ]\n      }\n   }\n}]\n```\n\nMongoDB Search returns documents that contain the term `Gravity` in the\n`title` field. The `count` field in the results indicate the number\nof documents in the collection with the same title. In the results,\nMongoDB Search found three documents in the collection with `Gravity` as its\ntitle, but MongoDB Search omitted the duplicate titles and returned only one\nmatching document.\n\nIf you want to see the duplicate titles as shown in the results below,\nrun the preceding [autocomplete](autocomplete-ref) operator query\nwithout [faceted navigation](fts-facet-ref) and use\nthe [$search](pipe.$search) stage instead. You must also use the\n[$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```javascript\n[\n  { title: 'Gravity' },\n  { title: 'Gravity' },\n  { title: 'Gravity' },\n  { title: 'Defying Gravity' },\n  { title: 'Laws of Gravity' }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([{\n  $searchMeta: {\n    \"facet\": {\n      \"operator\": {\n        \"autocomplete\": {\n          \"query\": \"Gravity\",\n          \"path\": \"title\"\n        }\n      },\n      \"facets\": {\n        \"titleFacet\": {\n          \"type\": \"string\",\n          \"path\": \"title\"\n        }\n      }\n    }\n  }\n}])\n",
+      "tokenEstimate": 81
+    },
+    {
+      "language": "text",
+      "content": "[{\n   count: { lowerBound: Long(\"5\") },\n   facet: {\n      titleFacet: {\n      buckets: [\n         { _id: 'Gravity', count: Long(\"3\") },\n         { _id: 'Defying Gravity', count: Long(\"1\") },\n         { _id: 'Laws of Gravity', count: Long(\"1\") }\n      ]\n      }\n   }\n}]",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  { title: 'Gravity' },\n  { title: 'Gravity' },\n  { title: 'Gravity' },\n  { title: 'Defying Gravity' },\n  { title: 'Laws of Gravity' }\n]",
+      "tokenEstimate": 47
+    }
+  ],
+  "slug": "bucket-results-through-facet-queries--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

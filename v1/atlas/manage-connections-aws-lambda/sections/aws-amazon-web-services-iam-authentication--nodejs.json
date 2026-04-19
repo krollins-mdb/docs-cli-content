@@ -1,0 +1,17 @@
+{
+  "heading": "AWS (Amazon Web Services) IAM Authentication",
+  "headingLevel": 3,
+  "body": "```js\nconst { MongoClient } = require('mongodb');\n\n// Get the URI for the cluster then set AWS_ACCESS_KEY_ID as the username in the\n// URI and AWS_SECRET_ACCESS_KEY as the password, then set the appropriate auth\n// options. Note that MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI, {\n  auth: {\n    username: process.env.AWS_ACCESS_KEY_ID,\n    password: process.env.AWS_SECRET_ACCESS_KEY\n  },\n  authSource: '$external',\n  authMechanism: 'MONGODB-AWS'\n});\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};\n```",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "const { MongoClient } = require('mongodb');\n\n// Get the URI for the cluster then set AWS_ACCESS_KEY_ID as the username in the\n// URI and AWS_SECRET_ACCESS_KEY as the password, then set the appropriate auth\n// options. Note that MongoClient now auto-connects so no need to store the connect()\n// promise anywhere and reference it.\nconst client = new MongoClient(process.env.MONGODB_URI, {\n  auth: {\n    username: process.env.AWS_ACCESS_KEY_ID,\n    password: process.env.AWS_SECRET_ACCESS_KEY\n  },\n  authSource: '$external',\n  authMechanism: 'MONGODB-AWS'\n});\n\nmodule.exports.handler = async function () {\n  const databases = await client.db('admin').command({ listDatabases: 1 });\n  return {\n    statusCode: 200,\n    databases: databases\n  };\n};",
+      "tokenEstimate": 171
+    }
+  ],
+  "slug": "aws-amazon-web-services-iam-authentication--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

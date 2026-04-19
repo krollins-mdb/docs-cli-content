@@ -1,43 +1,8 @@
 {
   "heading": "Step 4: Validate the deployment",
   "headingLevel": 3,
-  "body": "You can validate your deployment either with a virtual machine (VM) that the example\ncreates for you, or by connecting directly with `mongosh` using the PrivateLink\nconnection string.\n\n**Connect and Test with a Virtual Machine**\n\nIf you deployed the validation VM (enabled by default), you can use it\nto verify Atlas connectivity from within your private network. The VM\nhas `mongosh` pre-installed and the connection string pre-configured.\n\n**Aws:**\n\nAWS\n\n- Note the `validation_vm` output for the instance ID and\n  access commands:\n\n  ```sh\n  terraform output validation_vm\n  ```\n\n- Connect via **AWS Systems Manager (SSM) Session Manager**\n  (default, no SSH required):\n\n  ```sh\n  aws ssm start-session --target <instance-id>\n  ```\n\n  Alternatively, if you set\n  `validation_vm_create_ec2_instance_connect_endpoint = true`,\n  connect via **EC2 Instance Connect**:\n\n  ```sh\n  aws ec2-instance-connect ssh --instance-id <instance-id> --os-user ubuntu\n  ```\n\n- Run the validation script on the VM to test connectivity:\n\n  ```sh\n  ./validate-atlas\n  ```\n\n  The script confirms that `mongosh` can connect, and runs CRUD\n  operations against the cluster.\n\n**Azure:**\n\nAzure\n\n- Note the `validation_vm` output for the VM name and username:\n\n  ```sh\n  terraform output validation_vm\n  ```\n\n- Retrieve the VM password:\n\n  ```sh\n  terraform output -raw validation_vm_password\n  ```\n\n- Connect via the **Azure Serial Console** in the Azure (Microsoft Azure) portal,\n  or via **Azure Bastion** if you provided an SSH key with `validation_vm_ssh_key`.\n\n- Run the validation script on the VM to test connectivity:\n\n  ```sh\n  ./validate-atlas\n  ```\n\n  The script confirms that `mongosh` can connect, and runs CRUD\n  operations against the cluster.\n\n**Gcp:**\n\nGCP\n\nThe Google Cloud example currently does not include a validation VM. Use the `mongosh`\nconnection method below to verify your deployment. You must run `mongosh` from\none of your Google Cloud subnetworks for this method to be successful.\n\n**Connect and Test with** `mongosh`\n\nYou can also test connectivity from any host with access to your private\nnetwork.\n\n- Retrieve the connection string.\n\n  After the deployment completes, retrieve the PrivateLink connection\n  string from the Terraform outputs:\n\n  ```sh\n  terraform output connection_string\n  ```\n\n  The connection string uses the private endpoint SRV format and routes\n  traffic through your PrivateLink connection.\n\n- Run the following command, replacing `<connection-string>`\n  with the value from the `terraform output connection_string` command:\n\n  ```sh\n  mongosh \"<connection-string>\"\n  ```\n\n- After connecting, run the following commands to write and retrieve a\n  test document:\n\n  ```javascript\n  db.test.insertOne({ msg: \"Hello Atlas\" })\n  db.test.findOne()\n  ```\n\nA successful response confirms that your cluster is reachable and\naccepting read and write operations.",
+  "body": "You can validate your deployment either with a virtual machine (VM) that the example\ncreates for you, or by connecting directly with `mongosh` using the PrivateLink\nconnection string.\n\n**Connect and Test with a Virtual Machine**\n\nIf you deployed the validation VM (enabled by default), you can use it\nto verify Atlas connectivity from within your private network. The VM\nhas `mongosh` pre-installed and the connection string pre-configured.\n\nAWS\n\nAzure\n\nGCP\n\n**Connect and Test with** `mongosh`\n\nYou can also test connectivity from any host with access to your private\nnetwork.\n\n- Retrieve the connection string.\n\n  After the deployment completes, retrieve the PrivateLink connection\n  string from the Terraform outputs:\n\n  ```sh\n  terraform output connection_string\n  ```\n\n  The connection string uses the private endpoint SRV format and routes\n  traffic through your PrivateLink connection.\n\n- Run the following command, replacing `<connection-string>`\n  with the value from the `terraform output connection_string` command:\n\n  ```sh\n  mongosh \"<connection-string>\"\n  ```\n\n- After connecting, run the following commands to write and retrieve a\n  test document:\n\n  ```javascript\n  db.test.insertOne({ msg: \"Hello Atlas\" })\n  db.test.findOne()\n  ```\n\nA successful response confirms that your cluster is reachable and\naccepting read and write operations.",
   "codeBlocks": [
-    {
-      "language": "sh",
-      "content": "terraform output validation_vm",
-      "tokenEstimate": 4
-    },
-    {
-      "language": "sh",
-      "content": "aws ssm start-session --target <instance-id>",
-      "tokenEstimate": 11
-    },
-    {
-      "language": "sh",
-      "content": "aws ec2-instance-connect ssh --instance-id <instance-id> --os-user ubuntu",
-      "tokenEstimate": 17
-    },
-    {
-      "language": "sh",
-      "content": "./validate-atlas",
-      "tokenEstimate": 4
-    },
-    {
-      "language": "sh",
-      "content": "terraform output validation_vm",
-      "tokenEstimate": 4
-    },
-    {
-      "language": "sh",
-      "content": "terraform output -raw validation_vm_password",
-      "tokenEstimate": 7
-    },
-    {
-      "language": "sh",
-      "content": "./validate-atlas",
-      "tokenEstimate": 4
-    },
     {
       "language": "sh",
       "content": "terraform output connection_string",
@@ -53,5 +18,7 @@
       "content": "db.test.insertOne({ msg: \"Hello Atlas\" })\ndb.test.findOne()",
       "tokenEstimate": 16
     }
-  ]
+  ],
+  "slug": "step-4-validate-the-deployment",
+  "variantAgnostic": true
 }

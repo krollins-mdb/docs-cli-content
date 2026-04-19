@@ -1,0 +1,22 @@
+{
+  "heading": "Sample Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the `text` operator to query for\ncustomers whose first name is `James` in the `name` field.\nThe query specifies preference using the `in` operator for\ncustomers associated with the given objectIds in the `_id`\nfield. The query uses [$limit](manual/reference/operator/aggregation/limit) stage to limit the output\nto 5 results and the [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Include only the `_id` and `name` fields in the results.\n\n- Add a field named `score` to the results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]\n```\n\nMongoDB Search returns documents that contain `James Sanchez` and\n`Jennifer Lawrence` in the `name` field. MongoDB Search scores the\ndocument that contains `name: 'James Sanchez'` higher because it\nmatches the `ObjectId` specified in the `should` clause.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"in\": {\n            \"path\": \"name\",\n            \"value\": [\"james sanchez\", \"jennifer lawrence\"]\n          }\n        }],\n        \"should\": [{\n          \"in\": {\n            \"path\": \"_id\",\n            \"value\": [ObjectId(\"5ca4bbcea2dd94ee58162a72\"), ObjectId(\"5ca4bbcea2dd94ee58162a91\")]\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"name\": 1,\n      \"score\": { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a72\"),\n    name: 'James Sanchez',\n    score: 2\n  },\n  {\n    _id: ObjectId(\"5ca4bbcea2dd94ee58162a71\"),\n    name: 'Jennifer Lawrence',\n    score: 1\n  }\n]",
+      "tokenEstimate": 76
+    }
+  ],
+  "slug": "sample-queries--compound",
+  "selections": {
+    "tabs": "compound"
+  },
+  "variantAgnostic": false
+}

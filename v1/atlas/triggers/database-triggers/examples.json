@@ -45,12 +45,17 @@
             "tokenEstimate": 162
           },
           {
-            "language": "json",
-            "tokenEstimate": 91
-          },
-          {
             "language": "javascript",
             "tokenEstimate": 250
+          }
+        ]
+      },
+      {
+        "heading": "Database Trigger Example",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 91
           }
         ]
       },
@@ -150,16 +155,16 @@
       "tokenEstimate": 162
     },
     {
-      "language": "json",
-      "section": "Database Trigger Example",
-      "content": "{\n  \"type\": \"DATABASE\",\n  \"name\": \"shippingLocationUpdater\",\n  \"function_name\": \"textShippingUpdate\",\n  \"config\": {\n    \"service_name\": \"mongodb-atlas\",\n    \"database\": \"store\",\n    \"collection\": \"orders\",\n    \"operation_types\": [\"UPDATE\"],\n    \"unordered\": false,\n    \"full_document\": true,\n    \"match\": {}\n  },\n  \"disabled\": false\n}",
-      "tokenEstimate": 91
-    },
-    {
       "language": "javascript",
       "section": "Database Trigger Example",
       "content": "exports = async function (changeEvent) {\n  // Destructure out fields from the change stream event object\n  const { updateDescription, fullDocument } = changeEvent;\n\n  // Check if the shippingLocation field was updated\n  const updatedFields = Object.keys(updateDescription.updatedFields);\n  const isNewLocation = updatedFields.some(field =>\n    field.match(/shippingLocation/)\n  );\n\n  // If the location changed, text the customer the updated location.\n  if (isNewLocation) {\n    const { customerId, shippingLocation } = fullDocument;\n    const mongodb = context.services.get(\"mongodb-atlas\");\n    const customers = mongodb.db(\"store\").collection(\"customers\");\n    const { location } = shippingLocation.pop();\n    const customer = await customers.findOne({ _id: customerId });\n\n    const twilio = require('twilio')(\n      // Your Account SID and Auth Token from the Twilio console:\n      context.values.get(\"TwilioAccountSID\"),\n      context.values.get(\"TwilioAuthToken\"),\n    );\n\n    await twilio.messages.create({\n      To: customer.phoneNumber,\n      From: context.values.get(\"ourPhoneNumber\"),\n      Body: `Your order has moved! The new location is ${location}.`\n    })\n  }\n};",
       "tokenEstimate": 250
+    },
+    {
+      "language": "json",
+      "section": "Database Trigger Example",
+      "content": "{\n  \"type\": \"DATABASE\",\n  \"name\": \"shippingLocationUpdater\",\n  \"function_name\": \"textShippingUpdate\",\n  \"config\": {\n    \"service_name\": \"mongodb-atlas\",\n    \"database\": \"store\",\n    \"collection\": \"orders\",\n    \"operation_types\": [\"UPDATE\"],\n    \"unordered\": false,\n    \"full_document\": true,\n    \"match\": {}\n  },\n  \"disabled\": false\n}",
+      "tokenEstimate": 91
     },
     {
       "language": "shell",

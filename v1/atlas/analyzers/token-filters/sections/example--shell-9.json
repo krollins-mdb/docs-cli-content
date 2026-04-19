@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"kStemmer\",\n    \"mappings\": {\n      \"dynamic\": true\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"kStemmer\",\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"lowercase\"\n          },\n          {\n            \"type\": \"kStemming\"\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"Meeting\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: 1,\n    text: {\n      en_US: '<head> This page deals with department meetings. </head>'\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"analyzer\": \"kStemmer\",\n    \"mappings\": {\n      \"dynamic\": true\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"kStemmer\",\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"lowercase\"\n          },\n          {\n            \"type\": \"kStemming\"\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"Meeting\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])",
+      "tokenEstimate": 72
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: 1,\n    text: {\n      en_US: '<head> This page deals with department meetings. </head>'\n    }\n  }\n]",
+      "tokenEstimate": 36
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

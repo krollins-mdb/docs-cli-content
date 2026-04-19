@@ -7,48 +7,62 @@
       "heading": "Restore Considerations",
       "headingLevel": 2,
       "body": "In addition to the [prerequisites](restore-prereq), consider the\nfollowing requirements and limitations when restoring from a scheduled\nor on-demand Cloud Backup.\n\n- If the `DefaultRWConcern` value on the source snapshot differs\n  from the `DefaultRWConcern` value on the target\n  cluster, Atlas overrides the value on the source\n  snapshot with the value on the target cluster. If\n  there is no value configured for the `DefaultRWConcern` on the\n  target cluster, Atlas keeps the value of\n  `DefaultRWConcern` from the snapshot without explicit\n  configuration. This may differ from the default value for that\n  MongoDB version.\n\n* This feature is not available for Free clusters (formerly known as `M0`).\n\n* For `M10+` dedicated clusters,\n  Atlas restores MongoDB Search [index definitions](ref-index-definitions)\n  from a Cloud Backup snapshot. Atlas doesn't restore search\n  index data, so the `mongot` processes perform [initial sync](manual/core/replica-set-sync) for all restored search index definitions.\n  If you've defined large search indexes on your cluster, you might\n  experience delays during snapshot restorations.\n\n  > **Note:** When you restore the data from the snapshot, the MongoDB Search index\n  > definitions from the snapshot replace any existing MongoDB Search index\n  > definitions.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "restore-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Sharded Clusters",
       "headingLevel": 3,
       "body": "- If you are restoring from a sharded cluster, the source and\n  target clusters must have the same number of shards.\n\n- The source and target clusters must use the same type of\n  [config servers](manual/core/sharded-cluster-config-servers). Config servers can\n  be either [config shards](manual/core/sharded-cluster-config-servers)\n  or dedicated config servers.\n\n- Atlas can't restore a sharded cluster snapshot to a replica set.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "sharded-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Flex Clusters",
       "headingLevel": 3,
       "body": "- Atlas can't restore snapshots from Flex clusters, dedicated clusters,\n  or Cloud Manager to a Flex cluster.\n\n- A Flex cluster allows you to have only two snapshots. If you require\n  having more snapshots, upgrade your cluster to a dedicated cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "flex-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Recommendations to Optimize Restore Times",
       "headingLevel": 2,
       "body": "To optimize performance and reduce the amount of time it takes to\nrestore, follow these principles where applicable:\n\n- Select a target cluster that isn't global or multi-cloud.\n\n- Select a multi-region target cluster only if copies of the snapshot\n  you plan to restore exist in every region of that cluster.\n\n- Select a target cluster that belongs to the same cloud provider region\n  as the snapshot.\n\n- Select a cluster tier with the same storage capacity as the\n  capacity of the original volume used by the source cluster.\n\n- If the target cluster runs on AWS (Amazon Web Services) with configured IOPS (Input/Output Operations per Second),\n  select the configured IOPS (Input/Output Operations per Second) to fall within the configured range.\n\n- Select a target cluster that is not configured to use NVMe (non-volatile memory express) storage.\n  NVMe (non-volatile memory express) storage degrades restore performance.\n\n- For AWS (Amazon Web Services) source clusters created before March 27, 2024, click the\n  Faster Restore button in the cluster's [Backup](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fbackup%2Fclusters)\n  details in Atlas UI to enable faster cross-project restores using\n  the direct attach restore method. The target cluster must meet all\n  conditions listed in this section to use this feature.\n\n  When you activate Faster Restore, Atlas replaces each\n  node in the source cluster one at a time during your next\n  [Configure Maintenance Window](configure-maintenance-window). If the\n  maintenance window ends before all nodes are replaced, Atlas\n  finishes replacing the current node, then waits for the next\n  maintenance window to start replacing the next node. Secondary reads\n  and analytic nodes are unavailable during the rolling replacement.\n\n  Faster cross-project restores are automatically enabled for AWS (Amazon Web Services)\n  clusters created after March 27, 2024, all Google Cloud and Microsoft Azure\n  clusters, and all clusters in MongoDB Atlas for Government. If this feature is enabled\n  for your cluster, the Faster Restore button doesn't\n  appear.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "recommendations-to-optimize-restore-times",
+      "variantAgnostic": true
     },
     {
       "heading": "Fallback Snapshots",
       "headingLevel": 2,
       "body": "If a scheduled snapshot fails for any reason, Atlas attempts to\nrepeat the snapshot process. If necessary, you may use the resulting\nfallback snapshot to restore the cluster. This isn't recommended:\nfallback snapshots use a different process from regular snapshots. They\nmay contain inconsistent data.\n\nFallback snapshots are marked in the UI with a warning icon, and a\nwarning message appears in the restore modal window if the restore uses\na fallback snapshot.\n\n> **Warning:** Restoring your cluster from a fallback snapshot may result in\n> inconsistent data across your cluster, and should be considered an\n> option of last resort.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "fallback-snapshots",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To monitor a backup restore job until it completes, you must have\n[Project Read Only](<Project Read Only>) access or higher to the specific project.\n\nTo start a restore job, you must have [Project Backup Recovery Operator](<Project Backup Recovery Operator>), [Project Backup Manager](<Project Backup Manager>), or [Project Owner](<Project Owner>) access to the project.\n\nFor cross-organization or cross-project restores, the required permissions\napply to both the source and target projects. You must have the necessary\npermissions: [Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\nin both projects to initiate or manage such restore operations.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 2,
-      "body": "Atlas deletes all existing data on the target cluster prior to\nthe restore. The target cluster is unavailable for the duration of\nthe restore. As part of the restore, Atlas also restores any indexes.\n\n**Atlascli:**\n\nAtlas CLI",
-      "codeBlocks": []
+      "body": "Atlas deletes all existing data on the target cluster prior to\nthe restore. The target cluster is unavailable for the duration of\nthe restore. As part of the restore, Atlas also restores any indexes.\n\nAtlas CLI",
+      "codeBlocks": [],
+      "slug": "procedure",
+      "variantAgnostic": true
     },
     {
       "heading": "Restore a Cluster",
       "headingLevel": 3,
-      "body": "To start a restore job for your project and cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups restores start <automated|download|pointInTime> [options]\n\n```\n\nTo watch for a specific restore job to complete using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups restores watch <restoreJobId> [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups restores start](atlas/cli/current/command/atlas-backups-restores-start) and\n[atlas backups restores watch](atlas/cli/current/command/atlas-backups-restores-watch).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)\n\n**Atlas-api:**\n\nAtlas Administration API\n\nThe Atlas Administration API provides different endpoints for restoring\n`M10+` clusters and Flex clusters.\n\n[Restore One Snapshot of One Cluster](api/doc/atlas-admin-api-v2/operation/operation-creategroupclusterbackuprestorejob)\n[Flex Clusters Restore Jobs](api/doc/atlas-admin-api-v2/group/endpoint-flex-restore-jobs)\n\n**Atlas UI:**\n\nAtlas UI",
+      "body": "To start a restore job for your project and cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups restores start <automated|download|pointInTime> [options]\n\n```\n\nTo watch for a specific restore job to complete using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups restores watch <restoreJobId> [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups restores start](atlas/cli/current/command/atlas-backups-restores-start) and\n[atlas backups restores watch](atlas/cli/current/command/atlas-backups-restores-watch).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)\n\nAtlas Administration API\n\nThe Atlas Administration API provides different endpoints for restoring\n`M10+` clusters and Flex clusters.\n\n[Restore One Snapshot of One Cluster](api/doc/atlas-admin-api-v2/operation/operation-creategroupclusterbackuprestorejob)\n[Flex Clusters Restore Jobs](api/doc/atlas-admin-api-v2/group/endpoint-flex-restore-jobs)\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
@@ -60,13 +74,44 @@
           "content": "\natlas backups restores watch <restoreJobId> [options]\n",
           "tokenEstimate": 14
         }
-      ]
+      ],
+      "slug": "restore-a-cluster--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Restore a Cluster",
       "headingLevel": 3,
       "body": "Select the snapshot to restore and click\nRestore.\n\nIn the Actions column, expand the\n&#x20;Actions menu, and click\nRestore for the snapshot that you want to restore.\n\nIn the modal window, select the target\nproject and the target cluster from the dropdown\nmenu. If the target cluster is part of a different\nproject or organization than your source cluster,\nyou can enter the name of and select the target project\nfrom the dropdown menu.\n\nFollow the prompt and click\nRestore.\n\nRestart your application and ensure it uses the new target\ncluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "restore-a-cluster--atlasui",
+      "selections": {
+        "interface": "atlasui"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "atlasui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "atlas-api",
+          "text": "atlas-api"
+        },
+        {
+          "value": "atlasui",
+          "text": "atlasui"
+        }
+      ]
     }
   ]
 }

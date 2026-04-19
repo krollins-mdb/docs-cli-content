@@ -7,7 +7,9 @@
       "heading": "Overview",
       "headingLevel": 2,
       "body": "You can use MongoDB with Mastra to build AI agents. By combining\nMongoDB Vector Search with Mastra's agent framework, you can implement\nthe following capabilities for your agents:\n\n- Store and retrieve vector embeddings using MongoDB as your vector database\n\n- Filter your vector search results using MongoDB query syntax\n\n- Implement RAG (Retrieval-Augmented Generation) as a tool in your agents\n\n- Store your agent's memory in MongoDB",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Installation and Setup",
@@ -19,13 +21,17 @@
           "content": "npm install @mastra/mongodb",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "installation-and-setup",
+      "variantAgnostic": true
     },
     {
       "heading": "Vector Store",
       "headingLevel": 2,
       "body": "MongoDB is a [supported database](https://mastra.ai/en/docs/rag/vector-databases#supported-databases) in Mastra.\nThe `MongoDBVector` class allows you to store and retrieve vector embeddings\nfrom MongoDB. You can use this component to implement RAG (Retrieval-Augmented Generation) by storing\nembeddings from your data and retrieving them using MongoDB Vector Search.\n\nThis component requires that you create an [index definition](avs-types-vector-search).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -37,29 +43,68 @@
           "content": "import { MongoDBVector } from '@mastra/mongodb'\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,        // MongoDB connection string\n  dbName: process.env.MONGODB_DATABASE // Database name\n})",
           "tokenEstimate": 56
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Methods",
       "headingLevel": 3,
-      "body": "This section highlights\nthe most relevant methods for working with MongoDB as a vector store.\nFor a full list of methods, see the [Mastra documentation](https://mastra.ai/en/reference/vectors/mongodb).\n\n**Create-index:**\n\ncreateIndex()\n\nBefore you can search your embeddings, you must create a vector search index on your collection.\nThe `dimension` parameter must match the number of dimensions required by your embedding model.\n\n```typescript\n// Create a vector search index\nawait mongoVector.createIndex({\n  indexName: \"vector_index\",       // Name of the index\n  dimension: 1536,                 // Must match your embedding model's dimensions\n});\n```\n\n**Upsert:**\n\nupsert()\n\nAfter creating an index, you can store vector embeddings with associated metadata.\nFor a complete example, see the [Mastra upsert embeddings example](https://mastra.ai/en/examples/rag/upsert/upsert-embeddings).\n\n```typescript\nimport { openai } from \"@ai-sdk/openai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\nimport { MDocument } from \"@mastra/rag\";\nimport { embedMany } from \"ai\";\n\n// Create a document from text\nconst doc = MDocument.fromText(\"Your text content...\");\n\n// Split document into chunks\nconst chunks = await doc.chunk();\n\n// Generate embeddings for each chunk\nconst { embeddings } = await embedMany({\n  values: chunks.map(chunk => chunk.text), // Text content to embed\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,   // MongoDB connection string\n  dbName: process.env.MONGODB_DB_NAME, // Database name\n});\n\n// Store vector embeddings with metadata\nawait mongoVector.upsert({\n  indexName: \"vector_index\",                         // Name of the vector search index\n  vectors: embeddings,                               // Array of vector embeddings\n  metadata: chunks?.map(chunk => ({ text: chunk.text })), // Associated metadata for each embedding\n});\n```\n\n**Query:**\n\nquery()\n\nTo retrieve semantically similar documents, first convert your query to an embedding, then query the vector store.\nTo learn more, see [Retrieval in Mastra](https://mastra.ai/en/docs/rag/retrieval).\n\n```typescript\nimport { openai } from \"@ai-sdk/openai\";\nimport { embed } from \"ai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\n\n// Convert query to embedding\nconst { embedding } = await embed({\n  value: \"What are the main points in the article?\",  // Query text\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,        // MongoDB connection string\n  dbName: process.env.MONGODB_DATABASE // Database name\n});\n\n// Query the vector store for similar documents\nconst results = await mongoVector.query({\n  indexName: \"vector_index\", // Name of the vector search index\n  queryVector: embedding,    // Query embedding vector\n  topK: 10,                  // Number of results to return\n});\n\n// Display results\nconsole.log(results);\n```",
+      "body": "This section highlights\nthe most relevant methods for working with MongoDB as a vector store.\nFor a full list of methods, see the [Mastra documentation](https://mastra.ai/en/reference/vectors/mongodb).\n\ncreateIndex()\n\nupsert()\n\nquery()",
+      "codeBlocks": [],
+      "slug": "methods",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Methods",
+      "headingLevel": 3,
+      "body": "Before you can search your embeddings, you must create a vector search index on your collection.\nThe `dimension` parameter must match the number of dimensions required by your embedding model.\n\n```typescript\n// Create a vector search index\nawait mongoVector.createIndex({\n  indexName: \"vector_index\",       // Name of the index\n  dimension: 1536,                 // Must match your embedding model's dimensions\n});\n```",
       "codeBlocks": [
         {
           "language": "typescript",
           "content": "// Create a vector search index\nawait mongoVector.createIndex({\n  indexName: \"vector_index\",       // Name of the index\n  dimension: 1536,                 // Must match your embedding model's dimensions\n});",
           "tokenEstimate": 46
-        },
+        }
+      ],
+      "slug": "methods--create-index",
+      "selections": {
+        "tabs": "create-index"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Methods",
+      "headingLevel": 3,
+      "body": "After creating an index, you can store vector embeddings with associated metadata.\nFor a complete example, see the [Mastra upsert embeddings example](https://mastra.ai/en/examples/rag/upsert/upsert-embeddings).\n\n```typescript\nimport { openai } from \"@ai-sdk/openai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\nimport { MDocument } from \"@mastra/rag\";\nimport { embedMany } from \"ai\";\n\n// Create a document from text\nconst doc = MDocument.fromText(\"Your text content...\");\n\n// Split document into chunks\nconst chunks = await doc.chunk();\n\n// Generate embeddings for each chunk\nconst { embeddings } = await embedMany({\n  values: chunks.map(chunk => chunk.text), // Text content to embed\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,   // MongoDB connection string\n  dbName: process.env.MONGODB_DB_NAME, // Database name\n});\n\n// Store vector embeddings with metadata\nawait mongoVector.upsert({\n  indexName: \"vector_index\",                         // Name of the vector search index\n  vectors: embeddings,                               // Array of vector embeddings\n  metadata: chunks?.map(chunk => ({ text: chunk.text })), // Associated metadata for each embedding\n});\n```",
+      "codeBlocks": [
         {
           "language": "typescript",
           "content": "import { openai } from \"@ai-sdk/openai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\nimport { MDocument } from \"@mastra/rag\";\nimport { embedMany } from \"ai\";\n\n// Create a document from text\nconst doc = MDocument.fromText(\"Your text content...\");\n\n// Split document into chunks\nconst chunks = await doc.chunk();\n\n// Generate embeddings for each chunk\nconst { embeddings } = await embedMany({\n  values: chunks.map(chunk => chunk.text), // Text content to embed\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,   // MongoDB connection string\n  dbName: process.env.MONGODB_DB_NAME, // Database name\n});\n\n// Store vector embeddings with metadata\nawait mongoVector.upsert({\n  indexName: \"vector_index\",                         // Name of the vector search index\n  vectors: embeddings,                               // Array of vector embeddings\n  metadata: chunks?.map(chunk => ({ text: chunk.text })), // Associated metadata for each embedding\n});",
           "tokenEstimate": 240
-        },
+        }
+      ],
+      "slug": "methods--upsert",
+      "selections": {
+        "tabs": "upsert"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Methods",
+      "headingLevel": 3,
+      "body": "To retrieve semantically similar documents, first convert your query to an embedding, then query the vector store.\nTo learn more, see [Retrieval in Mastra](https://mastra.ai/en/docs/rag/retrieval).\n\n```typescript\nimport { openai } from \"@ai-sdk/openai\";\nimport { embed } from \"ai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\n\n// Convert query to embedding\nconst { embedding } = await embed({\n  value: \"What are the main points in the article?\",  // Query text\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,        // MongoDB connection string\n  dbName: process.env.MONGODB_DATABASE // Database name\n});\n\n// Query the vector store for similar documents\nconst results = await mongoVector.query({\n  indexName: \"vector_index\", // Name of the vector search index\n  queryVector: embedding,    // Query embedding vector\n  topK: 10,                  // Number of results to return\n});\n\n// Display results\nconsole.log(results);\n```",
+      "codeBlocks": [
         {
           "language": "typescript",
           "content": "import { openai } from \"@ai-sdk/openai\";\nimport { embed } from \"ai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\n\n// Convert query to embedding\nconst { embedding } = await embed({\n  value: \"What are the main points in the article?\",  // Query text\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,        // MongoDB connection string\n  dbName: process.env.MONGODB_DATABASE // Database name\n});\n\n// Query the vector store for similar documents\nconst results = await mongoVector.query({\n  indexName: \"vector_index\", // Name of the vector search index\n  queryVector: embedding,    // Query embedding vector\n  topK: 10,                  // Number of results to return\n});\n\n// Display results\nconsole.log(results);",
           "tokenEstimate": 197
         }
-      ]
+      ],
+      "slug": "methods--query",
+      "selections": {
+        "tabs": "query"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Metadata Filtering",
@@ -71,13 +116,17 @@
           "content": "// Query with metadata filters\nconst results = await mongoVector.query({\n  indexName: \"vector_index\",           // Name of the vector search index\n  queryVector: queryVector,            // Query embedding vector\n  topK: 10,                            // Number of results to return\n  filter: {\n    category: \"electronics\",           // Simple equality filter\n    price: { $gt: 100 },               // Numeric comparison\n    tags: { $in: [\"sale\", \"new\"] },    // Array membership\n  },\n});\n",
           "tokenEstimate": 112
         }
-      ]
+      ],
+      "slug": "metadata-filtering",
+      "variantAgnostic": true
     },
     {
       "heading": "RAG with AI Agents",
       "headingLevel": 2,
       "body": "You can use MongoDB as a vector store within\n[Mastra AI agents](https://mastra.ai/en/docs/agents/overview) to implement\n[agentic RAG](agentic-rag). This allows your agents to use MongoDB\nvector search as a tool to help complete tasks.\n\nMastra also provides a `MONGODB_PROMPT` constant that you can include in your\nagent instructions to optimize how the agent uses MongoDB for retrieval.\nTo learn more, see [Vector Store Prompts](https://mastra.ai/en/docs/rag/retrieval#vector-store-prompts).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "rag-with-ai-agents",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -89,13 +138,17 @@
           "content": "import { Agent } from '@mastra/core/agent';\nimport { openai } from '@ai-sdk/openai';\nimport { MONGODB_PROMPT } from \"@mastra/mongodb\";\nimport { createVectorQueryTool } from \"@mastra/rag\";\n\n// Create a vector query tool for the agent\nconst vectorQueryTool = createVectorQueryTool({\n  vectorStoreName: \"mongoVector\",                    // Name of MongoDB vector store\n  indexName: \"vector_index\",                         // Name of Vector Search index\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Define an AI agent with RAG capabilities\nexport const ragAgent = new Agent({\n  name: 'RAG Agent',                 // Agent name\n  model: openai('gpt-4o-mini'),      // LLM model\n  instructions: `\n  Process queries using the provided context. Structure responses to be concise and relevant.\n  ${MONGODB_PROMPT}\n  `,\n  tools: { vectorQueryTool },        // Tools available to the agent\n});",
           "tokenEstimate": 221
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Memory with AI Agents",
       "headingLevel": 2,
       "body": "You can use Mastra's memory system with MongoDB as the storage backend.\nThis allows you your agent to remember past interactions and use that\ninformation to inform future decisions.\n\nFor a complete tutorial, see [Memory with MongoDB](https://mastra.ai/en/examples/memory/memory-with-mongodb).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "memory-with-ai-agents",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -107,13 +160,37 @@
           "content": "import \"dotenv/config\";\n \nimport { mastra } from \"./mastra\";\n \nconst threadId = \"123\";\nconst resourceId = \"user-456\";\n \nconst agent = mastra.getAgent(\"mongodbAgent\");\n \nconst message = await agent.stream(\"My name is Mastra\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  }\n});\n \nawait message.textStream.pipeTo(new WritableStream());\n \nconst stream = await agent.stream(\"What's my name?\", {\n  memory: {\n    thread: threadId,\n    resource: resourceId\n  },\n  memoryOptions: {\n    lastMessages: 5,\n    semanticRecall: {\n      topK: 3,\n      messageRange: 2\n    }\n  }\n});\n \nfor await (const chunk of stream.textStream) {\n  process.stdout.write(chunk);\n}",
           "tokenEstimate": 176
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Additional Resources",
       "headingLevel": 2,
       "body": "To learn more about using Mastra with MongoDB, see:\n\n- [Mastra MongoDB Vector Store Reference](https://mastra.ai/en/reference/vectors/mongodb)\n\n- [Mastra Vector Databases Documentation](https://mastra.ai/en/docs/rag/vector-databases)\n\n- [Mastra Memory with MongoDB](https://mastra.ai/en/examples/memory/memory-with-mongodb).\n\n- [Mastra RAG Documentation](https://mastra.ai/en/docs/rag/overview)\n\n- [Mastra GitHub Repository](https://github.com/mastra-ai/mastra)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "additional-resources",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "create-index",
+          "text": "create-index"
+        },
+        {
+          "value": "upsert",
+          "text": "upsert"
+        },
+        {
+          "value": "query",
+          "text": "query"
+        }
+      ]
     }
   ]
 }

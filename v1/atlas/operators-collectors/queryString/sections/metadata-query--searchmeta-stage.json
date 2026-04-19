@@ -1,0 +1,22 @@
+{
+  "heading": "Metadata Query",
+  "headingLevel": 3,
+  "body": "The following query returns movies in the following buckets\n(years) that match the search criteria:\n\n- 2000, inclusive lower bound for this bucket\n\n- 2005, exclusive upper bound for the 2000 bucket and inclusive lower bound for this bucket\n\n- 2010, exclusive upper bound for the 2005 bucket and inclusive lower bound for this bucket\n\n- 2015, exclusive upper bound for the 2010 bucket and inclusive lower bound for this bucket\n\n- 2020, exclusive upper bound for the 2015 bucket\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"queryString\": {\n            \"defaultPath\": \"title\",\n            \"query\": \"\\\"Marvel\\\" OR \\\"Avengers\\\" OR \\\"Iron Man\\\" OR \\\"Captain America\\\"\"\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1990, 2000, 2005, 2010, 2015, 2020 ]\n          }\n        }\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    count: { lowerBound: Long('16') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1990, count: Long('1') },\n          { _id: 2000, count: Long('0') },\n          { _id: 2005, count: Long('4') },\n          { _id: 2010, count: Long('10') },\n          { _id: 2015, count: Long('1') }\n        ]\n      }\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"queryString\": {\n            \"defaultPath\": \"title\",\n            \"query\": \"\\\"Marvel\\\" OR \\\"Avengers\\\" OR \\\"Iron Man\\\" OR \\\"Captain America\\\"\"\n          }\n        },\n        \"facets\": {\n          \"yearFacet\": {\n            \"type\": \"number\",\n            \"path\": \"year\",\n            \"boundaries\": [1990, 2000, 2005, 2010, 2015, 2020 ]\n          }\n        }\n      }\n    }\n  }\n])",
+      "tokenEstimate": 129
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    count: { lowerBound: Long('16') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1990, count: Long('1') },\n          { _id: 2000, count: Long('0') },\n          { _id: 2005, count: Long('4') },\n          { _id: 2010, count: Long('10') },\n          { _id: 2015, count: Long('1') }\n        ]\n      }\n    }\n  }\n]",
+      "tokenEstimate": 118
+    }
+  ],
+  "slug": "metadata-query--searchmeta-stage",
+  "selections": {
+    "tabs": "searchmeta-stage"
+  },
+  "variantAgnostic": false
+}

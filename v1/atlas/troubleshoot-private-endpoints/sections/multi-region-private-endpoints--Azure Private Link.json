@@ -1,0 +1,27 @@
+{
+  "heading": "Multi-Region Private Endpoints",
+  "headingLevel": 3,
+  "body": "Private endpoints are only available in multi-region clusters if there is a\nnode within each region that the cluster spans that has a private endpoint\nconfigured. To learn more about configuring multi-region private endpoints, see\n[Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl).\n\n**Connection String Indexing for Multi-Region Clusters**\n\nAfter you configure a private endpoint for a new region and deploy cluster\nnodes to that region, you might see the following error when you use\nyour private endpoint to connect to the cluster:\n\n```none\nDNSHostNotFound: Failed to look up service \"<MongoDB service name>\"\n```\n\nThis error occurs when your connection string's index automatically changes\nand your client subsequently restarts, which causes an SRV DNS lookup.\nThe private endpoint connection string for a multi-region cluster uses\nan index of `0`. If your connection string uses a different index, MongoDB\nautomatically updates the connection string to use the `0` index.\n\nFor example, you might configure two private endpoints for a region. If you\nremove the first private endpoint, your connection string uses an index of `1`\nand resembles the following:\n\n```none\nmongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net\n```\n\nThen, suppose you configure a private endpoint for a new region in your\ncluster and subsequently add cluster nodes to that region. Your cluster\nnow includes multiple regions, and your connection string updates to use an\nindex of `0`:\n\n```none\nmongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net\n```\n\nTo avoid potential connectivity issues after your client's next restart,\nconfirm that you are using the zero-indexed private endpoint connection string\nto connect to your cluster. You can access the updated private endpoint connection\nstring from the Atlas UI or API after your cluster changes complete.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "none",
+      "content": "mongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "none",
+      "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
+      "tokenEstimate": 18
+    }
+  ],
+  "slug": "multi-region-private-endpoints--Azure Private Link",
+  "selections": {
+    "tabs": "Azure Private Link"
+  },
+  "variantAgnostic": false
+}

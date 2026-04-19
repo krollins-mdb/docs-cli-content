@@ -1,0 +1,47 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "- Initialize the project and install dependencies.\n\n  Create a new project directory, then install the required dependencies:\n\n  ```none\n  mkdir mongodb-ai-agent\n  cd mongodb-ai-agent\n  npm init -y\n  npm install --quiet dotenv mongodb voyageai openai langchain @langchain/community @langchain/core mathjs pdf-parse\n  ```\n\n  > **Note:** Your project will use the following structure:\n  >\n  > ```text\n  > mongodb-ai-agent\n  > ├── .env\n  > ├── config.js\n  > ├── ingest-data.js\n  > ├── tools.js\n  > ├── memory.js\n  > ├── planning.js\n  > └── index.js\n  > ```\n\n- Configure the environment.\n\n  Create an environment file named `.env` in your project. This\n  file will contain your API keys for the agent, the MongoDB\n  connection string, and MongoDB database and collection names.\n\n  Replace the placeholder values with your MongoDB connection\n  string and your Voyage AI and OpenAI API keys.\n\n  ```none\n  MONGODB_URI=\"<mongodb-connection-string>\"\n  VOYAGE_API_KEY=\"<voyage-api-key>\"\n  OPENAI_API_KEY= \"<openai-api-key>\"\n  ```\n\n  > **Note:** Replace `<connection-string>` with the connection string for your\n  > Atlas cluster or local Atlas deployment.\n  >\n  > Atlas Cluster\n  >\n  > Your connection string should use the following format:\n  >\n  > ```\n  > mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  > ```\n  >\n  > To learn more, see [Driver](connect-via-driver).\n  >\n  > Local or Self-Managed\n  >\n  > Your connection string should use the\n  > following format:\n  >\n  > ```\n  > mongodb://localhost:<port-number>/?directConnection=true\n  > ```\n  >\n  > To learn more, see [Connection Strings](manual/reference/connection-string).\n\nCreate a file named `config.js` in your project. This file will\nread in your environment variables and connect the application to\nservices like the MongoDB database and OpenAI.\n\nCreate a file named `ingest-data.js` in your project. This script\ningests a sample PDF that contains a recent [MongoDB earnings report](https://investors.mongodb.com/node/12881/pdf) into a collection\nin MongoDB by using the `voyage-3-large` embedding model. This\ncode also includes a function to create a vector search index on your\ndata if it doesn't already exist.\n\nTo learn more, see [generate](rag-ingestion).\n\nCreate a file named `tools.js` in your project. This file defines\nthe tools that the agent can use to answer questions. In this\nexample, you define the following tools:\n\n- `vectorSearchTool`: Runs a [Run Vector Search Queries](return-vector-search-results) to retrieve relevant\n  documents from your collection.\n\n- `calculatorTool`: Uses the `mathjs` library for\n  basic math operations.\n\nCreate a file named `memory.js` in your project. This file defines the\nsystem that the agent uses to store its interactions. In this example, you\nimplement short-term memory by defining the following functions:\n\n- `storeChatMessage`: to store information about an interaction in a MongoDB collection.\n\n- `retrieveSessionHistory`: to get all interactions for a specific session by using the `session_id` field.\n\nCreate a file named `planning.js` in your project. This file will\ninclude various prompts and LLM calls to determine the agent's\nexecution flow. In this example, you define the following functions:\n\n- `openAIChatCompletion`: Helper function to call the OpenAI API\n  for generating responses.\n\n- `toolSelector`: Determines how the LLM selects the appropriate tool for a task.\n\n- `generateAnswer`: Orchestrates the agent's execution flow by\n  using tools, calling the LLM, and processing the results.\n\n- `getLLMResponse`: Helper function for LLM response generation.\n\nFinally, create a file named `index.js` in your project. This file\nruns the agent and allows you to interact with it.\n\nSave your project, then run the following command. When you run the agent:\n\n- If you haven't already, instruct the agent to ingest the sample data.\n\n- Enter a session ID to start a new session or continue an existing session.\n\n- Ask questions. The agent generates a response based on your tools, the previous interactions, and the prompts defined in the planning phase.\n\nRefer to the example output for a sample interaction:\n\n**Input:**\n\n```none\nnode index.js\n```\n\n**Output:**\n\n```none\nIngest sample data? (y/n): y\nChunked PDF into 100 documents.\nInserted documents: 100\n\nAttempting to create/verify Vector Search Index...\nNew index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\nEnter a session ID: 123\n\nEnter your query (or type 'quit' to exit): What was MongoDB's latest acquisition?\nTool selected:  vector_search_tool\n\nAnswer:\nMongoDB recently acquired Voyage AI, a pioneer in embedding and reranking models that power next-generation AI applications.\n\nEnter your query (or type 'quit' to exit): What do they do?\nTool selected:  vector_search_tool\n\nAnswer: Voyage AI is a company that specializes in\nstate-of-the-art embedding and reranking models designed to\npower next-generation AI applications. These technologies help\norganizations build more advanced and trustworthy AI\ncapabilities.\n\nEnter your query (or type 'quit' to exit): What is 123+456?\nTool selected:  calculator_tool\n\nAnswer:\n579\n```\n\n> **Tip:** If you're using Atlas, you can verify your embeddings and interactions\n> by navigating to the `ai_agent_db.embeddings` namespace\n> [in the Atlas UI](atlas-ui-view-collections).\n\nNow that you have a basic AI agent, you can continue developing it by:\n\n- Improving the [Benchmark for MongoDB Vector Search](avs-performance-tuning) of your vector search tools and [fine tuning](rag-fine-tuning) your RAG pipelines.\n\n- Adding more tools to the agent, such as [How to Perform Hybrid Search](as_hybrid-search) or [MongoDB Search](atlas-search) tools.\n\n- Refining the planning phase by using more advanced prompts and LLM calls.\n\n- Implementing long-term memory and more advanced memory systems by using\n  [MongoDB Search](atlas-search) and [MongoDB Vector Search](avs-overview)\n  to store and retrieve important interactions across sessions.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "mkdir mongodb-ai-agent\ncd mongodb-ai-agent\nnpm init -y\nnpm install --quiet dotenv mongodb voyageai openai langchain @langchain/community @langchain/core mathjs pdf-parse",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "text",
+      "content": "mongodb-ai-agent\n├── .env\n├── config.js\n├── ingest-data.js\n├── tools.js\n├── memory.js\n├── planning.js\n└── index.js",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "none",
+      "content": "MONGODB_URI=\"<mongodb-connection-string>\"\nVOYAGE_API_KEY=\"<voyage-api-key>\"\nOPENAI_API_KEY= \"<openai-api-key>\"",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "none",
+      "content": "node index.js",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "none",
+      "content": "Ingest sample data? (y/n): y\nChunked PDF into 100 documents.\nInserted documents: 100\n\nAttempting to create/verify Vector Search Index...\nNew index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\nEnter a session ID: 123\n\nEnter your query (or type 'quit' to exit): What was MongoDB's latest acquisition?\nTool selected:  vector_search_tool\n\nAnswer:\nMongoDB recently acquired Voyage AI, a pioneer in embedding and reranking models that power next-generation AI applications.\n\nEnter your query (or type 'quit' to exit): What do they do?\nTool selected:  vector_search_tool\n\nAnswer: Voyage AI is a company that specializes in\nstate-of-the-art embedding and reranking models designed to\npower next-generation AI applications. These technologies help\norganizations build more advanced and trustworthy AI\ncapabilities.\n\nEnter your query (or type 'quit' to exit): What is 123+456?\nTool selected:  calculator_tool\n\nAnswer:\n579",
+      "tokenEstimate": 223
+    }
+  ],
+  "slug": "procedure--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

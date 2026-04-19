@@ -1,0 +1,27 @@
+{
+  "heading": "Best Practices",
+  "headingLevel": 2,
+  "body": "- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](php-library/connect/connection-options).\n\n- To deploy serverless PHP applications to AWS Lambda, use the\n  [Bref](https://bref.sh/) framework. To install the prerequisites\n  and configure Bref, follow the [Setup](https://bref.sh/docs/setup)\n  tutorial in the Bref documentation.\n\n  Next, you can create a project directory, install the MongoDB and Bref\n  dependencies, and initialize the serverless configuration by running\n  the following commands:\n\n  ```bash\n  mkdir bref-mongodb-app && cd bref-mongodb-app\n  composer init\n  composer require bref/bref bref/extra-php-extensions mongodb/mongodb\n  vendor/bin/bref init\n  ```\n\n  Finally, add the MongoDB PHP extension to your project. The `bref/extra-php-extensions`\n  Composer package provides a Serverless Framework plugin that adds the MongoDB PHP extension\n  as a [Lambda layer](https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html).\n  Update your `serverless.yml` file to include the following highlighted\n  lines:\n\n  ```yaml\n  plugins:\n      - ./vendor/bref/bref\n      - ./vendor/bref/extra-php-extensions\n\n  functions:\n      api:\n          handler: index.php\n          runtime: php-85-fpm\n          layers:\n              - ${bref-extra:mongodb2-php-85}\n  ```",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "bash",
+      "content": "mkdir bref-mongodb-app && cd bref-mongodb-app\ncomposer init\ncomposer require bref/bref bref/extra-php-extensions mongodb/mongodb\nvendor/bin/bref init",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "yaml",
+      "content": "plugins:\n    - ./vendor/bref/bref\n    - ./vendor/bref/extra-php-extensions\n\nfunctions:\n    api:\n        handler: index.php\n        runtime: php-85-fpm\n        layers:\n            - ${bref-extra:mongodb2-php-85}",
+      "tokenEstimate": 59
+    }
+  ],
+  "slug": "best-practices--php",
+  "selections": {
+    "drivers": "php"
+  },
+  "variantAgnostic": false
+}

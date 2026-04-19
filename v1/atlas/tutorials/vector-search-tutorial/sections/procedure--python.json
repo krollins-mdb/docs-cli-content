@@ -1,0 +1,32 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "Add the PyMongo Driver as a dependency in your project:\n\n```sh\npip install pymongo\n```\n\nCreate a file named `vector-index.py` and copy and paste the\nfollowing code into the file.\n\nThis index definition indexes the\n`plot_embedding_voyage_3_large` field as the `vector` type and\nthe `genres` and `year` fields as the `filter` type in an\nMongoDB Vector Search index. The `plot_embedding_voyage_3_large` field\ncontains embeddings created using Voyage AI's `voyage-3-large`\nembedding model. The index definition specifies `2048` vector\ndimensions, measures similarity using `dotProduct` function, and\nenables automatic `scalar` quantization for efficient processing\nof your vectors.\n\n```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your deployment\nuri = \"<connectionString>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"genres\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"year\"\n      }\n    ]\n  },\n  name=\"vector_index\",\n  type=\"vectorSearch\"\n)\n\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\n**Input:**\n\n```shell\npython vector-index.py\n```\n\n**Output:**\n\n```shell\nvector_index\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "pip install pymongo",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your deployment\nuri = \"<connectionString>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"genres\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"year\"\n      }\n    ]\n  },\n  name=\"vector_index\",\n  type=\"vectorSearch\"\n)\n\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n",
+      "tokenEstimate": 310
+    },
+    {
+      "language": "shell",
+      "content": "python vector-index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "vector_index",
+      "tokenEstimate": 2
+    }
+  ],
+  "slug": "procedure--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

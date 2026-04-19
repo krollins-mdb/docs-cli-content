@@ -7,7 +7,9 @@
       "heading": "Definition",
       "headingLevel": 2,
       "body": "The `text` operator performs a full-text search using the [Process Data with Analyzers](analyzers-ref) that you specify in the [index definition](index-config-example). If you omit an analyzer, the `text` operator\nuses the default [standard analyzer](ref-standard-analyzer) analyzer.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "definition",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -19,31 +21,41 @@
           "content": "{\n  $search: {\n    \"index\": <index name>, // optional, defaults to \"default\"\n    \"text\": {\n      \"query\": \"<search-string>\",\n      \"path\": \"<field-to-search>\",\n      \"fuzzy\": <options>,\n      \"matchCriteria\": \"any\" | \"all\"\n      \"score\": <options>,\n      \"synonyms\": \"<synonyms-mapping-name>\"\n    }\n  }\n}",
           "tokenEstimate": 88
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Options",
       "headingLevel": 2,
       "body": "`text` uses the following terms to construct a query:\n\n| Field               | Type                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Necessity             |\n| ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |\n| query               | string or array of strings | The string or strings to search for. If there are multiple terms in a string, MongoDB Search also looks for a match for each term in the string separately.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Required              |\n| path                | string or array of strings | The indexed field or fields to search. You can also specify a wildcard path to search.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Required              |\n| fuzzy               | document                   | Enable fuzzy search. Find strings which are similar to the search term or terms. You can't use fuzzy with synonyms.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Optional              |\n| fuzzy.maxEdits      | integer                    | Maximum number of single-character edits required to match the specified search term. Value can be 1 or 2. The default value is 2. Uses Damerau-Levenshtein distance.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Optional              |\n| fuzzy.prefixLength  | integer                    | Number of characters at the beginning of each term in the result that must exactly match. The default value is 0.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Optional              |\n| fuzzy.maxExpansions | integer                    | Maximum number of variations to generate and search for. This limit applies on a per-token basis. The default value is 50.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Optional              |\n| matchCriteria       | string                     | Criteria to use to match the terms in the query. If omitted, defaults to any. Value can be one of the following:any - to return documents that contain any of the terms from the query field.all - to only return documents that contain all of the terms from the query field.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Optional, Recommended |\n| score               | document                   | Score assigned to matching search term results. Use one of the following options to modify the score:boost: multiply the result score by the given number.constant: replace the result score with the given number.function: replace the result score using the given expression.When querying array values, MongoDB Search assigns higher scores if more values in the array match the query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Optional              |\n| synonyms            | string                     | Required for running queries using synonyms.Name of the synonym mapping definition in the index definition. Value can't be an empty string. You can't use fuzzy with synonyms.IMPORTANT: To use the synonyms option, you must index the query field as type string with the indexOptions property set to positions or the default value, offsets. To learn more, see Configure String Field Properties.Always use matchCriteria when using synonyms. For text queries that use synonyms without matchCriteria, MongoDB Search only matches documents where all the terms are exactly in the same position as the query. This behavior might change in the future and your query results might also change.The amount of time that MongoDB Search takes to execute queries that use synonym mappings depends on the number and size of documents in the synonym source collection. A query that uses a synonym mapping that is based on very few synonym documents might be faster than a query that uses a synonym mapping that is based on many synonym documents. | Optional              |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "options",
+      "variantAgnostic": true
     },
     {
       "heading": "Scoring Behavior",
       "headingLevel": 2,
       "body": "By default, the text operator uses the `bm25` similarity\nalgorithm to score documents depending on their relevance to the query.\n\nYou can change which similarity algorithm is used by specifying a\ndifferent similarity algorithm in the `similarity.type` property for\nthe string fields in your MongoDB Search index definition. To learn how to\nconfigure a MongoDB Search index for the string type, see\nHow to Index String Fields.\n\nTo learn more about the supported similarity algorithms, see\n[Score Details](fts-similarity-algorithms).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scoring-behavior",
+      "variantAgnostic": true
     },
     {
       "heading": "Behavior",
       "headingLevel": 2,
       "body": "For `text` queries that use `synonyms` without `matchCriteria`,\nMongoDB Search only matches documents which contain an exact match of the query terms\n(with or without the expanded synonyms).\n\nThis behavior might change in the future and your query results might\nalso change. To avoid service disruptions, always use `matchCriteria`\nwhen using `synonyms`. Or, use synonyms with the [Phrase](phrase-ref)\noperator.\n\nFor example, suppose equivalent synonym mappings for `nyc` and `new\nyork city`. A search for `i like nyc` returns the following:\n\n| Operator Specification | Default Behavior                           | \"matchCriteria\": \"any\"                      | \"matchCriteria\": \"all\"                        |\n| ---------------------- | ------------------------------------------ | ------------------------------------------- | --------------------------------------------- |\n| text without synonyms  | Matches i OR like OR nyc                   | Matches i OR like OR nyc                    | Matches i AND like AND nyc                    |\n| text with synonyms     | Matches i like nyc OR i like new york city | Matches i OR like OR (nyc OR new york city) | Matches i AND like AND (nyc OR new york city) |\n\nThe amount of time that MongoDB Search takes to execute queries that use\n[Synonym](synonyms-ref) depends on the number and size of\ndocuments in the synonym source collection. A query that uses a synonym\nmapping that is based on very few synonym documents might be faster than\na query that uses a synonym mapping that is based on many synonym\ndocuments.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "behavior",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
       "body": "The examples in this page use the `movies` collection in the\n`sample_mflix` database. After loading the [sample data sets](available-sample-datasets) into your cluster, create the MongoDB Search\nindex with dynamic mappings and run the example queries on your\ncluster. You must also define a `synonyms` mapping collection in the\nindex as shown in the [Index Definition Examples](synonyms-index-definition-ex) to try the\n[Synonyms Examples](text-ref-synonyms-eg) examples below.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Basic Example",
@@ -60,7 +72,9 @@
           "content": "{ \"title\" : \"Soul Surfer\", \"score\" : 4.518949508666992 }\n{ \"title\" : \"Little Surfer Girl\", \"score\" : 3.8856077194213867 }\n{ \"title\" : \"Fantastic 4: Rise of the Silver Surfer\", \"score\" : 2.489800453186035 }",
           "tokenEstimate": 79
         }
-      ]
+      ],
+      "slug": "basic-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Metadata Example",
@@ -77,44 +91,17 @@
           "content": "[\n  {\n    count: { lowerBound: Long('65') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1970, count: Long('6') },\n          { _id: 1980, count: Long('7') },\n          { _id: 1990, count: Long('11') },\n          { _id: 2000, count: Long('19') },\n          { _id: 2010, count: Long('14') }\n        ]\n      }\n    }\n  }\n]",
           "tokenEstimate": 118
         }
-      ]
+      ],
+      "slug": "metadata-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Fuzzy Examples",
       "headingLevel": 3,
-      "body": "The following queries use the `text` operator to search the\n`title` field in the `movies` collection for terms that are within\none character variation of each term in the `query` phrase `naw\nyark`. MongoDB Search returns different results depending on whether you use the\ndefault `fuzzy` options or define the `maxExpansions`, `prefixLength`,\nor `maxEdits` fields.\n\nClick the following tabs for example queries that use\ndefault and specified options:\n\n**Default:**\n\nDefault Example\n\nThe following query searches the `title` field for the\nphrase `naw yark`. It uses the `fuzzy` default options\nwhere:\n\n- `maxEdits` allows up to two character variation of each\n  term in the given phrase to match the query to a document.\n\n- `maxExpansions` considers up to fifty similar terms for\n  each term in `naw yark` to find matches.\n\n- `prefixLength` is disabled.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }\n```\n\n**Maxexpansions:**\n\nmaxExpansions Example\n\nThe following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed for each term to match the\n  query to a document.\n\n- The `maxExpansions` field to indicate that up to one\n  hundred similar terms for `naw` and one hundred similar\n  terms to `yark` must be considered when matching the\n  query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }\n```\n\n**Prefixlength:**\n\nprefixLength Example\n\nThe following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed to match the query to a\n  document.\n\n- The `prefixLength` field to indicate that the first two\n  characters of each term in the string `naw yark` may\n  not be changed to match the query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 8 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `_id` and `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }\n```",
-      "codeBlocks": [
-        {
-          "language": "json",
-          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
-          "tokenEstimate": 94
-        },
-        {
-          "language": "json",
-          "content": "{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }",
-          "tokenEstimate": 246
-        },
-        {
-          "language": "json",
-          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
-          "tokenEstimate": 115
-        },
-        {
-          "language": "shell",
-          "content": "{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }",
-          "tokenEstimate": 245
-        },
-        {
-          "language": "json",
-          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
-          "tokenEstimate": 113
-        },
-        {
-          "language": "shell",
-          "content": "{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }",
-          "tokenEstimate": 364
-        }
-      ]
+      "body": "The following queries use the `text` operator to search the\n`title` field in the `movies` collection for terms that are within\none character variation of each term in the `query` phrase `naw\nyark`. MongoDB Search returns different results depending on whether you use the\ndefault `fuzzy` options or define the `maxExpansions`, `prefixLength`,\nor `maxEdits` fields.\n\nClick the following tabs for example queries that use\ndefault and specified options:\n\nDefault Example\n\nmaxExpansions Example\n\nprefixLength Example",
+      "codeBlocks": [],
+      "slug": "fuzzy-examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Match all",
@@ -131,13 +118,83 @@
           "content": "[\n  {\n    plot: 'A young driver, Speed Racer, aspires to be champion of the racing world with the help of his family and his high-tech Mach 5 automobile.',\n    title: 'Speed Racer',\n    score: 6.122188568115234\n  },\n  {\n    plot: 'A gorgeous young automobile fanatic--and front to the hottest unsigned band on the West coast--finds herself caught up in illegal drag-racing competitions organized by exotic car fanatics.',\n    title: 'Redline',\n    score: 5.497724533081055\n  },\n  {\n    plot: 'When a popular daredevil proposes an automobile race across three continents, his arch rival vows to beat him, while an ambitious female reporter has her own plans for victory.',\n    title: 'The Great Race',\n    score: 5.282209396362305\n  }\n]",
           "tokenEstimate": 186
         }
-      ]
+      ],
+      "slug": "match-all",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Fuzzy Examples",
+      "headingLevel": 3,
+      "body": "The following query searches the `title` field for the\nphrase `naw yark`. It uses the `fuzzy` default options\nwhere:\n\n- `maxEdits` allows up to two character variation of each\n  term in the given phrase to match the query to a document.\n\n- `maxExpansions` considers up to fifty similar terms for\n  each term in `naw yark` to find matches.\n\n- `prefixLength` is disabled.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+          "tokenEstimate": 94
+        },
+        {
+          "language": "json",
+          "content": "{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }",
+          "tokenEstimate": 246
+        }
+      ],
+      "slug": "fuzzy-examples--default",
+      "selections": {
+        "tabs": "default"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Fuzzy Examples",
+      "headingLevel": 3,
+      "body": "The following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed for each term to match the\n  query to a document.\n\n- The `maxExpansions` field to indicate that up to one\n  hundred similar terms for `naw` and one hundred similar\n  terms to `yark` must be considered when matching the\n  query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+          "tokenEstimate": 115
+        },
+        {
+          "language": "shell",
+          "content": "{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }",
+          "tokenEstimate": 245
+        }
+      ],
+      "slug": "fuzzy-examples--maxexpansions",
+      "selections": {
+        "tabs": "maxexpansions"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Fuzzy Examples",
+      "headingLevel": 3,
+      "body": "The following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed to match the query to a\n  document.\n\n- The `prefixLength` field to indicate that the first two\n  characters of each term in the string `naw yark` may\n  not be changed to match the query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 8 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `_id` and `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+          "tokenEstimate": 113
+        },
+        {
+          "language": "shell",
+          "content": "{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }",
+          "tokenEstimate": 364
+        }
+      ],
+      "slug": "fuzzy-examples--prefixlength",
+      "selections": {
+        "tabs": "prefixlength"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Synonyms Examples",
       "headingLevel": 3,
       "body": "The following examples use the `text` operator to search the\n`plot` field in the `sample_mflix.movies` namespace. MongoDB Search returns\nresults based on the [Synonym](synonyms-ref) in the\n[properly formatted](synonyms-coll-spec),\n`synonymous_terms`, specified in the synonym mapping definition\nof the index for the `sample_mflix.movies` collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "synonyms-examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Match any Using equivalent Mapping",
@@ -154,7 +211,9 @@
           "content": "[\n  {\n    plot: 'The Sanguiwon are responsible for the attire worn by royalty. Dol-Seok (Han Suk-Kyu) is the best master artisan in charge of royal attire. He views set rules as paramount to his job. ...',\n    title: 'The Royal Tailor',\n    score: 15.825017929077148\n  },\n  {\n    plot: \"During Christmas' holidays, the children of a village split in two gang to play a snowball war. But that half-tone war scattered some bitterness and make more difficult the mutual attirance...\",\n    title: 'La guerre des tuques',\n    score: 11.863945007324219\n  },\n  {\n    plot: 'The Dress is a tale filled with sex, violence, comedy and drama as it follows the life of a dress. Conceived under a cloud of frustration and despair, the dress serves as the hub in a great...',\n    title: 'The Dress',\n    score: 5.061710834503174\n  },\n  {\n    plot: \"Boardroom and dressing-room intrigues spill on to the field at the Australian Rules football club.\",\n    title: 'The Club',\n    score: 3.991994857788086\n  },\n  {\n    plot: 'Deserting soldier dresses as a woman to escape detection; liking the female role he goes to a dance with another soldier and is exposed.',\n    title: 'The Triple Echo',\n    score: 3.5169785022735596\n  }\n]",
           "tokenEstimate": 319
         }
-      ]
+      ],
+      "slug": "match-any-using-equivalent-mapping",
+      "variantAgnostic": true
     },
     {
       "heading": "Match any Using explicit Mapping",
@@ -171,7 +230,9 @@
           "content": "[\n  {\n    plot: 'A man is picked up by a fishing boat, bullet-riddled and suffering from amnesia, before racing to elude assassins and regain his memory.',\n    title: 'The Bourne Identity',\n    score: 15.405073165893555\n  },\n  {\n    plot: 'A few friends builds a sailing boat together. They plan trips and during the completion of the boat marriages crumble, new relations blossom and the boat burns. They rebuild it and the ...',\n    title: 's/y Glèdjen',\n    score: 13.40434741973877\n  },\n  {\n    plot: 'Famous motor-racing champion Joe Greer returns to his hometown to compete in a local race. He discovers his younger brother has aspirations to become a racing champion and during the race ...',\n    title: 'The Crowd Roars',\n    score: 10.466073036193848\n  },\n {\n    plot: 'The claustrophobic world of a WWII German U-boat; boredom, filth, and sheer terror.',\n    title: 'Das Boot',\n    score: 10.304922103881836\n  },\n  {\n    plot: 'Several survivors of a torpedoed ship find themselves in the same boat with one of the men who sunk it.',\n    title: 'Lifeboat',\n    score: 9.776729583740234\n  },\n  {\n    plot: 'A fishing-boat crew takes on a dangerous commission to smuggle a group of illegal immigrants from China to Korea.',\n    title: 'Haemoo',\n    score: 9.532430648803711\n  },\n  {\n    plot: 'A land baron tries to reconnect with his two daughters after his wife is seriously injured in a boating accident.',\n    title: 'The Descendants',\n    score: 9.300044059753418\n  },\n {\n    plot: 'A weekend boating party turns into a nightmare for a group of young Londoners when they stumble upon a terrifying secret hidden in the reeds.',\n    title: 'The Reeds',\n    score: 9.078716278076172\n  },\n  {\n    plot: 'Documentary telling the true story of the sinking of the liner Laconia by a German U-boat in 1942 through the eyes of six survivors.',\n    title: 'The Sinking of the Laconia',\n    score: 9.078716278076172\n  },\n  {\n    plot: 'Sabotage efforts damage an international air race.',\n    title: 'Those Magnificent Men in Their Flying Machines or How I Flew from London to Paris in 25 hours 11 minutes',\n    score: 8.983794212341309\n  }\n]",
           "tokenEstimate": 578
         }
-      ]
+      ],
+      "slug": "match-any-using-explicit-mapping",
+      "variantAgnostic": true
     },
     {
       "heading": "Match all Using Synonyms",
@@ -187,6 +248,28 @@
           "language": "json",
           "content": "[\n  {\n    plot: 'A young driver, Speed Racer, aspires to be champion of the racing world with the help of his family and his high-tech Mach 5 automobile.',\n    title: 'Speed Racer',\n    score: 17.354578018188477\n  },\n  {\n    plot: 'A gorgeous young automobile fanatic--and front to the hottest unsigned band on the West coast--finds herself caught up in illegal drag-racing competitions organized by exotic car fanatics.',\n    title: 'Redline',\n    score: 16.085742950439453\n  },\n  {\n    plot: 'When a popular daredevil proposes an automobile race across three continents, his arch rival vows to beat him, while an ambitious female reporter has her own plans for victory.',\n    title: 'The Great Race',\n    score: 15.087226867675781\n  },\n  {\n    plot: 'A race car driver becomes a champion with a Volkswagen Beetle with a mind of its own.',\n    title: 'The Love Bug',\n    score: 5.1777167320251465\n  },\n  {\n    plot: 'A wide variety of eccentric competitors participate in a wild and illegal cross-country car race.',\n    title: 'The Cannonball Run',\n    score: 5.041530609130859\n  },\n  {\n    plot: 'The original characters from the first Cannonball movie race across the country once more in various cars and trucks.',\n    title: 'Cannonball Run II',\n    score: 4.67281436920166\n  },\n  {\n    plot: 'After a tied 1st place in a local stunt race, two drivers start a contest to decide who of them will own the prize, a dune buggy. But when a mobster destroys the car, they are determined to get it back.',\n    title: \"Watch Out, We're Mad\",\n    score: 4.500225067138672\n  },\n  {\n    plot: 'Four teenagers are killed in a car accident. Two of the teenagers refuse to go with \"The Grim Reaper\" and a race between life and death ensues!',\n    title: 'Soultaker',\n   score: 4.455573081970215\n  },\n  {\n    plot: \"The driver races to locate a kidnapped victim locked in the trunk of an abandoned car somewhere on the water's edge. Linked to her only by cell phone, the driver narrows in on her location in a desperate race against time and tide.\",\n    title: 'Hostage',\n    score: 4.429774284362793\n  },\n  {\n    plot: 'Race car driver Lucky Jackson goes to Las Vegas to earn money to pay for a new engine for his motor car. Working as a waiter, he still finds the time to court young Rusty Martin.',\n    title: 'Viva Las Vegas',\n    score: 4.379656791687012\n  },\n  {\n    plot: 'Barry Pepper portrays legendary race car drive Dale Earnhardt, who died in 2001 during the last lap of the Daytona 500.',\n    title: '3: The Dale Earnhardt Story',\n    score: 4.3543548583984375\n  },\n  {\n    plot: 'Bounty hunters from the future transport a doomed race-car driver to 2009 New York, where his mind will be replaced with that of a dead billionaire.',\n    title: 'Freejack',\n    score: 4.257633209228516\n  },\n  {\n    plot: 'A mechanic takes his family to a car race and a series of events occur which brings problems, betrayals, violence and the unexpected death of an elderly person.',\n    title: 'National Mechanics',\n    score: 4.257633209228516\n  },\n  {\n    plot: 'A hot-shot race-car named Lightning McQueen gets waylaid in Radiator Springs, where he finds the true meaning of friendship and family.',\n    title: 'Cars',\n    score: 4.257633209228516\n  },\n {\n    plot: 'Star race car Lightning McQueen and his pal Mater head overseas to compete in the World Grand Prix race. But the road to the championship becomes rocky as Mater gets caught up in an intriguing adventure of his own: international espionage.',\n    title: 'Cars 2',\n    score: 4.231379985809326\n  },\n  {\n    plot: \"An illegal race that takes place over the United States and nothing will stop this bunch of racers except for the occasional cop or a damsel in distress. Jackie Chan's car is not in this ...\",\n    title: 'Cannonball Fever',\n    score: 4.1651153564453125\n  },\n  {\n    plot: 'Roy is mad about cars, and runs Stallion Parts while attending to his yellow Mustang, far away from his daughter, which comes on holiday, while he is to attend a race. Soon he is challenged in a illegal race through the length of Norway.',\n    title: 'Bèrning',\n    score: 4.050384521484375\n  },\n  {\n    plot: \"It's time for the annual London to Brighton antique car rally, and Alan McKim and Ambrose Claverhouse are not going to let their friendship stop them from trying to humiliate each other. ...\",\n    title: 'Genevieve',\n    score: 3.9916391372680664\n  },\n  {\n    plot: \"After a young man's premonition of a deadly race-car crash helps saves the lives of his peers, Death sets out to collect those who evaded their end.\",\n    title: 'The Final Destination',\n    score: 3.9916391372680664\n  },\n  {\n    plot: \"A fast-paced comedy about a young Belgian car nut and hairdresser's apprentice, his girlfriend, and their legal and illegal attempts to get a Porsche under him for his nearing debut race.\",\n    title: 'The Departure',\n    score: 3.832036256790161\n  }\n]",
           "tokenEstimate": 1272
+        }
+      ],
+      "slug": "match-all-using-synonyms",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "default",
+          "text": "default"
+        },
+        {
+          "value": "maxexpansions",
+          "text": "maxexpansions"
+        },
+        {
+          "value": "prefixlength",
+          "text": "prefixlength"
         }
       ]
     }

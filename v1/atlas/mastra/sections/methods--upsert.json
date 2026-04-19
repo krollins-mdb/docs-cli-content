@@ -1,0 +1,17 @@
+{
+  "heading": "Methods",
+  "headingLevel": 3,
+  "body": "After creating an index, you can store vector embeddings with associated metadata.\nFor a complete example, see the [Mastra upsert embeddings example](https://mastra.ai/en/examples/rag/upsert/upsert-embeddings).\n\n```typescript\nimport { openai } from \"@ai-sdk/openai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\nimport { MDocument } from \"@mastra/rag\";\nimport { embedMany } from \"ai\";\n\n// Create a document from text\nconst doc = MDocument.fromText(\"Your text content...\");\n\n// Split document into chunks\nconst chunks = await doc.chunk();\n\n// Generate embeddings for each chunk\nconst { embeddings } = await embedMany({\n  values: chunks.map(chunk => chunk.text), // Text content to embed\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,   // MongoDB connection string\n  dbName: process.env.MONGODB_DB_NAME, // Database name\n});\n\n// Store vector embeddings with metadata\nawait mongoVector.upsert({\n  indexName: \"vector_index\",                         // Name of the vector search index\n  vectors: embeddings,                               // Array of vector embeddings\n  metadata: chunks?.map(chunk => ({ text: chunk.text })), // Associated metadata for each embedding\n});\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "import { openai } from \"@ai-sdk/openai\";\nimport { MongoDBVector } from \"@mastra/mongodb\";\nimport { MDocument } from \"@mastra/rag\";\nimport { embedMany } from \"ai\";\n\n// Create a document from text\nconst doc = MDocument.fromText(\"Your text content...\");\n\n// Split document into chunks\nconst chunks = await doc.chunk();\n\n// Generate embeddings for each chunk\nconst { embeddings } = await embedMany({\n  values: chunks.map(chunk => chunk.text), // Text content to embed\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Instantiate MongoDB as a vector store\nconst mongoVector = new MongoDBVector({\n  uri: process.env.MONGODB_URI,   // MongoDB connection string\n  dbName: process.env.MONGODB_DB_NAME, // Database name\n});\n\n// Store vector embeddings with metadata\nawait mongoVector.upsert({\n  indexName: \"vector_index\",                         // Name of the vector search index\n  vectors: embeddings,                               // Array of vector embeddings\n  metadata: chunks?.map(chunk => ({ text: chunk.text })), // Associated metadata for each embedding\n});",
+      "tokenEstimate": 240
+    }
+  ],
+  "slug": "methods--upsert",
+  "selections": {
+    "tabs": "upsert"
+  },
+  "variantAgnostic": false
+}

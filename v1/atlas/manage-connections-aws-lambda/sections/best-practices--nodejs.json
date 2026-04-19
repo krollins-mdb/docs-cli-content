@@ -1,0 +1,22 @@
+{
+  "heading": "Best Practices",
+  "headingLevel": 2,
+  "body": "- If your handler takes a callback as its last argument, set the\n  `callbackWaitsForEmptyEventLoop` property on the\n  [AWS Lambda Context](http://docs.aws.amazon.com/lambda/latest/dg/nodejs-context.html#nodejs-prog-model-context-properties)\n  object to **false**.\n\n  ```js\n  context.callbackWaitsForEmptyEventLoop = false;\n  ```\n\n  This allows a Lambda function to return its result to the caller\n  without requiring that the MongoDB database connection be closed.\n  Setting this property is not applicable for [async handlers](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html).\n\n- If you have a Lambda function that connects to a sharded cluster\n  with many shards, you might experience performance issues. For\n  example, with a ten shard cluster, the driver connects to all thirty\n  [mongos](manual/reference/program/mongos) instances by default. You can use the `srvMaxHosts`\n  option in your connection string to set the maximum number of hosts\n  that the driver connects to. To improve driver performance, set\n  `srvMaxHosts=3`. For example:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3\n  ```\n\n  To learn more, see [Connection Options](node/fundamentals/connection/connection-options).",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "context.callbackWaitsForEmptyEventLoop = false;",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
+      "tokenEstimate": 33
+    }
+  ],
+  "slug": "best-practices--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

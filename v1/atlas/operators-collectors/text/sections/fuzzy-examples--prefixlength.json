@@ -1,0 +1,22 @@
+{
+  "heading": "Fuzzy Examples",
+  "headingLevel": 3,
+  "body": "The following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed to match the query to a\n  document.\n\n- The `prefixLength` field to indicate that the first two\n  characters of each term in the string `naw yark` may\n  not be changed to match the query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 8 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `_id` and `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"prefixLength\": 2,\n        }\n      }\n    }\n  },\n  {\n    $limit: 8\n  },\n  {\n    $project: {\n      \"_id\": 1,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "shell",
+      "content": "{ \"_id\" : ObjectId(\"573a1396f29313caabce5646\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13aff29313caabd31ed8\", \"title\" : \"The Longest Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13b7f29313caabd4ad8b\", \"title\" : \"Stomp the Yard\", \"score\" : 2.914206027984619 }\n{ \"_id\" : ObjectId(\"573a13eaf29313caabdcf410\", \"title\" : \"Naz & Maalik\", \"score\" : 2.5460386276245117 }\n{ \"_id\" : ObjectId(\"573a1393f29313caabcddbed\", \"title\" : \"La nao capitana\", \"score\" : 2.1892051696777344 }\n{ \"_id\" : ObjectId(\"573a1399f29313caabcee781\", \"title\" : \"Kabhi Haan Kabhi Naa\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a2f29313caabd0b815\", \"title\" : \"Kaho Naa... Pyaar Hai\", \"score\" : 1.9200985431671143 }\n{ \"_id\" : ObjectId(\"573a13a7f29313caabd1b5c0\", \"title\" : \"Oysters at Nam Kee's\", \"score\" : 1.9200985431671143 }",
+      "tokenEstimate": 364
+    }
+  ],
+  "slug": "fuzzy-examples--prefixlength",
+  "selections": {
+    "tabs": "prefixlength"
+  },
+  "variantAgnostic": false
+}

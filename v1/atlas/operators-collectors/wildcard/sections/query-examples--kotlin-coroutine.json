@@ -1,0 +1,42 @@
+{
+  "heading": "Query Examples",
+  "headingLevel": 3,
+  "body": "**Input:**\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"Green D*\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```\n\n**Output:**\n\n```javascript\nDocument{{title=Green Dolphin Street}}\nDocument{{title=Green Dragon}}\n```\n\nThe `$limit` stage limits the results to 5 documents,\nwhile the `$project` stage limits the results to only the\n`title` field.\n\n**Input:**\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"Wom?n *\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```\n\n**Output:**\n\n```javascript\n{\"title\": \"Woman of the Year\"}\n{\"title\": \"Woman in a Dressing Gown\"}\n{\"title\": \"Women in Love\"}\n{\"title\": \"Women on the Verge of a Nervous Breakdown\"}\n{\"title\": \"Woman Wanted\"}\n```\n\nThe Search Tester might not display all the fields in the\ndocuments it returns. To view all the fields, including the field that\nyou specify in the query path, expand the document in\nthe results.\n\n**Input:**\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"*\\\\?\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n\n\n```\n\n**Output:**\n\n```javascript\nDocument{{title=Who Are You, Polly Magoo?}}\nDocument{{title=Where Were You When the Lights Went Out?}}\nDocument{{title=Why Does Herr R. Run Amok?}}\nDocument{{title=What's Up, Doc?}}\nDocument{{title=Who Is Killing the Great Chefs of Europe?}}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"Green D*\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 178
+    },
+    {
+      "language": "javascript",
+      "content": "Document{{title=Green Dolphin Street}}\nDocument{{title=Green Dragon}}",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"Wom?n *\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 195
+    },
+    {
+      "language": "javascript",
+      "content": "{\"title\": \"Woman of the Year\"}\n{\"title\": \"Woman in a Dressing Gown\"}\n{\"title\": \"Women in Love\"}\n{\"title\": \"Women on the Verge of a Nervous Breakdown\"}\n{\"title\": \"Woman Wanted\"}",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\"query\", \"*\\\\?\").append(\"path\", \"title\")\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                eq(\"\\$search\", eq(\"wildcard\", agg)),\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n\n",
+      "tokenEstimate": 192
+    },
+    {
+      "language": "javascript",
+      "content": "Document{{title=Who Are You, Polly Magoo?}}\nDocument{{title=Where Were You When the Lights Went Out?}}\nDocument{{title=Why Does Herr R. Run Amok?}}\nDocument{{title=What's Up, Doc?}}\nDocument{{title=Who Is Killing the Great Chefs of Europe?}}",
+      "tokenEstimate": 67
+    }
+  ],
+  "slug": "query-examples--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

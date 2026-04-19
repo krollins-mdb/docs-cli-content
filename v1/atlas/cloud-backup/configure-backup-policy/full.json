@@ -7,30 +7,50 @@
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To view backup policies, you must have at least the\n[Project Read Only](<Project Read Only>) access to the project. Users with\n[Organization Owner](<Organization Owner>) access must add themselves as a\n[Project Read Only](<Project Read Only>) to the project before they can view\nbackup policies.\n\nTo modify or delete backup policies, you must have\n[Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\naccess to the project. Users with [Organization Owner](<Organization Owner>)\naccess must add themselves as a `Project Backup Manager` or\n`Project Owner` to the project before they can modify or delete\nbackup policies.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "View Backup Policies",
       "headingLevel": 2,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\nTo return the details of the backup policy for the cluster you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas backups schedule describe <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups schedule describe](atlas/cli/current/command/atlas-backups-schedule-describe).\n\n**Ui:**\n\nAtlas UI\n\nUse the Backup Policy Editor to configure a backup policy for\nCloud Backups.",
+      "body": "Atlas CLI\n\nTo return the details of the backup policy for the cluster you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas backups schedule describe <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups schedule describe](atlas/cli/current/command/atlas-backups-schedule-describe).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas backups schedule describe <clusterName> [options]\n",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "view-backup-policies",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View Backup Policies",
+      "headingLevel": 2,
+      "body": "Use the Backup Policy Editor to configure a backup policy for\nCloud Backups.",
+      "codeBlocks": [],
+      "slug": "view-backup-policies--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Click .",
       "headingLevel": 3,
       "body": "A backup policy has the following sections:\n\n- A time of day, in UTC (Coordinated Universal Time), at which to create snapshots.\n\n- A frequency interval and duration of retention.\n\n- If PIT (Point in Time) Restores are enabled, a PIT (Point in Time) window that allows you\n  to restore to any point in time in the last X days where X is the window.\n\n> **Example:** The default backup policy specifies a snapshot time of `18:00`\n> UTC (Coordinated Universal Time) and the following four policy items:\n>\n> | Policy Type | Tier                                   | Continuous Cloud Backup | Snapshot Taken        | Snapshot Retained |\n> | ----------- | -------------------------------------- | ----------------------- | --------------------- | ----------------- |\n> | Hourly      | NVMe (non-volatile memory express)     | Enabled                 | Every 12 hours        | 7 days            |\n> | Hourly      | non-NVMe (non-volatile memory express) | Enabled                 | Every 6 hours         | 7 days            |\n> | Daily       | All                                    | Either                  | Every day             | 7 days            |\n> | Weekly      | All                                    | Either                  | Every Saturday        | 4 weeks           |\n> | Monthly     | All                                    | Either                  | Last day of the month | 12 months         |\n> | Yearly      | All                                    | Either                  | Every 1st of December | 1 year            |\n\nTo learn more about Cloud Backup billing, see\n[billing](billing-backup-cloud-provider-snapshots).\n\n> **Note:** If you have a [Backup Compliance Policy enabled](backup-compliance-policy), you\n> can't modify the [cluster-level backup policy](configure-backup-policy) for\n> an individual cluster below the minimum requirements set in the\n> Backup Compliance Policy. You can modify the cluster-level backup policy at any\n> time. Atlas augments any preexisting cluster-level policies\n> to meet the minimum requirements of the Backup Compliance Policy. All new\n> clusters use the Backup Compliance Policy. If you reduce the frequency of a\n> backup schedule, the change applies only to future backups. Any\n> existing [oplog](manual/reference/glossary) remains for the original window. The minimum\n> requirements of the Backup Compliance Policy apply. You can\n> [configure extra snapshot retention](config-extra-snapshot-retention). You can also view backup details\n> for all `M10+` dedicated clusters including deleted\n> clusters with retained snapshots. To learn more, see\n> [View Backup Details for Dedicated Clusters](backup-retained-snapshots).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-click--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Change the Backup Policy Time",
       "headingLevel": 2,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\nTo update the backup policy for the cluster you specify using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups schedule update [options]\n\n```\n\nTo delete the backup policy for the cluster you specify using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups schedule delete <clusterName> [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups schedule update](atlas/cli/current/command/atlas-backups-schedule-update) and\n[atlas backups schedule delete](atlas/cli/current/command/atlas-backups-schedule-delete).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)\n\n**Ui:**\n\nAtlas UI\n\nTo modify the backup policy time:\n\n- In the **Backup Policy Editor**, select the hour\n  which Atlas takes a snapshot each day from **hr**\n  beneath **Snapshot Time (UTC)**.\n\n- Select the number of minutes after **hr** at which\n  Atlas takes a snapshot from **min** beneath\n  **Snapshot Time (UTC)**.\n\n- Click **Save Changes**.",
+      "body": "Atlas CLI\n\nTo update the backup policy for the cluster you specify using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups schedule update [options]\n\n```\n\nTo delete the backup policy for the cluster you specify using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups schedule delete <clusterName> [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups schedule update](atlas/cli/current/command/atlas-backups-schedule-update) and\n[atlas backups schedule delete](atlas/cli/current/command/atlas-backups-schedule-delete).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
@@ -42,31 +62,69 @@
           "content": "\natlas backups schedule delete <clusterName> [options]\n",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "change-the-backup-policy-time",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Change the Backup Policy Time",
+      "headingLevel": 2,
+      "body": "To modify the backup policy time:\n\n- In the **Backup Policy Editor**, select the hour\n  which Atlas takes a snapshot each day from **hr**\n  beneath **Snapshot Time (UTC)**.\n\n- Select the number of minutes after **hr** at which\n  Atlas takes a snapshot from **min** beneath\n  **Snapshot Time (UTC)**.\n\n- Click **Save Changes**.",
+      "codeBlocks": [],
+      "slug": "change-the-backup-policy-time--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure Your Backup Policy",
       "headingLevel": 2,
       "body": "Each row in the **Backup Policy Frequency and Retention** table\nrepresents a backup policy item. Configure the policy items and,\noptionally, add new policy items to configure a new backup policy. See\nthe [retention considerations](snapshot-retention) before\nfinalizing your backup policy.\n\n> **Tip:** Atlas displays the estimated number of snapshots\n> associated with your changes below the\n> **Backup Policy Frequency and Retention** table.\n\nTo specify a backup policy item using the Atlas UI:\n\nSelect the frequency unit from Frequency Unit\nfor an existing policy item.\n\nAlternatively, click Add Frequency Unit to add a new\npolicy item to your backup policy. You can't specify multiple\nHourly or Daily backup policy items.\n\nIMPORTANT: If you have a [Backup Compliance Policy enabled](backup-compliance-policy), only MongoDB support can delete\n[Hourly Snapshot Retention Time](creating-backup-policy) specified in the\nBackup Compliance Policy. To delete policy items specified in the Backup Compliance Policy, you\nmust [MongoDB Support](request-support) and complete an\nextensive verification process.\n\nSelect the specific value for the frequency unit from\nEvery.\n\nSpecify the retention time for the policy item in\nRetention Time and the units for the retention time\nfrom the list the right. To learn more, see\n[retention considerations](snapshot-retention).\n\nAt the bottom of the page, click Review\nChanges to see a summary of differences between your existing\nbackup policy and your new backup policy.\n\n(Optional) To apply the retention changes in the updated\nbackup policy to snapshots that Atlas took previously, check\nUpdate retention time of existing\nsnapshots. You must check this **before** saving your changes.\n\nIMPORTANT: This option affects only snapshots created by\nthe updated policy items and whose retention has not been\nupdated individually with the [Update Cloud\nBackup Schedule for One Cluster](api/doc/atlas-admin-api-v2/operation/operation-updategroupclusterbackupschedule) API call.\n\n(Optional) To delete snapshots and snapshot copies\nassociated with policies that you delete, check\nDelete all snapshots and any associated snapshot\ncopies from removed policies. You must check this **before**\nsaving your changes.\n\nType `delete snapshots` in the prompt that appears when you\ncheck this option.\n\nClick\nConfirm.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-your-backup-policy",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure the Restore Window",
       "headingLevel": 2,
       "body": "> **Note:** If you have a [Backup Compliance Policy enabled](backup-compliance-policy), only\n> MongoDB support can reduce the [Continuous Cloud Backup Restore Window](create-pit-policy). To reduce the Continuous Cloud Backup\n> **Restore Window**, the security or legal representative specified for the\n> Backup Compliance Policy must [MongoDB Support](request-support) and complete\n> an extensive verification process.\n\nYou can replay the [oplog](manual/reference/glossary) to restore a cluster from any point in\ntime within a specified restore window.\n\nTo specify the restore window duration, select how long you want\nAtlas to retain the oplog for point-in-time restores from\nthe **Restore Window** list.\n\nYou can't configure a restore window that is longer than the\n[Hourly Snapshot Retention Time](creating-backup-policy).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-the-restore-window",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Extra Snapshot Retention",
       "headingLevel": 2,
       "body": "When a Backup Compliance Policy is enabled for your project, you can also configure\nextra snapshot retention to retain snapshots beyond the Backup Compliance Policy\nprotection period. Your snapshots remain fully protected and users\ncan't delete them during the Backup Compliance Policy period. During the extra snapshot\nretention period, snapshots are unprotected again and any user with the\nappropriate role can delete them. When the extra snapshot retention\nperiod ends, Atlas deletes the snapshots automatically. Any changes\napply to all existing and future snapshots for that frequency unit. The\nextra snapshot retention time remains the same even if the Backup Compliance Policy\nchanges.\n\nTo learn more, see [Backup Compliance Policy enabled](backup-compliance-policy).\n\nTo specify extra snapshot retention using the Atlas UI:\n\nIn the Extra Snapshot Retention section,\nselect the frequency unit from the Frequency Unit\ndropdown for an existing policy item.\n\nAlternatively, click Add Another Region and\nFrequency to add extra snapshot retention for another region.\n\nSelect the Retention Time as a combination of\nnumber and interval.\n\nToggle Point in Time Restore according to\nwhether or not you want to enable [Continuous Cloud Backup Restore Window](create-pit-policy) for snapshot copies in that region.\n\nAt the bottom of the page, click Review\nChanges to see a summary of differences between your existing\nbackup policy and your new backup policy.\n\nClick\nConfirm.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-extra-snapshot-retention",
+      "variantAgnostic": true
     },
     {
       "heading": "Snapshot Retention Considerations",
       "headingLevel": 2,
       "body": "In addition to the **Retention Time** you define for each\nCloud Backup frequency unit, be aware of the following:\n\n- If you delete an existing backup frequency unit, you have the option\n  to delete all snapshots created by the policies you delete and all\n  associated snapshot copies. To learn more, see [Hourly Snapshot Retention Time](creating-backup-policy).\n\n- Atlas requires the following:\n\n  - The retention time must be equal to or longer than the frequency\n    unit. For example, the retention time for weekly snapshot must be\n    one week or greater.\n\n  - The value specified for **Retention Time** for items that\n    are less frequent must be equal to or larger than the value\n    specified for items that are more frequent. For example, if the\n    hourly policy item specifies a retention of two weeks, the retention\n    for the weekly snapshot must be two weeks or  greater.\n\n- If you have a [Backup Compliance Policy enabled](backup-compliance-policy),\n  you can't decrease the retention time for a snapshot after\n  it's taken.\n\n- If overlapping policy items generate the same snapshot, Atlas\n  associates the snapshot with the policy item with the longest retention\n  time.\n\n  For example, if the policy specifies a daily snapshot with two-day\n  retention and a weekly snapshot every Saturday with three-week\n  retention, then Atlas displays a frequency of Weekly in\n  the Frequency column on the Snapshots page for\n  the snapshot taken on Saturday and retains the snapshot for three weeks.\n  This is because the weekly policy item has a longer retention time than\n  the daily policy item.\n\n- When you disable Cloud Backup or terminate a cluster that has\n  Cloud Backup enabled, you can select whether to delete or retain\n  existing backup snapshots. To learn more, see\n  [Configure Backup Options for the Cluster](create-cluster-backups) and [Terminate active clusters](terminate-cluster).\n\n  For clusters not using [Encryption at Rest using Customer Key Management](security-kms-encryption), you can\n  [download the latest snapshot](restore-cloud-provider-snapshot-download) to preserve any data\n  stored in the cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "snapshot-retention-considerations",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

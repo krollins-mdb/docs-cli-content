@@ -1,0 +1,22 @@
+{
+  "heading": "Metadata Example",
+  "headingLevel": 4,
+  "body": "**Input:**\n\n```python\n# run-geo-box-metadata-query.py\n\n# establish connection and set namespace\nimport pymongo\n\nclient = pymongo.MongoClient(\"<connection-string>\")\ndatabase = client[\"sample_airbnb\"]\ncollection = database[\"listingsAndReviews\"]\n\n# define query\nquery = [\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"geoWithin\": {\n            \"path\": \"address.location\",\n            \"box\": {\n              \"bottomLeft\": {\n                \"type\": \"Point\",\n                \"coordinates\": [112.467, -55.050]\n              },\n              \"topRight\": {\n                \"type\": \"Point\",\n                \"coordinates\": [168.000, -9.133]\n              }\n            }\n          }\n        },\n        \"facets\": {\n          \"propertyTypeFacet\": {\n            \"type\": \"string\",\n            \"path\": \"property_type\"\n          }\n        }\n      }\n    }\n  }\n]\n\n# run query and print results\nresults = collection.aggregate(query)\nfor document in results:\n    print(document)\n\n```\n\n**Output:**\n\n```javascript\n{'count': {'lowerBound': 610}, 'facet': {'propertyTypeFacet': {'buckets': [{'_id': 'Apartment', 'count': 334}, {'_id': 'House', 'count': 168}, {'_id': 'Townhouse', 'count': 29}, {'_id': 'Guest suite', 'count': 20}, {'_id': 'Condominium', 'count': 11}, {'_id': 'Cabin', 'count': 8}, {'_id': 'Serviced apartment', 'count': 7}, {'_id': 'Villa', 'count': 7}, {'_id': 'Bungalow', 'count': 5}, {'_id': 'Guesthouse', 'count': 5}]}}}\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# run-geo-box-metadata-query.py\n\n# establish connection and set namespace\nimport pymongo\n\nclient = pymongo.MongoClient(\"<connection-string>\")\ndatabase = client[\"sample_airbnb\"]\ncollection = database[\"listingsAndReviews\"]\n\n# define query\nquery = [\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"geoWithin\": {\n            \"path\": \"address.location\",\n            \"box\": {\n              \"bottomLeft\": {\n                \"type\": \"Point\",\n                \"coordinates\": [112.467, -55.050]\n              },\n              \"topRight\": {\n                \"type\": \"Point\",\n                \"coordinates\": [168.000, -9.133]\n              }\n            }\n          }\n        },\n        \"facets\": {\n          \"propertyTypeFacet\": {\n            \"type\": \"string\",\n            \"path\": \"property_type\"\n          }\n        }\n      }\n    }\n  }\n]\n\n# run query and print results\nresults = collection.aggregate(query)\nfor document in results:\n    print(document)\n",
+      "tokenEstimate": 215
+    },
+    {
+      "language": "javascript",
+      "content": "{'count': {'lowerBound': 610}, 'facet': {'propertyTypeFacet': {'buckets': [{'_id': 'Apartment', 'count': 334}, {'_id': 'House', 'count': 168}, {'_id': 'Townhouse', 'count': 29}, {'_id': 'Guest suite', 'count': 20}, {'_id': 'Condominium', 'count': 11}, {'_id': 'Cabin', 'count': 8}, {'_id': 'Serviced apartment', 'count': 7}, {'_id': 'Villa', 'count': 7}, {'_id': 'Bungalow', 'count': 5}, {'_id': 'Guesthouse', 'count': 5}]}}}",
+      "tokenEstimate": 164
+    }
+  ],
+  "slug": "metadata-example--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

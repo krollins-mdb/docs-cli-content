@@ -7,7 +7,9 @@
       "heading": "Definition",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "definition",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -19,30 +21,38 @@
           "content": "{\n    \"$search\": {\n       \"index\": <index name>, // optional, defaults to \"default\"\n       \"range\": {\n          \"path\": \"<field-to-search>\",\n          \"gt | gte\": <value-to-search>,\n          \"lt | lte\": <value-to-search>,\n          \"score\": <score-options>\n       }\n    }\n}",
           "tokenEstimate": 73
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Options",
       "headingLevel": 2,
       "body": "`range` uses the following terms to construct a query:\n\n| Field     | Type                                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Necessity |\n| --------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |\n| gt or gte | BSON date, number, or string, or objectId | Find values greater than (>) or greater than or equal to (>=) the given value.For number fields, the value can be an int32, int64, or double data type.For date fields, the value must be an ISODate formatted date.For string fields, the value must be indexed as MongoDB Search token type.For ObjectId fields, the value must be indexed as objectId data type or dynamic mappings must be set to true.                                                                                      | no        |\n| lt or lte | BSON date, number, or string, or objectId | Find values less than (\\<) or less than or equal to (\\<=) the given value.For number fields, the value can be an int32, int64, or double data type.For date fields, the value must be an ISODate formatted date.For string fields, the value must be indexed as MongoDB Search token type.For ObjectId fields, the value must be indexed as objectId data type or dynamic mappings must be set to true.                                                                                          | no        |\n| path      | string or array of strings                | Indexed field or fields to search.                                                                                                                                                                                                                                                                                                                                                                                                                                                               | yes       |\n| score     | object                                    | Modify the score assigned to matching search results. You can modify the default score using the following options:boost: multiply the result score by the given number.constant: replace the result score with the given number.function: replace the result score with the given expression.When querying array values, MongoDB Search assigns higher scores if more values in the array match the query.For information on using score in your query, see Score the Documents in the Results. | no        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "options",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
       "body": "The following examples use the collection in the [sample data sets](available-sample-datasets). If you loaded the [sample data sets](available-sample-datasets) on your cluster, you can create the\nindexes using the index definitions in the examples below and run the\nexample queries on your cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Number Example",
       "headingLevel": 3,
-      "body": "The following examples use indexes on numeric fields in the\n[sample data sets](available-sample-datasets) and run\n`range` queries against the indexed fields.\n\n**Eg1:**\n\nExample 1\n\nFor this example, you can use either static or dynamic mappings to\nindex the `runtime` field in the `sample_mflix.movies`\ncollection. The query uses `gte` and `lte` fields to define\nthe numeric range to search.",
-      "codeBlocks": []
+      "body": "The following examples use indexes on numeric fields in the\n[sample data sets](available-sample-datasets) and run\n`range` queries against the indexed fields.\n\nExample 1",
+      "codeBlocks": [],
+      "slug": "number-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
       "headingLevel": 4,
-      "body": "The following index definition named `default` indexes all the\nfields in the `movies` collection.\n\n**Dynamic:**\n\nDynamic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\n**Static:**\n\nStatic Mapping Example\n\nThe following index definition named `default` indexes the\n`runtime` field only in the `movies` collection.\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}\n```",
+      "body": "The following index definition named `default` indexes the\n`runtime` field in the `movies` collection.\n\nDynamic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\nStatic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -54,46 +64,17 @@
           "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "sample-index--eg2",
+      "selections": {
+        "tabs": "eg2"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Query",
       "headingLevel": 4,
-      "body": "The following query searches for movies with a runtime greater\nthan or equal to `2` and less than or equal to `3`. It\nincludes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to\n`5` results and a [$project](manual/reference/operator/aggregation/project) stage to exclude all\nfields except `title` and `runtime`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }\n```\n\n**Eg2:**\n\nExample 2\n\nFor this example, you can use either static or dynamic mappings to\nindex the `runtime` field in the `sample_mflix.movies`\ncollection. The  query uses the `lte` field to search for all\nvalues less than or equal to the given value.",
-      "codeBlocks": [
-        {
-          "language": "json",
-          "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])",
-          "tokenEstimate": 87
-        },
-        {
-          "language": "json",
-          "content": "{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }",
-          "tokenEstimate": 93
-        }
-      ]
-    },
-    {
-      "heading": "Sample Index",
-      "headingLevel": 4,
-      "body": "The following index definition named `default` indexes the\n`runtime` field in the `movies` collection.\n\n**Dynamic:**\n\nDynamic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\n**Static:**\n\nStatic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}\n```",
-      "codeBlocks": [
-        {
-          "language": "javascript",
-          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
-          "tokenEstimate": 16
-        },
-        {
-          "language": "javascript",
-          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
-          "tokenEstimate": 37
-        }
-      ]
-    },
-    {
-      "heading": "Sample Query",
-      "headingLevel": 4,
-      "body": "The following query searches for all movies with a runtime\nless than or equal to `2`. It includes a [$limit](manual/reference/operator/aggregation/limit)\nstage to limit the output to `5` results and\n[$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title` and `runtime`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"lte\": 2\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"runtime\" : 1, \"title\" : \"Blacksmith Scene\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"The Kiss\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"Dickson Experimental Sound Film\", \"score\" : 1 }\n```\n\n**Eg3:**\n\nExample 3\n\nThe following example dynamically indexes all the dynamically\nindexable fields, including fields with array of numeric values,\nin the `sample_analytics.customers` collection. The sample\nquery uses the `gte` and `lte` fields to search for all\nvalues between the given values in an array of numeric values.",
+      "body": "The following query searches for all movies with a runtime\nless than or equal to `2`. It includes a [$limit](manual/reference/operator/aggregation/limit)\nstage to limit the output to `5` results and\n[$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title` and `runtime`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"lte\": 2\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"runtime\" : 1, \"title\" : \"Blacksmith Scene\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"The Kiss\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"Dickson Experimental Sound Film\", \"score\" : 1 }\n```\n\nExample 3\n\nThe following example dynamically indexes all the dynamically\nindexable fields, including fields with array of numeric values,\nin the `sample_analytics.customers` collection. The sample\nquery uses the `gte` and `lte` fields to search for all\nvalues between the given values in an array of numeric values.",
       "codeBlocks": [
         {
           "language": "json",
@@ -105,7 +86,12 @@
           "content": "{ \"runtime\" : 1, \"title\" : \"Blacksmith Scene\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\", \"score\" : 1 }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"The Kiss\", \"score\" : 1 }\n{ \"runtime\" : 1, \"title\" : \"Dickson Experimental Sound Film\", \"score\" : 1 }",
           "tokenEstimate": 125
         }
-      ]
+      ],
+      "slug": "sample-query--eg2",
+      "selections": {
+        "tabs": "eg2"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Index",
@@ -117,7 +103,12 @@
           "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
           "tokenEstimate": 16
         }
-      ]
+      ],
+      "slug": "sample-index--eg3",
+      "selections": {
+        "tabs": "eg3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Query",
@@ -134,30 +125,117 @@
           "content": "[\n  {\n    name: 'Elizabeth Ray',\n    accounts: [ 371138, 324287, 276528, 332179, 422649, 387979 ]\n  },\n  {\n    name: 'Katherine David',\n    accounts: [ 462501, 228290, 968786, 515844, 377292 ]\n  },\n  {\n    name: 'Brad Cardenas',\n    accounts: [ 721914, 817222, 973067, 260799, 87389 ]\n  },\n  {\n    name: 'Gary Nichols',\n    accounts: [ 385397, 337979, 325377, 440243, 586395, 86702 ]\n  },\n  { name: 'Jennifer Lawrence', accounts: [ 344885, 839927, 853542 ] }\n]",
           "tokenEstimate": 176
         }
-      ]
+      ],
+      "slug": "sample-query--eg3",
+      "selections": {
+        "tabs": "eg3"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Number Example",
+      "headingLevel": 3,
+      "body": "For this example, you can use either static or dynamic mappings to\nindex the `runtime` field in the `sample_mflix.movies`\ncollection. The query uses `gte` and `lte` fields to define\nthe numeric range to search.",
+      "codeBlocks": [],
+      "slug": "number-example--eg1",
+      "selections": {
+        "tabs": "eg1"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 4,
+      "body": "The following index definition named `default` indexes all the\nfields in the `movies` collection.\n\nDynamic Mapping Example\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}\n```\n\nStatic Mapping Example\n\nThe following index definition named `default` indexes the\n`runtime` field only in the `movies` collection.\n\n```javascript\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": true\n  }\n}",
+          "tokenEstimate": 16
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"runtime\": {\n        \"type\": \"number\"\n      }\n    }\n  }\n}",
+          "tokenEstimate": 37
+        }
+      ],
+      "slug": "sample-index--eg1",
+      "selections": {
+        "tabs": "eg1"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Query",
+      "headingLevel": 4,
+      "body": "The following query searches for movies with a runtime greater\nthan or equal to `2` and less than or equal to `3`. It\nincludes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to\n`5` results and a [$project](manual/reference/operator/aggregation/project) stage to exclude all\nfields except `title` and `runtime`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }\n```\n\nExample 2\n\nFor this example, you can use either static or dynamic mappings to\nindex the `runtime` field in the `sample_mflix.movies`\ncollection. The  query uses the `lte` field to search for all\nvalues less than or equal to the given value.",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])",
+          "tokenEstimate": 87
+        },
+        {
+          "language": "json",
+          "content": "{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }",
+          "tokenEstimate": 93
+        }
+      ],
+      "slug": "sample-query--eg1",
+      "selections": {
+        "tabs": "eg1"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Date Example",
       "headingLevel": 3,
       "body": "The following example uses the `range` operator to query a date\nfield in the `sample_mflix.movies` collection. For this example, you\ncan use either static or dynamic mappings to index the `date` type\nfield named `released` in the collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "date-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
       "headingLevel": 4,
-      "body": "**Dme:**\n\nDynamic Mapping Example\n\nThe following index definition named `default` indexes all the\ndynamically indexable fields in the `movies` collection,\nincluding the `released` field, which is of type `date`.\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}\n```\n\n**Sme:**\n\nStatic Mapping Example\n\nThe following index definition named `default` indexes the\n`released` field in the `movies` collection:\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"released\": {\n            \"type\": \"date\"\n         }\n      }\n   }\n}\n```",
+      "body": "Dynamic Mapping Example\n\nStatic Mapping Example",
+      "codeBlocks": [],
+      "slug": "sample-index",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 4,
+      "body": "The following index definition named `default` indexes all the\ndynamically indexable fields in the `movies` collection,\nincluding the `released` field, which is of type `date`.\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}\n```",
       "codeBlocks": [
         {
           "language": "javascript",
           "content": "{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}",
           "tokenEstimate": 16
-        },
+        }
+      ],
+      "slug": "sample-index--dme",
+      "selections": {
+        "tabs": "dme"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 4,
+      "body": "The following index definition named `default` indexes the\n`released` field in the `movies` collection:\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"released\": {\n            \"type\": \"date\"\n         }\n      }\n   }\n}\n```",
+      "codeBlocks": [
         {
           "language": "javascript",
           "content": "{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"released\": {\n            \"type\": \"date\"\n         }\n      }\n   }\n}",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "sample-index--sme",
+      "selections": {
+        "tabs": "sme"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Query",
@@ -174,30 +252,59 @@
           "content": "[\n  {\n    title: 'Too Much Johnson',\n    released: ISODate('2014-08-30T00:00:00.000Z')\n  },\n  {\n    title: 'Stolen Desire',\n    released: ISODate('2012-07-01T00:00:00.000Z')\n  },\n  {\n    title: 'The Monkey King',\n    released: ISODate('2012-01-12T00:00:00.000Z')\n  },\n  { title: 'The Land', released: ISODate('2012-08-04T00:00:00.000Z') },\n  {\n    title: 'My Childhood',\n    released: ISODate('2013-07-31T00:00:00.000Z')\n  }\n]",
           "tokenEstimate": 167
         }
-      ]
+      ],
+      "slug": "sample-query",
+      "variantAgnostic": true
     },
     {
       "heading": "ObjectId Example",
       "headingLevel": 3,
       "body": "The following example uses the `range` operator to query an\n`objectId` field in the `sample_mflix.movies` collection. For this\nexample, you can use either static or dynamic mappings to index the\n`objectId` type field named `_id` in the collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "objectid-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
       "headingLevel": 4,
-      "body": "The following index definition named `default` indexes all the\nfields in the `movies` collection.\n\n**Dme:**\n\nDynamic Mapping Example\n\nThe following index definition named `default` indexes all the\ndynamically indexable fields in the `movies` collection,\nincluding the `_id` field, which is of type `objectId`.\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}\n```\n\n**Sme:**\n\nStatic Mapping Example\n\nThe following index definition named `default` indexes the\n`_id` field in the `movies` collection:\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"_id\": {\n           \"type\": \"objectId\"\n         }\n      }\n   }\n}\n```",
+      "body": "The following index definition named `default` indexes all the\nfields in the `movies` collection.\n\nDynamic Mapping Example\n\nStatic Mapping Example",
+      "codeBlocks": [],
+      "slug": "sample-index",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 4,
+      "body": "The following index definition named `default` indexes all the\ndynamically indexable fields in the `movies` collection,\nincluding the `_id` field, which is of type `objectId`.\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}\n```",
       "codeBlocks": [
         {
           "language": "javascript",
           "content": "{\n   \"mappings\": {\n      \"dynamic\": true\n   }\n}",
           "tokenEstimate": 16
-        },
+        }
+      ],
+      "slug": "sample-index--dme",
+      "selections": {
+        "tabs": "dme"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Index",
+      "headingLevel": 4,
+      "body": "The following index definition named `default` indexes the\n`_id` field in the `movies` collection:\n\n```javascript\n{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"_id\": {\n           \"type\": \"objectId\"\n         }\n      }\n   }\n}\n```",
+      "codeBlocks": [
         {
           "language": "javascript",
           "content": "{\n   \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n         \"_id\": {\n           \"type\": \"objectId\"\n         }\n      }\n   }\n}",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "sample-index--sme",
+      "selections": {
+        "tabs": "sme"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Query",
@@ -214,13 +321,17 @@
           "content": "[\n  {\n    _id: ObjectId('573a1396f29313caabce4a9a'),\n    title: 'The Godfather',\n    released: ISODate('1972-03-24T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4a9b'),\n    title: 'Get to Know Your Rabbit',\n    released: ISODate('1972-06-01T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4aad'),\n    title: 'The Tall Blond Man with One Black Shoe',\n    released: ISODate('1973-08-30T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4abe'),\n    title: 'The Great Northfield Minnesota Raid',\n    released: ISODate('1972-05-12T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4ac4'),\n    title: 'The Heartbreak Kid',\n    released: ISODate('1973-02-01T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4ac7'),\n    title: 'Gumshoe',\n    released: ISODate('1971-12-01T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4ad9'),\n    title: 'Heat',\n    released: ISODate('1972-10-06T00:00:00.000Z')\n  },\n  {\n    _id: ObjectId('573a1396f29313caabce4ae7'),\n    title: 'Horror Express',\n    released: ISODate('1973-12-01T00:00:00.000Z')\n  }\n]",
           "tokenEstimate": 444
         }
-      ]
+      ],
+      "slug": "sample-query",
+      "variantAgnostic": true
     },
     {
       "heading": "String Example",
       "headingLevel": 3,
       "body": "The following example uses the `range` operator to query a string\nfield in the `sample_mflix.movies` collection. For this example, you\nmust use static mappings to index the field named `title` in the\ncollection as MongoDB Search `token` type.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "string-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
@@ -232,7 +343,9 @@
           "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"token\",\n        \"normalizer\": \"lowercase\"\n      }\n    }\n  }\n}",
           "tokenEstimate": 46
         }
-      ]
+      ],
+      "slug": "sample-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Query",
@@ -249,7 +362,9 @@
           "content": "[\n  { title: 'Civilization' },\n  { title: 'Clash of the Wolves' },\n  { title: 'City Lights' },\n  { title: 'Comradeship' },\n  { title: 'Come and Get It' }\n]",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "sample-query",
+      "variantAgnostic": true
     },
     {
       "heading": "Embedded Documents Example",
@@ -266,7 +381,9 @@
           "content": "[\n  {\n    round_code: 'angel',\n    raised_amount: 500000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'angel',\n    raised_amount: 800000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'c',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'seed',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  },\n  {\n    round_code: 'a',\n    raised_amount: 1000000,\n    raised_currency_code: 'USD'\n  }\n]",
           "tokenEstimate": 140
         }
-      ]
+      ],
+      "slug": "embedded-documents-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Metadata Example",
@@ -282,6 +399,36 @@
           "language": "javascript",
           "content": "[\n  {\n    count: { lowerBound: Long('15') },\n    facet: {\n      yearFacet: {\n        buckets: [\n          { _id: 1990, count: Long('2') },\n          { _id: 2000, count: Long('3') },\n          { _id: 2010, count: Long('5') }\n        ]\n      }\n    }\n  }\n]",
           "tokenEstimate": 86
+        }
+      ],
+      "slug": "metadata-example",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "eg1",
+          "text": "eg1"
+        },
+        {
+          "value": "eg2",
+          "text": "eg2"
+        },
+        {
+          "value": "eg3",
+          "text": "eg3"
+        },
+        {
+          "value": "dme",
+          "text": "dme"
+        },
+        {
+          "value": "sme",
+          "text": "sme"
         }
       ]
     }

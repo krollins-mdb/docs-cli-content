@@ -21,7 +21,12 @@
           {
             "language": "python",
             "tokenEstimate": 68
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Agent Tools",
+        "blocks": [
           {
             "language": "none",
             "tokenEstimate": 47
@@ -34,10 +39,68 @@
           {
             "language": "none",
             "tokenEstimate": 114
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Agent Memory",
+        "blocks": [
           {
             "language": "none",
             "tokenEstimate": 88
+          }
+        ]
+      },
+      {
+        "heading": "Procedure",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 174
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 905
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 216
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 233
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 991
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 323
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 184
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 553
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 204
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 219
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 1061
+          },
+          {
+            "language": "python",
+            "tokenEstimate": 161
           }
         ]
       },
@@ -65,37 +128,18 @@
             "tokenEstimate": 11
           },
           {
-            "language": "javascript",
-            "tokenEstimate": 174
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 905
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 216
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 233
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 991
-          },
-          {
-            "language": "javascript",
-            "tokenEstimate": 323
-          },
-          {
             "language": "none",
             "tokenEstimate": 3
           },
           {
             "language": "none",
             "tokenEstimate": 223
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Procedure",
+        "blocks": [
           {
             "language": "none",
             "tokenEstimate": 36
@@ -115,30 +159,6 @@
           {
             "language": "text",
             "tokenEstimate": 11
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 184
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 553
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 204
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 219
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 1061
-          },
-          {
-            "language": "python",
-            "tokenEstimate": 161
           },
           {
             "language": "none",
@@ -184,36 +204,6 @@
       "tokenEstimate": 88
     },
     {
-      "language": "none",
-      "section": "Procedure",
-      "content": "mkdir mongodb-ai-agent\ncd mongodb-ai-agent\nnpm init -y\nnpm install --quiet dotenv mongodb voyageai openai langchain @langchain/community @langchain/core mathjs pdf-parse",
-      "tokenEstimate": 41
-    },
-    {
-      "language": "text",
-      "section": "Procedure",
-      "content": "mongodb-ai-agent\n├── .env\n├── config.js\n├── ingest-data.js\n├── tools.js\n├── memory.js\n├── planning.js\n└── index.js",
-      "tokenEstimate": 47
-    },
-    {
-      "language": "none",
-      "section": "Procedure",
-      "content": "MONGODB_URI=\"<mongodb-connection-string>\"\nVOYAGE_API_KEY=\"<voyage-api-key>\"\nOPENAI_API_KEY= \"<openai-api-key>\"",
-      "tokenEstimate": 31
-    },
-    {
-      "language": "text",
-      "section": "Procedure",
-      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
-      "tokenEstimate": 21
-    },
-    {
-      "language": "text",
-      "section": "Procedure",
-      "content": "mongodb://localhost:<port-number>/?directConnection=true",
-      "tokenEstimate": 11
-    },
-    {
       "language": "javascript",
       "section": "Procedure",
       "content": "import dotenv from 'dotenv';\nimport { MongoClient } from 'mongodb';\nimport OpenAI from \"openai\";\n        \n// Load environment variables from .env file\ndotenv.config();\n\n// MongoDB cluster configuration\nexport const MONGODB_URI = process.env.MONGODB_URI;\nexport const mongoClient = new MongoClient(MONGODB_URI);\nexport const agentDb = mongoClient.db(\"ai_agent_db\");\nexport const vectorCollection = agentDb.collection(\"embeddings\");\nexport const memoryCollection = agentDb.collection(\"chat_history\");\n\n// Model Configuration\nexport const OPENAI_MODEL = \"gpt-4o\";\nexport const VOYAGE_MODEL = \"voyage-3-large\";\nexport const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY;\n\n// Initialize OpenAI Client\nexport const openAIClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY,});",
@@ -248,6 +238,72 @@
       "section": "Procedure",
       "content": "import readline from 'readline';\nimport { mongoClient } from './config.js';\nimport { ingestData, createVectorIndex } from './ingest-data.js';\nimport { generateResponse } from './planning.js';\n\n// Prompt for user input\nasync function prompt(question) {\n    const rl = readline.createInterface({\n        input: process.stdin,\n        output: process.stdout\n    });\n    return new Promise(resolve => rl.question(question, answer => {\n        rl.close();\n        resolve(answer);\n    }));\n}\n\nasync function main() {\n    try {\n        await mongoClient.connect();\n\n        const runIngest = await prompt(\"Ingest sample data? (y/n): \");\n        if (runIngest.trim().toLowerCase() === 'y') {\n            await ingestData();\n            console.log(\"\\nAttempting to create/verify Vector Search Index...\");\n            await createVectorIndex(); \n        } else {\n            await createVectorIndex(); // ensure index exists even if not ingesting data\n        }\n        \n        const sessionId = await prompt(\"Enter a session ID: \");\n\n        while (true) {\n            const userQuery = await prompt(\"\\nEnter your query (or type 'quit' to exit): \");\n            if (userQuery.trim().toLowerCase() === 'quit') break;\n\n            if (!userQuery.trim()) {\n                console.log(\"Query cannot be empty. Please try again.\");\n                continue;\n            }\n\n            const answer = await generateResponse(sessionId, userQuery);\n            console.log(\"\\nAnswer:\");\n            console.log(answer);\n        }\n    } finally {\n        await mongoClient.close();\n    }\n}\n\nmain();\n",
       "tokenEstimate": 323
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from pymongo import MongoClient\nfrom openai import OpenAI\nimport voyageai\nfrom dotenv import load_dotenv\nimport os\n\n# Load environment variables from .env file\nload_dotenv()\n\n# Environment variables (private)  \nMONGODB_URI = os.getenv(\"MONGODB_URI\")  \nVOYAGE_API_KEY = os.getenv(\"VOYAGE_API_KEY\")  \nOPENAI_API_KEY = os.getenv(\"OPENAI_API_KEY\")  \n  \n# MongoDB cluster configuration\nmongo_client = MongoClient(MONGODB_URI)\nagent_db = mongo_client[\"ai_agent_db\"]\nvector_collection = agent_db[\"embeddings\"]\nmemory_collection = agent_db[\"chat_history\"]\n\n# Model configuration\nvoyage_client = voyageai.Client(api_key=VOYAGE_API_KEY)\nclient = OpenAI(api_key=OPENAI_API_KEY)\nVOYAGE_MODEL = \"voyage-3-large\"\nOPENAI_MODEL = \"gpt-4o\"\n",
+      "tokenEstimate": 184
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from config import vector_collection, voyage_client, VOYAGE_MODEL\nfrom pymongo.operations import SearchIndexModel\nfrom langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nimport time\n\n# Define a function to generate embeddings\ndef get_embedding(data, input_type = \"document\"):\n  embeddings = voyage_client.embed(\n      data, model = VOYAGE_MODEL, input_type = input_type\n  ).embeddings\n  return embeddings[0]\n\n# --- Ingest embeddings into MongoDB ---\ndef ingest_data():\n    # Chunk PDF data\n    loader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\n    data = loader.load()\n    text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=20)\n    documents = text_splitter.split_documents(data)\n    print(f\"Successfully split PDF into {len(documents)} chunks.\")\n\n    # Ingest chunked documents into collection\n    print(\"Generating embeddings and ingesting documents...\")\n    docs_to_insert = []\n    for i, doc in enumerate(documents):\n        embedding = get_embedding(doc.page_content)\n        if embedding:\n            docs_to_insert.append({\n                \"text\": doc.page_content,\n                \"embedding\": embedding\n            })\n\n    if docs_to_insert:\n        result = vector_collection.insert_many(docs_to_insert)\n        print(f\"Inserted {len(result.inserted_ids)} documents into the collection.\")\n    else:\n        print(\"No documents were inserted. Check embedding generation process.\")\n\n    # --- Create the vector search index ---\n    index_name = \"vector_index\"\n    \n    search_index_model = SearchIndexModel(\n        definition = {\n            \"fields\": [\n                {\n                    \"type\": \"vector\",\n                    \"numDimensions\": 1024, \n                    \"path\": \"embedding\",\n                    \"similarity\": \"cosine\"\n                }\n            ]\n        },\n        name=index_name,\n        type=\"vectorSearch\"\n    )\n    try:\n        vector_collection.create_search_index(model=search_index_model)\n        print(f\"Search index '{index_name}' creation initiated.\")\n    except Exception as e:\n        print(f\"Error creating search index: {e}\")\n        return\n\n    # Wait for initial sync to complete\n    print(\"Polling to check if the index is ready. This may take up to a minute.\")\n    predicate=None\n    if predicate is None:\n       predicate = lambda index: index.get(\"queryable\") is True\n\n    while True:\n       indices = list(vector_collection.list_search_indexes(index_name))\n       if len(indices) and predicate(indices[0]):\n          break\n       time.sleep(5)\n    print(index_name + \" is ready for querying.\")",
+      "tokenEstimate": 553
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from config import vector_collection\nfrom ingest_data import get_embedding\n\n# Define a vector search tool\ndef vector_search_tool(user_input: str) -> str:\n    query_embedding = get_embedding(user_input)\n    pipeline = [\n        {\n            \"$vectorSearch\": {\n                \"index\": \"vector_index\",\n                \"queryVector\": query_embedding,\n                \"path\": \"embedding\",\n                \"exact\": True,\n                \"limit\": 5\n            }\n        }, {\n            \"$project\": {\n                \"_id\": 0,\n                \"text\": 1\n            }\n        }\n    ]\n    results = vector_collection.aggregate(pipeline)\n\n    array_of_results = []\n    for doc in results:\n        array_of_results.append(doc)\n    return array_of_results\n\n# Define a simple calculator tool\ndef calculator_tool(user_input: str) -> str:\n    try:\n        result = eval(user_input)\n        return str(result)\n    except Exception as e:\n        return f\"Error: {str(e)}\" ",
+      "tokenEstimate": 204
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from config import memory_collection\nfrom datetime import datetime\nfrom typing import List\n\ndef store_chat_message(session_id: str, role: str, content: str) -> None:\n    message = {\n        \"session_id\": session_id,     # Unique identifier for the chat session\n        \"role\": role,                 # Role of the sender (user or system) \n        \"content\": content,           # Content of the message\n        \"timestamp\": datetime.now(),  # Timestamp of when the message was sent\n    }\n    memory_collection.insert_one(message)\n\ndef retrieve_session_history(session_id: str) -> List:\n    # Query the collection for messages with a specific \"session_id\" in ascending order\n    cursor =  memory_collection.find({\"session_id\": session_id}).sort(\"timestamp\", 1)\n\n    # Iterate through the cursor and return a JSON object with the message role and content\n    if cursor:\n        messages = [{\"role\": msg[\"role\"], \"content\": msg[\"content\"]} for msg in cursor]\n    else:\n        messages = []\n    return messages",
+      "tokenEstimate": 219
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from config import openai_client, OPENAI_MODEL\nfrom tools import vector_search_tool, calculator_tool\nfrom memory import store_chat_message, retrieve_session_history\n\n# Define a tool selector function that decides which tool to use based on user input and message history\ndef tool_selector(user_input, session_history=None):\n    messages = [\n        {\n            \"role\": \"system\",\n            \"content\": (\n                \"Select the appropriate tool from the options below. Consider the full context of the conversation before deciding.\\n\\n\"\n                \"Tools available:\\n\"\n                \"- vector_search_tool: Retrieve specific context about recent MongoDB earnings and announcements\\n\"\n                \"- calculator_tool: For mathematical operations\\n\"\n                \"- none: For general questions without additional context\\n\"\n\n                \"Process for making your decision:\\n\"\n                \"1. Analyze if the current question relates to or follows up on a previous vector search query\\n\"\n                \"2. For follow-up questions, incorporate context from previous exchanges to create a comprehensive search query\\n\"\n                \"3. Only use calculator_tool for explicit mathematical operations\\n\"\n                \"4. Default to none only when certain the other tools won't help\\n\\n\"\n                \n                \"When continuing a conversation:\\n\"\n                \"- Identify the specific topic being discussed\\n\"\n                \"- Include relevant details from previous exchanges\\n\"\n                \"- Formulate a query that stands alone but preserves conversation context\\n\\n\"\n                \n                \"Return a JSON object only: {\\\"tool\\\": \\\"selected_tool\\\", \\\"input\\\": \\\"your_query\\\"}\"\n           )\n        }\n    ]\n    if session_history:\n        messages.extend(session_history)\n    messages.append({\"role\": \"user\", \"content\": user_input})\n    \n    response = openai_client.chat.completions.create(\n      model=OPENAI_MODEL,\n      messages=messages\n    ).choices[0].message.content\n    try:\n        tool_call = eval(response)\n        return tool_call.get(\"tool\"), tool_call.get(\"input\")\n    except:\n        return \"none\", user_input\n\n# Define the agent workflow\ndef generate_response(session_id: str, user_input: str) -> str:\n    \n    # Store the user input in the chat history collection\n    store_chat_message(session_id, \"user\", user_input)\n\n    # Initialize a list of inputs to pass to the LLM\n    llm_input = []\n\n    # Retrieve the session history for the current session and add it to the LLM input\n    session_history = retrieve_session_history(session_id)\n    llm_input.extend(session_history)\n\n    # Append the user message in the correct format\n    user_message = {\n        \"role\": \"user\",\n        \"content\": user_input\n    }\n    llm_input.append(user_message)\n\n    # Call the tool_selector function to determine which tool to use\n    tool, tool_input = tool_selector(user_input, session_history)\n    print(\"Tool selected: \", tool)\n    \n    # Process based on selected tool\n    if tool == \"vector_search_tool\":\n        context = vector_search_tool(tool_input)\n        # Construct the system prompt using the retrieved context and append it to the LLM input\n        system_message_content = (\n            f\"Answer the user's question based on the retrieved context and conversation history.\\n\"\n            f\"1. First, understand what specific information the user is requesting\\n\" \n            f\"2. Then, locate the most relevant details in the context provided\\n\"\n            f\"3. Finally, provide a clear, accurate response that directly addresses the question\\n\\n\"\n            f\"If the current question builds on previous exchanges, maintain continuity in your answer.\\n\"\n            f\"Only state facts clearly supported by the provided context. If information is not available, say 'I DON'T KNOW'.\\n\\n\"\n            f\"Context:\\n{context}\"\n        )\n        response = get_llm_response(llm_input, system_message_content)\n    elif tool == \"calculator_tool\":\n        # Perform the calculation using the calculator tool\n        response = calculator_tool(tool_input)\n    else:\n        system_message_content = \"You are a helpful assistant. Respond to the user's prompt as best as you can based on the conversation history.\"\n        response = get_llm_response(llm_input, system_message_content)\n    \n    # Store the system response in the chat history collection\n    store_chat_message(session_id, \"system\", response)\n    return response\n\n# Helper function to get the LLM response\ndef get_llm_response(messages, system_message_content):\n    # Add the system message to the messages list\n    system_message = {\n        \"role\": \"system\",\n        \"content\": system_message_content,\n    }\n    \n    # If the system message should go at the end (for context-based queries)\n    if any(msg.get(\"role\") == \"system\" for msg in messages):\n        messages.append(system_message)\n    else:\n        # For general queries, put system message at beginning\n        messages = [system_message] + messages\n    \n    # Get response from LLM\n    response = openai_client.chat.completions.create(\n        model=OPENAI_MODEL,\n        messages=messages\n    ).choices[0].message.content\n    \n    return response",
+      "tokenEstimate": 1061
+    },
+    {
+      "language": "python",
+      "section": "Procedure",
+      "content": "from config import mongo_client\nfrom ingest_data import ingest_data\nfrom planning import generate_response\n    \nif __name__ == \"__main__\":\n    try:\n        run_ingest = input(\"Ingest sample data? (y/n): \")\n        if run_ingest.lower() == 'y':\n            ingest_data()\n\n        session_id = input(\"Enter a session ID: \")\n\n        while True:\n            user_query = input(\"\\nEnter your query (or type 'quit' to exit): \")\n            if user_query.lower() == 'quit':\n                break\n            \n            if not user_query.strip():\n                print(\"Query cannot be empty. Please try again.\")\n                continue\n\n            answer = generate_response(session_id, user_query)\n            print(\"\\nAnswer:\")\n            print(answer)\n    finally:\n        mongo_client.close()\n",
+      "tokenEstimate": 161
+    },
+    {
+      "language": "none",
+      "section": "Procedure",
+      "content": "mkdir mongodb-ai-agent\ncd mongodb-ai-agent\nnpm init -y\nnpm install --quiet dotenv mongodb voyageai openai langchain @langchain/community @langchain/core mathjs pdf-parse",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "mongodb-ai-agent\n├── .env\n├── config.js\n├── ingest-data.js\n├── tools.js\n├── memory.js\n├── planning.js\n└── index.js",
+      "tokenEstimate": 47
+    },
+    {
+      "language": "none",
+      "section": "Procedure",
+      "content": "MONGODB_URI=\"<mongodb-connection-string>\"\nVOYAGE_API_KEY=\"<voyage-api-key>\"\nOPENAI_API_KEY= \"<openai-api-key>\"",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "section": "Procedure",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
     },
     {
       "language": "none",
@@ -290,42 +346,6 @@
       "section": "Procedure",
       "content": "mongodb://localhost:<port-number>/?directConnection=true",
       "tokenEstimate": 11
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from pymongo import MongoClient\nfrom openai import OpenAI\nimport voyageai\nfrom dotenv import load_dotenv\nimport os\n\n# Load environment variables from .env file\nload_dotenv()\n\n# Environment variables (private)  \nMONGODB_URI = os.getenv(\"MONGODB_URI\")  \nVOYAGE_API_KEY = os.getenv(\"VOYAGE_API_KEY\")  \nOPENAI_API_KEY = os.getenv(\"OPENAI_API_KEY\")  \n  \n# MongoDB cluster configuration\nmongo_client = MongoClient(MONGODB_URI)\nagent_db = mongo_client[\"ai_agent_db\"]\nvector_collection = agent_db[\"embeddings\"]\nmemory_collection = agent_db[\"chat_history\"]\n\n# Model configuration\nvoyage_client = voyageai.Client(api_key=VOYAGE_API_KEY)\nclient = OpenAI(api_key=OPENAI_API_KEY)\nVOYAGE_MODEL = \"voyage-3-large\"\nOPENAI_MODEL = \"gpt-4o\"\n",
-      "tokenEstimate": 184
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from config import vector_collection, voyage_client, VOYAGE_MODEL\nfrom pymongo.operations import SearchIndexModel\nfrom langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nimport time\n\n# Define a function to generate embeddings\ndef get_embedding(data, input_type = \"document\"):\n  embeddings = voyage_client.embed(\n      data, model = VOYAGE_MODEL, input_type = input_type\n  ).embeddings\n  return embeddings[0]\n\n# --- Ingest embeddings into MongoDB ---\ndef ingest_data():\n    # Chunk PDF data\n    loader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\n    data = loader.load()\n    text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=20)\n    documents = text_splitter.split_documents(data)\n    print(f\"Successfully split PDF into {len(documents)} chunks.\")\n\n    # Ingest chunked documents into collection\n    print(\"Generating embeddings and ingesting documents...\")\n    docs_to_insert = []\n    for i, doc in enumerate(documents):\n        embedding = get_embedding(doc.page_content)\n        if embedding:\n            docs_to_insert.append({\n                \"text\": doc.page_content,\n                \"embedding\": embedding\n            })\n\n    if docs_to_insert:\n        result = vector_collection.insert_many(docs_to_insert)\n        print(f\"Inserted {len(result.inserted_ids)} documents into the collection.\")\n    else:\n        print(\"No documents were inserted. Check embedding generation process.\")\n\n    # --- Create the vector search index ---\n    index_name = \"vector_index\"\n    \n    search_index_model = SearchIndexModel(\n        definition = {\n            \"fields\": [\n                {\n                    \"type\": \"vector\",\n                    \"numDimensions\": 1024, \n                    \"path\": \"embedding\",\n                    \"similarity\": \"cosine\"\n                }\n            ]\n        },\n        name=index_name,\n        type=\"vectorSearch\"\n    )\n    try:\n        vector_collection.create_search_index(model=search_index_model)\n        print(f\"Search index '{index_name}' creation initiated.\")\n    except Exception as e:\n        print(f\"Error creating search index: {e}\")\n        return\n\n    # Wait for initial sync to complete\n    print(\"Polling to check if the index is ready. This may take up to a minute.\")\n    predicate=None\n    if predicate is None:\n       predicate = lambda index: index.get(\"queryable\") is True\n\n    while True:\n       indices = list(vector_collection.list_search_indexes(index_name))\n       if len(indices) and predicate(indices[0]):\n          break\n       time.sleep(5)\n    print(index_name + \" is ready for querying.\")",
-      "tokenEstimate": 553
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from config import vector_collection\nfrom ingest_data import get_embedding\n\n# Define a vector search tool\ndef vector_search_tool(user_input: str) -> str:\n    query_embedding = get_embedding(user_input)\n    pipeline = [\n        {\n            \"$vectorSearch\": {\n                \"index\": \"vector_index\",\n                \"queryVector\": query_embedding,\n                \"path\": \"embedding\",\n                \"exact\": True,\n                \"limit\": 5\n            }\n        }, {\n            \"$project\": {\n                \"_id\": 0,\n                \"text\": 1\n            }\n        }\n    ]\n    results = vector_collection.aggregate(pipeline)\n\n    array_of_results = []\n    for doc in results:\n        array_of_results.append(doc)\n    return array_of_results\n\n# Define a simple calculator tool\ndef calculator_tool(user_input: str) -> str:\n    try:\n        result = eval(user_input)\n        return str(result)\n    except Exception as e:\n        return f\"Error: {str(e)}\" ",
-      "tokenEstimate": 204
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from config import memory_collection\nfrom datetime import datetime\nfrom typing import List\n\ndef store_chat_message(session_id: str, role: str, content: str) -> None:\n    message = {\n        \"session_id\": session_id,     # Unique identifier for the chat session\n        \"role\": role,                 # Role of the sender (user or system) \n        \"content\": content,           # Content of the message\n        \"timestamp\": datetime.now(),  # Timestamp of when the message was sent\n    }\n    memory_collection.insert_one(message)\n\ndef retrieve_session_history(session_id: str) -> List:\n    # Query the collection for messages with a specific \"session_id\" in ascending order\n    cursor =  memory_collection.find({\"session_id\": session_id}).sort(\"timestamp\", 1)\n\n    # Iterate through the cursor and return a JSON object with the message role and content\n    if cursor:\n        messages = [{\"role\": msg[\"role\"], \"content\": msg[\"content\"]} for msg in cursor]\n    else:\n        messages = []\n    return messages",
-      "tokenEstimate": 219
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from config import openai_client, OPENAI_MODEL\nfrom tools import vector_search_tool, calculator_tool\nfrom memory import store_chat_message, retrieve_session_history\n\n# Define a tool selector function that decides which tool to use based on user input and message history\ndef tool_selector(user_input, session_history=None):\n    messages = [\n        {\n            \"role\": \"system\",\n            \"content\": (\n                \"Select the appropriate tool from the options below. Consider the full context of the conversation before deciding.\\n\\n\"\n                \"Tools available:\\n\"\n                \"- vector_search_tool: Retrieve specific context about recent MongoDB earnings and announcements\\n\"\n                \"- calculator_tool: For mathematical operations\\n\"\n                \"- none: For general questions without additional context\\n\"\n\n                \"Process for making your decision:\\n\"\n                \"1. Analyze if the current question relates to or follows up on a previous vector search query\\n\"\n                \"2. For follow-up questions, incorporate context from previous exchanges to create a comprehensive search query\\n\"\n                \"3. Only use calculator_tool for explicit mathematical operations\\n\"\n                \"4. Default to none only when certain the other tools won't help\\n\\n\"\n                \n                \"When continuing a conversation:\\n\"\n                \"- Identify the specific topic being discussed\\n\"\n                \"- Include relevant details from previous exchanges\\n\"\n                \"- Formulate a query that stands alone but preserves conversation context\\n\\n\"\n                \n                \"Return a JSON object only: {\\\"tool\\\": \\\"selected_tool\\\", \\\"input\\\": \\\"your_query\\\"}\"\n           )\n        }\n    ]\n    if session_history:\n        messages.extend(session_history)\n    messages.append({\"role\": \"user\", \"content\": user_input})\n    \n    response = openai_client.chat.completions.create(\n      model=OPENAI_MODEL,\n      messages=messages\n    ).choices[0].message.content\n    try:\n        tool_call = eval(response)\n        return tool_call.get(\"tool\"), tool_call.get(\"input\")\n    except:\n        return \"none\", user_input\n\n# Define the agent workflow\ndef generate_response(session_id: str, user_input: str) -> str:\n    \n    # Store the user input in the chat history collection\n    store_chat_message(session_id, \"user\", user_input)\n\n    # Initialize a list of inputs to pass to the LLM\n    llm_input = []\n\n    # Retrieve the session history for the current session and add it to the LLM input\n    session_history = retrieve_session_history(session_id)\n    llm_input.extend(session_history)\n\n    # Append the user message in the correct format\n    user_message = {\n        \"role\": \"user\",\n        \"content\": user_input\n    }\n    llm_input.append(user_message)\n\n    # Call the tool_selector function to determine which tool to use\n    tool, tool_input = tool_selector(user_input, session_history)\n    print(\"Tool selected: \", tool)\n    \n    # Process based on selected tool\n    if tool == \"vector_search_tool\":\n        context = vector_search_tool(tool_input)\n        # Construct the system prompt using the retrieved context and append it to the LLM input\n        system_message_content = (\n            f\"Answer the user's question based on the retrieved context and conversation history.\\n\"\n            f\"1. First, understand what specific information the user is requesting\\n\" \n            f\"2. Then, locate the most relevant details in the context provided\\n\"\n            f\"3. Finally, provide a clear, accurate response that directly addresses the question\\n\\n\"\n            f\"If the current question builds on previous exchanges, maintain continuity in your answer.\\n\"\n            f\"Only state facts clearly supported by the provided context. If information is not available, say 'I DON'T KNOW'.\\n\\n\"\n            f\"Context:\\n{context}\"\n        )\n        response = get_llm_response(llm_input, system_message_content)\n    elif tool == \"calculator_tool\":\n        # Perform the calculation using the calculator tool\n        response = calculator_tool(tool_input)\n    else:\n        system_message_content = \"You are a helpful assistant. Respond to the user's prompt as best as you can based on the conversation history.\"\n        response = get_llm_response(llm_input, system_message_content)\n    \n    # Store the system response in the chat history collection\n    store_chat_message(session_id, \"system\", response)\n    return response\n\n# Helper function to get the LLM response\ndef get_llm_response(messages, system_message_content):\n    # Add the system message to the messages list\n    system_message = {\n        \"role\": \"system\",\n        \"content\": system_message_content,\n    }\n    \n    # If the system message should go at the end (for context-based queries)\n    if any(msg.get(\"role\") == \"system\" for msg in messages):\n        messages.append(system_message)\n    else:\n        # For general queries, put system message at beginning\n        messages = [system_message] + messages\n    \n    # Get response from LLM\n    response = openai_client.chat.completions.create(\n        model=OPENAI_MODEL,\n        messages=messages\n    ).choices[0].message.content\n    \n    return response",
-      "tokenEstimate": 1061
-    },
-    {
-      "language": "python",
-      "section": "Procedure",
-      "content": "from config import mongo_client\nfrom ingest_data import ingest_data\nfrom planning import generate_response\n    \nif __name__ == \"__main__\":\n    try:\n        run_ingest = input(\"Ingest sample data? (y/n): \")\n        if run_ingest.lower() == 'y':\n            ingest_data()\n\n        session_id = input(\"Enter a session ID: \")\n\n        while True:\n            user_query = input(\"\\nEnter your query (or type 'quit' to exit): \")\n            if user_query.lower() == 'quit':\n                break\n            \n            if not user_query.strip():\n                print(\"Query cannot be empty. Please try again.\")\n                continue\n\n            answer = generate_response(session_id, user_query)\n            print(\"\\nAnswer:\")\n            print(answer)\n    finally:\n        mongo_client.close()\n",
-      "tokenEstimate": 161
     },
     {
       "language": "none",

@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"page_updated_by\": {\n        \"fields\": {\n          \"phone\": {\n            \"analyzer\": \"dashDotSpaceSplitter\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"dashDotSpaceSplitter\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"pattern\": \"[-. ]+\",\n        \"type\": \"regexSplit\"\n      }\n    }\n  ]\n})\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"9870\",\n        \"path\": \"page_updated_by.phone\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"page_updated_by.phone\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n{ _id: 3, page_updated_by: { phone: '(123).456.9870' }\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"page_updated_by\": {\n        \"fields\": {\n          \"phone\": {\n            \"analyzer\": \"dashDotSpaceSplitter\",\n            \"type\": \"string\"\n          }\n        },\n        \"type\": \"document\"\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"charFilters\": [],\n      \"name\": \"dashDotSpaceSplitter\",\n      \"tokenFilters\": [],\n      \"tokenizer\": {\n        \"pattern\": \"[-. ]+\",\n        \"type\": \"regexSplit\"\n      }\n    }\n  ]\n})\n",
+      "tokenEstimate": 140
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"query\": \"9870\",\n        \"path\": \"page_updated_by.phone\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"page_updated_by.phone\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "js",
+      "content": "{ _id: 3, page_updated_by: { phone: '(123).456.9870' }",
+      "tokenEstimate": 23
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

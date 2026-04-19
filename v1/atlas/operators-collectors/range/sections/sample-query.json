@@ -1,17 +1,19 @@
 {
   "heading": "Sample Query",
   "headingLevel": 4,
-  "body": "The following query searches for movies with a runtime greater\nthan or equal to `2` and less than or equal to `3`. It\nincludes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to\n`5` results and a [$project](manual/reference/operator/aggregation/project) stage to exclude all\nfields except `title` and `runtime`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }\n```\n\n**Eg2:**\n\nExample 2\n\nFor this example, you can use either static or dynamic mappings to\nindex the `runtime` field in the `sample_mflix.movies`\ncollection. The  query uses the `lte` field to search for all\nvalues less than or equal to the given value.",
+  "body": "The following query searches for movies released between January 1,\n2010 and January 1, 2015. It includes a [$limit](manual/reference/operator/aggregation/limit) stage to\nlimit the output to 5 results and a [$project](manual/reference/operator/aggregation/project) stage to\nexclude all fields except `title` and `released`.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"released\",\n        \"gt\": ISODate(\"2010-01-01T00:00:00.000Z\"),\n        \"lt\": ISODate(\"2015-01-01T00:00:00.000Z\")\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n[\n  {\n    title: 'Too Much Johnson',\n    released: ISODate('2014-08-30T00:00:00.000Z')\n  },\n  {\n    title: 'Stolen Desire',\n    released: ISODate('2012-07-01T00:00:00.000Z')\n  },\n  {\n    title: 'The Monkey King',\n    released: ISODate('2012-01-12T00:00:00.000Z')\n  },\n  { title: 'The Land', released: ISODate('2012-08-04T00:00:00.000Z') },\n  {\n    title: 'My Childhood',\n    released: ISODate('2013-07-31T00:00:00.000Z')\n  }\n]\n```",
   "codeBlocks": [
     {
-      "language": "json",
-      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"runtime\",\n        \"gte\": 2,\n        \"lte\": 3\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"runtime\": 1\n    }\n  }\n])",
-      "tokenEstimate": 87
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"range\": {\n        \"path\": \"released\",\n        \"gt\": ISODate(\"2010-01-01T00:00:00.000Z\"),\n        \"lt\": ISODate(\"2015-01-01T00:00:00.000Z\")\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"released\": 1\n    }\n  }\n])",
+      "tokenEstimate": 119
     },
     {
-      "language": "json",
-      "content": "{ \"runtime\" : 3, \"title\" : \"Dots\" }\n{ \"runtime\" : 3, \"title\" : \"Sisyphus\" }\n{ \"runtime\" : 3, \"title\" : \"The Fly\" }\n{ \"runtime\" : 2, \"title\" : \"Andrè and Wally B.\" }\n{ \"runtime\" : 2, \"title\" : \"Luxo Jr.\" }",
-      "tokenEstimate": 93
+      "language": "javascript",
+      "content": "[\n  {\n    title: 'Too Much Johnson',\n    released: ISODate('2014-08-30T00:00:00.000Z')\n  },\n  {\n    title: 'Stolen Desire',\n    released: ISODate('2012-07-01T00:00:00.000Z')\n  },\n  {\n    title: 'The Monkey King',\n    released: ISODate('2012-01-12T00:00:00.000Z')\n  },\n  { title: 'The Land', released: ISODate('2012-08-04T00:00:00.000Z') },\n  {\n    title: 'My Childhood',\n    released: ISODate('2013-07-31T00:00:00.000Z')\n  }\n]",
+      "tokenEstimate": 167
     }
-  ]
+  ],
+  "slug": "sample-query",
+  "variantAgnostic": true
 }

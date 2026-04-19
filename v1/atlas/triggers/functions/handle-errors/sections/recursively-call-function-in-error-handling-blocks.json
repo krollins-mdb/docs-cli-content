@@ -8,5 +8,7 @@
       "content": "// Utility function to suspend execution of current process\nasync function sleep(milliseconds) {\n  await new Promise((resolve) => setTimeout(resolve, milliseconds));\n}\n\n// Set variables to be used by all calls to `mightFail`\n// Tip: You could also store `MAX_RETRIES` and `THROTTLE_TIME_MS`\n// in App Services Values\nconst MAX_RETRIES = 5;\nconst THROTTLE_TIME_MS = 5000;\nlet currentRetries = 0;\nlet errorMessage = \"\";\n\n\nasync function mightFail(...inputVars) {\n  if (currentRetries === MAX_RETRIES) {\n    console.error(\n      `Reached maximum number of retries (${MAX_RETRIES}) without successful execution.`\n    );\n    console.error(\"Error Message:\", errorMessage);\n    return;\n  }\n  let res;\n  try {\n    // operation that might fail\n    res = await callFlakyExternalService(...inputVars);\n  } catch (err) {\n    errorMessage = err.message;\n    // throttle retries\n    await sleep(THROTTLE_TIME_MS);\n    currentRetries++;\n    res = await mightFail(...inputVars);\n  }\n  return res;\n}\n\nexports = mightFail;\n",
       "tokenEstimate": 245
     }
-  ]
+  ],
+  "slug": "recursively-call-function-in-error-handling-blocks",
+  "variantAgnostic": true
 }

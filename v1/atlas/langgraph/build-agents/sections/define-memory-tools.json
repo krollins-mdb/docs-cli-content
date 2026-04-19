@@ -8,5 +8,7 @@
       "content": "from langchain.agents import tool\nfrom langgraph.store.mongodb import MongoDBStore, create_vector_index_config\nfrom config import embedding_model, MONGODB_URI\n\n# Vector search index configuration for memory collection\nindex_config = create_vector_index_config(\n    embed=embedding_model,\n    dims=2048,\n    relevance_score_fn=\"dotProduct\",\n    fields=[\"content\"]\n)\n\n@tool\ndef save_memory(content: str) -> str:\n    \"\"\"Save important information to memory.\"\"\"\n    with MongoDBStore.from_conn_string(\n        conn_string=MONGODB_URI,\n        db_name=\"sample_mflix\",\n        collection_name=\"memories\",\n        index_config=index_config,\n        auto_index_timeout=60 # Wait a minute for vector index creation\n    ) as store:\n        store.put(\n            namespace=(\"user\", \"memories\"),\n            key=f\"memory_{hash(content)}\",\n            value={\"content\": content}\n        )\n    return f\"Memory saved: {content}\"\n\n@tool\ndef retrieve_memories(query: str) -> str:\n    \"\"\"Retrieve relevant memories based on a query.\"\"\"\n    with MongoDBStore.from_conn_string(\n        conn_string=MONGODB_URI,\n        db_name=\"sample_mflix\",\n        collection_name=\"memories\",\n        index_config=index_config\n    ) as store:\n        results = store.search((\"user\", \"memories\"), query=query, limit=3)\n\n    if results:\n        memories = [result.value[\"content\"] for result in results]\n        return f\"Retrieved memories:\\n\" + \"\\n\".join(memories)\n    return \"No relevant memories found.\"\n\nMEMORY_TOOLS = [save_memory, retrieve_memories]\n",
       "tokenEstimate": 334
     }
-  ]
+  ],
+  "slug": "define-memory-tools",
+  "variantAgnostic": true
 }

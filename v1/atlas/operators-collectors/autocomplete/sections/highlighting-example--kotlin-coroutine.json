@@ -1,0 +1,17 @@
+{
+  "heading": "Highlighting Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to:\n\n  - return the document's score.\n\n  - exclude all fields except `title`.\n\n  - add a new field called `highlights`, which contains highlighting\n    information.\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\", Document(\"autocomplete\", Document(\"path\", \"title\")\n                .append(\"query\", listOf(\"ger\"))\n            ).append(\"highlight\", Document(\"path\", \"title\"))\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\"),\n                    computed(\"score\", Document(\"\\$meta\", \"searchScore\")),\n                    computed(\"highlights\", Document(\"\\$meta\", \"searchHighlights\"))\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\", Document(\"autocomplete\", Document(\"path\", \"title\")\n                .append(\"query\", listOf(\"ger\"))\n            ).append(\"highlight\", Document(\"path\", \"title\"))\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\"),\n                    computed(\"score\", Document(\"\\$meta\", \"searchScore\")),\n                    computed(\"highlights\", Document(\"\\$meta\", \"searchHighlights\"))\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 231
+    }
+  ],
+  "slug": "highlighting-example--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

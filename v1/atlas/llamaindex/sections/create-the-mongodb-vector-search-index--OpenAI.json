@@ -1,0 +1,17 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 3,
+  "body": "To enable vector search queries on your vector store,\ncreate a MongoDB Vector Search index on the `llamaindex_db.test` collection.\n\nIn your notebook, run the following code to create\nan index of the [index definition](avs-types-vector-search) type\nthat indexes the following fields:\n\n- `embedding` field as the [index definition](avs-types-vector-search) type. The `embedding` field\n  contains the embeddings created using OpenAI's\n  `text-embedding-ada-002` embedding model. The index\n  definition specifies `1536` vector dimensions and\n  measures similarity using `cosine`.\n\n- `metadata.page_label` field as the [index definition](avs-types-vector-search) type for pre-filtering data\n  by the page number in the PDF.\n\n```python\n# Specify the collection for which to create the index\ncollection = mongo_client[\"llamaindex_db\"][\"test\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"embedding\",\n        \"numDimensions\": 1536,\n        \"similarity\": \"cosine\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"metadata.page_label\"\n      }\n    ]\n  },\n  name=\"vector_index\",\n  type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)\n```\n\nThe index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# Specify the collection for which to create the index\ncollection = mongo_client[\"llamaindex_db\"][\"test\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"embedding\",\n        \"numDimensions\": 1536,\n        \"similarity\": \"cosine\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"metadata.page_label\"\n      }\n    ]\n  },\n  name=\"vector_index\",\n  type=\"vectorSearch\"\n)\n\ncollection.create_search_index(model=search_index_model)",
+      "tokenEstimate": 134
+    }
+  ],
+  "slug": "create-the-mongodb-vector-search-index--OpenAI",
+  "selections": {
+    "tabs": "OpenAI"
+  },
+  "variantAgnostic": false
+}

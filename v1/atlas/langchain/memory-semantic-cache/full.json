@@ -7,13 +7,17 @@
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "Before you begin, ensure that you have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- An environment to run interactive Python notebooks\n  such as [Colab](https://colab.research.google.com).\n\n> **Tip:** We recommend completing the [Tutorial](langchain-get-started)\n> tutorial to learn how to create a naive RAG (Retrieval-Augmented Generation) implementation\n> before completing this tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Use MongoDB as a Vector Store",
       "headingLevel": 2,
       "body": "In this section, you create a vector store instance\nusing your MongoDB cluster as a vector database.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "use-mongodb-as-a-vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Set up the environment.",
@@ -40,7 +44,9 @@
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-1-set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Instantiate the vector store.",
@@ -52,7 +58,9 @@
           "content": "from langchain_mongodb import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Use the voyage-3-large embedding model\nembedding_model = VoyageAIEmbeddings(model=\"voyage-3-large\")\n\n# Create the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   connection_string = MONGODB_URI,\n   embedding = embedding_model,\n   namespace = \"langchain_db.rag_with_memory\"\n)",
           "tokenEstimate": 93
         }
-      ]
+      ],
+      "slug": "step-2-instantiate-the-vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Add data to the vector store.",
@@ -64,7 +72,9 @@
           "content": "from langchain_community.document_loaders import PyPDFLoader\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\n\n# Load the PDF\nloader = PyPDFLoader(\"https://investors.mongodb.com/node/13176/pdf\")\ndata = loader.load()\n\n# Split PDF into documents\ntext_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)\ndocs = text_splitter.split_documents(data)\n\n# Add data to the vector store\nvector_store.add_documents(docs)",
           "tokenEstimate": 102
         }
-      ]
+      ],
+      "slug": "step-3-add-data-to-the-vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Create the MongoDB Vector Search index.",
@@ -76,13 +86,17 @@
           "content": "# Use LangChain helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The dimensions of the vector embeddings to be indexed\n)",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "step-4-create-the-mongodb-vector-search-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Implement RAG with Memory",
       "headingLevel": 2,
       "body": "This section demonstrates how to implement RAG (Retrieval-Augmented Generation) with\nconversation memory by using the LangChain MongoDB integration.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "implement-rag-with-memory",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Define a function to get chat message history.",
@@ -94,7 +108,9 @@
           "content": "from langchain_mongodb.chat_message_histories import MongoDBChatMessageHistory\nfrom langchain_core.runnables.history import RunnableWithMessageHistory\nfrom langchain_core.prompts import MessagesPlaceholder\n\ndef get_session_history(session_id: str) -> MongoDBChatMessageHistory:\n    return MongoDBChatMessageHistory(\n        connection_string=MONGODB_URI,\n        session_id=session_id,\n        database_name=\"langchain_db\",\n        collection_name=\"rag_with_memory\"\n    )",
           "tokenEstimate": 92
         }
-      ]
+      ],
+      "slug": "step-1-define-a-function-to-get-chat-message-history",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Create a RAG chain that handles chat message history.",
@@ -126,7 +142,9 @@
           "content": "# Build the RAG chain\nrag_chain = (\n    retriever_chain\n    | rag_prompt\n    | llm\n    | parse_output\n)\n\n# Wrap the chain with message history\nrag_with_memory = RunnableWithMessageHistory(\n    rag_chain,\n    get_session_history,\n    input_messages_key=\"question\",\n    history_messages_key=\"history\",\n)",
           "tokenEstimate": 73
         }
-      ]
+      ],
+      "slug": "step-2-create-a-rag-chain-that-handles-chat-message-history",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Test your RAG implementation.",
@@ -153,13 +171,17 @@
           "content": "MongoDB acquired Voyage AI to enable organizations to easily build trustworthy AI applications by integrating advanced embedding and reranking models into their technology. This acquisition aligns with MongoDB's goal of helping businesses innovate at \"AI speed\" using its flexible document model and seamless scalability.",
           "tokenEstimate": 52
         }
-      ]
+      ],
+      "slug": "step-3-test-your-rag-implementation",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Semantic Caching",
       "headingLevel": 2,
       "body": "This section adds semantic caching on top of your RAG (Retrieval-Augmented Generation) chain.\nSemantic caching is a form of caching that\nretrieves cached prompts based on the semantic similarity\nbetween queries.\n\n> **Note:** You can use semantic caching independently of conversation memory,\n> but you use both features together for this tutorial.\n\nFor a video tutorial of this feature,\nsee [Learn by Watching](langchain-semantic-cache-video).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-semantic-caching",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Configure the semantic cache.",
@@ -171,7 +193,9 @@
           "content": "from langchain_mongodb.cache import MongoDBAtlasSemanticCache\nfrom langchain_core.globals import set_llm_cache\n\n# Configure the semantic cache\nset_llm_cache(MongoDBAtlasSemanticCache(\n    connection_string = MONGODB_URI,\n    database_name = \"langchain_db\",\n    collection_name = \"semantic_cache\",\n    embedding = embedding_model,\n    index_name = \"vector_index\",\n    similarity_threshold = 0.5  # Adjust based on your requirements\n))",
           "tokenEstimate": 97
         }
-      ]
+      ],
+      "slug": "step-1-configure-the-semantic-cache",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Test the semantic cache with your RAG chain.",
@@ -198,13 +222,33 @@
           "content": "CPU times: user 79.7 ms, sys: 24 ms, total: 104 ms\nWall time: 3.87 s\n\n'MongoDB recently acquired Voyage AI.'",
           "tokenEstimate": 39
         }
-      ]
+      ],
+      "slug": "step-2-test-the-semantic-cache-with-your-rag-chain",
+      "variantAgnostic": true
     },
     {
       "heading": "Learn by Watching",
       "headingLevel": 2,
       "body": "Follow along with this video tutorial to learn more about\nsemantic caching with LangChain and MongoDB.\n\n*Duration: 30 Minutes*\n\n[https://www.youtube.com/watch?v=kAgSPzlgnDM](https://www.youtube.com/watch?v=kAgSPzlgnDM)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "learn-by-watching",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
+        }
+      ]
     }
   ]
 }

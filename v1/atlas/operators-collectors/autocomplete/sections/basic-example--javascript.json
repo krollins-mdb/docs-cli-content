@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 10 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri =\n    \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"sample_mflix\");\n        const coll = database.collection(\"movies\");\n\n        // define pipeline\n        const agg = [\n            {$search: {autocomplete: {query: \"off\", path: \"title\"}}},\n            {$limit: 10},\n            {$project: {_id: 0,title: 1}}\n        ];\n        // run pipeline\n        const result = await coll.aggregate(agg);\n\n        // print results\n        await result.forEach((doc) => console.log(doc));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri =\n    \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"sample_mflix\");\n        const coll = database.collection(\"movies\");\n\n        // define pipeline\n        const agg = [\n            {$search: {autocomplete: {query: \"off\", path: \"title\"}}},\n            {$limit: 10},\n            {$project: {_id: 0,title: 1}}\n        ];\n        // run pipeline\n        const result = await coll.aggregate(agg);\n\n        // print results\n        await result.forEach((doc) => console.log(doc));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 171
+    }
+  ],
+  "slug": "basic-example--javascript",
+  "selections": {
+    "drivers": "javascript"
+  },
+  "variantAgnostic": false
+}

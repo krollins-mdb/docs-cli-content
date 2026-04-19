@@ -8,5 +8,7 @@
       "content": "from langchain_mongodb.retrievers import MongoDBAtlasSelfQueryRetriever\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\n\n# Given an existing vector store with movies data, define metadata describing the data\nmetadata_field_info = [\n    AttributeInfo(\n        name=\"genre\",\n        description=\"The genre of the movie. One of ['science fiction', 'comedy', 'drama', 'thriller', 'romance', 'animated']\",\n        type=\"string\",\n    ),\n    AttributeInfo(\n        name=\"year\",\n        description=\"The year the movie was released\",\n        type=\"integer\",\n    ),\n    AttributeInfo(\n        name=\"rating\", description=\"A 1-10 rating for the movie\", type=\"float\"\n    ),\n]\n\n# Create the retriever from the VectorStore, an LLM and info about the documents\nretriever = MongoDBAtlasSelfQueryRetriever.from_llm(\n    llm=llm,\n    vectorstore=vector_store,\n    metadata_field_info=metadata_field_info,\n    document_contents=\"Descriptions of movies\",\n    enable_limit=True\n)\n\n# This example results in the following composite filter sent to $vectorSearch:\n# {'filter': {'$and': [{'year': {'$lt': 1960}}, {'rating': {'$gt': 8}}]}}\nprint(retriever.invoke(\"Movies made before 1960 that are rated higher than 8\"))",
       "tokenEstimate": 291
     }
-  ]
+  ],
+  "slug": "usage",
+  "variantAgnostic": true
 }

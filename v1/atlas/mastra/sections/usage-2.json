@@ -8,5 +8,7 @@
       "content": "import { Agent } from '@mastra/core/agent';\nimport { openai } from '@ai-sdk/openai';\nimport { MONGODB_PROMPT } from \"@mastra/mongodb\";\nimport { createVectorQueryTool } from \"@mastra/rag\";\n\n// Create a vector query tool for the agent\nconst vectorQueryTool = createVectorQueryTool({\n  vectorStoreName: \"mongoVector\",                    // Name of MongoDB vector store\n  indexName: \"vector_index\",                         // Name of Vector Search index\n  model: openai.embedding(\"text-embedding-3-small\"), // Embedding model\n});\n\n// Define an AI agent with RAG capabilities\nexport const ragAgent = new Agent({\n  name: 'RAG Agent',                 // Agent name\n  model: openai('gpt-4o-mini'),      // LLM model\n  instructions: `\n  Process queries using the provided context. Structure responses to be concise and relevant.\n  ${MONGODB_PROMPT}\n  `,\n  tools: { vectorQueryTool },        // Tools available to the agent\n});",
       "tokenEstimate": 221
     }
-  ]
+  ],
+  "slug": "usage",
+  "variantAgnostic": true
 }

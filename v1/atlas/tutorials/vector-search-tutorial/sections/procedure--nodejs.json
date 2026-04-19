@@ -1,0 +1,32 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "Add the MongoDB Node Driver as a dependency in your project:\n\n```sh\nnpm install mongodb\n```\n\n> **Tip:** The examples on this page assume your project manages modules as\n> CommonJS modules. If you're using ES modules, instead, you must\n> modify the import syntax.\n\nCreate a file named `vector-index.js` and copy and paste the\nfollowing code into the file.\n\nThis index definition indexes the\n`plot_embedding_voyage_3_large` field as the `vector` type and\nthe `genres` and `year` fields as the `filter` type in an\nMongoDB Vector Search index. The `plot_embedding_voyage_3_large` field\ncontains embeddings created using Voyage AI's `voyage-3-large`\nembedding model. The index definition specifies `2048` vector\ndimensions and measures similarity using `dotProduct` function.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connectionString>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_mflix\");\n     const collection = database.collection(\"embedded_movies\");\n    \n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n           \"fields\": [\n             {\n               \"type\": \"vector\",\n               \"numDimensions\": 2048,\n               \"path\": \"plot_embedding_voyage_3_large\",\n               \"similarity\": \"dotProduct\",\n               \"quantization\": \"scalar\"\n             },\n             {\n               \"type\": \"filter\",\n               \"path\": \"genres\"\n             },\n             {\n               \"type\": \"filter\",\n               \"path\": \"year\"\n             }\n           ]\n         }\n     }\n\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(`New search index named ${result} is building.`);\n\n     // wait for the index to be ready to query\n     console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n     let isQueryable = false;\n     while (!isQueryable) {\n       const cursor = collection.listSearchIndexes();\n       for await (const index of cursor) {\n         if (index.name === result) {\n           if (index.queryable) {\n             console.log(`${result} is ready for querying.`);\n             isQueryable = true;\n           } else {\n             await new Promise(resolve => setTimeout(resolve, 5000));\n           }\n         }\n       }\n     }\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\n**Input:**\n\n```shell\nnode vector-index.js\n```\n\n**Output:**\n\n```shell\nvector_index\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "npm install mongodb",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connectionString>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_mflix\");\n     const collection = database.collection(\"embedded_movies\");\n    \n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n           \"fields\": [\n             {\n               \"type\": \"vector\",\n               \"numDimensions\": 2048,\n               \"path\": \"plot_embedding_voyage_3_large\",\n               \"similarity\": \"dotProduct\",\n               \"quantization\": \"scalar\"\n             },\n             {\n               \"type\": \"filter\",\n               \"path\": \"genres\"\n             },\n             {\n               \"type\": \"filter\",\n               \"path\": \"year\"\n             }\n           ]\n         }\n     }\n\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(`New search index named ${result} is building.`);\n\n     // wait for the index to be ready to query\n     console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n     let isQueryable = false;\n     while (!isQueryable) {\n       const cursor = collection.listSearchIndexes();\n       for await (const index of cursor) {\n         if (index.name === result) {\n           if (index.queryable) {\n             console.log(`${result} is ready for querying.`);\n             isQueryable = true;\n           } else {\n             await new Promise(resolve => setTimeout(resolve, 5000));\n           }\n         }\n       }\n     }\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 367
+    },
+    {
+      "language": "shell",
+      "content": "node vector-index.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "vector_index",
+      "tokenEstimate": 2
+    }
+  ],
+  "slug": "procedure--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

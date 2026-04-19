@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 10 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```java\nimport static com.mongodb.client.model.Aggregates.limit;\nimport static com.mongodb.client.model.Aggregates.project;\nimport static com.mongodb.client.model.Projections.excludeId;\nimport static com.mongodb.client.model.Projections.fields;\nimport static com.mongodb.client.model.Projections.include;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\nimport java.util.Arrays;\n\npublic class AutocompleteBasicExample {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            \n            // define pipeline\n            Document agg = new Document(\"$search\", new Document(\"autocomplete\", new Document(\"query\", \"off\").append(\"path\", \"title\")));\n            // run pipeline and print results\n            collection.aggregate(Arrays.asList(agg,\n                limit(10),\n                project(fields(excludeId(), include(\"title\"))))).forEach(doc -> System.out.println(doc.toJson()));\n        }\n    }\n}\n\n```",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import static com.mongodb.client.model.Aggregates.limit;\nimport static com.mongodb.client.model.Aggregates.project;\nimport static com.mongodb.client.model.Projections.excludeId;\nimport static com.mongodb.client.model.Projections.fields;\nimport static com.mongodb.client.model.Projections.include;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\nimport java.util.Arrays;\n\npublic class AutocompleteBasicExample {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_mflix\");\n            MongoCollection<Document> collection = database.getCollection(\"movies\");\n            \n            // define pipeline\n            Document agg = new Document(\"$search\", new Document(\"autocomplete\", new Document(\"query\", \"off\").append(\"path\", \"title\")));\n            // run pipeline and print results\n            collection.aggregate(Arrays.asList(agg,\n                limit(10),\n                project(fields(excludeId(), include(\"title\"))))).forEach(doc -> System.out.println(doc.toJson()));\n        }\n    }\n}\n",
+      "tokenEstimate": 253
+    }
+  ],
+  "slug": "basic-example--java-sync",
+  "selections": {
+    "drivers": "java-sync"
+  },
+  "variantAgnostic": false
+}

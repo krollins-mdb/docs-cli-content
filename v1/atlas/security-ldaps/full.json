@@ -7,43 +7,57 @@
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To manage LDAP (Lightweight Directory Access Protocol) users or groups, you must have\n[Organization Owner](<Organization Owner>) or [Project Owner](<Project Owner>) access to Atlas.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "You must meet the following prerequisites to manage user authentication\nand authorization using LDAP (Lightweight Directory Access Protocol) in Atlas:\n\n- Atlas cluster using MongoDB 7.0 or later.\n\n- LDAP (Lightweight Directory Access Protocol) server using TLS (Transport Layer Security) that your Atlas clusters can access\n  over the network using either  VPC or\n  VNet peering connection or the cluster nodes' public IP addresses.\n\n- LDAP (Lightweight Directory Access Protocol) group memberships embedded as an attribute for each user in\n  the LDAP (Lightweight Directory Access Protocol) entry for user authorization only.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Recommendation",
       "headingLevel": 2,
       "body": "For your LDAPS (Secure Lightweight Directory Access Protocol) service to access Atlas clusters, MongoDB\nrecommends one of two configurations:\n\nUsing a VPC (Virtual Private Cloud) or VNet:\n\n- Run your LDAP (Lightweight Directory Access Protocol) server in a VPC (Virtual Private Cloud) or VNet.\n\n- Establish a peering connection to your Atlas project.\n\n- Use a public FQDN (fully qualified domain name) that resolves to the private IP address\n  of your LDAP (Lightweight Directory Access Protocol) server.\n\nUsing your data center:\n\n- Run your LDAP (Lightweight Directory Access Protocol) server with a public FQDN (fully qualified domain name) that resolves to a\n  public IP address.\n\n- Configure the LDAP (Lightweight Directory Access Protocol) server to allow inbound access from the\n  Atlas cluster nodes' public IP addresses.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "recommendation",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "When you enable LDAP (Lightweight Directory Access Protocol) authentication and authorization, consider the\nfollowing:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Limitations",
       "headingLevel": 3,
       "body": "You cannot use both LDAP (Lightweight Directory Access Protocol) and SCRAM authentication for the same\ndatabase user.\n\nYou cannot use OIDC (OpenID Connect) authentication when LDAP (Lightweight Directory Access Protocol) authorization is enabled.\nWhen you enable LDAP (Lightweight Directory Access Protocol) authorization, the LDAP (Lightweight Directory Access Protocol) server handles all\nauthorization decisions, including for any external authentication mechanisms.\nTherefore, if you try to connect to Atlas by using OIDC (OpenID Connect),\nthe connection fails. You must disable LDAP (Lightweight Directory Access Protocol) authorization in order to use OIDC (OpenID Connect)\nauthentication.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "limitations",
+      "variantAgnostic": true
     },
     {
       "heading": "Conflicts between LDAP Authorization and X.509 Users",
       "headingLevel": 3,
       "body": "If you enable LDAP authorization, you can't connect to your\nclusters with users that authenticate with an\nAtlas-managed X.509 certificate.\n\nAfter you enable LDAP authorization, you *can* connect to your\nclusters with users that authenticate with an\n[self-managed X.509 certificate](self-managed-x509). However,\nthe user's Common Name in their X.509 certificate must match the\nDistinguished Name of a user who is authorized to access your\ndatabase with LDAP.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "conflicts-between-ldap-authorization-and-x509-users",
+      "variantAgnostic": true
     },
     {
       "heading": "Usernames",
       "headingLevel": 3,
       "body": "Atlas uses the full Distinguished Name (DN) of users in your LDAP (Lightweight Directory Access Protocol)\nserver as the Atlas username. For example, an example LDAP (Lightweight Directory Access Protocol) user\nnamed `ralph` has the following username in Atlas:\n\n`cn=ralph,cn=Users,dc=aws-atlas-ldap-01,dc=myteam,dc=com`",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "usernames",
+      "variantAgnostic": true
     },
     {
       "heading": "Connection String",
@@ -55,97 +69,224 @@
           "content": "mongosh \"mongodb+srv://cluster0-tijis.mongodb.net/test?authSource=%24external\" \\\n  --authenticationMechanism PLAIN \\\n  --username cn=rob,cn=Users,dc=ldaps-01,dc=myteam,dc=com",
           "tokenEstimate": 55
         }
-      ]
+      ],
+      "slug": "connection-string",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Locate the connection string.",
       "headingLevel": 4,
       "body": "Click **Connect**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-locate-the-connection-string",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Edit the connection string.",
       "headingLevel": 4,
       "body": "Edit the string with your `User DN` and password.\n\n> **Note:** If your passwords, database names, or connection strings contain\n> reserved URI characters, you must escape the characters. For example,\n> if your password is `@bc123`, you must escape the `@`\n> character when specifying the password in the connection\n> string, such as `%40bc123`. To learn more, see [Special characters in connection string password](special-pass-characters).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-edit-the-connection-string",
+      "variantAgnostic": true
     },
     {
       "heading": "Using Public IP Addresses",
       "headingLevel": 3,
       "body": "You can use public IP addresses that refer to other internal or private\nIP addresses using Network Address Translation to allow Atlas\ntraffic to your LDAP (Lightweight Directory Access Protocol) server. If you do this, be aware that\ncertain activities trigger a change\nin the Atlas cluster's public IP addresses.\n\nIf you allowed LDAP (Lightweight Directory Access Protocol) server access based on public IP addresses,\nchanges to the Atlas cluster's public IP address prevent LDAP (Lightweight Directory Access Protocol)\naccess. To restore LDAP (Lightweight Directory Access Protocol) access, add the new Atlas cluster public\nIP addresses to the LDAP (Lightweight Directory Access Protocol) access list.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "using-public-ip-addresses",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedures",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedures",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Authentication with LDAP",
       "headingLevel": 3,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\n> **Note:** You can use the same Atlas CLI command to configure LDAP (Lightweight Directory Access Protocol) authentication and LDAP (Lightweight Directory Access Protocol) authorization.\n\nTo save one LDAP configuration for the project you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap save [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap save](atlas/cli/current/command/atlas-security-ldap-save).\n\n**Ui:**\n\nAtlas UI\n\nUse the following procedure to configure user authentication with\nLDAP (Lightweight Directory Access Protocol) for all clusters in a project.\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.",
+      "body": "Atlas CLI\n\nTo save one LDAP configuration for the project you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap save [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap save](atlas/cli/current/command/atlas-security-ldap-save).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas security ldap save [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "configure-authentication-with-ldap",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Configure Authentication with LDAP",
+      "headingLevel": 3,
+      "body": "> **Note:** You can use the same Atlas CLI command to configure LDAP (Lightweight Directory Access Protocol) authentication and LDAP (Lightweight Directory Access Protocol) authorization.",
+      "codeBlocks": [],
+      "slug": "configure-authentication-with-ldap--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Configure Authentication with LDAP",
+      "headingLevel": 3,
+      "body": "Use the following procedure to configure user authentication with\nLDAP (Lightweight Directory Access Protocol) for all clusters in a project.\n\n> **Note:** You might incur additional costs when you enable this feature.\n> See [Advanced Security](advanced-security).\n\nYou may list multiple servers separated by commas. You cannot use different ports.\n\nYou may provide self-signed certificates.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nservers using the configuration details that you provided.",
+      "codeBlocks": [],
+      "slug": "configure-authentication-with-ldap--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure Authorization",
       "headingLevel": 3,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\n> **Note:** You can use the same Atlas CLI command to configure LDAP (Lightweight Directory Access Protocol)\n> authentication and LDAP (Lightweight Directory Access Protocol) authorization.\n\nTo save one LDAP configuration for the project you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap save [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap save](atlas/cli/current/command/atlas-security-ldap-save).\n\n**Ui:**\n\nAtlas UI\n\nUse the following procedure to configure user authorization with\nLDAP (Lightweight Directory Access Protocol) for all clusters in a project.\n\n> **Important:**&#x20;\n>\n> - You must enable authentication with LDAP (Lightweight Directory Access Protocol) before enabling\n>   authorization.\n>\n> - When you enable and configure LDAP (Lightweight Directory Access Protocol) authorization, database users\n>   who are only configured for LDAP (Lightweight Directory Access Protocol) authentication will no longer\n>   be able to access databases.\n\nWhen a user attempts to perform an action, Atlas executes the\n[LDAP query template](manual/reference/configuration-options)\nto obtain the LDAP groups to which the authenticated user belongs.\nAtlas permits the action if the query returns at least one group\nthat is authorized to perform the action. Atlas does not permit\nthe action if the query returns no groups that are authorized to\nperform the action.\n\nAtlas substitutes the authenticated username in the `{USER}`\nplaceholder when it runs the query. The query is relative to the host\nspecified in Server Hostname.\n\nThe formatting for the query must conform to [RFC4515](https://www.rfc-editor.org/rfc/rfc4515).\n\nIf you do not provide a query template, Atlas applies the default\nvalue: `{USER}?memberOf?base`.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nserver using the configuration details that you provide.",
+      "body": "Atlas CLI\n\nTo save one LDAP configuration for the project you specify using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap save [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap save](atlas/cli/current/command/atlas-security-ldap-save).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas security ldap save [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "configure-authorization",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Configure Authorization",
+      "headingLevel": 3,
+      "body": "> **Note:** You can use the same Atlas CLI command to configure LDAP (Lightweight Directory Access Protocol)\n> authentication and LDAP (Lightweight Directory Access Protocol) authorization.",
+      "codeBlocks": [],
+      "slug": "configure-authorization--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Configure Authorization",
+      "headingLevel": 3,
+      "body": "Use the following procedure to configure user authorization with\nLDAP (Lightweight Directory Access Protocol) for all clusters in a project.\n\n> **Important:**&#x20;\n>\n> - You must enable authentication with LDAP (Lightweight Directory Access Protocol) before enabling\n>   authorization.\n>\n> - When you enable and configure LDAP (Lightweight Directory Access Protocol) authorization, database users\n>   who are only configured for LDAP (Lightweight Directory Access Protocol) authentication will no longer\n>   be able to access databases.\n\nWhen a user attempts to perform an action, Atlas executes the\n[LDAP query template](manual/reference/configuration-options)\nto obtain the LDAP groups to which the authenticated user belongs.\nAtlas permits the action if the query returns at least one group\nthat is authorized to perform the action. Atlas does not permit\nthe action if the query returns no groups that are authorized to\nperform the action.\n\nAtlas substitutes the authenticated username in the `{USER}`\nplaceholder when it runs the query. The query is relative to the host\nspecified in Server Hostname.\n\nThe formatting for the query must conform to [RFC4515](https://www.rfc-editor.org/rfc/rfc4515).\n\nIf you do not provide a query template, Atlas applies the default\nvalue: `{USER}?memberOf?base`.\n\nWait for Atlas to deploy your changes. Atlas verifies that\nyour clusters can connect to, authenticate with, and query your LDAP\nserver using the configuration details that you provide.",
+      "codeBlocks": [],
+      "slug": "configure-authorization--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add an LDAP Database User or Group",
       "headingLevel": 3,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\nTo create a database user for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas dbusers create [builtInRole]... [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas dbusers create](atlas/cli/current/command/atlas-dbusers-create).\n\n**Ui:**\n\nAtlas UI\n\nAfter you [configure authorization with LDAP](config-auth-ldap), follow these steps to create an LDAP\ndatabase user or group:\n\n- If it isn't already displayed, click the\n  Database Users tab.\n\n- Click  Add New Database User.\n\nIn the Authentication Method section of the Add\nNew Database User modal window, select the box labeled LDAP.\n\n> **Note:** If you don't see an LDAP option, you must\n> [configure authorization with LDAP](config-auth-ldap).\n\nUnder LDAP Type, select LDAP User for a single\nuser or LDAP Group for an LDAP group.\n\nEnter the authentication string for the LDAP user or LDAP group.\n\n> **Example:** For the LDAP user named myUser in the project named projectName,\n> enter the following:\n>\n> `cn=myUser,ou=projectName,dc=com`\n\nIf you enable LDAP authorization, you can create LDAP users, but they\ncan't access your clusters. Add an LDAP group to access\nclusters with LDAP authorization enabled.\n\nSelect the database user privileges. You can assign privileges to the new user\nin one or more of the following ways:\n\n- Select a [built-in role](manual/reference/built-in-roles) from the\n  Built-in Role dropdown menu. You can select one\n  built-in role per database user within the Atlas UI. If you delete the\n  default option, you can click Add Built-in Role to select a new built-in role.\n\n- If you have any [custom roles](mongodb-roles) defined, you can expand\n  the Custom Roles section and select\n  one or more roles from the Custom Roles dropdown menu. Click\n  Add Custom Role to add more custom roles. You can also\n  click the Custom Roles link to see the custom\n  roles for your project.\n\n- Expand the Specific Privileges section and select one or more\n  [privileges](manual/reference/built-in-roles) from the\n  Specific Privileges dropdown menu. Click\n  Add Specific Privilege to add more privileges. This assigns the\n  user specific privileges on individual databases and collections.\n\nAtlas can apply a built-in role, multiple custom roles, and multiple specific\nprivileges to a single database user.\n\nTo remove an applied role or privilege, click&#x20;\nDelete next to the role or privilege you wish to delete.\n\n> **Note:** Atlas doesn't display the  Delete icon\n> next to your Built-in Role, Custom Role, or\n> Specific Privilege selection if you selected only one option. You\n> can delete the selected role or privilege once you apply another role or privilege.\n\nFor more information on authorization, see [Role-Based\nAccess Control](manual/core/authorization) and [Built-in\nRoles](manual/reference/built-in-roles) in the MongoDB manual.\n\nBy default, users can access all the clusters and federated database instances in the\nproject. You can restrict access to specific clusters and federated database instances\nby doing the following:\n\n- Toggle Restrict Access to Specific Clusters/Federated\n  Database Instances to ON.\n\n- Select the clusters and federated database instances to grant the user access to\n  from the Grant Access To list.\n\n* Toggle Temporary User or Temporary Group\n  to On.\n\n* Choose a time after which Atlas can delete the\n  user or group from the Temporary User Duration or\n  Temporary Group Duration dropdown. You can select one\n  of the following time periods for the user or group to exist:\n\n  - 6 hours\n\n  - 1 day\n\n  - 1 week\n\nIn the Database Users tab, temporary users and groups\ndisplay the time remaining until Atlas will delete the user or\ngroup. Once Atlas deletes the user or group, any client or\napplication that uses the temporary user's or group's credentials\nloses access to the cluster.",
+      "body": "Atlas CLI\n\nTo create a database user for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas dbusers create [builtInRole]... [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas dbusers create](atlas/cli/current/command/atlas-dbusers-create).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas dbusers create [builtInRole]... [options]\n",
           "tokenEstimate": 15
         }
-      ]
+      ],
+      "slug": "add-an-ldap-database-user-or-group",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Add an LDAP Database User or Group",
+      "headingLevel": 3,
+      "body": "After you [configure authorization with LDAP](config-auth-ldap), follow these steps to create an LDAP\ndatabase user or group:\n\n- If it isn't already displayed, click the\n  Database Users tab.\n\n- Click  Add New Database User.\n\nIn the Authentication Method section of the Add\nNew Database User modal window, select the box labeled LDAP.\n\n> **Note:** If you don't see an LDAP option, you must\n> [configure authorization with LDAP](config-auth-ldap).\n\nUnder LDAP Type, select LDAP User for a single\nuser or LDAP Group for an LDAP group.\n\nEnter the authentication string for the LDAP user or LDAP group.\n\n> **Example:** For the LDAP user named myUser in the project named projectName,\n> enter the following:\n>\n> `cn=myUser,ou=projectName,dc=com`\n\nIf you enable LDAP authorization, you can create LDAP users, but they\ncan't access your clusters. Add an LDAP group to access\nclusters with LDAP authorization enabled.\n\nSelect the database user privileges. You can assign privileges to the new user\nin one or more of the following ways:\n\n- Select a [built-in role](manual/reference/built-in-roles) from the\n  Built-in Role dropdown menu. You can select one\n  built-in role per database user within the Atlas UI. If you delete the\n  default option, you can click Add Built-in Role to select a new built-in role.\n\n- If you have any [custom roles](mongodb-roles) defined, you can expand\n  the Custom Roles section and select\n  one or more roles from the Custom Roles dropdown menu. Click\n  Add Custom Role to add more custom roles. You can also\n  click the Custom Roles link to see the custom\n  roles for your project.\n\n- Expand the Specific Privileges section and select one or more\n  [privileges](manual/reference/built-in-roles) from the\n  Specific Privileges dropdown menu. Click\n  Add Specific Privilege to add more privileges. This assigns the\n  user specific privileges on individual databases and collections.\n\nAtlas can apply a built-in role, multiple custom roles, and multiple specific\nprivileges to a single database user.\n\nTo remove an applied role or privilege, click&#x20;\nDelete next to the role or privilege you wish to delete.\n\n> **Note:** Atlas doesn't display the  Delete icon\n> next to your Built-in Role, Custom Role, or\n> Specific Privilege selection if you selected only one option. You\n> can delete the selected role or privilege once you apply another role or privilege.\n\nFor more information on authorization, see [Role-Based\nAccess Control](manual/core/authorization) and [Built-in\nRoles](manual/reference/built-in-roles) in the MongoDB manual.\n\nBy default, users can access all the clusters and federated database instances in the\nproject. You can restrict access to specific clusters and federated database instances\nby doing the following:\n\n- Toggle Restrict Access to Specific Clusters/Federated\n  Database Instances to ON.\n\n- Select the clusters and federated database instances to grant the user access to\n  from the Grant Access To list.\n\n* Toggle Temporary User or Temporary Group\n  to On.\n\n* Choose a time after which Atlas can delete the\n  user or group from the Temporary User Duration or\n  Temporary Group Duration dropdown. You can select one\n  of the following time periods for the user or group to exist:\n\n  - 6 hours\n\n  - 1 day\n\n  - 1 week\n\nIn the Database Users tab, temporary users and groups\ndisplay the time remaining until Atlas will delete the user or\ngroup. Once Atlas deletes the user or group, any client or\napplication that uses the temporary user's or group's credentials\nloses access to the cluster.",
+      "codeBlocks": [],
+      "slug": "add-an-ldap-database-user-or-group--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "View LDAP Configuration",
       "headingLevel": 3,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\nTo return the details for one LDAP configuration using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap get [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap get](atlas/cli/current/command/atlas-security-ldap-get).\n\n**Ui:**\n\nAtlas UI\n\nTo view your current LDAP (Lightweight Directory Access Protocol) settings using the Atlas UI:\n\nAtlas displays your LDAP (Lightweight Directory Access Protocol) authentication settings.\n\nTo view your LDAP (Lightweight Directory Access Protocol) *authorization* settings, toggle the button next to LDAP Authorization to On. Atlas displays your LDAP (Lightweight Directory Access Protocol) authorization settings.",
+      "body": "Atlas CLI\n\nTo return the details for one LDAP configuration using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap get [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap get](atlas/cli/current/command/atlas-security-ldap-get).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas security ldap get [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "view-ldap-configuration",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View LDAP Configuration",
+      "headingLevel": 3,
+      "body": "To view your current LDAP (Lightweight Directory Access Protocol) settings using the Atlas UI:\n\nAtlas displays your LDAP (Lightweight Directory Access Protocol) authentication settings.\n\nTo view your LDAP (Lightweight Directory Access Protocol) *authorization* settings, toggle the button next to LDAP Authorization to On. Atlas displays your LDAP (Lightweight Directory Access Protocol) authorization settings.",
+      "codeBlocks": [],
+      "slug": "view-ldap-configuration--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Disable LDAP Configuration",
       "headingLevel": 3,
-      "body": "**Atlascli:**\n\nAtlas CLI\n\n> **Note:**&#x20;\n\nYou can use the same Atlas CLI command to disable LDAP (Lightweight Directory Access Protocol)\nauthentication settings and LDAP (Lightweight Directory Access Protocol) authorization settings.\n\nTo delete one LDAP configuration using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap delete [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap delete](atlas/cli/current/command/atlas-security-ldap-delete).\n\n**Ui:**\n\nAtlas UI\n\nTo disable your current LDAP (Lightweight Directory Access Protocol) settings using the Atlas UI:\n\nAtlas disables your LDAP (Lightweight Directory Access Protocol) authentication settings and your\nLDAP (Lightweight Directory Access Protocol) authorization settings.\n\nTo disable LDAP (Lightweight Directory Access Protocol) authorization only, toggle the button next to LDAP Authorization to OFF. Atlas disables your LDAP (Lightweight Directory Access Protocol) authorization settings.",
+      "body": "Atlas CLI\n\nTo delete one LDAP configuration using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas security ldap delete [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas security ldap delete](atlas/cli/current/command/atlas-security-ldap-delete).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas security ldap delete [options]\n",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "disable-ldap-configuration",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Disable LDAP Configuration",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n\nYou can use the same Atlas CLI command to disable LDAP (Lightweight Directory Access Protocol)\nauthentication settings and LDAP (Lightweight Directory Access Protocol) authorization settings.",
+      "codeBlocks": [],
+      "slug": "disable-ldap-configuration--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Disable LDAP Configuration",
+      "headingLevel": 3,
+      "body": "To disable your current LDAP (Lightweight Directory Access Protocol) settings using the Atlas UI:\n\nAtlas disables your LDAP (Lightweight Directory Access Protocol) authentication settings and your\nLDAP (Lightweight Directory Access Protocol) authorization settings.\n\nTo disable LDAP (Lightweight Directory Access Protocol) authorization only, toggle the button next to LDAP Authorization to OFF. Atlas disables your LDAP (Lightweight Directory Access Protocol) authorization settings.",
+      "codeBlocks": [],
+      "slug": "disable-ldap-configuration--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Tutorials for Third-Party LDAP Providers",
       "headingLevel": 2,
       "body": "Use the following tutorials to configure Atlas to authenticate and\nauthorize users from third-party LDAP providers:\n\n- Set Up Authentication and Authorization with Entra Domain Services\n\n- Configure User Authentication and Authorization with Okta LDAP Interface\n\n- Configure User Authentication and Authorization with OneLogin VLDAP",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "tutorials-for-third-party-ldap-providers",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

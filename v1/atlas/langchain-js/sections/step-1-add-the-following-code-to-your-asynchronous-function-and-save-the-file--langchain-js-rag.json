@@ -1,0 +1,17 @@
+{
+  "heading": "Step 1: Add the following code to your asynchronous function and save the file.",
+  "headingLevel": 3,
+  "body": "This code does the following:\n\n- Instantiates MongoDB Vector Search as a [retriever](https://js.langchain.com/docs/concepts#retrievers)\n  to query for semantically similar documents.\n\n* Defines a LangChain [prompt template](https://js.langchain.com/docs/concepts#prompt-templates)\n  to instruct the LLM to use\n  these documents as context for your query.\n  LangChain passes these documents to the `{context}` input\n  variable and your query to the `{question}` variable.\n\n* Constructs a [chain](https://js.langchain.com/docs/concepts#langchain-expression-language)\n  that uses OpenAI's chat model\n  to generate context-aware responses based on\n  your prompt.\n\n* Prompts the chain with a sample query about Atlas security\n  recommendations.\n\n* Returns the LLM (Large Language Model)'s response and the documents used as context.\n\n```javascript\n// Implement RAG to answer questions on your data \nconst retriever = vectorStore.asRetriever();\nconst prompt =\n  PromptTemplate.fromTemplate(`Answer the question based on the following context:\n  {context}\n\n  Question: {question}`);\nconst model = new ChatOpenAI({});\nconst chain = RunnableSequence.from([\n  {\n    context: retriever.pipe(formatDocumentsAsString),\n    question: new RunnablePassthrough(),\n  },\n  prompt,\n  model,\n  new StringOutputParser(),\n]);\n\n// Prompt the LLM\nconst question = \"How can I secure my MongoDB Atlas cluster?\";  \nconst answer = await chain.invoke(question);\nconsole.log(\"Question: \" + question);\nconsole.log(\"Answer: \" + answer);\n\n// Return source documents\nconst retrievedResults = await retriever.getRelevantDocuments(question)\nconst documents = retrievedResults.map((documents => ({\n  pageContent: documents.pageContent,\n  pageNumber: documents.metadata.loc.pageNumber,\n})))\nconsole.log(\"\\nSource documents:\\n\" + JSON.stringify(documents, 1, 2))\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "// Implement RAG to answer questions on your data \nconst retriever = vectorStore.asRetriever();\nconst prompt =\n  PromptTemplate.fromTemplate(`Answer the question based on the following context:\n  {context}\n\n  Question: {question}`);\nconst model = new ChatOpenAI({});\nconst chain = RunnableSequence.from([\n  {\n    context: retriever.pipe(formatDocumentsAsString),\n    question: new RunnablePassthrough(),\n  },\n  prompt,\n  model,\n  new StringOutputParser(),\n]);\n\n// Prompt the LLM\nconst question = \"How can I secure my MongoDB Atlas cluster?\";  \nconst answer = await chain.invoke(question);\nconsole.log(\"Question: \" + question);\nconsole.log(\"Answer: \" + answer);\n\n// Return source documents\nconst retrievedResults = await retriever.getRelevantDocuments(question)\nconst documents = retrievedResults.map((documents => ({\n  pageContent: documents.pageContent,\n  pageNumber: documents.metadata.loc.pageNumber,\n})))\nconsole.log(\"\\nSource documents:\\n\" + JSON.stringify(documents, 1, 2))\n",
+      "tokenEstimate": 215
+    }
+  ],
+  "slug": "step-1-add-the-following-code-to-your-asynchronous-function-and-save-the-file--langchain-js-rag",
+  "selections": {
+    "tabs": "langchain-js-rag"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Examples",
+  "headingLevel": 3,
+  "body": "> **Example:** In the following example, the [text](text-ref) operator uses `score`\n> with the `function` option to replace the relevance score\n> of the query with the value of the numeric field\n> `imdb.rating` or `4.6`, if the `imdb.rating` field isn't\n> present in the documents.\n>\n> ```json\n> db.movies.aggregate([{\n>   \"$search\": {\n>     \"text\": {\n>       \"path\": \"title\",\n>       \"query\": \"men\",\n>       \"score\": {\n>         \"function\":{\n>           \"path\": {\n>             \"value\": \"imdb.rating\",\n>             \"undefined\": 4.6\n>           }\n>         }\n>       }\n>     }\n>   }\n> },\n> {\n>   $limit: 5\n> },\n> {\n>   $project: {\n>     \"_id\": 0,\n>     \"title\": 1,\n>     \"score\": { \"$meta\": \"searchScore\" }\n>   }\n> }])\n> ```\n>\n> This query returns the following results, in which\n> the score is replaced with the specified `function` value:\n>\n> ```json\n> { \"title\" : \"12 Angry Men\", \"score\" : 8.899999618530273 }\n> { \"title\" : \"The Men Who Built America\", \"score\" : 8.600000381469727 }\n> { \"title\" : \"No Country for Old Men\", \"score\" : 8.100000381469727 }\n> { \"title\" : \"X-Men: Days of Future Past\", \"score\" : 8.100000381469727 }\n> { \"title\" : \"The Best of Men\", \"score\" : 8.100000381469727 }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\":{\n          \"path\": {\n            \"value\": \"imdb.rating\",\n            \"undefined\": 4.6\n          }\n        }\n      }\n    }\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" }\n  }\n}])",
+      "tokenEstimate": 118
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"12 Angry Men\", \"score\" : 8.899999618530273 }\n{ \"title\" : \"The Men Who Built America\", \"score\" : 8.600000381469727 }\n{ \"title\" : \"No Country for Old Men\", \"score\" : 8.100000381469727 }\n{ \"title\" : \"X-Men: Days of Future Past\", \"score\" : 8.100000381469727 }\n{ \"title\" : \"The Best of Men\", \"score\" : 8.100000381469727 }",
+      "tokenEstimate": 124
+    }
+  ],
+  "slug": "examples--path",
+  "selections": {
+    "tabs": "path"
+  },
+  "variantAgnostic": false
+}

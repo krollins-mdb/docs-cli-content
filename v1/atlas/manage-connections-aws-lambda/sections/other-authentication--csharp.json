@@ -1,0 +1,37 @@
+{
+  "heading": "Other Authentication",
+  "headingLevel": 3,
+  "body": "```csharp\nprivate static MongoClient MongoClient { get; set; }\nprivate static MongoClient CreateMongoClient()\n{\n    var mongoClientSettings = MongoClientSettings.FromConnectionString($\"<MONGODB_URI>\");\n    mongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n    return new MongoClient(mongoClientSettings);\n}\n\nstatic ShareMongoClientLambdaHandler()\n{\n    MongoClient = CreateMongoClient();\n}\n\npublic string HandleRequest(ILambdaContext context)\n{\n    var database = MongoClient.GetDatabase(\"db\");\n    var collection = database.GetCollection<BsonDocument>(\"coll\");\n    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();\n    return result.ToString();\n}\n```\n\nGo\n\n```go\nimport (\n\t\"context\"\n\t\"os\"\n\n\truntime \"github.com/aws/aws-lambda-go/lambda\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar client, err = mongo.Connect(options.Client().ApplyURI(os.Getenv(\"MONGODB_URI\")))\n\nfunc HandleRequest(ctx context.Context) error {\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn client.Ping(context.TODO(), nil)\n}\n\n```\n\nJava (Sync)\n\n```java\nimport com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport org.bson.Document;\n\npublic class ExampleAwsLambdaHandler implements RequestHandler<String, String> {\n    private final MongoClient client;\n\n    public ExampleAwsLambdaHandler() {\n        client = MongoClients.create(System.getenv(\"MONGODB_URI\"));\n    }\n\n    @Override\n    public String handleRequest(final String input, final Context context) {\n        return client.getDatabase(\"admin\").runCommand(new Document(\"ping\", 1)).toJson();\n    }\n}\n```\n\nKotlin (Coroutine)\n\n```kotlin\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport com.mongodb.kotlin.client.coroutine.MongoDatabase\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String = runBlocking {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        result.toJson()\n    }\n}\n```\n\nKotlin (Sync)\n\n```kotlin\nimport com.mongodb.kotlin.client.MongoClient\nimport com.mongodb.kotlin.client.MongoDatabase\nimport org.bson.Document\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        return result.toJson()\n    }\n}\n```\n\nNode.js",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "private static MongoClient MongoClient { get; set; }\nprivate static MongoClient CreateMongoClient()\n{\n    var mongoClientSettings = MongoClientSettings.FromConnectionString($\"<MONGODB_URI>\");\n    mongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);\n    return new MongoClient(mongoClientSettings);\n}\n\nstatic ShareMongoClientLambdaHandler()\n{\n    MongoClient = CreateMongoClient();\n}\n\npublic string HandleRequest(ILambdaContext context)\n{\n    var database = MongoClient.GetDatabase(\"db\");\n    var collection = database.GetCollection<BsonDocument>(\"coll\");\n    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();\n    return result.ToString();\n}",
+      "tokenEstimate": 135
+    },
+    {
+      "language": "go",
+      "content": "import (\n\t\"context\"\n\t\"os\"\n\n\truntime \"github.com/aws/aws-lambda-go/lambda\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar client, err = mongo.Connect(options.Client().ApplyURI(os.Getenv(\"MONGODB_URI\")))\n\nfunc HandleRequest(ctx context.Context) error {\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn client.Ping(context.TODO(), nil)\n}\n",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "java",
+      "content": "import com.amazonaws.services.lambda.runtime.Context;\nimport com.amazonaws.services.lambda.runtime.RequestHandler;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport org.bson.Document;\n\npublic class ExampleAwsLambdaHandler implements RequestHandler<String, String> {\n    private final MongoClient client;\n\n    public ExampleAwsLambdaHandler() {\n        client = MongoClients.create(System.getenv(\"MONGODB_URI\"));\n    }\n\n    @Override\n    public String handleRequest(final String input, final Context context) {\n        return client.getDatabase(\"admin\").runCommand(new Document(\"ping\", 1)).toJson();\n    }\n}",
+      "tokenEstimate": 121
+    },
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.kotlin.client.coroutine.MongoClient\nimport com.mongodb.kotlin.client.coroutine.MongoDatabase\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String = runBlocking {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        result.toJson()\n    }\n}",
+      "tokenEstimate": 136
+    },
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.kotlin.client.MongoClient\nimport com.mongodb.kotlin.client.MongoDatabase\nimport org.bson.Document\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler : RequestHandler<String, String> {\n    private val client: MongoClient = MongoClient.create(System.getenv(\"MONGODB_URI\"))\n\n    override fun handleRequest(input: String, context: Context): String {\n        val database: MongoDatabase = client.getDatabase(\"admin\")\n        val command = Document(\"ping\", 1)\n        val result = database.runCommand(command)\n        return result.toJson()\n    }\n}",
+      "tokenEstimate": 124
+    }
+  ],
+  "slug": "other-authentication--csharp",
+  "selections": {
+    "drivers": "csharp"
+  },
+  "variantAgnostic": false
+}

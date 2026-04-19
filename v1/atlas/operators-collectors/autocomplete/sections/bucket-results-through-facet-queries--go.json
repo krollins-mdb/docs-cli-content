@@ -1,0 +1,27 @@
+{
+  "heading": "Bucket Results through Facet Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to return\nunique values of movies that contain the term `Gravity` in the\n`title` field of the `movies` collection. The index definition of\nthis query limits the results returned from a\n[token](bson-data-types-token) index, where both the\n[autocomplete](autocomplete-ref) and [token](bson-data-types-token) types are on the `title` field.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchMetaStage := bson.D{{Key: \"$searchMeta\", Value: bson.M{\n\t\t\"facet\": bson.M{\n\t\t\t\"operator\": bson.M{\n\t\t\t\t\"autocomplete\": bson.M{\n\t\t\t\t\t\"path\": \"title\", \"query\": \"Gravity\",\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"facets\": bson.M{\n\t\t\t\t\"titleFacet\": bson.M{\n\t\t\t\t\t\"path\": \"title\", \"type\": \"string\",\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t}}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchMetaStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n\n```\n\n```none\n[\n  {\n    count [{\n      lowerBound 5}\n    ]\n  }\n  {\n    facet [{\n      titleFacet [{\n        buckets [\n           [{_id Gravity} {count 3}]\n           [{_id Defying Gravity} {count 1}]\n           [{_id Laws of Gravity} {count 1}]\n        ]\n     }]}]\n  }\n]\n```\n\nMongoDB Search returns documents that contain the term `Gravity` in the\n`title` field. The `count` field in the results indicate the number\nof documents in the collection with the same title. In the results,\nMongoDB Search found three documents in the collection with `Gravity` as its\ntitle, but MongoDB Search omitted the duplicate titles and returned only one\nmatching document.\n\nIf you want to see the duplicate titles as shown in the results below,\nrun the preceding [autocomplete](autocomplete-ref) operator query\nwithout [faceted navigation](fts-facet-ref) and use\nthe [$search](pipe.$search) stage instead. You must also use the\n[$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```none\n[{title Gravity}],\n[{title Gravity}],\n[{title Gravity}],\n[{title Defying Gravity}],\n[{title Laws of Gravity}]\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchMetaStage := bson.D{{Key: \"$searchMeta\", Value: bson.M{\n\t\t\"facet\": bson.M{\n\t\t\t\"operator\": bson.M{\n\t\t\t\t\"autocomplete\": bson.M{\n\t\t\t\t\t\"path\": \"title\", \"query\": \"Gravity\",\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"facets\": bson.M{\n\t\t\t\t\"titleFacet\": bson.M{\n\t\t\t\t\t\"path\": \"title\", \"type\": \"string\",\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t}}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchMetaStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 305
+    },
+    {
+      "language": "none",
+      "content": "[\n  {\n    count [{\n      lowerBound 5}\n    ]\n  }\n  {\n    facet [{\n      titleFacet [{\n        buckets [\n           [{_id Gravity} {count 3}]\n           [{_id Defying Gravity} {count 1}]\n           [{_id Laws of Gravity} {count 1}]\n        ]\n     }]}]\n  }\n]",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "none",
+      "content": "[{title Gravity}],\n[{title Gravity}],\n[{title Gravity}],\n[{title Defying Gravity}],\n[{title Laws of Gravity}]",
+      "tokenEstimate": 24
+    }
+  ],
+  "slug": "bucket-results-through-facet-queries--go",
+  "selections": {
+    "drivers": "go"
+  },
+  "variantAgnostic": false
+}

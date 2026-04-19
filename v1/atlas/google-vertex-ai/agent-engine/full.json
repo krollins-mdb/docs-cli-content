@@ -7,19 +7,25 @@
       "heading": "Get Started",
       "headingLevel": 2,
       "body": "The following tutorial demonstrates how you can use the\nAgent Engine with Atlas to build a RAG (Retrieval-Augmented Generation) agent\nthat can answer questions about sample data. It uses\nMongoDB Vector Search with [LangChain](langchain) to implement\nthe retrieval tools for the agent.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "get-started",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 3,
       "body": "Before you begin, ensure you have the following:\n\n- An Atlas cluster in your preferred Google Cloud region. To create a new cluster,\n  see [Create a Cluster](create-new-cluster). You can also get started with Atlas through the\n  [Google Cloud Marketplace](https://console.cloud.google.com/marketplace/product/mongodb/mdb-atlas-self-service).\n\n- A Google Cloud project with Vertex AI enabled. To set up a project, see\n  [Set up a project and a development environment](https://cloud.google.com/vertex-ai/docs/start/cloud-environment) in the Google Cloud documentation.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set up your Environment",
       "headingLevel": 3,
       "body": "Create an interactive Python notebook by saving a file\nwith the `.ipynb` extension in [Google Colab](https://colab.research.google.com/).\nThis notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-up-your-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Install the required packages.",
@@ -31,7 +37,9 @@
           "content": "!pip install --upgrade --quiet \\\n    \"google-cloud-aiplatform[langchain,agent_engines]\" requests datasets pymongo langchain langchain-community langchain-mongodb langchain-google-vertexai google-cloud-aiplatform langchain_google_genai requests beautifulsoup4",
           "tokenEstimate": 55
         }
-      ]
+      ],
+      "slug": "step-1-install-the-required-packages",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Create the MongoDB Vector Search indexes.",
@@ -53,7 +61,9 @@
           "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\nclient = MongoClient(\"<connection-string>\") # Replace with your connection string\ndb = client[\"AGENT-ENGINE\"]\nstars_wars_collection = db[\"sample_starwars_embeddings\"]\nstars_trek_collection = db[\"sample_startrek_embeddings\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 768,\n         \"similarity\": \"cosine\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\n\n# Create the indexes\nstars_wars_collection.create_search_index(model=search_index_model)\nstars_trek_collection.create_search_index(model=search_index_model)",
           "tokenEstimate": 169
         }
-      ]
+      ],
+      "slug": "step-2-create-the-mongodb-vector-search-indexes",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Initialize the Vertex AI SDK.",
@@ -65,7 +75,9 @@
           "content": "PROJECT_ID = \"<your-project-id>\"  # Replace with your project ID\nLOCATION = \"<gcp-region>\"         # Replace with your preferred region, e.g. \"us-central1\"\nSTAGING_BUCKET = \"gs://<your-bucket-name>\"  # Replace with your bucket\n\nimport vertexai\nvertexai.init(project=PROJECT_ID, location=LOCATION, staging_bucket=STAGING_BUCKET)",
           "tokenEstimate": 82
         }
-      ]
+      ],
+      "slug": "step-3-initialize-the-vertex-ai-sdk",
+      "variantAgnostic": true
     },
     {
       "heading": "Ingest Data into Atlas",
@@ -77,30 +89,59 @@
           "content": "import requests\nfrom bs4 import BeautifulSoup\nfrom pymongo import MongoClient\nimport certifi\nfrom vertexai.language_models import TextEmbeddingModel\n\n# Scrape the website content\ndef scrape_website(url):\n    response = requests.get(url)\n    soup = BeautifulSoup(response.text, 'html.parser')\n    content = ' '.join([p.text for p in soup.find_all('p')])\n    return content\n\n# Split the content into chunks of 1000 characters\ndef split_into_chunks(text, chunk_size=1000):\n    return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]\n\ndef get_text_embeddings(chunks):\n    model = TextEmbeddingModel.from_pretrained(\"text-embedding-005\")\n    embeddings = model.get_embeddings(chunks)\n    return [embedding.values for embedding in embeddings]\n\ndef write_to_mongoDB(embeddings, chunks, db_name, coll_name):\n    client = MongoClient(\"<connection-string>\", tlsCAFile=certifi.where()) # Replace placeholder with your Atlas connection string\n    db = client[db_name]\n    collection = db[coll_name]\n\n    for i in range(len(chunks)):\n        collection.insert_one({\n            \"chunk\": chunks[i],\n            \"embedding\": embeddings[i]\n        })\n\n# Process Star Wars data\ncontent = scrape_website(\"https://en.wikipedia.org/wiki/Star_Wars\")\nchunks = split_into_chunks(content)\nembeddings_starwars = get_text_embeddings(chunks)\nwrite_to_mongoDB(embeddings_starwars, chunks, \"AGENT-ENGINE\", \"sample_starwars_embeddings\")\n\n# Process Star Trek data\ncontent = scrape_website(\"https://en.wikipedia.org/wiki/Star_Trek\")\nchunks = split_into_chunks(content)\nembeddings_startrek = get_text_embeddings(chunks)\nwrite_to_mongoDB(embeddings_startrek, chunks, \"AGENT-ENGINE\", \"sample_startrek_embeddings\")",
           "tokenEstimate": 388
         }
-      ]
+      ],
+      "slug": "ingest-data-into-atlas",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the Agent",
       "headingLevel": 3,
       "body": "In this section, you define tools that the agent can use to query\nyour collections using MongoDB Vector Search, create a memory system to maintain\nconversation context, and then initialize the agent using LangChain.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "create-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Define tools for the agent.",
       "headingLevel": 4,
-      "body": "Create the following two tools:\n\n**Star-wars-tool:**\n\nStar Wars Tool\n\nRun the following code to create a tool that\nuses MongoDB Vector Search to query the `sample_starwars_embeddings`\ncollection:\n\n```python\ndef star_wars_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to Star wars.\n\n    Args:\n        query: The question to be answered about star wars.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_starwars_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response\n```\n\n**Star-trek-tool:**\n\nStar Trek Tool\n\nRun the following code to create a tool that\nuses MongoDB Vector Search to query the `sample_startrek_embeddings`\ncollection:\n\n```python\ndef star_trek_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to star trek.\n\n    Args:\n        query: The question to be answered about star trek.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_startrek_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response\n```",
+      "body": "Create the following two tools:\n\nStar Wars Tool\n\nStar Trek Tool",
+      "codeBlocks": [],
+      "slug": "step-1-define-tools-for-the-agent",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 1: Define tools for the agent.",
+      "headingLevel": 4,
+      "body": "Run the following code to create a tool that\nuses MongoDB Vector Search to query the `sample_starwars_embeddings`\ncollection:\n\n```python\ndef star_wars_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to Star wars.\n\n    Args:\n        query: The question to be answered about star wars.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_starwars_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response\n```",
       "codeBlocks": [
         {
           "language": "python",
           "content": "def star_wars_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to Star wars.\n\n    Args:\n        query: The question to be answered about star wars.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_starwars_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response",
           "tokenEstimate": 482
-        },
+        }
+      ],
+      "slug": "step-1-define-tools-for-the-agent--star-wars-tool",
+      "selections": {
+        "tabs": "star-wars-tool"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Define tools for the agent.",
+      "headingLevel": 4,
+      "body": "Run the following code to create a tool that\nuses MongoDB Vector Search to query the `sample_startrek_embeddings`\ncollection:\n\n```python\ndef star_trek_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to star trek.\n\n    Args:\n        query: The question to be answered about star trek.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_startrek_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response\n```",
+      "codeBlocks": [
         {
           "language": "python",
           "content": "def star_trek_query_tool(\n    query: str\n):\n    \"\"\"\n    Retrieves vectors from a MongoDB database and uses them to answer a question related to star trek.\n\n    Args:\n        query: The question to be answered about star trek.\n\n    Returns:\n        A dictionary containing the response to the question.\n    \"\"\"\n    from langchain.chains import ConversationalRetrievalChain, RetrievalQA\n    from langchain_mongodb import MongoDBAtlasVectorSearch\n    from langchain_google_vertexai import VertexAIEmbeddings, ChatVertexAI\n    from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory\n    from langchain.prompts import PromptTemplate\n\n    prompt_template = \"\"\"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Do not return any answers from your own knowledge. Respond only in 2 or 3 sentences.\n\n    {context}\n\n    Question: {question}\n    \"\"\"\n    PROMPT = PromptTemplate(\n        template=prompt_template, input_variables=[\"context\", \"question\"]\n    )\n\n    # Replace with your connection string to your Atlas cluster\n    connection_string = \"<connection-string>\"\n    embeddings = VertexAIEmbeddings(model_name=\"text-embedding-005\")\n\n    vs = MongoDBAtlasVectorSearch.from_connection_string(\n        connection_string=connection_string,\n        namespace=\"AGENT-ENGINE.sample_startrek_embeddings\",\n        embedding=embeddings,\n        index_name=\"vector_index\",\n        embedding_key=\"embedding\",\n        text_key=\"chunk\",\n    )\n\n    llm = ChatVertexAI(\n        model_name=\"gemini-pro\",\n        convert_system_message_to_human=True,\n        max_output_tokens=1000,\n    )\n    retriever = vs.as_retriever(\n        search_type=\"mmr\", search_kwargs={\"k\": 10, \"lambda_mult\": 0.25}\n    )\n    memory = ConversationBufferWindowMemory(\n        memory_key=\"chat_history\", k=5, return_messages=True\n    )\n    conversation_chain = ConversationalRetrievalChain.from_llm(\n        llm=llm,\n        retriever=retriever,\n        memory=memory,\n        combine_docs_chain_kwargs={\"prompt\": PROMPT},\n    )\n    response = conversation_chain({\"question\": query})\n\n    return response",
           "tokenEstimate": 481
         }
-      ]
+      ],
+      "slug": "step-1-define-tools-for-the-agent--star-trek-tool",
+      "selections": {
+        "tabs": "star-trek-tool"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create a memory system.",
@@ -112,7 +153,9 @@
           "content": "from langchain.memory import ChatMessageHistory\n\n# Initialize session history\nstore = {}\n\ndef get_session_history(session_id: str):\n  if session_id not in store:\n    store[session_id] = ChatMessageHistory()\n  return store[session_id]",
           "tokenEstimate": 52
         }
-      ]
+      ],
+      "slug": "step-2-create-a-memory-system",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Initialize the agent.",
@@ -134,13 +177,17 @@
           "content": "The main antagonist in the Star Wars series is Darth Vader, a dark lord of the Sith. He was originally played by David Prowse in the original trilogy, and later voiced by James Earl Jones. In the prequel trilogy, he appears as Anakin Skywalker, and was played by Hayden Christensen.",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "step-3-initialize-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Deploy the Agent",
       "headingLevel": 3,
       "body": "In this section, you deploy your agent to the Vertex AI Agent Engine\nas a managed service. This allows you to scale your agent and\nuse it in production without managing the underlying infrastructure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "deploy-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Deploy your agent.",
@@ -152,7 +199,9 @@
           "content": "from vertexai import agent_engines\n\nremote_agent = agent_engines.create(\n  agent,\n  requirements=[\n    \"google-cloud-aiplatform[agent_engines,langchain]\",\n    \"cloudpickle==3.0.0\",\n    \"pydantic>=2.10\",\n    \"requests\",\n    \"langchain-mongodb\",\n    \"pymongo\",\n    \"langchain-google-vertexai\",\n  ],\n)",
           "tokenEstimate": 87
         }
-      ]
+      ],
+      "slug": "step-1-deploy-your-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Retrieve the project URL.",
@@ -164,7 +213,9 @@
           "content": "from googleapiclient import discovery\nfrom IPython.display import display, Markdown\n\n# Retrieve the project number associated with your project ID\nservice = discovery.build(\"cloudresourcemanager\", \"v1\")\nrequest = service.projects().get(projectId=PROJECT_ID)\nresponse = request.execute()\nproject_number = response[\"projectNumber\"]\nprint(f\"Project Number: {project_number}\")\n# The deployment creates a unique ID for your agent that you can find in the output",
           "tokenEstimate": 94
         }
-      ]
+      ],
+      "slug": "step-2-retrieve-the-project-url",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Test the agent.",
@@ -191,13 +242,41 @@
           "content": "Episode 1 of Star Trek is called \"The Man Trap\". It was first aired on September 8, 1966. The story involves the Enterprise crew investigating the disappearance of a crew on a scientific outpost. It turns out that the crew members were killed by a creature that can take on someone else's form after it kills them.",
           "tokenEstimate": 68
         }
-      ]
+      ],
+      "slug": "step-3-test-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Next Steps",
       "headingLevel": 2,
       "body": "You can also debug and optimize your agents by enabling\n[tracing](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/manage/tracing)\nin the Agent Engine. Refer to the [Vertex AI Agent Engine documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/)\nfor other features and examples.\n\nTo learn more about the LangChain MongoDB integration, see [LangChain](langchain).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "next-steps",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
+        },
+        {
+          "value": "star-wars-tool",
+          "text": "star-wars-tool"
+        },
+        {
+          "value": "star-trek-tool",
+          "text": "star-trek-tool"
+        }
+      ]
     }
   ]
 }

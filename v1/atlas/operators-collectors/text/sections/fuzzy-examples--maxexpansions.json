@@ -1,0 +1,22 @@
+{
+  "heading": "Fuzzy Examples",
+  "headingLevel": 3,
+  "body": "The following query searches the `title` field for terms\nthat are within one character of each term in the string\n`naw yark`. It uses:\n\n- The `maxEdits` field to indicate that only one\n  character variation is allowed for each term to match the\n  query to a document.\n\n- The `maxExpansions` field to indicate that up to one\n  hundred similar terms for `naw` and one hundred similar\n  terms to `yark` must be considered when matching the\n  query to a document.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {\n          \"maxEdits\": 1,\n          \"maxExpansions\": 100,\n        }\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 115
+    },
+    {
+      "language": "shell",
+      "content": "{ \"title\" : \"New York, New York\", \"score\" : 4.38106107711792 }\n{ \"title\" : \"New York\", \"score\" : 4.040346145629883 }\n{ \"title\" : \"New York Stories\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Minute\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"New York Doll\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Little New York\", \"score\" : 3.4740817546844482 }\n{ \"title\" : \"Escape from New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Naked in New York\", \"score\" : 3.047032356262207 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 3.047032356262207 }",
+      "tokenEstimate": 245
+    }
+  ],
+  "slug": "fuzzy-examples--maxexpansions",
+  "selections": {
+    "tabs": "maxexpansions"
+  },
+  "variantAgnostic": false
+}

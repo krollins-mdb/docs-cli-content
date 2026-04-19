@@ -1,0 +1,22 @@
+{
+  "heading": "Fuzzy Examples",
+  "headingLevel": 3,
+  "body": "The following query searches the `title` field for the\nphrase `naw yark`. It uses the `fuzzy` default options\nwhere:\n\n- `maxEdits` allows up to two character variation of each\n  term in the given phrase to match the query to a document.\n\n- `maxExpansions` considers up to fifty similar terms for\n  each term in `naw yark` to find matches.\n\n- `prefixLength` is disabled.\n\nThe query also includes a [$limit](manual/reference/operator/aggregation/limit) stage to limit the\noutput to 10 results and a [$project](manual/reference/operator/aggregation/project) stage to:\n\n- Exclude all fields except `title`\n\n- Add a field named `score`\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"naw yark\",\n        \"fuzzy\": {}\n      }\n    }\n  },\n  {\n    $limit: 10\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"New York, New York\", \"score\" : 3.6040148735046387 }\n{ \"title\" : \"New York\", \"score\" : 3.323730945587158 }\n{ \"title\" : \"New York Stories\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Minute\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Synecdoche, New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"New York Doll\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Little New York\", \"score\" : 2.8579015731811523 }\n{ \"title\" : \"Escape from New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Naked in New York\", \"score\" : 2.506596088409424 }\n{ \"title\" : \"Autumn in New York\", \"score\" : 2.506596088409424 }",
+      "tokenEstimate": 246
+    }
+  ],
+  "slug": "fuzzy-examples--default",
+  "selections": {
+    "tabs": "default"
+  },
+  "variantAgnostic": false
+}

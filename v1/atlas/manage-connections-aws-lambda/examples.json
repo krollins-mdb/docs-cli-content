@@ -9,8 +9,6 @@
       "js": 3,
       "bash": 2,
       "yaml": 2,
-      "c": 1,
-      "cpp": 1,
       "csharp": 2,
       "go": 1,
       "java": 1,
@@ -19,7 +17,9 @@
       "python": 1,
       "ruby": 2,
       "rust": 2,
-      "scala": 1
+      "scala": 1,
+      "c": 1,
+      "cpp": 1
     },
     "bySection": [
       {
@@ -28,31 +28,66 @@
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "js",
             "tokenEstimate": 11
@@ -60,7 +95,12 @@
           {
             "language": "text",
             "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
@@ -72,19 +112,12 @@
           {
             "language": "yaml",
             "tokenEstimate": 59
-          },
-          {
-            "language": "text",
-            "tokenEstimate": 33
-          },
-          {
-            "language": "text",
-            "tokenEstimate": 33
-          },
-          {
-            "language": "text",
-            "tokenEstimate": 33
-          },
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
             "language": "text",
             "tokenEstimate": 33
@@ -92,15 +125,29 @@
         ]
       },
       {
-        "heading": "Connection Example",
+        "heading": "Best Practices",
         "blocks": [
           {
-            "language": "c",
-            "tokenEstimate": 184
-          },
+            "language": "text",
+            "tokenEstimate": 33
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
           {
-            "language": "cpp",
-            "tokenEstimate": 440
+            "language": "text",
+            "tokenEstimate": 33
+          }
+        ]
+      },
+      {
+        "heading": "Best Practices",
+        "blocks": [
+          {
+            "language": "text",
+            "tokenEstimate": 33
           }
         ]
       },
@@ -226,6 +273,24 @@
             "tokenEstimate": 142
           }
         ]
+      },
+      {
+        "heading": "Connection Example",
+        "blocks": [
+          {
+            "language": "c",
+            "tokenEstimate": 184
+          }
+        ]
+      },
+      {
+        "heading": "Connection Example",
+        "blocks": [
+          {
+            "language": "cpp",
+            "tokenEstimate": 440
+          }
+        ]
       }
     ]
   },
@@ -325,18 +390,6 @@
       "section": "Best Practices",
       "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/?retryWrites=true&w=majority&srvMaxHosts=3",
       "tokenEstimate": 33
-    },
-    {
-      "language": "c",
-      "section": "Connection Example",
-      "content": "#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}",
-      "tokenEstimate": 184
-    },
-    {
-      "language": "cpp",
-      "section": "Connection Example",
-      "content": "#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}",
-      "tokenEstimate": 440
     },
     {
       "language": "csharp",
@@ -439,6 +492,18 @@
       "section": "Other Authentication",
       "content": "import org.mongodb.scala.{MongoClient, Document}\nimport scala.concurrent.Await\nimport scala.concurrent.duration.Duration\nimport com.amazonaws.services.lambda.runtime.Context\nimport com.amazonaws.services.lambda.runtime.RequestHandler\n\nclass ExampleAwsLambdaHandler extends RequestHandler[String, String] {\n\n    private val client: MongoClient = MongoClient(System.getenv(\"MONGODB_URI\"))\n\n    override def handleRequest(input: String, context: Context): String = {\n        val database = client.getDatabase(\"admin\")\n        val command = Document(\"ping\" -> 1)\n        val futureResult = database.runCommand(command).toFuture()\n\n        val result = Await.result(futureResult, Duration(30, \"second\"))\n        result.toJson()\n    }\n}",
       "tokenEstimate": 142
+    },
+    {
+      "language": "c",
+      "section": "Connection Example",
+      "content": "#include <mongoc/mongoc.h>\n\nvoid lambda_handler ()\n{\n    bson_error_t error;\n\n    mongoc_init();\n\n    // Parse URI\n    char *uri_string = \"your-mongodb-atlas-connection-string\";    \n    mongoc_uri_t *uri = mongoc_uri_new_with_error (uri_string, &error);\n    if (!uri) {\n        fprintf (stderr, \"Failed to parse URI: %s\\n\", error.message);\n        return;\n    }\n    \n    // Create client\n    mongoc_client_t *client = mongoc_client_new_from_uri_with_error(uri, &error);\n    if (!client) {\n        fprintf(stderr, \"Failed to create client: %s\\n\", error.message);\n        return;\n    }\n\n    // Perform client operations here\n\n    // Cleanup\n    mongoc_client_destroy(client);\n    mongoc_uri_destroy (uri);\n    mongoc_cleanup();\n}",
+      "tokenEstimate": 184
+    },
+    {
+      "language": "cpp",
+      "section": "Connection Example",
+      "content": "#include <aws/core/Aws.h>\n#include <aws/lambda-runtime/runtime.h>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/options/client.hpp>\n#include <mongocxx/options/server_api.hpp>\n#include <mongocxx/exception/exception.hpp>\n#include <cstdlib>\n#include <iostream>\n\nusing namespace aws::lambda_runtime;\n\nclass ExampleAwsHandler\n{\nprivate:\n    mongocxx::client mongo_client;\n\n    client CreateMongoClient()\n    {\n        mongocxx::uri uri(\"mongodb://<hostname>:<port>/?authMechanism=MONGODB-AWS\");\n        mongocxx::options::server_api server_api_options(mongocxx::options::server_api::version::k_version_1);\n        mongocxx::options::client client_options;\n        client_options.server_api_opts(server_api_options);\n        return client(uri, client_options);\n    }\n\npublic:\n    ExampleAwsHandler()\n        : mongo_client(CreateMongoClient())\n    {\n    }\n\n    std::string HandleRequest()\n    {\n        try\n        {\n            using bsoncxx::builder::basic::kvp;\n            using bsoncxx::builder::basic::make_document;\n\n            auto db = mongo_client[\"my_database\"];\n            auto command = make_document(kvp(\"hello\", 1));\n            auto result = db.run_command(command.view());\n            return bsoncxx::to_json(result);\n        }\n        catch (const mongocxx::exception &e)\n        {\n            std::cerr << \"MongoDB Exception: \" << e.what() << std::endl;\n            return \"{}\";\n        }\n    }\n};\n\nstatic invocation_response my_handler(invocation_request const &)\n{\n    ExampleAwsHandler handler;\n    std::string response = handler.HandleRequest();\n    return invocation_response::success(response, \"application/json\");\n}\n\nint main()\n{\n    Aws::SDKOptions options;\n    Aws::InitAPI(options);\n    {\n        mongocxx::instance instance{};\n        run_handler(my_handler);\n    }\n    Aws::ShutdownAPI(options);\n    return 0;\n}",
+      "tokenEstimate": 440
     }
   ]
 }

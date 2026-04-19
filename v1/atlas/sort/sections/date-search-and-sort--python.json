@@ -1,0 +1,27 @@
+{
+  "heading": "Date Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-date.py`\n  and paste the following code:\n\n  ```python\n  import datetime\n  import pymongo\n\n  # connect to your Atlas cluster\n  client = pymongo.MongoClient('<connection-string>')\n\n  # define pipeline\n  pipeline = [\n    {'$search': {\n        'index': 'default',\n        'compound': {\n          'filter': {'wildcard': {'query': 'Summer*', 'path': 'title'}},\n          'must': {'near': {\n            \"path\": \"released\", \n            \"origin\": datetime.datetime(2014, 4, 18, 0, 0, 0, 0), \n            \"pivot\": 13149000000\n        }}},\n        'sort': { 'released': -1 }}},\n    {'$limit': 5},\n    {'$project': {'_id': 0, 'title': 1, 'released': 1, 'score': {'$meta': 'searchScore'}}}\n  ]\n\n  # run pipeline\n  result = client['sample_mflix']['movies'].aggregate(pipeline)\n\n  # print results\n  for i in result:\n      print(i)\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\npython sort-by-date.py\n```\n\n**Output:**\n\n```json\n{'title': 'Summer Nights', 'released': datetime.datetime(2015, 1, 28, 0, 0), 'score': 0.348105788230896}\n{'title': 'Summertime', 'released': datetime.datetime(2014, 8, 1, 0, 0), 'score': 0.5917375683784485}\n{'title': 'Summer of Blood', 'released': datetime.datetime(2014, 4, 17, 0, 0), 'score': 0.9934720396995544}\n{'title': 'Summer Games', 'released': datetime.datetime(2012, 2, 8, 0, 0), 'score': 0.15982933342456818}\n{'title': 'Summer of Goliath', 'released': datetime.datetime(2011, 7, 8, 0, 0), 'score': 0.13038821518421173}\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import datetime\nimport pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n  {'$search': {\n      'index': 'default',\n      'compound': {\n        'filter': {'wildcard': {'query': 'Summer*', 'path': 'title'}},\n        'must': {'near': {\n          \"path\": \"released\", \n          \"origin\": datetime.datetime(2014, 4, 18, 0, 0, 0, 0), \n          \"pivot\": 13149000000\n      }}},\n      'sort': { 'released': -1 }}},\n  {'$limit': 5},\n  {'$project': {'_id': 0, 'title': 1, 'released': 1, 'score': {'$meta': 'searchScore'}}}\n]\n\n# run pipeline\nresult = client['sample_mflix']['movies'].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 215
+    },
+    {
+      "language": "bash",
+      "content": "python sort-by-date.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "json",
+      "content": "{'title': 'Summer Nights', 'released': datetime.datetime(2015, 1, 28, 0, 0), 'score': 0.348105788230896}\n{'title': 'Summertime', 'released': datetime.datetime(2014, 8, 1, 0, 0), 'score': 0.5917375683784485}\n{'title': 'Summer of Blood', 'released': datetime.datetime(2014, 4, 17, 0, 0), 'score': 0.9934720396995544}\n{'title': 'Summer Games', 'released': datetime.datetime(2012, 2, 8, 0, 0), 'score': 0.15982933342456818}\n{'title': 'Summer of Goliath', 'released': datetime.datetime(2011, 7, 8, 0, 0), 'score': 0.13038821518421173}",
+      "tokenEstimate": 209
+    }
+  ],
+  "slug": "date-search-and-sort--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

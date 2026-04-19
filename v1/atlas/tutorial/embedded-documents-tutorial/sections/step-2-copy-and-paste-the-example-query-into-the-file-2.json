@@ -8,5 +8,7 @@
       "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"local_school_district\").Collection(\"schools\")\n\n\t// define pipeline stages\n\tsearchStage := bson.D{\n\t\t{Key: \"$searchMeta\", Value: bson.M{\n\t\t\t\"index\": \"embedded-documents-tutorial\",\n\t\t\t\"facet\": bson.M{\n\t\t\t\t\"operator\": bson.M{\n\t\t\t\t\t\"text\": bson.M{\n\t\t\t\t\t\t\"path\":  \"name\",\n\t\t\t\t\t\t\"query\": \"High\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t\t\"facets\": bson.M{\n\t\t\t\t\t\"gradeFacet\": bson.M{\n\t\t\t\t\t\t\"path\": \"teachers.classes.grade\",\n\t\t\t\t\t\t\"type\": \"string\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t}},\n\t}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
       "tokenEstimate": 326
     }
-  ]
+  ],
+  "slug": "step-2-copy-and-paste-the-example-query-into-the-file",
+  "variantAgnostic": true
 }

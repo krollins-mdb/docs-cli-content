@@ -7,42 +7,75 @@
       "heading": "Requirements",
       "headingLevel": 2,
       "body": "To retrieve nested objects as individual documents using `returnScope`,\nyou must:\n\n- Index the arrays of objects as the [embeddedDocuments](bson-data-types-embedded-documents) type.\n\n- Define [storedSource](fts-stored-source-definition) for the\n  nested fields that you want to retrieve. MongoDB Search only returns fields\n  defined in the `storedSource`.\n\n- Set the [Return Stored Source Fields](fts-return-stored-source-option)\n  option to `true` in the query.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "requirements",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
       "headingLevel": 2,
-      "body": "`returnScope` has the following syntax in your queries:\n\n**Search:**\n\n$search Syntax\n\n```json\n{\n  $search: {\n   \"<operator>\": {\n      <operator-specification>,\n   },\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  }\n}\n```\n\n**Search-meta:**\n\n$searchMeta Syntax\n\n```json\n{\n  $searchMeta: {\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  },\n  \"facet\": {\n    \"<operator>\": {\n      <operator-specification>,\n   },\n    \"facets\": {\n      <facet-definition>\n    }\n  }\n}\n```\n\nTo learn more about query syntax, see [$search](pipe.$search).",
+      "body": "`returnScope` has the following syntax in your queries:\n\n$search Syntax\n\n$searchMeta Syntax\n\nTo learn more about query syntax, see [$search](pipe.$search).",
+      "codeBlocks": [],
+      "slug": "syntax",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```json\n{\n  $search: {\n   \"<operator>\": {\n      <operator-specification>,\n   },\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  $search: {\n   \"<operator>\": {\n      <operator-specification>,\n   },\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  }\n}",
           "tokenEstimate": 52
-        },
+        }
+      ],
+      "slug": "syntax--search",
+      "selections": {
+        "tabs": "search"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Syntax",
+      "headingLevel": 2,
+      "body": "```json\n{\n  $searchMeta: {\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  },\n  \"facet\": {\n    \"<operator>\": {\n      <operator-specification>,\n   },\n    \"facets\": {\n      <facet-definition>\n    }\n  }\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  $searchMeta: {\n   \"returnScope\": {\n      \"path\": \"<embedded-documents-field-to-retrieve>\"\n   },\n   \"returnStoredSource\": true\n  },\n  \"facet\": {\n    \"<operator>\": {\n      <operator-specification>,\n   },\n    \"facets\": {\n      <facet-definition>\n    }\n  }\n}",
           "tokenEstimate": 73
         }
-      ]
+      ],
+      "slug": "syntax--search-meta",
+      "selections": {
+        "tabs": "search-meta"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Behavior",
       "headingLevel": 2,
       "body": "The `returnScope` option sets the retrieval context for the query. If\nyou specify `returnScope` in your query, MongoDB Search scores, sorts, and\ncounts each embedded document as if it were an individual document.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "behavior",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "When you use the `returnScope` option, MongoDB Search only returns the fields\nthat you configured as `storedSource` within the `embeddedDocument`.\nFields outside of the `embeddedDocument` path (such as fields at the\nroot level) and fields that are not configured as `storedSource` are\nnot returned.\n\nIn your operator specification, you must specify the full path to the\nfield that you want to query. When you use the `returnScope` option, you\nmust make sure all operator specifications paths are nested under the\n`returnScope.path`. To query on a field outside the `returnScope.path`,\nyou must use either the `hasAncestor` or `hasRoot` operator.\nTo learn more, see:\n\n- [hasAncestor Operator](has-ancestor-ref)\n\n- [hasRoot Operator](has-root-ref)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
       "body": "The following examples demonstrate how to use the `returnScope` option\nin queries. The examples use the `sample_training.companies` sample\ndataset. If you load the data on your cluster and create the sample index\non the fields in the collection, you can try the following queries\nagainst the sample data.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Index",
@@ -59,7 +92,9 @@
           "content": "{\n  ...,\n  \"funding_rounds\": [\n    {\n      \"id\": <integer>,\n      \"round_code\": \"<string>\",\n      \"source_url\": \"<string>\",\n      \"source_description\": \"<string>\",\n      \"raised_amount\": <integer>,\n      \"raised_currency_code\": \"<string>\",\n      \"funded_year\": <integer>,\n      \"funded_month\": \"<string>\",\n      \"funded_day\": \"<string>\",\n      \"investments\": [\n         {\n           \"company\": \"<string>\",\n           \"financial_org\": {\n             \"name\": \"<string>\",\n             \"permalink\": \"<string>\"\n           },\n           \"person\": {\n             \"first_name\": \"<string>\",\n             \"last_name\": \"<string>\",\n             \"permalink\": \"<string>\"\n           }\n         },\n         ...\n      ]\n    },\n    ...\n  ],\n  ...\n}",
           "tokenEstimate": 171
         }
-      ]
+      ],
+      "slug": "sample-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Queries",
@@ -85,6 +120,24 @@
           "language": "javascript",
           "content": "[\n  {\n    round_code: 'a',\n    raised_amount: 5250000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'b',\n    raised_amount: 9500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'c',\n    raised_amount: 25000000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'DAG Ventures', permalink: 'dag-ventures' },\n        person: null\n      },\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: { name: 'Trinity Ventures', permalink: 'trinity-ventures' },\n        person: null\n      },\n      {\n        financial_org: {\n          name: 'Frazier Technology Ventures',\n          permalink: 'frazier-technology-ventures'\n        },\n        person: null\n      }\n    ]\n  },\n  {\n    round_code: 'angel',\n    raised_amount: 500000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Peter',\n          last_name: 'Thiel',\n          permalink: 'peter-thiel'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  },\n  {\n    round_code: 'a',\n    raised_amount: 12700000,\n    raised_currency_code: 'USD',\n    investments: [\n      {\n        financial_org: { name: 'Accel Partners', permalink: 'accel-partners' },\n        person: null\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Mark',\n          last_name: 'Pincus',\n          permalink: 'mark-pincus'\n        }\n      },\n      {\n        financial_org: null,\n        person: {\n          first_name: 'Reid',\n          last_name: 'Hoffman',\n          permalink: 'reid-hoffman'\n        }\n      }\n    ]\n  }\n]\n",
           "tokenEstimate": 659
+        }
+      ],
+      "slug": "sample-queries",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "search",
+          "text": "search"
+        },
+        {
+          "value": "search-meta",
+          "text": "search-meta"
         }
       ]
     }

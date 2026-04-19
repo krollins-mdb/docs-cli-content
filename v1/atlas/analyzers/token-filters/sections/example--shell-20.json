@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"fields\": {\n            \"en_US\": {\n              \"type\": \"string\",\n              \"analyzer\": \"stopwordRemover\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"stopwordRemover\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"stopword\",\n            \"tokens\": [\"is\", \"the\", \"at\"]\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"query\": \"head of the sales\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  {\n    _id: 2,\n    text: { en_US: 'The head of the sales department spoke first.' }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"fields\": {\n            \"en_US\": {\n              \"type\": \"string\",\n              \"analyzer\": \"stopwordRemover\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"stopwordRemover\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"stopword\",\n            \"tokens\": [\"is\", \"the\", \"at\"]\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 153
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"phrase\": {\n        \"query\": \"head of the sales\",\n        \"path\": \"text.en_US\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.en_US\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 2,\n    text: { en_US: 'The head of the sales department spoke first.' }\n  }\n]",
+      "tokenEstimate": 31
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

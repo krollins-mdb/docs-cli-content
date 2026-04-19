@@ -1,0 +1,27 @@
+{
+  "heading": "Number Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-numbers.py`\n  and paste the following code:\n\n  ```python\n  import pymongo\n\n  # connect to your Atlas cluster\n  client = pymongo.MongoClient('<connection-string>')\n\n  # define pipeline\n  pipeline = [\n    {\n      '$search': {\n        'index': 'default',\n        'range': {\n          'path': 'awards.wins',\n          'gte': 10\n        },\n        'sort': {\n          'awards.wins': -1\n        }\n      }\n    }, {\n      '$limit': 5\n    }, {\n      '$project': {'_id': 0, 'title': 1, 'awards.wins': 1\n      }\n    }\n  ]\n\n  # run pipeline\n  result = client['sample_mflix']['movies'].aggregate(pipeline)\n\n  # print results\n  for i in result:\n      print(i)\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\npython sort-by-numbers.py\n```\n\n**Output:**\n\n```json\n{'title': '12 Years a Slave', 'awards': {'wins': 267}}\n{'title': 'Gravity', 'awards': {'wins': 231}}\n{'title': 'Gravity', 'awards': {'wins': 231}}\n{'title': 'Birdman: Or (The Unexpected Virtue of Ignorance)', 'awards': {'wins': 210}}\n{'title': 'Boyhood', 'awards': {'wins': 185}}\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n  {\n    '$search': {\n      'index': 'default',\n      'range': {\n        'path': 'awards.wins',\n        'gte': 10\n      },\n      'sort': {\n        'awards.wins': -1\n      }\n    }\n  }, {\n    '$limit': 5\n  }, {\n    '$project': {'_id': 0, 'title': 1, 'awards.wins': 1\n    }\n  }\n]\n\n# run pipeline\nresult = client['sample_mflix']['movies'].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 159
+    },
+    {
+      "language": "bash",
+      "content": "python sort-by-numbers.py",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "json",
+      "content": "{'title': '12 Years a Slave', 'awards': {'wins': 267}}\n{'title': 'Gravity', 'awards': {'wins': 231}}\n{'title': 'Gravity', 'awards': {'wins': 231}}\n{'title': 'Birdman: Or (The Unexpected Virtue of Ignorance)', 'awards': {'wins': 210}}\n{'title': 'Boyhood', 'awards': {'wins': 185}}",
+      "tokenEstimate": 96
+    }
+  ],
+  "slug": "number-search-and-sort--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}
