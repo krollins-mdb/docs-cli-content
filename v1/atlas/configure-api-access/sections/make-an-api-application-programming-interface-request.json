@@ -1,77 +1,8 @@
 {
   "heading": "Make an API (Application Programming Interface) Request",
   "headingLevel": 2,
-  "body": "The Atlas Administration API uses one of two authentication methods to authenticate requests:\nservice account or API (Application Programming Interface) keys. You'll need the keys or secret that you saved when\n[create a new one](create-org-api-key) to\ncomplete the following procedures.\n\nAll Atlas Administration API endpoints have the following base URL:\n\n`https://cloud.mongodb.com/api/atlas/<version>`\n\n> **Important:** MongoDB uses HTTPS URLs to increase security. Using HTTP URLs will return a 301 status code.\n\nTo make an API (Application Programming Interface) request using a service account, use the service account to generate\nan access token, then use the access token in your request:\n\nLocate the client secret beginning with `mdb_sa_sk_` that you saved\nimmediately after [when created](see-org-api-keys),\nwhich was the only time you could view the client secret.\nIf you did not save the client secret, you must generate a new client secret.\n\nFor example, run:\n\n```sh\necho -n {clientId}:{clientSecret} | base64\n```\n\nMake a `POST` request to the\n[cloud.mongodb.com/api/oauth/token](generate-oauth2-token-atlas) endpoint to generate an access\ntoken for your service account.\n\nReplace `{base64Auth}` in the following example with the output\nfrom the preceding step, then run:\n\n**Input:**\n\n```sh\ncurl --request POST \\\n   --url https://cloud.mongodb.com/api/oauth/token \\\n   --header 'accept: application/json' \\\n   --header 'cache-control: no-cache' \\\n   --header 'authorization: Basic {base64Auth}' \\\n   --header 'content-type: application/x-www-form-urlencoded' \\\n   --data 'grant_type=client_credentials'\n```\n\n**Output:**\n\n```sh\n{\"access_token\":\"{accessToken}\",\"expires_in\":3600,\"token_type\":\"Bearer\"}%\n```\n\n> **Important:** The access token is valid for 1 hour (3600 seconds). You can't refresh an access token.\n> When this access token expires, repeat this step to generate a new one.\n\nReplace `{accessToken}` in the following example with the output from the\npreceding step.\n\nThe following sample `GET` request\n[returns all projects](api/doc/atlas-admin-api-v2/operation/operation-/listgroups) in your organization:\n\n```sh\ncurl --request GET \\\n     --url https://cloud.mongodb.com/api/atlas/v2/groups \\\n     --header 'Authorization: Bearer {accessToken}' \\\n     --header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n     --header 'Content-Type: application/json'\n```\n\nThe following sample `POST` request takes a request body and\n[creates a project](api/doc/atlas-admin-api-v2/operation/operation-/creategroup) named\n`MyProject` in your organization:\n\n```sh\ncurl --header 'Authorization: Bearer {accessToken}' \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'\n```\n\nTo make an API (Application Programming Interface) request using a service account, use the service account to generate\nan access token, then use the access token in your request:\n\nLocate the client secret beginning with `mdb_sa_sk_` that you saved\nimmediately after [when created](see-org-api-keys),\nwhich was the only time you could view the client secret.\nIf you did not save the client secret, you must generate a new client secret.\n\nFor example, run:\n\n```sh\necho -n {clientId}:{clientSecret} | base64\n```\n\nMake a `POST` request to the\n[cloud.mongodb.com/api/oauth/token](generate-oauth2-token-atlas) endpoint to generate an access\ntoken for your service account.\n\nReplace `{base64Auth}` in the following example with the output\nfrom the preceding step, then run:\n\n**Input:**\n\n```sh\ncurl --request POST \\\n   --url https://cloud.mongodb.com/api/oauth/token \\\n   --header 'accept: application/json' \\\n   --header 'cache-control: no-cache' \\\n   --header 'authorization: Basic {base64Auth}' \\\n   --header 'content-type: application/x-www-form-urlencoded' \\\n   --data 'grant_type=client_credentials'\n```\n\n**Output:**\n\n```sh\n{\"access_token\":\"{accessToken}\",\"expires_in\":3600,\"token_type\":\"Bearer\"}%\n```\n\n> **Important:** The access token is valid for 1 hour (3600 seconds). You can't refresh an access token.\n> When this access token expires, repeat this step to generate a new one.\n\nReplace `{accessToken}` in the following example with the output from the\npreceding step.\n\nThe following sample `GET` request\n[returns all projects](api/doc/atlas-admin-api-v2/operation/operation-/listgroups) in your organization:\n\n```sh\ncurl --request GET \\\n     --url https://cloud.mongodb.com/api/atlas/v2/groups \\\n     --header 'Authorization: Bearer {accessToken}' \\\n     --header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n     --header 'Content-Type: application/json'\n```\n\nThe following sample `POST` request takes a request body and\n[creates a project](api/doc/atlas-admin-api-v2/operation/operation-/creategroup) named\n`MyProject` in your organization:\n\n```sh\ncurl --header 'Authorization: Bearer {accessToken}' \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'\n```\n\nYour request should resemble the following examples, where\n`{PUBLIC-KEY}` is your API (Application Programming Interface) public key and `{PRIVATE-KEY}`\nis the corresponding private key. To explore the available endpoints\nthrough the Atlas Administration API, you can use the\n[Postman workspace for MongoDB](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/overview).\n\nThe following sample `GET` request\n[returns all projects](api/doc/atlas-admin-api-v2/operation/operation-/listgroups) in your organization:\n\n```sh\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request GET \"https://cloud.mongodb.com/api/atlas/v2/groups\"\n```\n\nThe following sample `POST` request takes a request body and\n[creates a project](api/doc/atlas-admin-api-v2/operation/operation-/creategroup) named\n`MyProject` in your organization:\n\n```sh\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'\n```\n\nYour request should resemble the following examples, where\n`{PUBLIC-KEY}` is your API (Application Programming Interface) public key and `{PRIVATE-KEY}`\nis the corresponding private key. To explore the available endpoints\nthrough the Atlas Administration API, you can use the\n[Postman workspace for MongoDB](https://www.postman.com/mongodb-devrel/workspace/mongodb-atlas-administration-apis/overview).\n\nThe following sample `GET` request\n[returns all projects](api/doc/atlas-admin-api-v2/operation/operation-/listgroups) in your organization:\n\n```sh\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request GET \"https://cloud.mongodb.com/api/atlas/v2/groups\"\n```\n\nThe following sample `POST` request takes a request body and\n[creates a project](api/doc/atlas-admin-api-v2/operation/operation-/creategroup) named\n`MyProject` in your organization:\n\n```sh\ncurl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'\n```\n\n> **See Also:**&#x20;\n>\n> - [Atlas Administration API Specification](https://mongodb.com/docs/atlas/reference/api-resources-spec)\n>\n> - [Atlas Administration API Error Codes](atlas-api-error-codes)\n\nAlternatively, you can use any tool that supports [OpenAPI v3\nspecification](https://spec.openapis.org/oas/v3.0.1) to generate code\nsamples or mock servers. For example, you can import\nthe [Atlas Admin API Specification](atlas/reference/api-resources-spec)\ninto [Postman](https://www.postman.com/) to generate `curl`\ncommands.\n\n> **Warning:** Using an HTTP URL with Postman will return a 301 status code as expected. However, in this scenario, Postman may automatically retry the request with HTTPS, but simultaneously strip the header and body from the retry request. This will return a 401 status code instead of 301, making it difficult to determine why the request failed.\n\nTo use Postman to generate `curl` commands:",
-  "codeBlocks": [
-    {
-      "language": "sh",
-      "content": "echo -n {clientId}:{clientSecret} | base64",
-      "tokenEstimate": 12
-    },
-    {
-      "language": "sh",
-      "content": "curl --request POST \\\n   --url https://cloud.mongodb.com/api/oauth/token \\\n   --header 'accept: application/json' \\\n   --header 'cache-control: no-cache' \\\n   --header 'authorization: Basic {base64Auth}' \\\n   --header 'content-type: application/x-www-form-urlencoded' \\\n   --data 'grant_type=client_credentials'",
-      "tokenEstimate": 75
-    },
-    {
-      "language": "sh",
-      "content": "{\"access_token\":\"{accessToken}\",\"expires_in\":3600,\"token_type\":\"Bearer\"}%",
-      "tokenEstimate": 20
-    },
-    {
-      "language": "sh",
-      "content": "curl --request GET \\\n     --url https://cloud.mongodb.com/api/atlas/v2/groups \\\n     --header 'Authorization: Bearer {accessToken}' \\\n     --header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n     --header 'Content-Type: application/json'",
-      "tokenEstimate": 63
-    },
-    {
-      "language": "sh",
-      "content": "curl --header 'Authorization: Bearer {accessToken}' \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'",
-      "tokenEstimate": 106
-    },
-    {
-      "language": "sh",
-      "content": "echo -n {clientId}:{clientSecret} | base64",
-      "tokenEstimate": 12
-    },
-    {
-      "language": "sh",
-      "content": "curl --request POST \\\n   --url https://cloud.mongodb.com/api/oauth/token \\\n   --header 'accept: application/json' \\\n   --header 'cache-control: no-cache' \\\n   --header 'authorization: Basic {base64Auth}' \\\n   --header 'content-type: application/x-www-form-urlencoded' \\\n   --data 'grant_type=client_credentials'",
-      "tokenEstimate": 75
-    },
-    {
-      "language": "sh",
-      "content": "{\"access_token\":\"{accessToken}\",\"expires_in\":3600,\"token_type\":\"Bearer\"}%",
-      "tokenEstimate": 20
-    },
-    {
-      "language": "sh",
-      "content": "curl --request GET \\\n     --url https://cloud.mongodb.com/api/atlas/v2/groups \\\n     --header 'Authorization: Bearer {accessToken}' \\\n     --header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n     --header 'Content-Type: application/json'",
-      "tokenEstimate": 63
-    },
-    {
-      "language": "sh",
-      "content": "curl --header 'Authorization: Bearer {accessToken}' \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'",
-      "tokenEstimate": 106
-    },
-    {
-      "language": "sh",
-      "content": "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request GET \"https://cloud.mongodb.com/api/atlas/v2/groups\"",
-      "tokenEstimate": 68
-    },
-    {
-      "language": "sh",
-      "content": "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'",
-      "tokenEstimate": 109
-    },
-    {
-      "language": "sh",
-      "content": "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request GET \"https://cloud.mongodb.com/api/atlas/v2/groups\"",
-      "tokenEstimate": 68
-    },
-    {
-      "language": "sh",
-      "content": "curl --user \"{PUBLIC-KEY}:{PRIVATE-KEY}\" --digest \\\n      --header \"Content-Type: application/json\" \\\n      --header \"Accept: application/vnd.atlas.2024-08-05+json\" \\\n      --include \\\n      --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups\" \\\n      --data '\n         {\n            \"name\": \"MyProject\",\n            \"orgId\": \"5a0a1e7e0f2912c554080adc\"\n         }'",
-      "tokenEstimate": 109
-    }
-  ]
+  "body": "The Atlas Administration API uses one of two authentication methods to authenticate requests:\nservice account or API (Application Programming Interface) keys. You'll need the keys or secret that you saved when\n[create a new one](create-org-api-key) to\ncomplete the following procedures.\n\nAll Atlas Administration API endpoints have the following base URL:\n\n`https://cloud.mongodb.com/api/atlas/<version>`\n\n> **Important:** MongoDB uses HTTPS URLs to increase security. Using HTTP URLs will return a 301 status code.\n\n> **See Also:**&#x20;\n>\n> - [Atlas Administration API Specification](https://mongodb.com/docs/atlas/reference/api-resources-spec)\n>\n> - [Atlas Administration API Error Codes](atlas-api-error-codes)\n\nAlternatively, you can use any tool that supports [OpenAPI v3\nspecification](https://spec.openapis.org/oas/v3.0.1) to generate code\nsamples or mock servers. For example, you can import\nthe [Atlas Admin API Specification](atlas/reference/api-resources-spec)\ninto [Postman](https://www.postman.com/) to generate `curl`\ncommands.\n\n> **Warning:** Using an HTTP URL with Postman will return a 301 status code as expected. However, in this scenario, Postman may automatically retry the request with HTTPS, but simultaneously strip the header and body from the retry request. This will return a 401 status code instead of 301, making it difficult to determine why the request failed.\n\nTo use Postman to generate `curl` commands:",
+  "codeBlocks": [],
+  "slug": "make-an-api-application-programming-interface-request",
+  "variantAgnostic": true
 }

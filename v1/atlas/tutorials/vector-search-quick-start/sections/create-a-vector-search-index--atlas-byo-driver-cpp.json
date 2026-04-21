@@ -1,0 +1,75 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "For detailed installation instructions, refer\nto the [MongoDB C++ Driver documentation](languages/cpp/cpp-driver/current/installation).\n\n```bash\nmkdir query-quick-start\n```\n\n```bash\ncd query-quick-start\ntouch CMakeLists.txt\n```\n\nCopy and paste the following lines into the `CMakeLists.txt` file:\n\n```console\ncmake_minimum_required(VERSION 3.30)\n\nproject(query_quick_start)\n\nset(CMAKE_CXX_STANDARD 17)\n\n# Specify the minimum version for creating a vector index.\nfind_package(mongocxx 3.11.0 REQUIRED)\nfind_package(bsoncxx REQUIRED)\n\nadd_executable(query_quick_start\n  vector_index.cpp\n)\n\ntarget_link_libraries(query_quick_start PRIVATE mongo::mongocxx_shared)\ntarget_link_libraries(query_quick_start PRIVATE mongo::bsoncxx_shared)\n```\n\nCreate a file named `vector_index.cpp`. Copy and paste the following\ncode into the file.\n\n```cpp\n#include <bsoncxx/builder/basic/document.hpp>\n#include <iostream>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/search_index_view.hpp>\n#include <mongocxx/uri.hpp>\n#include <thread>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_array;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n  try {\n    mongocxx::instance inst{};\n\n    // Replace the placeholder with your connection string\n    const auto uri = mongocxx::uri{\"<connection-string>\"};\n\n    // Connect to your cluster\n    mongocxx::client conn{uri};\n    auto db = conn[\"sample_mflix\"];\n    auto collection = db[\"embedded_movies\"];\n\n    auto siv = collection.search_indexes();\n    std::string name = \"vector_index\";\n    auto type = \"vectorSearch\";\n    auto definition = make_document(\n        kvp(\"fields\",\n            make_array(make_document(\n                kvp(\"type\", \"vector\"), kvp(\"path\", \"plot_embedding_voyage_3_large\"),\n                kvp(\"numDimensions\", 2048), kvp(\"similarity\", \"dotProduct\"), \n                kvp(\"quantization\", \"scalar\")))));\n    auto model =\n        mongocxx::search_index_model(name, definition.view()).type(type);\n    siv.create_one(model);\n    std::cout << \"New search index named \" << name << \" is building.\"\n              << std::endl;\n\n    // Polling for index status\n    std::cout << \"Polling to check if the index is ready. This may take up to \"\n                 \"a minute.\"\n              << std::endl;\n    bool queryable = false;\n    while (!queryable) {\n      auto indexes = siv.list();\n      for (const auto& index : indexes) {\n        if (index[\"name\"].get_value() == name) {\n          queryable = index[\"queryable\"].get_bool();\n        }\n      }\n      if (!queryable) {\n        std::this_thread::sleep_for(std::chrono::seconds(5));\n      }\n    }\n    std::cout << name << \" is ready for querying.\" << std::endl;\n  } catch (const std::exception& e) {\n    std::cout << \"Exception: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n```bash\nmkdir build && cd build\n```\n\n```bash\ncmake ../\n```\n\n```bash\ncmake --build .\n```\n\n**Input:**\n\n```bash\n./query_quick_start\n```\n\n**Output:**\n\n```sh\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "mkdir query-quick-start",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "cd query-quick-start\ntouch CMakeLists.txt",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "console",
+      "content": "cmake_minimum_required(VERSION 3.30)\n\nproject(query_quick_start)\n\nset(CMAKE_CXX_STANDARD 17)\n\n# Specify the minimum version for creating a vector index.\nfind_package(mongocxx 3.11.0 REQUIRED)\nfind_package(bsoncxx REQUIRED)\n\nadd_executable(query_quick_start\n  vector_index.cpp\n)\n\ntarget_link_libraries(query_quick_start PRIVATE mongo::mongocxx_shared)\ntarget_link_libraries(query_quick_start PRIVATE mongo::bsoncxx_shared)",
+      "tokenEstimate": 99
+    },
+    {
+      "language": "cpp",
+      "content": "#include <bsoncxx/builder/basic/document.hpp>\n#include <iostream>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/search_index_view.hpp>\n#include <mongocxx/uri.hpp>\n#include <thread>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_array;\nusing bsoncxx::builder::basic::make_document;\n\nint main() {\n  try {\n    mongocxx::instance inst{};\n\n    // Replace the placeholder with your connection string\n    const auto uri = mongocxx::uri{\"<connection-string>\"};\n\n    // Connect to your cluster\n    mongocxx::client conn{uri};\n    auto db = conn[\"sample_mflix\"];\n    auto collection = db[\"embedded_movies\"];\n\n    auto siv = collection.search_indexes();\n    std::string name = \"vector_index\";\n    auto type = \"vectorSearch\";\n    auto definition = make_document(\n        kvp(\"fields\",\n            make_array(make_document(\n                kvp(\"type\", \"vector\"), kvp(\"path\", \"plot_embedding_voyage_3_large\"),\n                kvp(\"numDimensions\", 2048), kvp(\"similarity\", \"dotProduct\"), \n                kvp(\"quantization\", \"scalar\")))));\n    auto model =\n        mongocxx::search_index_model(name, definition.view()).type(type);\n    siv.create_one(model);\n    std::cout << \"New search index named \" << name << \" is building.\"\n              << std::endl;\n\n    // Polling for index status\n    std::cout << \"Polling to check if the index is ready. This may take up to \"\n                 \"a minute.\"\n              << std::endl;\n    bool queryable = false;\n    while (!queryable) {\n      auto indexes = siv.list();\n      for (const auto& index : indexes) {\n        if (index[\"name\"].get_value() == name) {\n          queryable = index[\"queryable\"].get_bool();\n        }\n      }\n      if (!queryable) {\n        std::this_thread::sleep_for(std::chrono::seconds(5));\n      }\n    }\n    std::cout << name << \" is ready for querying.\" << std::endl;\n  } catch (const std::exception& e) {\n    std::cout << \"Exception: \" << e.what() << std::endl;\n  }\n  return 0;\n}\n",
+      "tokenEstimate": 500
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "bash",
+      "content": "mkdir build && cd build",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "cmake ../",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "bash",
+      "content": "cmake --build .",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "./query_quick_start",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "sh",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--atlas-byo-driver-cpp",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "cpp"
+  },
+  "variantAgnostic": false
+}

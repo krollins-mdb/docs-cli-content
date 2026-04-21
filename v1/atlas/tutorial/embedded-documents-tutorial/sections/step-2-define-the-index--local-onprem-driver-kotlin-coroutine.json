@@ -1,0 +1,29 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "In your project's base package directory, create a\n`CreateIndex.kt` file and copy and paste the following code\ninto this file.\n\n```kotlin\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() = runBlocking {\n    // connect to your Atlas cluster\n    val uri = \"<connection-string>\"\n    \n    val mongoClient = MongoClient.create(uri)\n    try {\n        // set namespace\n        val database = mongoClient.getDatabase(\"local_school_district\")\n        val collection = database.getCollection<Document>(\"schools\")\n        val indexName = \"embedded-documents-tutorial\"\n        \n        val sportsField = Document(\"dynamic\", true)\n            .append(\"type\", \"embeddedDocuments\")\n        \n        val clubsField = Document(\"dynamic\", true)\n            .append(\"fields\", Document(\"sports\", sportsField))\n            .append(\"type\", \"document\")\n        \n        val teachersArray = listOf(\n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"classes\", \n                    Document(\"dynamic\", true)\n                        .append(\"type\", \"embeddedDocuments\")))\n                .append(\"type\", \"embeddedDocuments\"),\n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"classes\", \n                    Document(\"dynamic\", true)\n                        .append(\"fields\", Document(\"grade\", \n                            Document(\"type\", \"token\")))\n                        .append(\"type\", \"document\")))\n                .append(\"type\", \"document\")\n        )\n        \n        val index = Document(\"mappings\", \n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"clubs\", clubsField)\n                    .append(\"teachers\", teachersArray)))\n        \n        val result = collection.createSearchIndex(indexName, index)\n        println(\"New index name: $result\")\n    } finally {\n        mongoClient.close()\n    }\n}\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() = runBlocking {\n    // connect to your Atlas cluster\n    val uri = \"<connection-string>\"\n    \n    val mongoClient = MongoClient.create(uri)\n    try {\n        // set namespace\n        val database = mongoClient.getDatabase(\"local_school_district\")\n        val collection = database.getCollection<Document>(\"schools\")\n        val indexName = \"embedded-documents-tutorial\"\n        \n        val sportsField = Document(\"dynamic\", true)\n            .append(\"type\", \"embeddedDocuments\")\n        \n        val clubsField = Document(\"dynamic\", true)\n            .append(\"fields\", Document(\"sports\", sportsField))\n            .append(\"type\", \"document\")\n        \n        val teachersArray = listOf(\n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"classes\", \n                    Document(\"dynamic\", true)\n                        .append(\"type\", \"embeddedDocuments\")))\n                .append(\"type\", \"embeddedDocuments\"),\n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"classes\", \n                    Document(\"dynamic\", true)\n                        .append(\"fields\", Document(\"grade\", \n                            Document(\"type\", \"token\")))\n                        .append(\"type\", \"document\")))\n                .append(\"type\", \"document\")\n        )\n        \n        val index = Document(\"mappings\", \n            Document(\"dynamic\", true)\n                .append(\"fields\", Document(\"clubs\", clubsField)\n                    .append(\"teachers\", teachersArray)))\n        \n        val result = collection.createSearchIndex(indexName, index)\n        println(\"New index name: $result\")\n    } finally {\n        mongoClient.close()\n    }\n}",
+      "tokenEstimate": 348
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--local-onprem-driver-kotlin-coroutine",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

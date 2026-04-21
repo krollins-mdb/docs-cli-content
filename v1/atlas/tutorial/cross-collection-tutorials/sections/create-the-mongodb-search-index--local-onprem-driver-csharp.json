@@ -1,0 +1,44 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index named `lookup-with-search-tutorial`\non all the fields in the `sample_analytics.accounts` collection.\n\nIn your terminal, navigate to where you want to create your application,\nthen run the following command to create a directory called\n`atlas-search-project` and initialize your project in that directory:\n\n```shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver\n```\n\nFor more detailed installation instructions, see the\n[MongoDB C# Driver documentation](csharp/get-started).\n\nPaste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_analytics\");\nvar collection = db.GetCollection<BsonDocument>(\"accounts\");\n\n// Create the MongoDB Search index definition\nvar index =  new CreateSearchIndexModel(\n  \"lookup-with-search-tutorial\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true}\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\nNew index name: lookup-with-search-tutorial\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_analytics\");\nvar collection = db.GetCollection<BsonDocument>(\"accounts\");\n\n// Create the MongoDB Search index definition\nvar index =  new CreateSearchIndexModel(\n  \"lookup-with-search-tutorial\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true}\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name: lookup-with-search-tutorial",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--local-onprem-driver-csharp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

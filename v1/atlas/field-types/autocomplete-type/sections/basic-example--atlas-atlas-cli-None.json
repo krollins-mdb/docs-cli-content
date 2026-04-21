@@ -1,0 +1,29 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 2,
+  "body": "The following index definition example uses the\nsample\\_mflix.movies collection. The index definition indexes only the\n`title` field as the `autocomplete` type to support search-as-you-type\nqueries against that field using the [autocomplete](autocomplete-ref)\noperator. The index definition also specifies the following:\n\n- Use the [standard analyzer](ref-standard-analyzer) analyzer to divide\n  text values into terms based on word boundaries.\n\n- Use the `edgeGram` tokenization strategy to index characters\n  starting at the left side of the words .\n\n- Index a minimum of `3` characters per indexed sequence.\n\n- Index a maximum of `5` characters per indexed sequence.\n\n- Include diacritic marks in the index and query text.\n\n- Use the `stableTfl` [Score Details](fts-similarity-algorithms) to ensure consistent document scoring\n  across all search nodes and replica set members.\n\n```bash\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"autocomplete\",\n        \"analyzer\": \"lucene.standard\",\n        \"tokenization\": \"edgeGram\",\n        \"minGrams\": 3,\n        \"maxGrams\": 5,\n        \"foldDiacritics\": false,\n        \"similarity\": { \"type\": \"stableTfl\" }\n    }\n  }\n}\n```\n\nThe following index definition for the `sample_mflix.movies`\ncollection in the [sample data sets](available-sample-datasets)\nindexes all string fields at the root-level in the documents in the\ncollection as the `autocomplete` type with default settings. It also\nexcludes string fields like `poster`, `languages`, `rated`,\n`lastupdated`, `fullplot`, and `awards` from being indexed.\n\n```bash\n{\n  \"mappings\": {\n    \"dynamic\": {\n      \"typeSet\": \"moviesStringIndex\"\n    },\n    \"fields\": {\n      \"poster\": [],\n      \"languages\": [],\n      \"rated\": [],\n      \"lastupdated\": [],\n      \"fullplot\": [],\n      \"awards\": []\n    }\n  },\n  \"typeSets\": [\n    {\n      \"name\": \"moviesStringIndex\",\n      \"types\": [\n        {\n          \"type\": \"autocomplete\"\n        }\n      ]\n    }\n  ]\n}\n```\n\nThe following index definition example uses the\nsample\\_mflix.movies collection to index a field as multiple types. The\nfollowing index definition indexes the `title` field as the following\ntypes:\n\n- `autocomplete` type to support autocompletion for queries using\n  the [autocomplete](autocomplete-ref) operator.\n\n- `string` type to support text search using operators such\n  [text](text-ref), [Phrase](phrase-ref), and so on.\n\n```bash\n{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"title\": [\n        {\n          \"type\": \"autocomplete\",\n          \"analyzer\": \"lucene.standard\",\n          \"tokenization\": \"edgeGram\",\n          \"minGrams\": 2,\n          \"maxGrams\": 15,\n          \"foldDiacritics\": false\n        },\n        {\n          \"type\": \"string\"\n        }\n      ]\n    }\n  }\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"title\": {\n        \"type\": \"autocomplete\",\n        \"analyzer\": \"lucene.standard\",\n        \"tokenization\": \"edgeGram\",\n        \"minGrams\": 3,\n        \"maxGrams\": 5,\n        \"foldDiacritics\": false,\n        \"similarity\": { \"type\": \"stableTfl\" }\n    }\n  }\n}",
+      "tokenEstimate": 97
+    },
+    {
+      "language": "bash",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": {\n      \"typeSet\": \"moviesStringIndex\"\n    },\n    \"fields\": {\n      \"poster\": [],\n      \"languages\": [],\n      \"rated\": [],\n      \"lastupdated\": [],\n      \"fullplot\": [],\n      \"awards\": []\n    }\n  },\n  \"typeSets\": [\n    {\n      \"name\": \"moviesStringIndex\",\n      \"types\": [\n        {\n          \"type\": \"autocomplete\"\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "bash",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"title\": [\n        {\n          \"type\": \"autocomplete\",\n          \"analyzer\": \"lucene.standard\",\n          \"tokenization\": \"edgeGram\",\n          \"minGrams\": 2,\n          \"maxGrams\": 15,\n          \"foldDiacritics\": false\n        },\n        {\n          \"type\": \"string\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 101
+    }
+  ],
+  "slug": "basic-example--atlas-atlas-cli-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "atlas-cli",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

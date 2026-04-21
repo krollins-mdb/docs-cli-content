@@ -1,0 +1,49 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index named `lookup-with-search-tutorial`\non all the fields in the `sample_analytics.accounts` collection.\n\nIn your terminal, navigate to where you want to create your application,\nthen run the following command to create a directory called\n`atlas-search-project` and initialize your project in that directory:\n\n```shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ngo mod init atlas-search-project\n\n# Add the MongoDB Go Driver to your project\ngo get go.mongodb.org/mongo-driver/v2/mongo\n```\n\nFor more detailed installation instructions, see the\n[MongoDB Go Driver documentation](go/get-started).\n\nCreate a `create_index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_analytics\").Collection(\"accounts\")\n\tconst indexName = \"lookup-with-search-tutorial\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", true},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```\n\nAtlas Cluster\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nLocal Deployment\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n**Input:**\n\n```shell\ngo run create_index.go\n```\n\n**Output:**\n\n```\nNew index name: lookup-with-search-tutorial\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ngo mod init atlas-search-project\n\n# Add the MongoDB Go Driver to your project\ngo get go.mongodb.org/mongo-driver/v2/mongo",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_analytics\").Collection(\"accounts\")\n\tconst indexName = \"lookup-with-search-tutorial\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", true},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+      "tokenEstimate": 278
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "go run create_index.go",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name: lookup-with-search-tutorial",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--atlas-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

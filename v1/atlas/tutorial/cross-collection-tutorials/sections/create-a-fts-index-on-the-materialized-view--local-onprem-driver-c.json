@@ -1,0 +1,44 @@
+{
+  "heading": "Create a {+fts} Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nCreate a `create_index.c` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```c\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_supplies\", \"monthlyPhoneTransactions\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"monthlySalesIndex\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    }\n                }\n            }]\n        }),\n        \"monthlyPhoneTransactions\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nEdit the `CMakeLists.txt` file created in the previous section\nto resemble the following code:\n\n```c\ncmake_minimum_required(VERSION 3.11)\nproject(search-materialized-view LANGUAGES C)\nadd_executable (index.out create_index.c)\nfind_package(mongoc <version> REQUIRED)\ntarget_link_libraries(index.out mongoc::mongoc)\n```\n\nIn your terminal, run the following commands to build and run this\napplication:\n\n**Input:**\n\n```shell\ncmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out\n```\n\n**Output:**\n\n```\nIndex created!\n```",
+  "codeBlocks": [
+    {
+      "language": "c",
+      "content": "#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    mongoc_client_t *client;\n    mongoc_collection_t *collection;\n    bson_error_t error;\n    bson_t cmd;\n    bson_t *index_definition;\n    bool success;\n\n    /* Initialize the MongoDB C Driver. */\n    mongoc_init();\n\n    /* Connect to your MongoDB deployment. */\n    client = mongoc_client_new(\"<connection-string>\");\n    collection = mongoc_client_get_collection (client, \"sample_supplies\", \"monthlyPhoneTransactions\");\n\n    if (!client) {\n        fprintf(stderr, \"Failed to create client.\\n\");\n        return 1;\n    }\n\n    /* Create the MongoDB Search index definition. */\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n            \"createSearchIndexes\": \"%s\",\n            \"indexes\": [{\n                \"name\": \"monthlySalesIndex\",\n                \"definition\": {\n                    \"mappings\": {\n                        \"dynamic\": true\n                    }\n                }\n            }]\n        }),\n        \"monthlyPhoneTransactions\"\n    );\n    bson_init_from_json (&cmd, cmd_str, -1, &error);\n    bson_free (cmd_str);\n\n    if (mongoc_collection_command_simple (collection, &cmd, NULL, NULL, &error)) {\n        printf (\"Index created!\\n\");\n    } else {\n        fprintf (stderr, \"Failed to create search index: %s\", error.message);\n    }\n\n    /* Clean up. */\n    bson_destroy (&cmd);\n    mongoc_collection_destroy (collection);\n    mongoc_client_destroy(client);\n    mongoc_cleanup();\n\n    return 0;\n}\n",
+      "tokenEstimate": 338
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "c",
+      "content": "cmake_minimum_required(VERSION 3.11)\nproject(search-materialized-view LANGUAGES C)\nadd_executable (index.out create_index.c)\nfind_package(mongoc <version> REQUIRED)\ntarget_link_libraries(index.out mongoc::mongoc)",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "shell",
+      "content": "cmake -S. -Bcmake-build\ncmake --build cmake-build --target index.out\n./cmake-build/index.out",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "text",
+      "content": "Index created!",
+      "tokenEstimate": 3
+    }
+  ],
+  "slug": "create-a-fts-index-on-the-materialized-view--local-onprem-driver-c",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "c"
+  },
+  "variantAgnostic": false
+}

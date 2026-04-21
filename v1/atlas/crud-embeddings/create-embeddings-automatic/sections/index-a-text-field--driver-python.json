@@ -1,0 +1,28 @@
+{
+  "heading": "Index a Text Field",
+  "headingLevel": 3,
+  "body": "To define a MongoDB Vector Search index:\n\n- Create a `.py` file.\n\n  ```shell\n  touch vector_index.py\n  ```\n\n- Copy and paste the following index definition in to the file.\n\n  ```python\n  from pymongo.mongo_client import MongoClient\n  from pymongo.operations import SearchIndexModel\n  import time\n\n  # Connect to your deployment\n  uri = \"<connectionString>\"\n  client = MongoClient(uri)\n\n  # Access your database and collection\n  database = client[\"sample_airbnb\"]\n  collection = database[\"listingsAndReviews\"]\n\n  # Create your index model, then create the search index\n  search_index_model = SearchIndexModel(\n    definition={\n      \"fields\": [\n        {\n          \"type\": \"autoEmbed\",\n          \"modality\": \"text\",\n          \"path\": \"summary\",\n          \"model\": \"voyage-4\"\n        },\n        {\n          \"type\": \"filter\",\n          \"path\": \"address.country\"\n        },\n        {\n          \"type\": \"filter\",\n          \"path\": \"bedrooms\"\n        }\n      ]\n    },\n    name=\"vector_index\",\n    type=\"vectorSearch\"\n  )\n\n  result = collection.create_search_index(model=search_index_model)\n  print(\"New search index named \" + result + \" is building.\")\n\n  # Wait for initial sync to complete\n  print(\"Polling to check if the index is ready. This may take up to a minute.\")\n  predicate=None\n  if predicate is None:\n    predicate = lambda index: index.get(\"queryable\") is True\n\n  while True:\n    indices = list(collection.list_search_indexes(result))\n    if len(indices) and predicate(indices[0]):\n      break\n    time.sleep(5)\n  print(result + \" is ready for querying.\")\n\n  client.close()\n  ```\n\n- Replace the `<connectionString>` in the index definition and\n  save the file.\n\n  To learn more, see [Driver](connect-via-driver).\n\nTo create the index, run the following command:\n\n```shell\npython vector_index.py\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "touch vector_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your deployment\nuri = \"<connectionString>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_airbnb\"]\ncollection = database[\"listingsAndReviews\"]\n\n# Create your index model, then create the search index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"autoEmbed\",\n        \"modality\": \"text\",\n        \"path\": \"summary\",\n        \"model\": \"voyage-4\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"address.country\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"bedrooms\"\n      }\n    ]\n  },\n  name=\"vector_index\",\n  type=\"vectorSearch\"\n)\n\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 300
+    },
+    {
+      "language": "shell",
+      "content": "python vector_index.py",
+      "tokenEstimate": 4
+    }
+  ],
+  "slug": "index-a-text-field--driver-python",
+  "selections": {
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

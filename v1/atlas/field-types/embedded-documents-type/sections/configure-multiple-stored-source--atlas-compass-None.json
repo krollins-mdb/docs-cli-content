@@ -1,0 +1,19 @@
+{
+  "heading": "Configure Multiple Stored Source",
+  "headingLevel": 3,
+  "body": "The following index definition indexes all fields in the the\n`products` array of objects. It stores the `name` field\nindependently for querying the `name` field and the `products`\narray of objects. You can use any operator that supports queries\nagainst the field types in the `products` array of objects to query\nand retrieve the stored fields as individual documents.\n\n```json\n{\n  \"mappings\": { \n    \"dynamic\": false,\n    \"fields\": { \n      \"products\": { \n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"storedSource\": true\n      } \n    }\n  },\n  \"storedSource\": {\n    \"include\": [ \"_id\", \"name\" ]\n  }\n}\n```\n\n> **Note:** The MongoDB Search [embeddedDocuments](bson-data-types-embedded-documents)\n> type, [embeddedDocument](embedded-document-ref) operator, and [embedded](scoring-embedded)\n> scoring option are in preview.\n\nYou can use the MongoDB Search `embeddedDocuments` type to index fields in\ndocuments and objects that are elements of an array. MongoDB Search indexes\nembedded documents independent of their parent document. Each indexed\ndocument contains only fields that are part of the embedded document\narray element.\n\nTo query fields indexed within an `embeddedDocuments`\nmapping, you must do one of the following:\n\n- Use the [embeddedDocument](embedded-document-ref) operator with\n  the `path` specified as the `embeddedDocuments` field.\n\n- Use `storedSource` index option and specify the\n  `embeddedDocuments` field in the `returnScope` query option.\n\nYou can also [configure dynamic mappings](fts-configure-dynamic-mappings)\nto automatically index fields that are part of the embedded document\narray element.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": { \n    \"dynamic\": false,\n    \"fields\": { \n      \"products\": { \n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"storedSource\": true\n      } \n    }\n  },\n  \"storedSource\": {\n    \"include\": [ \"_id\", \"name\" ]\n  }\n}",
+      "tokenEstimate": 75
+    }
+  ],
+  "slug": "configure-multiple-stored-source--atlas-compass-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "compass",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

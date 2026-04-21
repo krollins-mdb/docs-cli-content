@@ -1,0 +1,24 @@
+{
+  "heading": "Step 3: Create the  index.",
+  "headingLevel": 2,
+  "body": "- Click the Indexes tab, then select Search Indexes.\n\n- Click Create Atlas Search Index to open the index creation dialog box.\n\n- Specify a name for the index.\n\n  Your MongoDB Search index is named `default` by default. If you keep this name, then your index will be the\n  default Search index for any MongoDB Search query that does not specify a different `index` option in\n  its [operators](fts-operators). If you are creating multiple indexes, we recommend\n  that you maintain a consistent, descriptive naming convention across your indexes.\n\n- Specify the JSON (Javascript Object Notation) MongoDB Search index definition.\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": true|false,\n      \"fields\": {\n        \"<field-name>\": {\n          \"type\": \"geo\",\n          \"indexShapes\": true|false\n        }\n      }\n    }\n  }\n\n  ```\n\n- Click Create Search Index.\n\nThe MongoDB Search `geo` type takes the following parameters:\n\n| Option      | Type    | Necessity | Description                                                                                                                                                                                                                               | Default |\n| ----------- | ------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |\n| type        | string  | Required  | Human-readable label that identifies this field type. UI value must be Geo and JSON (Javascript Object Notation) value must be geo.                                                                                                       |         |\n| indexShapes | boolean | Optional  | Flag that indicates whether to index shapes. By default, MongoDB Search:Indexes points, even when nested.Doesn't index shape geometries such as lines and polygons.Value can be:true to index shapes and pointsfalse to index only points | false   |\n\nThe following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.\n\nTo learn how to set up and run the following example code, see\nDefine the Index for the token Type.\n\nThe following index definition for the `sample_airbnb.listingsAndReviews` collection\nindexes the `address.location` field as the `geo` type. This index allows\nyou to query against that field by using the MongoDB Search [geoShape](geoshape-ref)\nand [geoWithin](geowithin-ref) operators.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"address\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"location\": {\n            \"type\": \"geo\",\n            \"indexShapes\": true\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nTo learn more about the operators you can use to query the `geo` type, see the following operator reference pages:\n\n- [geoShape](geoshape-ref)\n\n- [geoWithin](geowithin-ref)\n\nYou can use the MongoDB Search `geo` type to index geographic points and shape\ncoordinates. For this type, the indexed field must be a [GeoJSON](manual/reference/geojson) object. You can use the [geoShape](geoshape-ref) and\n[geoWithin](geowithin-ref) operators to query indexed fields of type `geo`.\n\ndateFacet type is not included in the dynamic mapping by default. To index fields\nas dateFacet type, you can use [dynamic mappings](static-dynamic-mappings) or configure a `typeSet` to include dateFacet in dynamic mapping.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"geo\",\n        \"indexShapes\": true|false\n      }\n    }\n  }\n}\n",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"address\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"location\": {\n            \"type\": \"geo\",\n            \"indexShapes\": true\n          }\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 65
+    }
+  ],
+  "slug": "step-3-create-the-index--atlas-compass-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "compass",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

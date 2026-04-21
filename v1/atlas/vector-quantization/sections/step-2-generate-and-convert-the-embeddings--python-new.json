@@ -1,0 +1,23 @@
+{
+  "heading": "Step 2: Generate and convert the embeddings.",
+  "headingLevel": 2,
+  "body": "In this step, you generate embeddings for the sample data and then\nconvert the embeddings to BSON (Binary Javascript Object Notation) vectors by using the\n`generate_embeddings` and `generate_bson_vector` functions\nrespectively.\n\n- Generate the embeddings using Voyage AI.\n\n  This step is required if you haven't yet generated embeddings\n  from your data. If you've already generated embeddings, skip this\n  step. To learn more about generating embeddings from your data, see\n  [How to Create Vector Embeddings Manually](create-vector-embeddings).\n\n  Copy, paste, and run the sample code below after replacing the\n  following placeholder values (highlighted in the code):\n\n  | Placeholder             | Valid Value                                                                                     |\n  | ----------------------- | ----------------------------------------------------------------------------------------------- |\n  | \\<EMBEDDING-MODEL>      | Embedding model to use for generating the embeddings. For this example, specify voyage-3-large. |\n  | \\<NUMBER-OF-DIMENSIONS> | Number of dimensions for the resulting output embeddings. For this example, specify 1024.       |\n\n  ```python\n  # Use the function with different output data types to generate embeddings\n  model_name = \"<EMBEDDING-MODEL>\"\n  output_dimension = <NUMBER-OF-DIMENSIONS>\n\n  # Generate embeddings in all supported data types\n  float32_embeddings = generate_embeddings(data, model=model_name, dtype=\"float\", output_dimension=output_dimension)\n  int8_embeddings = generate_embeddings(data, model=model_name, dtype=\"int8\", output_dimension=output_dimension)\n  int1_embeddings = generate_embeddings(data, model=model_name, dtype=\"ubinary\", output_dimension=output_dimension)\n  ```\n\n- Convert the embeddings to BSON (Binary Javascript Object Notation) vectors.\n\n  Copy, paste, and run the following code:\n\n  ```python\n  # For all vectors in your collection, generate BSON vectors of float32, int8, and int1 embeddings\n  bson_float32_embeddings = []\n  bson_int8_embeddings = []\n  bson_int1_embeddings = []\n  for i, (f32_emb, int8_emb, int1_emb) in enumerate(zip(float32_embeddings, int8_embeddings, int1_embeddings)):\n     bson_float32_embeddings.append(generate_bson_vector(f32_emb, BinaryVectorDtype.FLOAT32))\n     bson_int8_embeddings.append(generate_bson_vector(int8_emb, BinaryVectorDtype.INT8))\n     bson_int1_embeddings.append(generate_bson_vector(int1_emb, BinaryVectorDtype.PACKED_BIT))\n  ```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# Use the function with different output data types to generate embeddings\nmodel_name = \"<EMBEDDING-MODEL>\"\noutput_dimension = <NUMBER-OF-DIMENSIONS>\n\n# Generate embeddings in all supported data types\nfloat32_embeddings = generate_embeddings(data, model=model_name, dtype=\"float\", output_dimension=output_dimension)\nint8_embeddings = generate_embeddings(data, model=model_name, dtype=\"int8\", output_dimension=output_dimension)\nint1_embeddings = generate_embeddings(data, model=model_name, dtype=\"ubinary\", output_dimension=output_dimension)",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "python",
+      "content": "# For all vectors in your collection, generate BSON vectors of float32, int8, and int1 embeddings\nbson_float32_embeddings = []\nbson_int8_embeddings = []\nbson_int1_embeddings = []\nfor i, (f32_emb, int8_emb, int1_emb) in enumerate(zip(float32_embeddings, int8_embeddings, int1_embeddings)):\n   bson_float32_embeddings.append(generate_bson_vector(f32_emb, BinaryVectorDtype.FLOAT32))\n   bson_int8_embeddings.append(generate_bson_vector(int8_emb, BinaryVectorDtype.INT8))\n   bson_int1_embeddings.append(generate_bson_vector(int1_emb, BinaryVectorDtype.PACKED_BIT))",
+      "tokenEstimate": 140
+    }
+  ],
+  "slug": "step-2-generate-and-convert-the-embeddings--python-new",
+  "selections": {
+    "language-no-interface": "python",
+    "data-source": "new"
+  },
+  "variantAgnostic": false
+}

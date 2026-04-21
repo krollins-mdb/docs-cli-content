@@ -1,0 +1,30 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To update a MongoDB Vector Search index for a collection using the\n[C#](csharp/fundamentals/indexes)\ndriver 3.1 or later, perform the following steps:\n\n```csharp\nnamespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void EditVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n            \n            var definition = new BsonDocument\n            {\n                { \"fields\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"type\", \"vector\" },\n                            { \"path\", \"<fieldToIndex>\" },\n                            { \"numDimensions\", <numberOfDimensions> },\n                            { \"similarity\", \"euclidean | cosine | dotProduct\" }\n                        }\n                    }\n                }\n            };\n            \n            // Update your search index\n            var searchIndexView = collection.SearchIndexes;\n            searchIndexView.Update(name, definition);\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n\n```\n\n| \\<connectionString>   | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries.      |\n| --------------------- | --------------------------------------------------------------------------------------------- |\n| \\<databaseName>       | Database that contains the collection for which you want to create the index.                 |\n| \\<collectionName>     | Collection for which you want to create the index.                                            |\n| \\<indexName>          | Name of your index. If you omit the index name, defaults to vector\\_index.                    |\n| \\<numberOfDimensions> | Number of vector dimensions that MongoDB Vector Search enforces at index-time and query-time. |\n| \\<fieldToIndex>       | Vector and filter fields to index.                                                            |\n\n```csharp\nusing query_quick_start;\n\nvar indexService = new IndexService();\nindexService.EditVectorIndex();\n```\n\n```shell\ndotnet run\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "namespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void EditVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n            \n            var definition = new BsonDocument\n            {\n                { \"fields\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"type\", \"vector\" },\n                            { \"path\", \"<fieldToIndex>\" },\n                            { \"numDimensions\", <numberOfDimensions> },\n                            { \"similarity\", \"euclidean | cosine | dotProduct\" }\n                        }\n                    }\n                }\n            };\n            \n            // Update your search index\n            var searchIndexView = collection.SearchIndexes;\n            searchIndexView.Update(name, definition);\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 242
+    },
+    {
+      "language": "csharp",
+      "content": "using query_quick_start;\n\nvar indexService = new IndexService();\nindexService.EditVectorIndex();",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    }
+  ],
+  "slug": "procedure--self-byo-driver-csharp",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

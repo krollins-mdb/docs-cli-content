@@ -1,0 +1,19 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_training.companies`\nnamespace indexes the array of objects in the `products` field. It also\nconfigures MongoDB Search to automatically index all dynamically indexable fields\ninside the objects in the `products` array.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_training\").Collection(\"companies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index for the embeddedDocuments field\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", false},\n\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t{\"products\", bson.D{\n\t\t\t\t\t\t{\"type\", \"embeddedDocuments\"},\n\t\t\t\t\t\t{\"dynamic\", true},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_training\").Collection(\"companies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index for the embeddedDocuments field\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", false},\n\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t{\"products\", bson.D{\n\t\t\t\t\t\t{\"type\", \"embeddedDocuments\"},\n\t\t\t\t\t\t{\"dynamic\", true},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+      "tokenEstimate": 316
+    }
+  ],
+  "slug": "basic-example--atlas-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

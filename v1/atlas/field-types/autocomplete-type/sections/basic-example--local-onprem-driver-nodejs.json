@@ -1,0 +1,19 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 2,
+  "body": "The following index definition example uses the\nsample\\_mflix.movies collection. The index definition indexes only the\n`title` field as the `autocomplete` type to support search-as-you-type\nqueries against that field using the [autocomplete](autocomplete-ref)\noperator. The index definition also specifies the following:\n\n- Use the [standard analyzer](ref-standard-analyzer) analyzer to divide\n  text values into terms based on word boundaries.\n\n- Use the `edgeGram` tokenization strategy to index characters\n  starting at the left side of the words .\n\n- Index a minimum of `3` characters per indexed sequence.\n\n- Index a maximum of `5` characters per indexed sequence.\n\n- Include diacritic marks in the index and query text.\n\n- Use the `stableTfl` [Score Details](fts-similarity-algorithms) to ensure consistent document scoring\n  across all search nodes and replica set members.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // define your MongoDB Search index\n    const index = {\n      name: \"default\",\n      definition: {\n        /* search index definition fields */\n        \"mappings\": {\n          \"dynamic\": false,\n          \"fields\": {\n            \"title\": {\n              \"type\": \"autocomplete\",\n              \"analyzer\": \"lucene.standard\",\n              \"tokenization\": \"edgeGram\",\n              \"minGrams\": 3,\n              \"maxGrams\": 5,\n              \"foldDiacritics\": false,\n              \"similarity\": { \"type\": \"stableTfl\" }\n            }\n          }\n        }\n      }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // define your MongoDB Search index\n    const index = {\n      name: \"default\",\n      definition: {\n        /* search index definition fields */\n        \"mappings\": {\n          \"dynamic\": false,\n          \"fields\": {\n            \"title\": {\n              \"type\": \"autocomplete\",\n              \"analyzer\": \"lucene.standard\",\n              \"tokenization\": \"edgeGram\",\n              \"minGrams\": 3,\n              \"maxGrams\": 5,\n              \"foldDiacritics\": false,\n              \"similarity\": { \"type\": \"stableTfl\" }\n            }\n          }\n        }\n      }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+      "tokenEstimate": 243
+    }
+  ],
+  "slug": "basic-example--local-onprem-driver-nodejs",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

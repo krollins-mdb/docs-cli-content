@@ -1,0 +1,29 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Paste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\nusing System.Threading.Tasks;\n\nnamespace MongoDBAtlasSearch\n{\n    class Program\n    {\n        static async Task Main(string[] args)\n        {\n            // Replace with your MongoDB connection string\n            string connectionString = \"mongodb+srv://<username>:<password>@<cluster-url>/sample_mflix\";\n            var client = new MongoClient(connectionString);\n            var database = client.GetDatabase(\"<databaseName>\");\n            \n            // Create a MongoDB Search index on the objectId field\n            var indexDefinition = new BsonDocument\n            {\n                { \"createSearchIndexes\", \"<collectionName>\" },\n                { \"indexes\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"name\", \"<indexName>\" },\n                            { \"definition\", new BsonDocument\n                                {\n                                    { \"mappings\", new BsonDocument\n                                        {\n                                            { \"dynamic\", true | false },\n                                            { \"fields\", new BsonDocument\n                                                {\n                                                    { \"<fieldName>\", new BsonDocument\n                                                        {\n                                                            { \"type\", \"objectId\" }\n                                                        }\n                                                    }\n                                                }\n                                            }\n                                        }\n                                    }\n                                }\n                            }\n                        }\n                    }\n                }\n            };\n            \n            var result = await database.RunCommandAsync<BsonDocument>(indexDefinition);\n            Console.WriteLine($\"Index creation result: {result.ToJson()}\");\n        }\n    }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\nusing System.Threading.Tasks;\n\nnamespace MongoDBAtlasSearch\n{\n    class Program\n    {\n        static async Task Main(string[] args)\n        {\n            // Replace with your MongoDB connection string\n            string connectionString = \"mongodb+srv://<username>:<password>@<cluster-url>/sample_mflix\";\n            var client = new MongoClient(connectionString);\n            var database = client.GetDatabase(\"<databaseName>\");\n            \n            // Create a MongoDB Search index on the objectId field\n            var indexDefinition = new BsonDocument\n            {\n                { \"createSearchIndexes\", \"<collectionName>\" },\n                { \"indexes\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"name\", \"<indexName>\" },\n                            { \"definition\", new BsonDocument\n                                {\n                                    { \"mappings\", new BsonDocument\n                                        {\n                                            { \"dynamic\", true | false },\n                                            { \"fields\", new BsonDocument\n                                                {\n                                                    { \"<fieldName>\", new BsonDocument\n                                                        {\n                                                            { \"type\", \"objectId\" }\n                                                        }\n                                                    }\n                                                }\n                                            }\n                                        }\n                                    }\n                                }\n                            }\n                        }\n                    }\n                }\n            };\n            \n            var result = await database.RunCommandAsync<BsonDocument>(indexDefinition);\n            Console.WriteLine($\"Index creation result: {result.ToJson()}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 285
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--atlas-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

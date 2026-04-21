@@ -1,0 +1,27 @@
+{
+  "heading": "Step 2: Request a connection to your cloud provider.",
+  "headingLevel": 2,
+  "body": "The Atlas Administration API provides an endpoint for requesting a\nPrivate Link connection configured for Atlas Stream Processing.\n\n[Create One Private Link](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamprivatelinkconnection)\n\n> **Tip:** Alternatively, you can use the Atlas CLI to request a Private\n> Link connection.\n>\n> To a Private Link endpoint for a stream processor connection using the\n> Atlas CLI, run the following command:\n>\n> ```sh\n>\n> atlas streams privateLinks create [options]\n>\n> ```\n>\n> To learn more about the command syntax and parameters, see the\n> Atlas CLI documentation for [atlas streams privateLinks create](atlas/cli/current/command/atlas-streams-privateLinks-create).\n\nFor an AWS (Amazon Web Services) Confluent Private Link connection, you must set\nthe following key-value pairs:\n\n| Key               | Value                                                                                                                                                                                                                                 |\n| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| serviceEndpointId | Your Confluent cluster's VPC Endpoint service name.                                                                                                                                                                                   |\n| dnsDomain         | Fully qualified domain name of the bootstrap server on your Confluent cluster.                                                                                                                                                        |\n| dnsSubDomain      | If your cluster doesn't use subdomains, you must set this to the empty array \\[]. If your cluster uses subdomains, you must set this to an array containing one fully qualified subdomain name for each of your cluster's subdomains. |\n\nYou can find these values in your Confluent cluster's networking details.\n\nThe following example command requests a connection to your\nConfluent cluster and illustrates a typical response:\n\n> **Note:** This `curl` command uses a service account access token ([OAuth 2.0](https://oauth.net/2/)) to authenticate\n> instead of API keys. To learn more, see [API Access Lists endpoint](atlas-admin-api-access).\n\n**Input:**\n\n```sh\ncurl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{ \"vendor\": \"Confluent\", \"provider\": \"AWS\",\n  \"region\": \"us_east_1\", \"serviceEndpointId\":\n  \"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\",\n  \"dnsDomain\": \"sample.us-east-1.aws.confluent.cloud\",\n  \"dnsSubDomain: [\n    \"use1-az1.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az2.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az4.sample.us-east-1.aws.confluent.cloud\"\n  ]\n}'\n```\n\n**Output:**\n\n```bash\n{\"_id\":\"6aa12e7ccd660d4b2380b1c1\",\"dnsDomain\":\"sample.us-east-1.aws.confluent.cloud.\",\"vendor\":\"Confluent\",\"provider\":\"AWS\",\"region\":\"us_east_1\",\"serviceEndpointId\":\"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\"}\n```\n\nAfter you send the request, note the value of the `_id` field in the response body. You will need this in a later step.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "\natlas streams privateLinks create [options]\n",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "sh",
+      "content": "curl --location 'https://cloud.mongodb.com/api/atlas/v2/groups/8358217d3abb5c76c3434648/streams/privateLinkConnections' \\\n--header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header 'Content-Type: application/json' \\\n--header 'Accept: application/vnd.atlas.2023-02-01+json' \\\n--data '{ \"vendor\": \"Confluent\", \"provider\": \"AWS\",\n  \"region\": \"us_east_1\", \"serviceEndpointId\":\n  \"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\",\n  \"dnsDomain\": \"sample.us-east-1.aws.confluent.cloud\",\n  \"dnsSubDomain: [\n    \"use1-az1.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az2.sample.us-east-1.aws.confluent.cloud\",\n    \"use1-az4.sample.us-east-1.aws.confluent.cloud\"\n  ]\n}'",
+      "tokenEstimate": 219
+    },
+    {
+      "language": "bash",
+      "content": "{\"_id\":\"6aa12e7ccd660d4b2380b1c1\",\"dnsDomain\":\"sample.us-east-1.aws.confluent.cloud.\",\"vendor\":\"Confluent\",\"provider\":\"AWS\",\"region\":\"us_east_1\",\"serviceEndpointId\":\"com.amazonaws.vpce.us-east-1.vpce-svc-93da685022ee702a9\"}",
+      "tokenEstimate": 81
+    }
+  ],
+  "slug": "step-2-request-a-connection-to-your-cloud-provider--aws-confluent",
+  "selections": {
+    "private-link": "aws-confluent"
+  },
+  "variantAgnostic": false
+}

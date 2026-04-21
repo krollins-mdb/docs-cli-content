@@ -1,0 +1,34 @@
+{
+  "heading": "Create Embeddings from Data",
+  "headingLevel": 3,
+  "body": "Create a new class in a same-named file named `DataService.cs` and\npaste the following code. This code defines an async Task named\n`AddDocumentsAsync` add documents to MongoDB. This function uses the\n[Collection.InsertManyAsync()](csharp/crud/insert)\nC# Driver method to insert a list of the `BsonDocument` type. Each\ndocument contains:\n\n- A `text` field that contains the movie summary.\n\n- An `embedding` field that contains the array of floats from generating\n  the vector embeddings.\n\n```csharp\nnamespace MyCompany.Embeddings;\n\nusing MongoDB.Driver;\nusing MongoDB.Bson;\n\npublic class DataService\n{\n    private static readonly string? ConnectionString = Environment.GetEnvironmentVariable(\"MONGODB_URI\");\n    private static readonly MongoClient Client = new MongoClient(ConnectionString);\n    private static readonly IMongoDatabase Database = Client.GetDatabase(\"sample_db\");\n    private static readonly IMongoCollection<BsonDocument> Collection = Database.GetCollection<BsonDocument>(\"embeddings\");\n    \n    public async Task AddDocumentsAsync(Dictionary<string, float[]> embeddings)\n    {\n        var documents = new List<BsonDocument>();\n        foreach( KeyValuePair<string, float[]> var in embeddings )\n        {\n            var document = new BsonDocument\n            {\n                {\n                    \"text\", var.Key\n                },\n                {\n                    \"embedding\", new BsonArray(var.Value)\n                }\n            };\n            documents.Add(document);\n        }\n        await Collection.InsertManyAsync(documents);\n        Console.WriteLine($\"Successfully inserted {embeddings.Count} documents\");\n        documents.Clear();\n    }\n}\n```\n\nUse the following code to generate embeddings from an existing\ncollection.\n\nSpecifically, this code uses the `GetEmbeddingsAsync()` function\nthat you defined to generate embeddings from an array\nof sample texts and ingest them into the `sample_db.embeddings`\ncollection.\n\n```csharp\nusing MyCompany.Embeddings;\n\nvar aiService = new AIService();\nvar texts = new string[]\n{\n    \"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n    \"The Lion King: Lion cub and future king Simba searches for his identity\",\n    \"Avatar: A marine is dispatched to the moon Pandora on a unique mission\"\n};\nvar embeddings = await aiService.GetEmbeddingsAsync(texts);\n\nvar dataService = new DataService();\nawait dataService.AddDocumentsAsync(embeddings);\n\n```\n\n**Input:**\n\n```\ndotnet run MyCompany.Embeddings.csproj\n```\n\n**Output:**\n\n```sh\nSuccessfully inserted 3 documents\n```\n\nIf you're using Atlas, you can verify your vector embeddings\nby navigating to the `sample_db.embeddings` namespace\n[in the Atlas UI](atlas-ui-view-collections).",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "namespace MyCompany.Embeddings;\n\nusing MongoDB.Driver;\nusing MongoDB.Bson;\n\npublic class DataService\n{\n    private static readonly string? ConnectionString = Environment.GetEnvironmentVariable(\"MONGODB_URI\");\n    private static readonly MongoClient Client = new MongoClient(ConnectionString);\n    private static readonly IMongoDatabase Database = Client.GetDatabase(\"sample_db\");\n    private static readonly IMongoCollection<BsonDocument> Collection = Database.GetCollection<BsonDocument>(\"embeddings\");\n    \n    public async Task AddDocumentsAsync(Dictionary<string, float[]> embeddings)\n    {\n        var documents = new List<BsonDocument>();\n        foreach( KeyValuePair<string, float[]> var in embeddings )\n        {\n            var document = new BsonDocument\n            {\n                {\n                    \"text\", var.Key\n                },\n                {\n                    \"embedding\", new BsonArray(var.Value)\n                }\n            };\n            documents.Add(document);\n        }\n        await Collection.InsertManyAsync(documents);\n        Console.WriteLine($\"Successfully inserted {embeddings.Count} documents\");\n        documents.Clear();\n    }\n}",
+      "tokenEstimate": 205
+    },
+    {
+      "language": "csharp",
+      "content": "using MyCompany.Embeddings;\n\nvar aiService = new AIService();\nvar texts = new string[]\n{\n    \"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n    \"The Lion King: Lion cub and future king Simba searches for his identity\",\n    \"Avatar: A marine is dispatched to the moon Pandora on a unique mission\"\n};\nvar embeddings = await aiService.GetEmbeddingsAsync(texts);\n\nvar dataService = new DataService();\nawait dataService.AddDocumentsAsync(embeddings);\n",
+      "tokenEstimate": 107
+    },
+    {
+      "language": "text",
+      "content": "dotnet run MyCompany.Embeddings.csproj",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "sh",
+      "content": "Successfully inserted 3 documents",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-embeddings-from-data--voyage-new-csharp",
+  "selections": {
+    "embedding-model": "voyage",
+    "data-source": "new",
+    "language-no-interface": "csharp"
+  },
+  "variantAgnostic": false
+}

@@ -403,7 +403,7 @@
         ]
       },
       {
-        "heading": "Create and Update the Materialized View",
+        "heading": "Create the updateMonthlySales Trigger",
         "blocks": [
           {
             "language": "javascript",
@@ -4859,13 +4859,13 @@
     },
     {
       "language": "javascript",
-      "section": "Create and Update the Materialized View",
+      "section": "Create the updateMonthlySales Trigger",
       "content": "exports = function(){\n\n   var pipeline = [\n     { $match: {purchaseMethod: \"Phone\"} },\n     { $unwind: {path: \"$items\"}},\n     { $group: {\n      _id: { $dateToString:\n      { format: \"%Y-%m\", date: \"$saleDate\" } },\n      sales_quantity: { $sum: \"$items.quantity\"},\n      sales_price: { $sum: \"$items.price\"}\n     }},\n     { $set: { sales_price: { $toDouble: \"$sales_price\"}}},\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ]\n\n   var monthlyPhoneTransactions = context.services.get(\"mongodb-atlas\").db(\"sample_supplies\").collection(\"sales\");\n\n   return monthlyPhoneTransactions.aggregate(pipeline);\n};",
       "tokenEstimate": 168
     },
     {
       "language": "javascript",
-      "section": "Create and Update the Materialized View",
+      "section": "Create the updateMonthlySales Trigger",
       "content": "{ \"_id\" : \"<YYYY-mm>\", \"sales_quantity\" : <num>, \"sales_amount\" : <NumberDecimal> }",
       "tokenEstimate": 27
     },

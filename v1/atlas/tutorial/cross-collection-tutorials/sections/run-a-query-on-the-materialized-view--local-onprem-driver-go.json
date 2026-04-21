@@ -1,0 +1,39 @@
+{
+  "heading": "Run a Query on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to run a query against the newly updated and indexed\n`monthlyPhoneTransactions` collection.\n\nCreate a `query.go` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"time\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tvar err error\n\t// connect to the MongoDB deployment\n\tctx := context.Background()\n\tclOpts := options.Client().ApplyURI(\"<connection-string>\").SetTimeout(5 * time.Second)\n\tclient, err := mongo.Connect(clOpts)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(ctx)\n\n\t// set namespace\n\tcollection := client.Database(\"sample_supplies\").Collection(\"monthlyPhoneTransactions\")\n\n\t// define pipeline\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{\n\t\t{Key: \"index\", Value: \"monthlySalesIndex\"},\n\t\t{Key: \"range\", Value: bson.D{\n\t\t\t{Key: \"gt\", Value: 10000},\n\t\t\t{Key: \"path\", Value: bson.A{\"sales_price\"}},\n\t\t}},\n\t}}}\n\n\tcountStage := bson.D{{Key: \"$count\", Value: \"months_w_over_10000\"}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(ctx, mongo.Pipeline{searchStage, countStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.M\n\tif err = cursor.All(ctx, &results); err != nil {\n\t\tpanic(err)\n\t}\n\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ngo run query.go\n```\n\n**Output:**\n\n```\nmap[months_w_over_10000:4]\n```\n\nThe above query returns `4`, indicating that only 4 months out of all the months in the\n`monthlyPhoneTransactions` materialized view had total sales\ngreater than or equal to 10000 dollars. This result reflects data\nfrom both the `sample_supplies.sales` and\n`sample_supplies.purchaseOrders` collections.\n\nThis page contains tutorials that demonstrate the\ndifferent ways you can run MongoDB Search queries across multiple collections:\n\n- To join collections and search across them, use [$lookup](manual/reference/operator/aggregation/lookup) with [$search](pipe.$search).\n\n- To combine search results from multiple collections, use [$unionWith](manual/reference/operator/aggregation/unionWith) with [$search](pipe.$search).\n\n- To consolidate multiple collections so you can index and search them together, use\n  materialized views.\n\nBefore you begin, ensure that your cluster meets the\nrequirements described in the [Prerequisites](fts-design-patterns-prereqs).\n\nStarting in v6.0, the MongoDB [$lookup](manual/reference/operator/aggregation/lookup) aggregation stage\nsupports [$search](pipe.$search) inside the [$lookup](manual/reference/operator/aggregation/lookup)\n`pipeline` option. Using [$lookup](manual/reference/operator/aggregation/lookup), you can join\nmultiple collections in the same database at query-time and run a\n[$search](pipe.$search) query to further narrow down your search.\n\nThis tutorial demonstrates how to run a [$lookup](manual/reference/operator/aggregation/lookup) query\nwith [$search](pipe.$search) against the `accounts` and `customers`\ncollections in the `sample_analytics` database.\nIt takes you through the following steps:\n\n- Create a default MongoDB Search index on the `accounts`\n  collection in the `sample_analytics` database.\n\n- Run a [$lookup](manual/reference/operator/aggregation/lookup) query with [$search](pipe.$search) to find\n  customers from the `customers` collection whose accounts have\n  purchased both `CurrencyService` and `InvestmentStock` products\n  in the `accounts` collection.",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"time\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tvar err error\n\t// connect to the MongoDB deployment\n\tctx := context.Background()\n\tclOpts := options.Client().ApplyURI(\"<connection-string>\").SetTimeout(5 * time.Second)\n\tclient, err := mongo.Connect(clOpts)\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(ctx)\n\n\t// set namespace\n\tcollection := client.Database(\"sample_supplies\").Collection(\"monthlyPhoneTransactions\")\n\n\t// define pipeline\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{\n\t\t{Key: \"index\", Value: \"monthlySalesIndex\"},\n\t\t{Key: \"range\", Value: bson.D{\n\t\t\t{Key: \"gt\", Value: 10000},\n\t\t\t{Key: \"path\", Value: bson.A{\"sales_price\"}},\n\t\t}},\n\t}}}\n\n\tcountStage := bson.D{{Key: \"$count\", Value: \"months_w_over_10000\"}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(ctx, mongo.Pipeline{searchStage, countStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.M\n\tif err = cursor.All(ctx, &results); err != nil {\n\t\tpanic(err)\n\t}\n\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 328
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "go run query.go",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "map[months_w_over_10000:4]",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "run-a-query-on-the-materialized-view--local-onprem-driver-go",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

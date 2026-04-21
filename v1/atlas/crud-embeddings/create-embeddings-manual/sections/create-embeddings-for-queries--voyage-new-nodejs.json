@@ -1,0 +1,49 @@
+{
+  "heading": "Create Embeddings for Queries",
+  "headingLevel": 3,
+  "body": "To enable vector search queries on your data,\nyou must create a vector search index on your\ncollection.\n\nComplete the following steps to create an index on the\n`sample_db.embeddings` collection that specifies the\n`embedding` field as the [index definition](avs-types-vector-search) type\nand the similarity measure as `dotProduct`.\n\n- Create a file named named `create-index.js` and paste the following code.\n\n  ```js\n  import { MongoClient } from 'mongodb';\n\n  // connect to your MongoDB deployment\n  const client = new MongoClient(process.env.MONGODB_URI);\n\n  async function run() {\n     try {\n       const database = client.db(\"sample_db\");\n       const collection = database.collection(\"embeddings\");\n      \n       // define your MongoDB Vector Search index\n       const index = {\n           name: \"vector_index\",\n           type: \"vectorSearch\",\n           definition: {\n             \"fields\": [\n               {\n                 \"type\": \"vector\",\n                 \"path\": \"embedding\",\n                 \"similarity\": \"dotProduct\",\n                 \"numDimensions\": <dimensions>\n               }\n             ]\n           }\n       }\n       // run the helper method\n       const result = await collection.createSearchIndex(index);\n       console.log(result);\n     } finally {\n       await client.close();\n     }\n  }\n  run().catch(console.dir);\n  ```\n\n- Replace the `<dimensions>` placeholder with one of\n  the following values:\n\n  - `768` if you used `nomic-embed-text-v1`\n\n  - `1024` if you used `voyage-3-large`\n\n  - `1536` if you used `text-embedding-3-small`\n\n- Save the file, then run the following command:\n\n  ```\n  node --env-file=.env create-index.js\n  ```\n\n> **Note:** The index should take about one minute to build. While it builds,\n> the index is in an [initial sync process](troubleshoot-initial-sync)\n> state. When it finishes building, you can start querying the data\n> in your collection.\n\nTo learn more, see [Create a MongoDB Vector Search Index](avs-create-index).\n\n- Create a file named named `vector-query.js` and paste the following code.\n\n  To run a vector search query, generate a\n  [query vector](vectorSearch-agg-pipeline-options)\n  to pass into your aggregation pipeline.\n\n  For example, this code does the following:\n\n  - Creates a query embedding using your defined embedding function.\n\n  - Uses this embedding in the `queryVector` field and specifies the path to query.\n\n  - Uses [$vectorSearch](pipe.$vectorSearch) to perform an [Exact Nearest Neighbor (ENN)](vectorSearch-enn) search.\n\n  - Returns semantically similar documents ranked by relevance with their\n    [vector search score](vectorSearch-agg-pipeline-score).\n\n  ```js\n  import { MongoClient } from 'mongodb';\n  import { getEmbedding } from './get-embeddings.js';\n\n  // MongoDB connection URI and options\n  const client = new MongoClient(process.env.MONGODB_URI);\n\n  async function run() {\n      try {\n          // Connect to the MongoDB client\n          await client.connect();\n\n          // Specify the database and collection\n          const database = client.db(\"sample_db\"); \n          const collection = database.collection(\"embeddings\"); \n\n          // Generate embedding for the search query\n          const queryEmbedding = await getEmbedding(\"ocean tragedy\");\n\n          // Define the sample vector search pipeline\n          const pipeline = [\n              {\n                  $vectorSearch: {\n                      index: \"vector_index\",\n                      queryVector: queryEmbedding,\n                      path: \"embedding\",\n                      exact: true,\n                      limit: 5\n                  }\n              },\n              {\n                  $project: {\n                      _id: 0,\n                      text: 1,\n                      score: {\n                          $meta: \"vectorSearchScore\"\n                      }\n                  }\n              }\n          ];\n\n          // run pipeline\n          const result = collection.aggregate(pipeline);\n\n          // print results\n          for await (const doc of result) {\n              console.dir(JSON.stringify(doc));\n          }\n          } finally {\n          await client.close();\n      }\n  }\n  run().catch(console.dir);\n  ```\n\n- Save the file, then run the following command:\n\n  > **Note:** The query might take some time to complete. Your results might vary\n  > depending on the embedding model and whether you compressed\n  > your embeddings.\n\n  Open-Source\n\n  **Input:**\n\n  ```\n  node --env-file=.env vector-query.js\n  ```\n\n  **Output:**\n\n  ```shell\n  '{\"text\":\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\"score\":0.5103757977485657}'\n  '{\"text\":\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\"score\":0.4616812467575073}'\n  '{\"text\":\"The Lion King: Lion cub and future king Simba searches for his identity\",\"score\":0.4115804433822632}'\n  ```\n\n  OpenAI\n\n  **Input:**\n\n  ```shell\n  node --env-file=.env vector-query.js\n  ```\n\n  **Output:**\n\n  ```shell\n  {\"text\":\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\"score\":0.7007871866226196}\n  {\"text\":\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\"score\":0.6327334046363831}\n  {\"text\":\"The Lion King: Lion cub and future king Simba searches for his identity\",\"score\":0.5544710159301758}\n\n  ```",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "import { MongoClient } from 'mongodb';\n\n// connect to your MongoDB deployment\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_db\");\n     const collection = database.collection(\"embeddings\");\n    \n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n           \"fields\": [\n             {\n               \"type\": \"vector\",\n               \"path\": \"embedding\",\n               \"similarity\": \"dotProduct\",\n               \"numDimensions\": <dimensions>\n             }\n           ]\n         }\n     }\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(result);\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 174
+    },
+    {
+      "language": "text",
+      "content": "node --env-file=.env create-index.js",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "js",
+      "content": "import { MongoClient } from 'mongodb';\nimport { getEmbedding } from './get-embeddings.js';\n\n// MongoDB connection URI and options\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nasync function run() {\n    try {\n        // Connect to the MongoDB client\n        await client.connect();\n\n        // Specify the database and collection\n        const database = client.db(\"sample_db\"); \n        const collection = database.collection(\"embeddings\"); \n\n        // Generate embedding for the search query\n        const queryEmbedding = await getEmbedding(\"ocean tragedy\");\n\n        // Define the sample vector search pipeline\n        const pipeline = [\n            {\n                $vectorSearch: {\n                    index: \"vector_index\",\n                    queryVector: queryEmbedding,\n                    path: \"embedding\",\n                    exact: true,\n                    limit: 5\n                }\n            },\n            {\n                $project: {\n                    _id: 0,\n                    text: 1,\n                    score: {\n                        $meta: \"vectorSearchScore\"\n                    }\n                }\n            }\n        ];\n\n        // run pipeline\n        const result = collection.aggregate(pipeline);\n\n        // print results\n        for await (const doc of result) {\n            console.dir(JSON.stringify(doc));\n        }\n        } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 270
+    },
+    {
+      "language": "text",
+      "content": "node --env-file=.env vector-query.js",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "content": "'{\"text\":\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\"score\":0.5103757977485657}'\n'{\"text\":\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\"score\":0.4616812467575073}'\n'{\"text\":\"The Lion King: Lion cub and future king Simba searches for his identity\",\"score\":0.4115804433822632}'",
+      "tokenEstimate": 95
+    },
+    {
+      "language": "shell",
+      "content": "node --env-file=.env vector-query.js",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "shell",
+      "content": "{\"text\":\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\"score\":0.7007871866226196}\n{\"text\":\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\"score\":0.6327334046363831}\n{\"text\":\"The Lion King: Lion cub and future king Simba searches for his identity\",\"score\":0.5544710159301758}\n",
+      "tokenEstimate": 92
+    }
+  ],
+  "slug": "create-embeddings-for-queries--voyage-new-nodejs",
+  "selections": {
+    "embedding-model": "voyage",
+    "data-source": "new",
+    "language-no-interface": "nodejs"
+  },
+  "variantAgnostic": false
+}

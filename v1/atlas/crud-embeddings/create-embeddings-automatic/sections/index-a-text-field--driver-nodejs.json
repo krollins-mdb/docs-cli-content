@@ -1,0 +1,28 @@
+{
+  "heading": "Index a Text Field",
+  "headingLevel": 3,
+  "body": "To define a MongoDB Vector Search index:\n\n- Create a `.js` file.\n\n  ```javascript\n  touch vector_index.js\n  ```\n\n- Copy and paste the following index definition in to the file.\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // connect to your deployment\n  const uri =  \"<connectionString>\";\n\n  const client = new MongoClient(uri);\n\n  async function run() {\n     try {\n       const database = client.db(\"sample_airbnb\");\n       const collection = database.collection(\"listingsAndReviews\");\n\n       // define your MongoDB Vector Search index\n       const index = {\n           name: \"vector_index\",\n           type: \"vectorSearch\",\n           definition: {\n            \"fields\": [\n              {\n                \"type\": \"autoEmbed\",\n                \"modality\": \"text\",\n                \"path\": \"summary\",\n                \"model\": \"voyage-4\"\n              },\n              {\n                \"type\": \"filter\",\n                \"path\": \"address.country\"\n              },\n              {\n                \"type\": \"filter\",\n                \"path\": \"bedrooms\"\n              }\n             ]\n           }\n       }\n\n       // run the helper method\n       const result = await collection.createSearchIndex(index);\n       console.log(`New search index named ${result} is building.`);\n\n       // wait for the index to be ready to query\n       console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n       let isQueryable = false;\n       while (!isQueryable) {\n         const cursor = collection.listSearchIndexes();\n         for await (const index of cursor) {\n           if (index.name === result) {\n             if (index.queryable) {\n               console.log(`${result} is ready for querying.`);\n               isQueryable = true;\n             } else {\n               await new Promise(resolve => setTimeout(resolve, 5000));\n             }\n           }\n         }\n       }\n     } finally {\n       await client.close();\n     }\n  }\n  run().catch(console.dir);\n  ```\n\n- Replace the `<connectionString>` in the index definition and\n  save the file.\n\n  To learn more, see [Driver](connect-via-driver).\n\nTo create the index, run the following command:\n\n```shell\nnode vector_index.js\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "touch vector_index.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connectionString>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_airbnb\");\n     const collection = database.collection(\"listingsAndReviews\");\n\n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n          \"fields\": [\n            {\n              \"type\": \"autoEmbed\",\n              \"modality\": \"text\",\n              \"path\": \"summary\",\n              \"model\": \"voyage-4\"\n            },\n            {\n              \"type\": \"filter\",\n              \"path\": \"address.country\"\n            },\n            {\n              \"type\": \"filter\",\n              \"path\": \"bedrooms\"\n            }\n           ]\n         }\n     }\n\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(`New search index named ${result} is building.`);\n\n     // wait for the index to be ready to query\n     console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n     let isQueryable = false;\n     while (!isQueryable) {\n       const cursor = collection.listSearchIndexes();\n       for await (const index of cursor) {\n         if (index.name === result) {\n           if (index.queryable) {\n             console.log(`${result} is ready for querying.`);\n             isQueryable = true;\n           } else {\n             await new Promise(resolve => setTimeout(resolve, 5000));\n           }\n         }\n       }\n     }\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 356
+    },
+    {
+      "language": "shell",
+      "content": "node vector_index.js",
+      "tokenEstimate": 4
+    }
+  ],
+  "slug": "index-a-text-field--driver-nodejs",
+  "selections": {
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

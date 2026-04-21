@@ -1,0 +1,25 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "Work with a runnable version of this example as a [Python notebook](https://github.com/mongodb/docs-notebooks/blob/main/manage-indexes/edit-indexes.ipynb).\n\nTo update a MongoDB Vector Search index for a collection using the [PyMongo](languages/python/pymongo-driver/current/indexes/atlas-search-index)\ndriver v4.7 or later, perform the following steps:\n\n```python\nfrom pymongo.mongo_client import MongoClient\n\n# Connect to your deployment\nuri = \"<connectionString>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"<databaseName>\"]\ncollection = database[\"<collectionName>\"]\n\ndefinition = {\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"numDimensions\": <numberofDimensions>,\n      \"path\": \"<fieldToIndex>\",\n      \"similarity\": \"euclidean | cosine | dotProduct\",\n      \"quantization\": \" none | scalar | binary \"\n    },\n    {\n      \"type\": \"filter\",\n      \"path\": \"<fieldToIndex>\"\n    },\n    ...\n  ]\n}\n    \n# Update your search index\ncollection.update_search_index(\"<indexName>\", definition)\n```\n\nTo learn more, see the [update\\_search\\_index()](https://pymongo.readthedocs.io/en/4.7.1/api/pymongo/collection.html#pymongo.collection.Collection.update_search_index)\nmethod.\n\n| \\<connectionString>   | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries.      |\n| --------------------- | --------------------------------------------------------------------------------------------- |\n| \\<databaseName>       | Database that contains the collection for which you want to create the index.                 |\n| \\<collectionName>     | Collection for which you want to create the index.                                            |\n| \\<indexName>          | Name of your index. If you omit the index name, defaults to vector\\_index.                    |\n| \\<numberOfDimensions> | Number of vector dimensions that MongoDB Vector Search enforces at index-time and query-time. |\n| \\<fieldToIndex>       | Vector and filter fields to index.                                                            |\n\n```shell\npython <file-name>.py\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\n\n# Connect to your deployment\nuri = \"<connectionString>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"<databaseName>\"]\ncollection = database[\"<collectionName>\"]\n\ndefinition = {\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"numDimensions\": <numberofDimensions>,\n      \"path\": \"<fieldToIndex>\",\n      \"similarity\": \"euclidean | cosine | dotProduct\",\n      \"quantization\": \" none | scalar | binary \"\n    },\n    {\n      \"type\": \"filter\",\n      \"path\": \"<fieldToIndex>\"\n    },\n    ...\n  ]\n}\n    \n# Update your search index\ncollection.update_search_index(\"<indexName>\", definition)",
+      "tokenEstimate": 155
+    },
+    {
+      "language": "shell",
+      "content": "python <file-name>.py",
+      "tokenEstimate": 6
+    }
+  ],
+  "slug": "procedure--self-byo-driver-python",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

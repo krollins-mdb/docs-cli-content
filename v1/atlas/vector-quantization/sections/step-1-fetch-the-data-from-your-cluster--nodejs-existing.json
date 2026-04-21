@@ -1,0 +1,33 @@
+{
+  "heading": "Step 1: Fetch the data from your cluster.",
+  "headingLevel": 2,
+  "body": "- Create a file named `get-data.js`.\n\n  ```shell\n  touch get-data.js\n  ```\n\n- Copy and paste the following sample code to fetch the data from\n  the `sample_airbnb.listingsAndReviews` namespace in your\n  cluster.\n\n  The sample code does the following:\n\n  - Connects to your cluster and finds documents\n    with the `summary` field.\n\n  - Creates a file named `subset.json` to which it writes the\n    data from the collection.\n\n  ```javascript\n  import { MongoClient, BSON } from 'mongodb'; \n  import fs from 'fs/promises';\n  import { writeFile } from \"fs/promises\"; \n    \n  async function main() {  \n    // Replace with your MongoDB connection string\n    const uri = process.env.MONGODB_URI || '<CONNECTION-STRING>';\n\n    // Create a new MongoClient instance\n    const client = new MongoClient(uri);\n\n    try {\n      // Connect to your MongoDB cluster\n      await client.connect();\n    \n      // Specify the database and collection  \n      const db = client.db('sample_airbnb');  \n      const collection = db.collection('listingsAndReviews');  \n    \n      // Filter to exclude null or empty summary fields  \n      const filter = { summary: { $nin: [null, ''] } };  \n    \n      // Get a subset of documents in the collection  \n      const documentsCursor = collection.find(filter).limit(50);  \n    \n      // Convert the cursor to an array to get the documents  \n      const documents = await documentsCursor.toArray();  \n    \n      // Write the documents to a local file called \"subset.json\"  \n      const outputFilePath = './subset.json';  \n      fs.writeFile(outputFilePath, JSON.stringify(documents, null, 2), 'utf-8');  \n    \n      // Print the count of documents written to the file  \n      console.log(`Written ${documents.length} documents to ${outputFilePath}`);  \n    } catch (error) {  \n      console.error('An error occurred:', error);  \n    } finally {  \n      // Ensure the client is closed when finished  \n      await client.close();  \n    }  \n  }  \n    \n  main().catch(console.error);  \n\n\n  ```\n\n- Replace the `<CONNECTION-STRING>` placeholder if you didn't\n  set the environment variable for your Atlas connection\n  string and then save the file.\n\n- Run the following command to fetch the data:\n\n  **Input:**\n\n  ```shell\n  node get-data.js\n  ```\n\n  **Output:**\n\n  ```shell\n  Subset of documents written to: ./subset.json\n  ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "touch get-data.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "import { MongoClient, BSON } from 'mongodb'; \nimport fs from 'fs/promises';\nimport { writeFile } from \"fs/promises\"; \n  \nasync function main() {  \n  // Replace with your MongoDB connection string\n  const uri = process.env.MONGODB_URI || '<CONNECTION-STRING>';\n\n  // Create a new MongoClient instance\n  const client = new MongoClient(uri);\n\n  try {\n    // Connect to your MongoDB cluster\n    await client.connect();\n  \n    // Specify the database and collection  \n    const db = client.db('sample_airbnb');  \n    const collection = db.collection('listingsAndReviews');  \n  \n    // Filter to exclude null or empty summary fields  \n    const filter = { summary: { $nin: [null, ''] } };  \n  \n    // Get a subset of documents in the collection  \n    const documentsCursor = collection.find(filter).limit(50);  \n  \n    // Convert the cursor to an array to get the documents  \n    const documents = await documentsCursor.toArray();  \n  \n    // Write the documents to a local file called \"subset.json\"  \n    const outputFilePath = './subset.json';  \n    fs.writeFile(outputFilePath, JSON.stringify(documents, null, 2), 'utf-8');  \n  \n    // Print the count of documents written to the file  \n    console.log(`Written ${documents.length} documents to ${outputFilePath}`);  \n  } catch (error) {  \n    console.error('An error occurred:', error);  \n  } finally {  \n    // Ensure the client is closed when finished  \n    await client.close();  \n  }  \n}  \n  \nmain().catch(console.error);  \n\n",
+      "tokenEstimate": 333
+    },
+    {
+      "language": "shell",
+      "content": "node get-data.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "Subset of documents written to: ./subset.json",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "step-1-fetch-the-data-from-your-cluster--nodejs-existing",
+  "selections": {
+    "language-no-interface": "nodejs",
+    "data-source": "existing"
+  },
+  "variantAgnostic": false
+}

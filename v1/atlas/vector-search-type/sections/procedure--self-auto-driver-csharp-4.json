@@ -1,0 +1,30 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To delete a MongoDB Vector Search index for a collection using\n[C#](csharp/fundamentals/indexes)\ndriver 3.1 or later, perform the following steps:\n\n```csharp\nnamespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";    \n    // Other class methods here...\n    public void DeleteVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n\n            // Delete your search index\n            var searchIndexView = collection.SearchIndexes;\n            var name = \"<indexName>\";\n            searchIndexView.DropOne(name);\n            \n            Console.WriteLine($\"Dropping search index named {name}. This may take up to a minute.\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n\n```\n\n| \\<connectionString> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| ------------------- | ---------------------------------------------------------------------------------------- |\n| \\<databaseName>     | The name of the database that contains the collection.                                   |\n| \\<collectionName>   | The name of the collection.                                                              |\n| \\<indexName>        | The name of the index to delete.                                                         |\n\n```csharp\nusing query_quick_start;\n\nvar indexService = new IndexService();\nindexService.DeleteVectorIndex();\n```\n\n```shell\ndotnet run\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "namespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";    \n    // Other class methods here...\n    public void DeleteVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n\n            // Delete your search index\n            var searchIndexView = collection.SearchIndexes;\n            var name = \"<indexName>\";\n            searchIndexView.DropOne(name);\n            \n            Console.WriteLine($\"Dropping search index named {name}. This may take up to a minute.\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 183
+    },
+    {
+      "language": "csharp",
+      "content": "using query_quick_start;\n\nvar indexService = new IndexService();\nindexService.DeleteVectorIndex();",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    }
+  ],
+  "slug": "procedure--self-auto-driver-csharp",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "auto",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

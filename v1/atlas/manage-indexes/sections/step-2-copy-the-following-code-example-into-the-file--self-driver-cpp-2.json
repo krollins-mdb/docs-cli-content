@@ -1,0 +1,19 @@
+{
+  "heading": "Step 2: Copy the following code example into the file.",
+  "headingLevel": 2,
+  "body": "The following sample application instantiates a search index view and specifies\na new MongoDB Search index definition. Then, the application passes this definition and\nan existing index name to the `update_one()` method, which updates the existing\nindex to reflect the new definition document.\n\n```cpp\n#include <bsoncxx/builder/basic/document.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/search_index_view.hpp>\n\nusing namespace mongocxx;\nusing bsoncxx::builder::basic::make_document;\n\nint main()\n{ \n    mongocxx::instance instance{};\n    try\n    {\n        // Connect to your Atlas deployment\n        mongocxx::uri uri(\"<connectionString>\");\n        mongocxx::client client(uri); \n\n        // Access your database and collection\n        auto db = client[\"<databaseName>\"];\n        auto collection = db[\"<collectionName>\"];\n\n        // Access the indexes in your collection\n        auto siv = collection.search_indexes();\n\n        // Specify a new definiton and update your search index\n        auto newDefinition = make_document(kvp(\"mappings\", make_document(kvp(\"dynamic\", true))));\n        siv.update_one(\"<indexName>\", newDefinition.view());\n        \n    }\n    catch (const std::exception& e) \n    {\n        std::cout<< \"Exception: \" << e.what() << std::endl;\n    }\n\n    return 0;\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "cpp",
+      "content": "#include <bsoncxx/builder/basic/document.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/search_index_view.hpp>\n\nusing namespace mongocxx;\nusing bsoncxx::builder::basic::make_document;\n\nint main()\n{ \n    mongocxx::instance instance{};\n    try\n    {\n        // Connect to your Atlas deployment\n        mongocxx::uri uri(\"<connectionString>\");\n        mongocxx::client client(uri); \n\n        // Access your database and collection\n        auto db = client[\"<databaseName>\"];\n        auto collection = db[\"<collectionName>\"];\n\n        // Access the indexes in your collection\n        auto siv = collection.search_indexes();\n\n        // Specify a new definiton and update your search index\n        auto newDefinition = make_document(kvp(\"mappings\", make_document(kvp(\"dynamic\", true))));\n        siv.update_one(\"<indexName>\", newDefinition.view());\n        \n    }\n    catch (const std::exception& e) \n    {\n        std::cout<< \"Exception: \" << e.what() << std::endl;\n    }\n\n    return 0;\n}",
+      "tokenEstimate": 239
+    }
+  ],
+  "slug": "step-2-copy-the-following-code-example-into-the-file--self-driver-cpp",
+  "selections": {
+    "deployment-type": "self",
+    "interface": "driver",
+    "language": "cpp"
+  },
+  "variantAgnostic": false
+}

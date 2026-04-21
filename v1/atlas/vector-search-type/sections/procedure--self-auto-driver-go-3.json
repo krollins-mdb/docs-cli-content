@@ -1,0 +1,25 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "```go\npackage main  \n  \nimport (  \n\t\"context\"  \n\t\"fmt\"  \n\t\"log\"  \n  \n\t\"go.mongodb.org/mongo-driver/v2/mongo\"  \n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"  \n)  \n  \nfunc main() {  \n\tctx := context.Background()  \n  \n\t// Replace the placeholder with your connection string  \n\tconst uri = \"<connection-string>\"  \n  \n\t// Connect to your cluster  \n\tclientOptions := options.Client().ApplyURI(uri)  \n\tclient, err := mongo.Connect(ctx, clientOptions)\n\tif err != nil {  \n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)  \n\t}  \n\tdefer func() { _ = client.Disconnect(ctx) }()  \n  \n\t// Set the namespace  \n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")  \n\tindexName := \"<index-name>\"  \n  \n\ttype autoEmbedField struct {  \n\t\tType     string `bson:\"type\"`  \n\t\tModality string `bson:\"modality\"`  \n\t\tPath     string `bson:\"path\"`  \n\t\tModel    string `bson:\"model\"`  \n\t}  \n  \n\ttype filterField struct {  \n\t\tType string `bson:\"type\"`  \n\t\tPath string `bson:\"path\"`  \n\t}  \n  \n\ttype indexDefinition struct {  \n\t\tFields []interface{} `bson:\"fields\"`  \n\t}  \n  \n\tdefinition := indexDefinition{  \n\t\tFields: []interface{}{  \n\t\t\tautoEmbedField{  \n\t\t\t\tType:     \"autoEmbed\",  \n\t\t\t\tModality: \"text\",  \n\t\t\t\tPath:     \"<indexed-field>\",  \n\t\t\t\tModel:    \"<embedding-model>\",  \n\t\t\t},  \n\t\t\tfilterField{  \n\t\t\t\tType: \"filter\",\n\t\t\t\tPath: \"<field-to-index>\",  \n\t\t\t},  \n\t\t},  \n\t}  \n  \n\terr = coll.SearchIndexes().UpdateOne(ctx, <index-name>, definition)  \n  \n\tif err != nil {  \n\t\tlog.Fatalf(\"failed to update the index: %v\", err)  \n\t}  \n  \n\tfmt.Println(\"Successfully updated the search index\")  \n}  \n```\n\n| \\<connection-string> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| -------------------- | ---------------------------------------------------------------------------------------- |\n| \\<database-name>     | Database that contains the collection for which you want to create the index.            |\n| \\<collection-name>   | Collection for which you want to create the index.                                       |\n| \\<index-name>        | Name of your index. If you omit the index name, defaults to vector\\_index.               |\n| \\<indexed-field>     | Name of the field indexed as the autoEmbed type.                                         |\n| \\<embedding-model>   | Name of the Voyage AI embedding model to use for generating embeddings.                  |\n| \\<field-to-index>    | Vector and filter fields to index.                                                       |\n\n```shell\ngo run edit-index.go\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main  \n  \nimport (  \n\t\"context\"  \n\t\"fmt\"  \n\t\"log\"  \n  \n\t\"go.mongodb.org/mongo-driver/v2/mongo\"  \n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"  \n)  \n  \nfunc main() {  \n\tctx := context.Background()  \n  \n\t// Replace the placeholder with your connection string  \n\tconst uri = \"<connection-string>\"  \n  \n\t// Connect to your cluster  \n\tclientOptions := options.Client().ApplyURI(uri)  \n\tclient, err := mongo.Connect(ctx, clientOptions)\n\tif err != nil {  \n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)  \n\t}  \n\tdefer func() { _ = client.Disconnect(ctx) }()  \n  \n\t// Set the namespace  \n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")  \n\tindexName := \"<index-name>\"  \n  \n\ttype autoEmbedField struct {  \n\t\tType     string `bson:\"type\"`  \n\t\tModality string `bson:\"modality\"`  \n\t\tPath     string `bson:\"path\"`  \n\t\tModel    string `bson:\"model\"`  \n\t}  \n  \n\ttype filterField struct {  \n\t\tType string `bson:\"type\"`  \n\t\tPath string `bson:\"path\"`  \n\t}  \n  \n\ttype indexDefinition struct {  \n\t\tFields []interface{} `bson:\"fields\"`  \n\t}  \n  \n\tdefinition := indexDefinition{  \n\t\tFields: []interface{}{  \n\t\t\tautoEmbedField{  \n\t\t\t\tType:     \"autoEmbed\",  \n\t\t\t\tModality: \"text\",  \n\t\t\t\tPath:     \"<indexed-field>\",  \n\t\t\t\tModel:    \"<embedding-model>\",  \n\t\t\t},  \n\t\t\tfilterField{  \n\t\t\t\tType: \"filter\",\n\t\t\t\tPath: \"<field-to-index>\",  \n\t\t\t},  \n\t\t},  \n\t}  \n  \n\terr = coll.SearchIndexes().UpdateOne(ctx, <index-name>, definition)  \n  \n\tif err != nil {  \n\t\tlog.Fatalf(\"failed to update the index: %v\", err)  \n\t}  \n  \n\tfmt.Println(\"Successfully updated the search index\")  \n}  ",
+      "tokenEstimate": 421
+    },
+    {
+      "language": "shell",
+      "content": "go run edit-index.go",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "procedure--self-auto-driver-go",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "auto",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,128 @@
+{
+  "heading": "Learn by Watching",
+  "headingLevel": 2,
+  "body": "You can also watch the following videos to\nlearn more about MongoDB Search:\n\nWatch an overview of Atlas and MongoDB Search and get started setting up\nMongoDB Search for your data. The video demonstrates how to load sample data on\nyour cluster, create a MongoDB Search index, and run a sample query using\nSearch Tester and Data Explorer.\n\n*Duration: 10 Minutes*\n\n[https://youtu.be/HsS0z3eOCSQ](https://youtu.be/HsS0z3eOCSQ)\n\nFollow along with the following video to learn how to configure your\nMongoDB Search index and run queries from your application.\n\n*Duration: 7 Minutes*\n\n[https://youtu.be/3fRCD\\_QptVQ](https://youtu.be/3fRCD_QptVQ)\n\nFollow along with the following video tutorial walk-through that\ndemonstrates how to build MongoDB Search queries for a Restaurant Finder demo\napplication, which is also available at [www.atlassearchrestaurants.com](https://www.atlassearchrestaurants.com/).\n\n*Duration: 20 Minutes*\n\n[https://youtu.be/s2kXYZRE7pA](https://youtu.be/s2kXYZRE7pA)\n\nMongoDB Search is an embedded full-text search feature\nthat gives you a seamless, scalable experience for building\nrelevance-based app features. This quick start describes\nhow to get started in the following steps:\n\n- Create a MongoDB Search index on a sample collection.\n\n- Build a MongoDB Search query to search the collection.\n  You will learn how to:\n\n  - Run a basic query to search for a term in a field\n\n  - Use an operator to refine your search\n\n  - Add a search option to process your results\n\n*Time required: 15 minutes*\n\n> **Note:** This tutorial includes examples for a selection of clients.\n> For all supported clients, see the\n> [MongoDB Search indexes](fts-manage-indexes) and\n> [Queries](ref-query-management) pages.\n\na MongoDB Search index is a data structure that categorizes data in an easily\nsearchable format. It maps terms with documents that\ncontain those terms to enable fast retrieval of documents\nat query-time.\n\nYou must configure a MongoDB Search index to query data using MongoDB Search.\nWe recommend that you index the fields that you regularly\nuse to sort or filter your data.\n\nTo learn more, see [MongoDB Search indexes](fts-manage-indexes).\n\nIn this section, you create a MongoDB Search index on the sample\n[movies](mflix-movies) collection. You can create the\nMongoDB Search index in either an Atlas cluster or a\ndeployment hosted on your local computer.\n\nAtlas Cluster\n\n- Install the MongoDB Python Driver.\n\n  ```sh\n  pip install pymongo\n  ```\n\n  For detailed installation instructions, see\n  [MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).\n\n- Define the index.\n\n  Paste the following code into a file named `create_index.py`.\n\n  ```python\n  from pymongo import MongoClient\n  from pymongo.operations import SearchIndexModel\n\n  # connect to your Atlas deployment\n  uri = \"<connection-string>\"\n  client = MongoClient(uri)\n\n  # set namespace\n  database = client[\"sample_mflix\"]\n  collection = database[\"movies\"]\n\n  # define your MongoDB Search index\n  search_index_model = SearchIndexModel(\n      definition={\n          \"mappings\": {\n              \"dynamic\": True\n          },\n      },\n      name=\"default\",\n  )\n\n  # create the index\n  result = collection.create_search_index(model=search_index_model)\n  print(result)\n\n  ```\n\n  Atlas Cluster\n\n  Replace `<connection-string>` with the connection string for your\n  Atlas cluster or local Atlas deployment.\n\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n\n  Local or Self-Managed\n\n  Your connection string should use the\n  following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n  To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  IMPORTANT: Ensure that your connection string includes your database\n  user's credentials. To learn more about finding your connection string,\n  see [Driver](connect-via-driver).\n\n  Local Deployment\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n- Create the index.\n\n  **Input:**\n\n  ```shell\n  python create_index.py\n  ```\n\n  **Output:**\n\n  ```\n  default\n  ```\n\nLocal Deployment\n\n- Install the MongoDB Python Driver.\n\n  ```sh\n  pip install pymongo\n  ```\n\n  For detailed installation instructions, see\n  [MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).\n\n- Define the index.\n\n  Paste the following code into a file named `create_index.py`.\n\n  ```python\n  from pymongo import MongoClient\n  from pymongo.operations import SearchIndexModel\n\n  # connect to your Atlas deployment\n  uri = \"<connection-string>\"\n  client = MongoClient(uri)\n\n  # set namespace\n  database = client[\"sample_mflix\"]\n  collection = database[\"movies\"]\n\n  # define your MongoDB Search index\n  search_index_model = SearchIndexModel(\n      definition={\n          \"mappings\": {\n              \"dynamic\": True\n          },\n      },\n      name=\"default\",\n  )\n\n  # create the index\n  result = collection.create_search_index(model=search_index_model)\n  print(result)\n\n  ```\n\n  Atlas Cluster\n\n  Replace `<connection-string>` with the connection string for your\n  Atlas cluster or local Atlas deployment.\n\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n\n  Local or Self-Managed\n\n  Your connection string should use the\n  following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n  To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  IMPORTANT: Ensure that your connection string includes your database\n  user's credentials. To learn more about finding your connection string,\n  see [Driver](connect-via-driver).\n\n  Local Deployment\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n- Create the index.\n\n  **Input:**\n\n  ```shell\n  python create_index.py\n  ```\n\n  **Output:**\n\n  ```\n  default\n  ```\n\nMongoDB Search queries take the form of an [aggregation pipeline stage](manual/aggregation). You use MongoDB Search primarily with the [$search](pipe.$search) stage,\nwhich must be the first stage in the query pipeline. You can also use\nthis stage in conjunction with other stages in your pipeline.\n\nWhen you run a MongoDB Search query, MongoDB Search uses the search index to\nlocate and retrieve relevant data from the collection.\nMongoDB Search also provides the [$searchMeta](pipe.$searchMeta) stage,\nmultiple sub-pipelines, and several query\n[MongoDB Search operators](operators-ref) and [collectors](collectors-ref)\nthat you can use to further refine your search results.\n\nTo learn more, see [Queries and Indexes](fts-about-queries).\n\nIn this section, you run queries against the indexed collection.\n\nRun a basic `$search` query by using the\n[text](text-ref) operator.\n\n- Create a new file named `run_query.py` and paste the following code.\n\n  This query has the following search criteria:\n\n  - The `plot` field must contain the word `baseball`.\n\n  - [$limit](manual/reference/operator/aggregation/limit) and\n    [$project](manual/reference/operator/aggregation/project) stages\n    to return only 3 documents and the `title` and `plot` fields.\n\n  ```python\n  import pymongo\n\n  client = pymongo.MongoClient('<connection-string>')\n  result = client['sample_mflix']['movies'].aggregate([\n    {\n      '$search': \n       {\n          'text': {\n            'query': 'baseball',\n            'path': 'plot'\n          }\n       }\n    }, \n    {\n      '$limit': 3\n    }, \n    {\n      '$project': {\n         '_id': 0,\n         'title': 1,\n         'plot': 1\n      }\n    }\n  ])\n\n  for i in result:\n      print(i)\n\n  ```\n\n- Specify the `<connection-string>`, then run the query:\n\n  **Input:**\n\n  ```bash\n  python run_query.py\n  ```\n\n  **Output:**\n\n  ```shell\n  {'plot': 'A trio of guys try and make up for missed opportunities in childhood by forming a three-player baseball team to compete against standard children baseball squads.', 'title': 'The Benchwarmers'}\n  {'plot': 'A young boy is bequeathed the ownership of a professional baseball team.', 'title': 'Little Big League'}\n  {'plot': 'A trained chimpanzee plays third base for a minor-league baseball team.', 'title': 'Ed'}\n  ```\n\nMongoDB Search provides several [operators](fts-operators) that you\ncan use to build complex queries and retrieve more specific\nresults for your use case. Update your `$search` query to use the\n[compound](compound-ref) operator to combine\nmultiple operators into a single query.\n\n- Modify `run_query.py` to use the compound query.\n\n  This query has the following search criteria:\n\n  - The `plot` field must contain the word `baseball`.\n\n  - The `genres` field must not contain either `Comedy` or\n    `Romance`.\n\n  - [$limit](manual/reference/operator/aggregation/limit) and\n    [$project](manual/reference/operator/aggregation/project) stages\n    to return only 3 documents and the `title`, `plot`, and\n    `genres` fields.\n\n  ```python\n  import pymongo\n\n  client = pymongo.MongoClient('<connection-string>')\n  result = client['sample_mflix']['movies'].aggregate([\n    {\n      '$search': {\n        'compound': {\n          'must': [\n            {\n              'text': {\n                'query': 'baseball',\n                'path': 'plot'\n              }\n            }\n          ],\n          'mustNot': [\n            {\n              'text': {\n                'query': ['Comedy', 'Romance'],\n                'path': 'genres'\n              }\n            }\n          ]\n        }\n      }\n    }, \n    {\n      '$limit': 3\n    },\n    {\n      '$project': {\n        '_id': 0,           \n        'title': 1,\n        'plot': 1,\n        'genres': 1\n      }\n    }\n  ])\n\n  for i in result:\n      print(i)\n\n  ```\n\n- Specify the `<connection-string>`, then run the query:\n\n  **Input:**\n\n  ```bash\n  python run_query.py\n  ```\n\n  **Output:**\n\n  ```shell\n  {'plot': 'The story of the life and career of the famed baseball player, Lou Gehrig.', 'genres': ['Biography', 'Drama', 'Family'], 'title': 'The Pride of the Yankees'}\n  {'plot': 'Babe Ruth becomes a baseball legend but is unheroic to those who know him.', 'genres': ['Biography', 'Drama', 'Sport'], 'title': 'The Babe'}\n  {'plot': 'Dominican baseball star Miguel \"Sugar\" Santos is recruited to play in the U.S. minor-leagues.', 'genres': ['Drama', 'Sport'], 'title': 'Sugar'}\n  ```\n\nMongoDB Search provides several [search options](fts-search-options)\nthat you can use to further process your MongoDB Search query results.\nAdd the [sorting](sort-ref) option to your query to\ndisplay the results in a specific order.\n\n- Modify `run_query.py` to add the [sorting](sort-ref) option.\n\n  This query has the following search criteria:\n\n  - The `plot` field must contain the word `baseball`.\n\n  - The `genres` field must not contain either `Comedy` or\n    `Romance`.\n\n  - Sort the results by the `released` date\n    field in descending order.\n    MongoDB Search returns the most recent movies first.\n\n  - [$limit](manual/reference/operator/aggregation/limit) and\n    [$project](manual/reference/operator/aggregation/project) stages\n    to return only 3 documents and the `title`, `plot`,\n    `genres`, and `released` fields.\n\n  ```python\n  import pymongo\n\n  client = pymongo.MongoClient('<connection-string>')\n  result = client['sample_mflix']['movies'].aggregate([\n    {\n      '$search': {\n        'compound': {\n          'must': [\n            {\n              'text': {\n                'query': 'baseball',\n                'path': 'plot'\n              }\n            }\n          ],\n          'mustNot': [\n            {\n              'text': {\n                'query': ['Comedy', 'Romance'],\n                'path': 'genres'\n              }\n            }\n          ]\n        },\n        'sort': {\n            'released': -1\n        }\n      }\n    }, \n    {\n      '$limit': 3\n    },\n    {\n      '$project': {\n        '_id': 0,           \n        'title': 1,\n        'plot': 1,\n        'genres': 1,\n        'released': 1\n      }\n    }\n  ])\n\n  for i in result:\n      print(i)\n\n  ```\n\n- Specify the `<connection-string>`, then run the query:\n\n  **Input:**\n\n  ```bash\n  python run_query.py\n  ```\n\n  **Output:**\n\n  ```shell\n  {'plot': 'A sports agent stages an unconventional recruitment strategy to get talented Indian cricket players to play Major League Baseball.', 'genres': ['Biography', 'Drama', 'Sport'], 'title': 'Million Dollar Arm', 'released': datetime.datetime(2014, 5, 16, 0, 0)}\n  {'plot': 'A Taiwanese high school baseball team travels to Japan in 1931 to compete in a national tournament.', 'genres': ['Biography', 'Drama', 'History'], 'title': 'Kano', 'released': datetime.datetime(2014, 2, 27, 0, 0)}\n  {'plot': \"12-year-old Josh is a mixed race boy and a promising baseball player...\", 'genres': ['Drama'], 'title': 'Calloused Hands', 'released': datetime.datetime(2013, 3, 3, 0, 0)}\n  ```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "pip install pymongo",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(result)\n",
+      "tokenEstimate": 108
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "default",
+      "tokenEstimate": 1
+    },
+    {
+      "language": "sh",
+      "content": "pip install pymongo",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# set namespace\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# define your MongoDB Search index\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True\n        },\n    },\n    name=\"default\",\n)\n\n# create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(result)\n",
+      "tokenEstimate": 108
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "default",
+      "tokenEstimate": 1
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\n\nclient = pymongo.MongoClient('<connection-string>')\nresult = client['sample_mflix']['movies'].aggregate([\n  {\n    '$search': \n     {\n        'text': {\n          'query': 'baseball',\n          'path': 'plot'\n        }\n     }\n  }, \n  {\n    '$limit': 3\n  }, \n  {\n    '$project': {\n       '_id': 0,\n       'title': 1,\n       'plot': 1\n    }\n  }\n])\n\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 114
+    },
+    {
+      "language": "bash",
+      "content": "python run_query.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "{'plot': 'A trio of guys try and make up for missed opportunities in childhood by forming a three-player baseball team to compete against standard children baseball squads.', 'title': 'The Benchwarmers'}\n{'plot': 'A young boy is bequeathed the ownership of a professional baseball team.', 'title': 'Little Big League'}\n{'plot': 'A trained chimpanzee plays third base for a minor-league baseball team.', 'title': 'Ed'}",
+      "tokenEstimate": 92
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\n\nclient = pymongo.MongoClient('<connection-string>')\nresult = client['sample_mflix']['movies'].aggregate([\n  {\n    '$search': {\n      'compound': {\n        'must': [\n          {\n            'text': {\n              'query': 'baseball',\n              'path': 'plot'\n            }\n          }\n        ],\n        'mustNot': [\n          {\n            'text': {\n              'query': ['Comedy', 'Romance'],\n              'path': 'genres'\n            }\n          }\n        ]\n      }\n    }\n  }, \n  {\n    '$limit': 3\n  },\n  {\n    '$project': {\n      '_id': 0,           \n      'title': 1,\n      'plot': 1,\n      'genres': 1\n    }\n  }\n])\n\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 175
+    },
+    {
+      "language": "bash",
+      "content": "python run_query.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "{'plot': 'The story of the life and career of the famed baseball player, Lou Gehrig.', 'genres': ['Biography', 'Drama', 'Family'], 'title': 'The Pride of the Yankees'}\n{'plot': 'Babe Ruth becomes a baseball legend but is unheroic to those who know him.', 'genres': ['Biography', 'Drama', 'Sport'], 'title': 'The Babe'}\n{'plot': 'Dominican baseball star Miguel \"Sugar\" Santos is recruited to play in the U.S. minor-leagues.', 'genres': ['Drama', 'Sport'], 'title': 'Sugar'}",
+      "tokenEstimate": 130
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\n\nclient = pymongo.MongoClient('<connection-string>')\nresult = client['sample_mflix']['movies'].aggregate([\n  {\n    '$search': {\n      'compound': {\n        'must': [\n          {\n            'text': {\n              'query': 'baseball',\n              'path': 'plot'\n            }\n          }\n        ],\n        'mustNot': [\n          {\n            'text': {\n              'query': ['Comedy', 'Romance'],\n              'path': 'genres'\n            }\n          }\n        ]\n      },\n      'sort': {\n          'released': -1\n      }\n    }\n  }, \n  {\n    '$limit': 3\n  },\n  {\n    '$project': {\n      '_id': 0,           \n      'title': 1,\n      'plot': 1,\n      'genres': 1,\n      'released': 1\n    }\n  }\n])\n\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 196
+    },
+    {
+      "language": "bash",
+      "content": "python run_query.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "{'plot': 'A sports agent stages an unconventional recruitment strategy to get talented Indian cricket players to play Major League Baseball.', 'genres': ['Biography', 'Drama', 'Sport'], 'title': 'Million Dollar Arm', 'released': datetime.datetime(2014, 5, 16, 0, 0)}\n{'plot': 'A Taiwanese high school baseball team travels to Japan in 1931 to compete in a national tournament.', 'genres': ['Biography', 'Drama', 'History'], 'title': 'Kano', 'released': datetime.datetime(2014, 2, 27, 0, 0)}\n{'plot': \"12-year-old Josh is a mixed race boy and a promising baseball player...\", 'genres': ['Drama'], 'title': 'Calloused Hands', 'released': datetime.datetime(2013, 3, 3, 0, 0)}",
+      "tokenEstimate": 189
+    }
+  ],
+  "slug": "learn-by-watching--atlas-nodejs",
+  "selections": {
+    "deployment-type": "atlas",
+    "language-atlas-only-2": "nodejs"
+  },
+  "variantAgnostic": false
+}

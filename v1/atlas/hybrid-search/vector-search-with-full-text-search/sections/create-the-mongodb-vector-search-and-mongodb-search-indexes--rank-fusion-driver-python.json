@@ -1,0 +1,69 @@
+{
+  "heading": "Create the MongoDB Vector Search and MongoDB Search Indexes",
+  "headingLevel": 3,
+  "body": "```shell\n# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo\n```\n\nFor detailed installation instructions, see\n[MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).\n\nCreate a `create_vector_index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython create_vector_index.py\n```\n\n**Output:**\n\n```\nNew search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.\n```\n\nCreate a `create_search_index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython create_search_index.py\n```\n\n**Output:**\n\n```\nNew search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      }\n    ]\n  },\n  name=\"hybrid-vector-search\",\n  type=\"vectorSearch\"\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 267
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_vector_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-vector-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-vector-search is ready for querying.",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "python",
+      "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\nimport time\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\n# Access your database and collection\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"embedded_movies\"]\n\n# Define your index \nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n    },\n    name=\"hybrid-full-text-search\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(\"New search index named \" + result + \" is building.\")\n\n# Wait for initial sync to complete\nprint(\"Polling to check if the index is ready. This may take up to a minute.\")\npredicate=None\nif predicate is None:\n  predicate = lambda index: index.get(\"queryable\") is True\n\nwhile True:\n  indices = list(collection.list_search_indexes(result))\n  if len(indices) and predicate(indices[0]):\n    break\n  time.sleep(5)\nprint(result + \" is ready for querying.\")\n\nclient.close()",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_search_index.py",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New search index named hybrid-full-text-search is building.\nPolling to check if the index is ready. This may take up to a minute.\nhybrid-full-text-search is ready for querying.",
+      "tokenEstimate": 39
+    }
+  ],
+  "slug": "create-the-mongodb-vector-search-and-mongodb-search-indexes--rank-fusion-driver-python",
+  "selections": {
+    "pipeline-stage": "rank-fusion",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

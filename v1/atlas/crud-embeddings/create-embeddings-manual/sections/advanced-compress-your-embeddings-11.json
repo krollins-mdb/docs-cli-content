@@ -1,0 +1,47 @@
+{
+  "heading": "(Advanced) Compress your embeddings.",
+  "headingLevel": 2,
+  "body": "Optionally, you can compress your embeddings by converting them\nto BSON (Binary Javascript Object Notation) binary format, also called `binData` vectors,\nfor efficient storage and retrieval.\nTo learn more, see [Vector Compression](avs-vector-compression).\n\n- Create a file named `convert-embeddings.js`.\n\n  ```shell\n  touch convert-embeddings.js\n  ```\n\n- Paste the following code in the file.\n\n  This code defines a function named `convertEmbeddingsToBSON` to convert\n  `float32` embeddings to `binData` vectors by using binary tools from the\n  [Node.js driver](node).\n\n  > **Note:** When you convert your embeddings to `binData` vectors, your embeddings\n  > appear in binary format.\n\n  ```js\n  import { Binary } from 'mongodb';\n\n  // Exported async function to convert provided embeddings to BSON format\n  export async function convertEmbeddingsToBSON(float32_embeddings) {\n    try {\n      // Validate input\n      if (!Array.isArray(float32_embeddings) || float32_embeddings.length === 0) {\n        throw new Error(\"Input must be a non-empty array of embeddings\");\n      }\n\n      // Convert float32 embeddings to BSON binary representations\n      const bsonFloat32Embeddings = float32_embeddings.map(embedding => {\n        if (!(embedding instanceof Array)) {\n          throw new Error(\"Each embedding must be an array of numbers\");\n        }\n        return Binary.fromFloat32Array(new Float32Array(embedding));\n      });\n\n      // Return the BSON embedding\n      return bsonFloat32Embeddings[0]; \n\n    } catch (error) {\n      console.error('Error during BSON conversion:', error);\n      throw error; // Re-throw the error for handling by the caller if needed\n    }\n  }\n\n  ```\n\n- Save the file.\n\nIn this section, you use an embedding model to generate vector embeddings.\nThis example also includes an optional function that\nyou can use to compress your embeddings for efficient storage\nand improved query performance. To learn more,\nsee [Vector Compression](avs-vector-compression).\n\nIn a terminal window, run the following command:\n\n```\nnpm install mongodb @xenova/transformers\n```\n\n- In your project, create a `.env` file to store your MongoDB\n  connection string.\n\n  ```\n  MONGODB_URI=\"<connection-string>\"\n  ```\n\n- Replace `<connection-string>` with the connection string for your\n  Atlas cluster or local Atlas deployment.\n\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n\n  Local or Self-Managed\n\n  Your connection string should use the\n  following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n  To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  > **Note:**&#x20;\n  >\n  > Minimum Node.js Version Requirements\n  >\n  > Node.js v20.x introduced the `--env-file` option. If you are using an\n  > older version of Node.js, add the `dotenv` package to your project, or\n  > use a different method to manage your environment variables.\n\n- Save the file.\n\n* Create a file named `get-embeddings.js`.\n\n  ```shell\n  touch get-embeddings.js\n  ```\n\n* Paste the following code in the file.\n\n  This code defines a function named `getEmbedding()` to generate an embedding for\n  a given input. This function specifies:\n\n  - The `feature-extraction` task from Hugging Face's [transformers.js](https://huggingface.co/docs/transformers.js/en/index)\n    library. To learn more, see [Tasks](https://huggingface.co/docs/transformers.js/en/index#tasks).\n\n  - The [nomic-embed-text-v1](https://huggingface.co/xenova/nomic-embed-text-v1)\n    embedding model.\n\n  ```js\n  import { pipeline } from '@xenova/transformers';\n\n  // Function to generate embeddings for a given data source\n  export async function getEmbedding(data) {\n      const embedder = await pipeline(\n          'feature-extraction', \n          'Xenova/nomic-embed-text-v1');\n      const results = await embedder(data, { pooling: 'mean', normalize: true });\n      return Array.from(results.data);\n  }\n\n  ```\n\n* Save the file.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "touch convert-embeddings.js",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "js",
+      "content": "import { Binary } from 'mongodb';\n\n// Exported async function to convert provided embeddings to BSON format\nexport async function convertEmbeddingsToBSON(float32_embeddings) {\n  try {\n    // Validate input\n    if (!Array.isArray(float32_embeddings) || float32_embeddings.length === 0) {\n      throw new Error(\"Input must be a non-empty array of embeddings\");\n    }\n\n    // Convert float32 embeddings to BSON binary representations\n    const bsonFloat32Embeddings = float32_embeddings.map(embedding => {\n      if (!(embedding instanceof Array)) {\n        throw new Error(\"Each embedding must be an array of numbers\");\n      }\n      return Binary.fromFloat32Array(new Float32Array(embedding));\n    });\n\n    // Return the BSON embedding\n    return bsonFloat32Embeddings[0]; \n\n  } catch (error) {\n    console.error('Error during BSON conversion:', error);\n    throw error; // Re-throw the error for handling by the caller if needed\n  }\n}\n",
+      "tokenEstimate": 203
+    },
+    {
+      "language": "text",
+      "content": "npm install mongodb @xenova/transformers",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "text",
+      "content": "MONGODB_URI=\"<connection-string>\"",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "touch get-embeddings.js",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "js",
+      "content": "import { pipeline } from '@xenova/transformers';\n\n// Function to generate embeddings for a given data source\nexport async function getEmbedding(data) {\n    const embedder = await pipeline(\n        'feature-extraction', \n        'Xenova/nomic-embed-text-v1');\n    const results = await embedder(data, { pooling: 'mean', normalize: true });\n    return Array.from(results.data);\n}\n",
+      "tokenEstimate": 88
+    }
+  ]
+}

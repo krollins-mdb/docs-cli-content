@@ -1,0 +1,24 @@
+{
+  "heading": "Edit a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To edit a MongoDB Search index using the [Go Driver](go):\n\nThe following sample application edits a MongoDB Search index on the\nspecified collection.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your Atlas connection string\n\tconst uri = \"<connection-string>\"\n\n\t// Connect to your Atlas cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")\n\n\t// Specifies the index name and the new index definition\n\tconst indexName = \"<index-name>\"\n\n\t// Define the new index definition\n\tdefinition := bson.D{<index-definition>}\n\n\t// Updates the specified index\n\terr = coll.SearchIndexes().UpdateOne(ctx, indexName, definition)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to update the index: %v\", err)\n\t}\n}\n\n```\n\n- `<connection-string>`: Your Atlas connection string. To\n  learn more, see [Driver](connect-via-driver).\n\n- `<database-name>` and  `<collection-name>`: The names of\n  the database and collection for which you want to retrieve the\n  index.\n\n- `<index-name>`: The name of the index you want to edit.\n\n- `<index-definition>`: The new search index definition. To\n  learn more, see [index definitions](ref-index-definitions).\n\n```\ngo run edit-index.go\n```\n\n> **Note:** While your updated index is building, different nodes might update at\n> varying speeds. During this period, you might experience mixed query\n> results, reflecting both the new index definition and the previous\n> index definition.",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your Atlas connection string\n\tconst uri = \"<connection-string>\"\n\n\t// Connect to your Atlas cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<database-name>\").Collection(\"<collection-name>\")\n\n\t// Specifies the index name and the new index definition\n\tconst indexName = \"<index-name>\"\n\n\t// Define the new index definition\n\tdefinition := bson.D{<index-definition>}\n\n\t// Updates the specified index\n\terr = coll.SearchIndexes().UpdateOne(ctx, indexName, definition)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to update the index: %v\", err)\n\t}\n}\n",
+      "tokenEstimate": 246
+    },
+    {
+      "language": "text",
+      "content": "go run edit-index.go",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "edit-a-mongodb-search-index--atlas-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

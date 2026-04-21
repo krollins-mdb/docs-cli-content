@@ -1,0 +1,40 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "For more detailed installation instructions and version compatibility,\nsee the [MongoDB Kotlin Coroutine Driver documentation](kotlin/coroutine/current/getting-started).\n\nCreate a file named `VectorIndex.kt`. Copy and paste the following\ncode into the file.\n\n```kotlin\nimport com.mongodb.MongoException\nimport com.mongodb.client.model.SearchIndexModel\nimport com.mongodb.client.model.SearchIndexType\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.delay\nimport kotlinx.coroutines.flow.toList\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\n\nfun main() {\n    // Replace the placeholder with your MongoDB deployment's connection string\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"embedded_movies\")\n    val indexName = \"vector_index\"\n    val searchIndexModel = SearchIndexModel(\n        indexName,\n        Document(\n            \"fields\",\n            listOf(\n                Document(\"type\", \"vector\")\n                    .append(\"path\", \"plot_embedding_voyage_3_large\")\n                    .append(\"numDimensions\", 2048)\n                    .append(\"similarity\", \"dotProduct\")\n                    .append(\"quantization\", \"scalar\")\n            )\n        ),\n        SearchIndexType.vectorSearch()\n    )\n\n    runBlocking {\n        try {\n            collection.createSearchIndexes(listOf(searchIndexModel))\n                .collect { result ->\n                    println(\"New search index named $result is building.\")\n                }\n\n            // Polling to check if the index is queryable\n            println(\"Polling to check if the index is ready. This may take up to a minute.\")\n            var isQueryable = false\n            while (!isQueryable) {\n                delay(5000L) // Poll every 5 seconds\n\n                val indexes = collection.listSearchIndexes().toList()\n                isQueryable = indexes.any { index ->\n                    index.getString(\"name\") == indexName && index.getBoolean(\"queryable\")\n                }\n                if (isQueryable) {\n                    println(\"$indexName is ready for querying.\")\n                }\n            }\n        } catch (me: MongoException) {\n            System.err.println(\"An error occurred: $me\")\n        }\n    }\n    mongoClient.close()\n}\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nThe output should resemble the following:\n\n```\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.MongoException\nimport com.mongodb.client.model.SearchIndexModel\nimport com.mongodb.client.model.SearchIndexType\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.delay\nimport kotlinx.coroutines.flow.toList\nimport org.bson.Document\nimport kotlinx.coroutines.runBlocking\n\nfun main() {\n    // Replace the placeholder with your MongoDB deployment's connection string\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"embedded_movies\")\n    val indexName = \"vector_index\"\n    val searchIndexModel = SearchIndexModel(\n        indexName,\n        Document(\n            \"fields\",\n            listOf(\n                Document(\"type\", \"vector\")\n                    .append(\"path\", \"plot_embedding_voyage_3_large\")\n                    .append(\"numDimensions\", 2048)\n                    .append(\"similarity\", \"dotProduct\")\n                    .append(\"quantization\", \"scalar\")\n            )\n        ),\n        SearchIndexType.vectorSearch()\n    )\n\n    runBlocking {\n        try {\n            collection.createSearchIndexes(listOf(searchIndexModel))\n                .collect { result ->\n                    println(\"New search index named $result is building.\")\n                }\n\n            // Polling to check if the index is queryable\n            println(\"Polling to check if the index is ready. This may take up to a minute.\")\n            var isQueryable = false\n            while (!isQueryable) {\n                delay(5000L) // Poll every 5 seconds\n\n                val indexes = collection.listSearchIndexes().toList()\n                isQueryable = indexes.any { index ->\n                    index.getString(\"name\") == indexName && index.getBoolean(\"queryable\")\n                }\n                if (isQueryable) {\n                    println(\"$indexName is ready for querying.\")\n                }\n            }\n        } catch (me: MongoException) {\n            System.err.println(\"An error occurred: $me\")\n        }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 409
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--atlas-byo-driver-kotlin-coroutine",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

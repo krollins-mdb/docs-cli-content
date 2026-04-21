@@ -1,0 +1,44 @@
+{
+  "heading": "Create a Materialized View",
+  "headingLevel": 2,
+  "body": "```shell\n# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo\n```\n\nFor detailed installation instructions, see\n[MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).\n\nCreate a new file in your project directory named\n`create_materialized_view.py`, and copy and paste the following\ncode into the file.\n\nThis code uses the following aggregation pipeline stages to transform\nthe data as described:\n\n- [$project](manual/reference/operator/aggregation/project):\n\n  - Converts the date objects in the `last_scraped` field\n    into string objects in the `YYYY-MM-DD` format using\n    [$dateToString](manual/reference/operator/aggregation/dateToString) and writes the output to a string\n    field called `lastScrapedDate`.\n\n  - Converts the number objects in the `accommodates` and\n    `minimum_nights` fields into string values using\n    [$toString](manual/reference/operator/aggregation/toString) and writes the output to number fields\n    called `accommodatesNumber` and `minimumNumberOfNights`,\n    respectively.\n\n  - Includes the `name` and `property_type` string fields in\n    the output and renames them to `propertyName` and\n    `propertyType` respectively.\n\n- [$merge](manual/reference/operator/aggregation/merge):\n\n  Writes the output fields from the\n  [$project](manual/reference/operator/aggregation/project) stage to a materialized view named\n  `airbnb_mat_view` in the `sample_airbnb` database.\n\n```python\nfrom pymongo import MongoClient\n\ndef main():\n    # Connect to MongoDB\n    uri = \"<connection-string>\"\n    client = MongoClient(uri)\n\n    # set namespace\n    database = client[\"sample_airbnb\"]\n    collection = database[\"listingsAndReviews\"]\n    \n    # Create the aggregation pipeline\n    pipeline = [\n        { \"$project\": {\n            \"lastScrapedDate\": { \"$dateToString\": { \"format\": \"%Y-%m-%d\", \"date\": \"$last_scraped\" } },\n            \"accomodatesNumber\": { \"$toString\": \"$accommodates\" },\n            \"maximumNumberofNights\": { \"$toString\": \"$maximum_nights\" },\n            \"propertyName\": \"$name\",\n            \"propertyType\": \"$property_type\"\n          }\n        },\n        { \"$merge\": {\n            \"into\": \"airbnb_mat_view\",\n            \"whenMatched\": \"replace\"\n          }\n        }\n    ]\n    \n    # Execute the aggregation\n    cursor = collection.aggregate(pipeline)  \n\n    print(\"Materialized view created!\")\n    \nif __name__ == \"__main__\":\n    main()\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython create_materialized_view.py\n```\n\n**Output:**\n\n```\nMaterialized view created!\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\n\ndef main():\n    # Connect to MongoDB\n    uri = \"<connection-string>\"\n    client = MongoClient(uri)\n\n    # set namespace\n    database = client[\"sample_airbnb\"]\n    collection = database[\"listingsAndReviews\"]\n    \n    # Create the aggregation pipeline\n    pipeline = [\n        { \"$project\": {\n            \"lastScrapedDate\": { \"$dateToString\": { \"format\": \"%Y-%m-%d\", \"date\": \"$last_scraped\" } },\n            \"accomodatesNumber\": { \"$toString\": \"$accommodates\" },\n            \"maximumNumberofNights\": { \"$toString\": \"$maximum_nights\" },\n            \"propertyName\": \"$name\",\n            \"propertyType\": \"$property_type\"\n          }\n        },\n        { \"$merge\": {\n            \"into\": \"airbnb_mat_view\",\n            \"whenMatched\": \"replace\"\n          }\n        }\n    ]\n    \n    # Execute the aggregation\n    cursor = collection.aggregate(pipeline)  \n\n    print(\"Materialized view created!\")\n    \nif __name__ == \"__main__\":\n    main()\n",
+      "tokenEstimate": 226
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_materialized_view.py",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "text",
+      "content": "Materialized view created!",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-a-materialized-view--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

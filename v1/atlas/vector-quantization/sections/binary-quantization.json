@@ -2,5 +2,7 @@
   "heading": "Binary Quantization",
   "headingLevel": 3,
   "body": "Binary quantization involves assuming a\nmidpoint of `0` for each dimension, which is typically appropriate for\nembeddings normalized to length `1` such as  OpenAI's\n`text-embedding-3-large`. Then, each value in the vector is\ncompared to the midpoint and assigned a binary value of `1` if it's\ngreater than the midpoint and a binary value of `0` if it's less than\nor equal to the midpoint. In MongoDB Vector Search, this quantization reduces the\nvector embedding's RAM cost to one twenty-fourth (`1/24`) of the\npre-quantization cost. The reason it's not `1/32` is because the data\nstructure containing the Hierarchical Navigable Small Worlds graph itself, separate from the vector\nvalues, isn't compressed.\n\nWhen you run a query, MongoDB Vector Search converts the float value in the query\nvector into a binary vector using the same midpoint for efficient\ncomparison between the query vector and indexed binary vectors. It then\nrescores by reevaluating the identified candidates in the binary\ncomparison using the original float values associated with those results\nfrom the binary index to further refine the results. The full fidelity\nvectors are stored in their own data structure on disk, and are only\nreferenced during rescoring when you configure binary quantization or\nwhen you perform exact search against either binary or scalar quantized\nvectors.",
-  "codeBlocks": []
+  "codeBlocks": [],
+  "slug": "binary-quantization",
+  "variantAgnostic": true
 }

@@ -1,0 +1,19 @@
+{
+  "heading": "Multiple Types Example",
+  "headingLevel": 2,
+  "body": "The following index definition example uses the\nsample\\_mflix.movies collection to index a field as multiple types. The\nfollowing index definition indexes the `title` field as the following\ntypes:\n\n- `autocomplete` type to support autocompletion for queries using\n  the [autocomplete](autocomplete-ref) operator.\n\n- `string` type to support text search using operators such\n  [text](text-ref), [Phrase](phrase-ref), and so on.\n\n```csharp\nusing MongoDB.Bson;  \nusing MongoDB.Driver;  \n  \n// connect to your Atlas deployment  \nvar uri = \"<connection-string>\";  \n  \nvar client = new MongoClient(uri);  \n  \nvar db = client.GetDatabase(\"sample_mflix\");  \nvar collection = db.GetCollection<BsonDocument>(\"movies\");  \n  \n// define your MongoDB Search index  \nvar index = new CreateSearchIndexModel(  \n  \"default\", new BsonDocument  \n  {  \n    { \"mappings\", new BsonDocument  \n      {  \n        { \"dynamic\", false },  \n        { \"fields\", new BsonDocument  \n          {  \n            { \"title\", new BsonArray  \n              {  \n                new BsonDocument  \n                {  \n                  { \"type\", \"autocomplete\" },  \n                  { \"analyzer\", \"lucene.standard\" },  \n                  { \"tokenization\", \"edgeGram\" },  \n                  { \"minGrams\", 2 },  \n                  { \"maxGrams\", 15 },  \n                  { \"foldDiacritics\", false }  \n                },  \n                new BsonDocument  \n                {  \n                  { \"type\", \"string\" }  \n                }  \n              }  \n            }  \n          }  \n        }  \n      }  \n    }  \n  });  \n  \nvar result = collection.SearchIndexes.CreateOne(index);  \nConsole.WriteLine($\"New index name: {result}\");  \n\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;  \nusing MongoDB.Driver;  \n  \n// connect to your Atlas deployment  \nvar uri = \"<connection-string>\";  \n  \nvar client = new MongoClient(uri);  \n  \nvar db = client.GetDatabase(\"sample_mflix\");  \nvar collection = db.GetCollection<BsonDocument>(\"movies\");  \n  \n// define your MongoDB Search index  \nvar index = new CreateSearchIndexModel(  \n  \"default\", new BsonDocument  \n  {  \n    { \"mappings\", new BsonDocument  \n      {  \n        { \"dynamic\", false },  \n        { \"fields\", new BsonDocument  \n          {  \n            { \"title\", new BsonArray  \n              {  \n                new BsonDocument  \n                {  \n                  { \"type\", \"autocomplete\" },  \n                  { \"analyzer\", \"lucene.standard\" },  \n                  { \"tokenization\", \"edgeGram\" },  \n                  { \"minGrams\", 2 },  \n                  { \"maxGrams\", 15 },  \n                  { \"foldDiacritics\", false }  \n                },  \n                new BsonDocument  \n                {  \n                  { \"type\", \"string\" }  \n                }  \n              }  \n            }  \n          }  \n        }  \n      }  \n    }  \n  });  \n  \nvar result = collection.SearchIndexes.CreateOne(index);  \nConsole.WriteLine($\"New index name: {result}\");  \n",
+      "tokenEstimate": 283
+    }
+  ],
+  "slug": "multiple-types-example--atlas-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

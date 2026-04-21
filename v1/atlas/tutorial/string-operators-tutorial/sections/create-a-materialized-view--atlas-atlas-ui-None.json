@@ -1,0 +1,24 @@
+{
+  "heading": "Create a Materialized View",
+  "headingLevel": 2,
+  "body": "- For the cluster that contains the sample data,\n  click Browse Collections.\n\n- In the left navigation pane, select the\n  sample\\_airbnb database.\n\n- Select the listingsAndReviews collection.\n\nThe [$project](manual/reference/operator/aggregation/project) stage modifies data in the\n`listingsAndReviews` collection to convert existing fields into\n`string` type fields.\n\n- Click Add Stage.\n\n- Select [$project](manual/reference/operator/aggregation/project) from the Select\n  drop-down menu.\n\n- Add the following syntax to the aggregation pipeline editor. This does the following:\n\n  - Converts the date objects in the `last_scraped` field\n    into string objects in the `YYYY-MM-DD` format using\n    [$dateToString](manual/reference/operator/aggregation/dateToString) and writes the output to a string\n    field called `lastScrapedDate`.\n\n  - Converts the number objects in the `accommodates` and\n    `minimum_nights` fields into string values using\n    [$toString](manual/reference/operator/aggregation/toString) and writes the output to number fields\n    called `accommodatesNumber` and `minimumNumberOfNights`,\n    respectively.\n\n  - Includes the `name` and `property_type` string fields in\n    the output and renames them to `propertyName` and\n    `propertyType` respectively.\n\n  ```json\n  {\n    lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n    accommodatesNumber: { $toString: \"$accommodates\" },\n    maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n    propertyName: \"$name\",\n    propertyType: \"$property_type\"\n  }\n  ```\n\nThe [$merge](manual/reference/operator/aggregation/merge) writes the output fields from the\n[$project](manual/reference/operator/aggregation/project) stage to a materialized view named\n`airbnb_mat_view` in the `sample_airbnb` database.\n\n- Click Add Stage.\n\n- Select the [$merge](manual/reference/operator/aggregation/merge) stage from the Select\n  drop-down menu.\n\n- Add the following syntax to the aggregation pipeline editor:\n\n  ```json\n  {\n    into: \"airbnb_mat_view\",\n    whenMatched: \"replace\"\n  }\n  ```\n\nRefresh the list of collections to see the `airbnb_mat_view` collection.\n\nTo learn how to query the `airbnb_mat_view` collection in the\nAtlas UI, see [View, Filter, and Sort Documents](atlas/atlas-ui/documents).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n  accommodatesNumber: { $toString: \"$accommodates\" },\n  maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n  propertyName: \"$name\",\n  propertyType: \"$property_type\"\n}",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "json",
+      "content": "{\n  into: \"airbnb_mat_view\",\n  whenMatched: \"replace\"\n}",
+      "tokenEstimate": 19
+    }
+  ],
+  "slug": "create-a-materialized-view--atlas-atlas-ui-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "atlas-ui",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

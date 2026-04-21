@@ -1,0 +1,43 @@
+{
+  "heading": "Define the Index for the vector Type",
+  "headingLevel": 2,
+  "body": "In your terminal, navigate to where you want to create your application,\nthen run the following command to create a directory called\n`atlas-search-project` and initialize your project in that directory:\n\n```shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver\n```\n\nFor more detailed installation instructions, see the\n[MongoDB C# Driver documentation](csharp/get-started).\n\nPaste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<database>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection>\");\n\n// define your MongoDB Search index\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true|false },\n        { \"fields\", new BsonDocument\n          {\n            { \"<field-name>\", new BsonDocument\n              {\n                { \"type\", \"vector\" },\n                { \"numDimensions\", \"<number-of-dimensions>\" },\n                { \"similarity\", \"euclidean | cosine | dotProduct\" },\n                { \"quantization\", \"none | scalar | binary\" },\n                { \"hnswOptions\", new BsonDocument\n                  {\n                    { \"maxEdges\", \"<number-of-connected-neighbors>\" },\n                    { \"numEdgeCandidates\", \"<number-of-nearest-neighbors>\" }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\nNew index name: default\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<database>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection>\");\n\n// define your MongoDB Search index\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true|false },\n        { \"fields\", new BsonDocument\n          {\n            { \"<field-name>\", new BsonDocument\n              {\n                { \"type\", \"vector\" },\n                { \"numDimensions\", \"<number-of-dimensions>\" },\n                { \"similarity\", \"euclidean | cosine | dotProduct\" },\n                { \"quantization\", \"none | scalar | binary\" },\n                { \"hnswOptions\", new BsonDocument\n                  {\n                    { \"maxEdges\", \"<number-of-connected-neighbors>\" },\n                    { \"numEdgeCandidates\", \"<number-of-nearest-neighbors>\" }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 263
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "define-the-index-for-the-vector-type--driver-csharp",
+  "selections": {
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,19 @@
+{
+  "heading": "Index Dynamically Using Default typeSet",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_mflix.movies` collection\nindexes the `awards` field as the `document` type. It also configures\nMongoDB Search to automatically index all the dynamically indexable fields inside the\n`awards` object.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"movies\");\n\n// Create the MongoDB Search index definition for the document field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", false },\n        { \"fields\", new BsonDocument\n          {\n            { \"awards\", new BsonDocument\n              {\n                { \"type\", \"document\" },\n                { \"dynamic\", true }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```\n\nYou can use the MongoDB Search `document` type to index fields in objects or\ndocuments.\n\nIf you enable [dynamic mappings](static-dynamic-mappings), MongoDB Search\nautomatically indexes all dynamically indexable fields types\nin a `document` type field. Alternatively, you can configure dynamic\nmappings to index only specific field types nested in a `document`\ntype field.\n\nYou can use the **Visual Editor** or the  **JSON Editor** in the\nAtlas UI, Atlas CLI, Atlas Administration API, [mongosh](mongodb-shell),\nMongoDB Compass, or MongoDB drivers to index fields as the dateFacet\ntype.\n\nYou can't use the MongoDB Search `document` type to index fields in objects\nor documents that are inside an array. Instead, use the MongoDB Search\n[embeddedDocuments](bson-data-types-embedded-documents) type to\nindex fields in objects or documents that are elements of an array.",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"movies\");\n\n// Create the MongoDB Search index definition for the document field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", false },\n        { \"fields\", new BsonDocument\n          {\n            { \"awards\", new BsonDocument\n              {\n                { \"type\", \"document\" },\n                { \"dynamic\", true }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 188
+    }
+  ],
+  "slug": "index-dynamically-using-default-typeset--atlas-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

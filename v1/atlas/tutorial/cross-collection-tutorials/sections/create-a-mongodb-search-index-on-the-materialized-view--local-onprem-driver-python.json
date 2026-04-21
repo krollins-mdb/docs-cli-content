@@ -1,0 +1,39 @@
+{
+  "heading": "Create a MongoDB Search Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nCreate a `create_index.py` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_supplies\"]\ncollection = database[\"monthlyPhoneTransactions\"]\n\n# Create the MongoDB Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True\n        },\n    },\n    name=\"monthlySalesIndex\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython create_index.py\n```\n\n**Output:**\n\n```\nNew index name: monthlySalesIndex\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_supplies\"]\ncollection = database[\"monthlyPhoneTransactions\"]\n\n# Create the MongoDB Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True\n        },\n    },\n    name=\"monthlySalesIndex\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "New index name: monthlySalesIndex",
+      "tokenEstimate": 7
+    }
+  ],
+  "slug": "create-a-mongodb-search-index-on-the-materialized-view--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

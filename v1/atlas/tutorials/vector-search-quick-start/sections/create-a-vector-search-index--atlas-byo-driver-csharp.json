@@ -1,0 +1,60 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "In your terminal, run the following commands:\n\n```bash\nmkdir query-quick-start\ncd query-quick-start\ndotnet new console\n```\n\n```bash\ndotnet add package MongoDB.Driver\n```\n\nFor more detailed installation instructions, see the\n[MongoDB C# Driver documentation](csharp/get-started).\n\nCreate a file named `IndexService.cs`. Copy and paste the following\ncode into the file.\n\n```csharp\nnamespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\nusing System.Threading;\n\npublic class IndexService\n{\n    // Replace the placeholder with your connection string\n    private const string MongoConnectionString = \"<connectionString>\";\n    public void CreateVectorIndex()\n    {\n        try\n        {\n            // Connect to your cluster\n            var client = new MongoClient(MongoConnectionString);\n            var database = client.GetDatabase(\"sample_mflix\");\n            var collection = database.GetCollection<BsonDocument>(\"embedded_movies\");\n\n            var searchIndexView = collection.SearchIndexes;\n            var name = \"vector_index\";\n\n            var model = new CreateVectorSearchIndexModel<Movie>(\n                m => m.PlotEmbedding,\n                name,\n                VectorSimilarity.DotProduct,\n                2048)\n            {\n                Quantization = VectorQuantization.Scalar\n            };\n\n            searchIndexView.CreateOne(model);\n            Console.WriteLine($\"New search index named {name} is building.\");\n\n            // Polling for index status\n            Console.WriteLine(\"Polling to check if the index is ready. This may take up to a minute.\");\n            bool queryable = false;\n            while (!queryable)\n            {\n                var indexes = searchIndexView.List();\n                foreach (var index in indexes.ToEnumerable())\n                {\n                    if (index[\"name\"] == name)\n                    {\n                        queryable = index[\"queryable\"].AsBoolean;\n                    }\n                }\n                if (!queryable)\n                {\n                    Thread.Sleep(5000);\n                }\n            }\n            Console.WriteLine($\"{name} is ready for querying.\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n```csharp\nusing query_quick_start;\n\nvar indexService = new IndexService();\nindexService.CreateVectorIndex();\n```\n\n**Input:**\n\n```bash\ndotnet run query-quick-start.csproj\n```\n\n**Output:**\n\n```sh\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "mkdir query-quick-start\ncd query-quick-start\ndotnet new console",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "bash",
+      "content": "dotnet add package MongoDB.Driver",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "csharp",
+      "content": "namespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\nusing System.Threading;\n\npublic class IndexService\n{\n    // Replace the placeholder with your connection string\n    private const string MongoConnectionString = \"<connectionString>\";\n    public void CreateVectorIndex()\n    {\n        try\n        {\n            // Connect to your cluster\n            var client = new MongoClient(MongoConnectionString);\n            var database = client.GetDatabase(\"sample_mflix\");\n            var collection = database.GetCollection<BsonDocument>(\"embedded_movies\");\n\n            var searchIndexView = collection.SearchIndexes;\n            var name = \"vector_index\";\n\n            var model = new CreateVectorSearchIndexModel<Movie>(\n                m => m.PlotEmbedding,\n                name,\n                VectorSimilarity.DotProduct,\n                2048)\n            {\n                Quantization = VectorQuantization.Scalar\n            };\n\n            searchIndexView.CreateOne(model);\n            Console.WriteLine($\"New search index named {name} is building.\");\n\n            // Polling for index status\n            Console.WriteLine(\"Polling to check if the index is ready. This may take up to a minute.\");\n            bool queryable = false;\n            while (!queryable)\n            {\n                var indexes = searchIndexView.List();\n                foreach (var index in indexes.ToEnumerable())\n                {\n                    if (index[\"name\"] == name)\n                    {\n                        queryable = index[\"queryable\"].AsBoolean;\n                    }\n                }\n                if (!queryable)\n                {\n                    Thread.Sleep(5000);\n                }\n            }\n            Console.WriteLine($\"{name} is ready for querying.\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 344
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "csharp",
+      "content": "using query_quick_start;\n\nvar indexService = new IndexService();\nindexService.CreateVectorIndex();",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "bash",
+      "content": "dotnet run query-quick-start.csproj",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "sh",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--atlas-byo-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

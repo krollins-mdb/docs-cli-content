@@ -1,0 +1,29 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "In your project's base package directory, create a\n`CreateIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection>\");\n\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", true|false)\n                        .append(\"fields\", new Document(\"<field-name>\", \n                                              new Document(\"type\", \"number\") \n                                                  .append(\"representation\", \"int64|double\")\n                                                  .append(\"indexIntegers\", true|false)\n                                                  .append(\"indexDoubles\", true|false)\n                                                  )));\n\n            String result = collection.createSearchIndex(index);\n            System.out.println(\"New index name: \" + result);\n        }\n    }\n}\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection>\");\n\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", true|false)\n                        .append(\"fields\", new Document(\"<field-name>\", \n                                              new Document(\"type\", \"number\") \n                                                  .append(\"representation\", \"int64|double\")\n                                                  .append(\"indexIntegers\", true|false)\n                                                  .append(\"indexDoubles\", true|false)\n                                                  )));\n\n            String result = collection.createSearchIndex(index);\n            System.out.println(\"New index name: \" + result);\n        }\n    }\n}",
+      "tokenEstimate": 219
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--atlas-driver-java-sync",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "java-sync"
+  },
+  "variantAgnostic": false
+}

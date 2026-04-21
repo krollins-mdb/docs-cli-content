@@ -1,0 +1,69 @@
+{
+  "heading": "Create and Update the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a materialized view that stores\ncumulative sales data for each month. This view uses data from the `sample_supplies.sales`\nand `sample_supplies.purchaseOrders` collections. Then, create a function to update\nthe materialized view each month.\n\nOpen MongoDB Compass and connect to your cluster. For detailed\ninstructions on connecting, see [Compass](atlas-connect-via-compass).\n\nOn the Database screen, click the `sample_supplies`\ndatabase to access its collections.\n\nFirst, you'll run an aggregation pipeline on the `sales` collection to create the materialized view:\n\n- Click on the `sales` collection.\n\n- Click the Aggregations tab.\n\n- Click Select..., then configure each of the\n  following pipeline stages by selecting the stage from the\n  dropdown and adding the query for that stage. Click\n  Add Stage to add additional stages.\n\n  - Stage 1: `$match`\n\n    ```javascript\n    {\n      purchaseMethod: \"Phone\"\n    }\n    ```\n\n  - Stage 2: `$unwind`\n\n    ```javascript\n    {\n      path: \"$items\"\n    }\n    ```\n\n  - Stage 3: `$group`\n\n    ```javascript\n    {\n      _id: {\n        $dateToString: {\n          format: \"%Y-%m\",\n          date: \"$saleDate\"\n        }\n      },\n      sales_quantity: { $sum: \"$items.quantity\" },\n      sales_price: { $sum: \"$items.price\" }\n    }\n    ```\n\n  - Stage 4: `$set`\n\n    ```javascript\n    {\n      sales_price: { $toDouble: \"$sales_price\" }\n    }\n    ```\n\n  - Stage 5: `$merge`\n\n    ```javascript\n    {\n      into: \"monthlyPhoneTransactions\",\n      whenMatched: \"replace\"\n    }\n    ```\n\n- Click Run to execute the aggregation pipeline. This creates the initial `monthlyPhoneTransactions` collection from the `sales` data.\n\nNext, you'll run a similar aggregation pipeline on the `purchaseOrders` collection to add that data to the materialized view:\n\n- Navigate back to the database view and click on the `purchaseOrders` collection.\n\n- Click the Aggregations tab.\n\n- Click Select..., then configure each of the\n  following pipeline stages by selecting the stage from the\n  dropdown and adding the query for that stage. Click\n  Add Stage to add additional stages.\n\n  - Stage 1: `$match`\n\n    ```javascript\n    {\n      purchaseMethod: \"Phone\"\n    }\n    ```\n\n  - Stage 2: `$unwind`\n\n    ```javascript\n    {\n      path: \"$items\"\n    }\n    ```\n\n  - Stage 3: `$group`\n\n    ```javascript\n    {\n      _id: {\n        $dateToString: {\n          format: \"%Y-%m\",\n          date: \"$saleDate\"\n        }\n      },\n      sales_quantity: { $sum: \"$items.quantity\" },\n      sales_price: { $sum: \"$items.price\" }\n    }\n    ```\n\n  - Stage 4: `$set`\n\n    ```javascript\n    {\n      sales_price: { $toDouble: \"$sales_price\" }\n    }\n    ```\n\n  - Stage 5: `$merge`\n\n    ```javascript\n    {\n      into: \"monthlyPhoneTransactions\",\n      whenMatched: \"replace\"\n    }\n    ```\n\n- Click Run to execute the aggregation pipeline. This updates the `monthlyPhoneTransactions` collection with data from the `purchaseOrders` collection.\n\n* Navigate back to the database view and click on the newly created `monthlyPhoneTransactions` collection.\n\n* Click the Documents tab to view the documents in the collection.\n\n* You should see documents with monthly aggregated data. The first few documents might look like:\n\n  ```json\n  {\n    \"_id\": \"2013-01\",\n    \"sales_quantity\": 200,\n    \"sales_price\": 2941.47\n  }\n  {\n    \"_id\": \"2013-02\",\n    \"sales_quantity\": 191,\n    \"sales_price\": 4822.15\n  }\n  {\n    \"_id\": \"2013-03\",\n    \"sales_quantity\": 74,\n    \"sales_price\": 2429.12\n  }\n  ```\n\nFor production environments, we recommend that you set up a scheduled task to\nupdate the materialized view. You can do this by using the following methods:\n\n- **MongoDB Scheduled Triggers**: If using MongoDB Atlas, create a\n  scheduled trigger through the Atlas UI to run this aggregation\n  on a monthly basis.\n\n- **Cron Job**: Set up a cron job on your server that runs a script\n  to connect to MongoDB and execute the aggregation pipeline.\n\n- **Application Logic**: Implement scheduled updates in your application\n  using the example code shown in the programming language examples\n  of this guide.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  purchaseMethod: \"Phone\"\n}",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  path: \"$items\"\n}",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  _id: {\n    $dateToString: {\n      format: \"%Y-%m\",\n      date: \"$saleDate\"\n    }\n  },\n  sales_quantity: { $sum: \"$items.quantity\" },\n  sales_price: { $sum: \"$items.price\" }\n}",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  sales_price: { $toDouble: \"$sales_price\" }\n}",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  into: \"monthlyPhoneTransactions\",\n  whenMatched: \"replace\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  purchaseMethod: \"Phone\"\n}",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  path: \"$items\"\n}",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  _id: {\n    $dateToString: {\n      format: \"%Y-%m\",\n      date: \"$saleDate\"\n    }\n  },\n  sales_quantity: { $sum: \"$items.quantity\" },\n  sales_price: { $sum: \"$items.price\" }\n}",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  sales_price: { $toDouble: \"$sales_price\" }\n}",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  into: \"monthlyPhoneTransactions\",\n  whenMatched: \"replace\"\n}",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\": \"2013-01\",\n  \"sales_quantity\": 200,\n  \"sales_price\": 2941.47\n}\n{\n  \"_id\": \"2013-02\",\n  \"sales_quantity\": 191,\n  \"sales_price\": 4822.15\n}\n{\n  \"_id\": \"2013-03\",\n  \"sales_quantity\": 74,\n  \"sales_price\": 2429.12\n}",
+      "tokenEstimate": 93
+    }
+  ],
+  "slug": "create-and-update-the-materialized-view--atlas-compass-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "compass",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

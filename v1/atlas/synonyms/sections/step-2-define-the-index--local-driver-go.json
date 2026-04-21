@@ -1,0 +1,19 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create-static-index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your MongoDB deployment's connection string\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"sample_mflix\").Collection(\"movies\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Create the search index definition\n\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.M{\n\t\t\t\"mappings\": bson.M{\n\t\t\t\t\"dynamic\": false,\n\t\t\t\t\"fields\": bson.M{\n\t\t\t\t\t\"plot\": bson.M{\n\t\t\t\t\t\t\"type\":     \"string\",\n\t\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t\t\"synonyms\": []bson.M{\n\t\t\t\t{\n\t\t\t\t\t\"analyzer\": \"lucene.english\",\n\t\t\t\t\t\"name\":     \"my_synonyms\",\n\t\t\t\t\t\"source\": bson.M{\n\t\t\t\t\t\t\"collection\": \"synonymous_terms\",\n\t\t\t\t\t},\n\t\t\t\t},\n\t\t\t},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+      "tokenEstimate": 391
+    }
+  ],
+  "slug": "step-2-define-the-index--local-driver-go",
+  "selections": {
+    "deployment-type": "local",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

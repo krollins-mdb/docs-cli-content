@@ -1,0 +1,29 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create-index.js` file in your project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \n  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"local_school_district\");\n    const collection = database.collection(\"schools\");\n    \n    // define your Atlas Search index\n    const index = {\n        name: \"embedded-documents-tutorial\",\n        definition: {\n          \"mappings\": {\n            \"dynamic\": true,\n            \"fields\": {\n              \"clubs\": {\n                \"dynamic\": true,\n                \"fields\": {\n                  \"sports\": {\n                    \"dynamic\": true,\n                    \"type\": \"embeddedDocuments\"\n                  }\n                },\n                \"type\": \"document\"\n              },\n              \"teachers\": [\n                {\n                  \"dynamic\": true,\n                  \"fields\": {\n                    \"classes\": {\n                      \"dynamic\": true,\n                      \"type\": \"embeddedDocuments\"\n                    }\n                  },\n                  \"type\": \"embeddedDocuments\"\n                },\n                {\n                  \"dynamic\": true,\n                  \"fields\": {\n                    \"classes\": {\n                      \"dynamic\": true,\n                      \"fields\": {\n                        \"grade\": {\n                          \"type\": \"token\"\n                        }\n                      },\n                      \"type\": \"document\"\n                    }\n                  },\n                  \"type\": \"document\"\n                }\n              ]\n            }\n          }\n        }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \n  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"local_school_district\");\n    const collection = database.collection(\"schools\");\n    \n    // define your Atlas Search index\n    const index = {\n        name: \"embedded-documents-tutorial\",\n        definition: {\n          \"mappings\": {\n            \"dynamic\": true,\n            \"fields\": {\n              \"clubs\": {\n                \"dynamic\": true,\n                \"fields\": {\n                  \"sports\": {\n                    \"dynamic\": true,\n                    \"type\": \"embeddedDocuments\"\n                  }\n                },\n                \"type\": \"document\"\n              },\n              \"teachers\": [\n                {\n                  \"dynamic\": true,\n                  \"fields\": {\n                    \"classes\": {\n                      \"dynamic\": true,\n                      \"type\": \"embeddedDocuments\"\n                    }\n                  },\n                  \"type\": \"embeddedDocuments\"\n                },\n                {\n                  \"dynamic\": true,\n                  \"fields\": {\n                    \"classes\": {\n                      \"dynamic\": true,\n                      \"fields\": {\n                        \"grade\": {\n                          \"type\": \"token\"\n                        }\n                      },\n                      \"type\": \"document\"\n                    }\n                  },\n                  \"type\": \"document\"\n                }\n              ]\n            }\n          }\n        }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+      "tokenEstimate": 332
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--atlas-driver-nodejs",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

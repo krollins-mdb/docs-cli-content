@@ -1,0 +1,12 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_training.companies`\nnamespace indexes the array of objects in the `products` field. It also\nconfigures MongoDB Search to automatically index all dynamically indexable fields\ninside the objects in the `products` array.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_training\");\n    const collection = database.collection(\"companies\");\n\n    // Create the MongoDB Search index definition for the embeddedDocuments field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"products\": {\n                        \"type\": \"embeddedDocuments\",\n                        \"dynamic\": true\n                    }\n                }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_training\");\n    const collection = database.collection(\"companies\");\n\n    // Create the MongoDB Search index definition for the embeddedDocuments field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"products\": {\n                        \"type\": \"embeddedDocuments\",\n                        \"dynamic\": true\n                    }\n                }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n",
+      "tokenEstimate": 186
+    }
+  ]
+}

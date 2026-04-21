@@ -1,0 +1,29 @@
+{
+  "heading": "Step 3: Compile and run the file to create the index.",
+  "headingLevel": 2,
+  "body": "Compile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateIndex.java\njava CreateIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThe MongoDB Search `boolean` type takes the following parameter:\n\n| Option | Type   | Necessity | Description                                                                  |\n| ------ | ------ | --------- | ---------------------------------------------------------------------------- |\n| type   | string | required  | Human-readable label that identifies this field type. Value must be boolean. |\n\nThe following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.\n\nTo learn how to set up and run the following example code, see\nDefine the Index for the token Type.\n\nThe following example creates a MongoDB Search index on the `sample_analytics.customers`\ncollection and indexes the `active` field as the `boolean` type:\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateBooleanIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_analytics\");\n            MongoCollection<Document> collection = database.getCollection(\"customers\");\n\n            // Create MongoDB Search index definition\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", false)\n                        .append(\"fields\", new Document(\"active\", \n                                              new Document(\"type\", \"boolean\"))));\n\n            String result = collection.createSearchIndex(\"default\", index);\n            System.out.println(\"New search index created with name: \" + result);\n        } catch (Exception e) {\n            System.err.println(\"Error creating search index: \" + e.getMessage());\n            e.printStackTrace();\n        }\n    }\n}\n\n```\n\nYou can use the MongoDB Search `boolean` type to index `true` and `false`\nvalues. You can query fields of type `boolean` using the [equals](equals-ref) and [in](in-ref) operators. You can also [sorting](sort-ref) by indexed `boolean` fields.\n\nYou can also use the `boolean` type to index:\n\n- Fields whose value is an array of booleans. To learn more, see\n  [How to Index the Elements of an Array](fts-array-ref).\n\n- Boolean fields inside an array of documents indexed as the\n  [embeddedDocuments](bson-data-types-embedded-documents) type.\n\nIf you enable [dynamic mappings](static-dynamic-mappings), MongoDB Search\nautomatically indexes fields of type dateFacet. You can\nuse the **Visual Editor** or the  **JSON Editor** in the Atlas UI to\nindex fields as the dateFacet type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "javac CreateIndex.java\njava CreateIndex",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateBooleanIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"sample_analytics\");\n            MongoCollection<Document> collection = database.getCollection(\"customers\");\n\n            // Create MongoDB Search index definition\n            Document index = new Document(\"mappings\",\n                    new Document(\"dynamic\", false)\n                        .append(\"fields\", new Document(\"active\", \n                                              new Document(\"type\", \"boolean\"))));\n\n            String result = collection.createSearchIndex(\"default\", index);\n            System.out.println(\"New search index created with name: \" + result);\n        } catch (Exception e) {\n            System.err.println(\"Error creating search index: \" + e.getMessage());\n            e.printStackTrace();\n        }\n    }\n}\n",
+      "tokenEstimate": 221
+    }
+  ],
+  "slug": "step-3-compile-and-run-the-file-to-create-the-index--atlas-driver-java-sync",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "java-sync"
+  },
+  "variantAgnostic": false
+}

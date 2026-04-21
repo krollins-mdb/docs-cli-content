@@ -1,0 +1,39 @@
+{
+  "heading": "Run a Query on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to run a query against the newly updated and indexed\n`monthlyPhoneTransactions` collection.\n\nCreate a `query.py` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```python\nimport pymongo\n\n# connect to your MongoDB deployment\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n  {\n    '$search': {\n      'index': 'monthlySalesIndex',\n      'range': {\n        'gt': 10000,\n        'path': ['sales_price']\n      }\n    }\n  },\n  {\n    '$count': 'months_w_over_10000'\n  }\n]\n\n# run pipeline\nresult = client['sample_supplies']['monthlyPhoneTransactions'].aggregate(pipeline)\n\n# print results\nfor doc in result:\n    print(doc)\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython query.py\n```\n\n**Output:**\n\n```\n{'months_w_over_10000': 4}\n```\n\nThe above query returns `4`, indicating that only 4 months out of all the months in the\n`monthlyPhoneTransactions` materialized view had total sales\ngreater than or equal to 10000 dollars. This result reflects data\nfrom both the `sample_supplies.sales` and\n`sample_supplies.purchaseOrders` collections.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# connect to your MongoDB deployment\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [\n  {\n    '$search': {\n      'index': 'monthlySalesIndex',\n      'range': {\n        'gt': 10000,\n        'path': ['sales_price']\n      }\n    }\n  },\n  {\n    '$count': 'months_w_over_10000'\n  }\n]\n\n# run pipeline\nresult = client['sample_supplies']['monthlyPhoneTransactions'].aggregate(pipeline)\n\n# print results\nfor doc in result:\n    print(doc)\n",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python query.py",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "text",
+      "content": "{'months_w_over_10000': 4}",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "run-a-query-on-the-materialized-view--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,12 @@
+{
+  "heading": "Index Dynamically Using Default typeSet",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_mflix.movies` collection\nindexes the `awards` field as the `document` type. It also configures\nMongoDB Search to automatically index all the dynamically indexable fields inside the\n`awards` object.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the document field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"awards\": {\n                        \"type\": \"document\",\n                        \"dynamic\": true\n                    }\n                }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // Create the MongoDB Search index definition for the document field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": false,\n                \"fields\": {\n                    \"awards\": {\n                        \"type\": \"document\",\n                        \"dynamic\": true\n                    }\n                }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+      "tokenEstimate": 186
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "```sh\nnpm install mongodb\n```\n\n> **Tip:** The examples on this page assume your project manages modules as\n> CommonJS modules. If you're using ES modules, instead, you must\n> modify the import syntax.\n\nCreate a file named `vector-index.js`. Copy and paste the following\ncode into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connectionString>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_mflix\");\n     const collection = database.collection(\"embedded_movies\");\n    \n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n           \"fields\": [\n             {\n               \"type\": \"vector\",\n               \"numDimensions\": 2048,\n               \"path\": \"plot_embedding_voyage_3_large\",\n               \"similarity\": \"dotProduct\",\n               \"quantization\": \"scalar\"\n             }\n           ]\n         }\n     }\n\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(`New search index named ${result} is building.`);\n\n     // wait for the index to be ready to query\n     console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n     let isQueryable = false;\n     while (!isQueryable) {\n       const cursor = collection.listSearchIndexes();\n       for await (const index of cursor) {\n         if (index.name === result) {\n           if (index.queryable) {\n             console.log(`${result} is ready for querying.`);\n             isQueryable = true;\n           } else {\n             await new Promise(resolve => setTimeout(resolve, 5000));\n           }\n         }\n       }\n     }\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);\n\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n**Input:**\n\n```shell\nnode vector-index.js\n```\n\n**Output:**\n\n```console\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "npm install mongodb",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connectionString>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n   try {\n     const database = client.db(\"sample_mflix\");\n     const collection = database.collection(\"embedded_movies\");\n    \n     // define your MongoDB Vector Search index\n     const index = {\n         name: \"vector_index\",\n         type: \"vectorSearch\",\n         definition: {\n           \"fields\": [\n             {\n               \"type\": \"vector\",\n               \"numDimensions\": 2048,\n               \"path\": \"plot_embedding_voyage_3_large\",\n               \"similarity\": \"dotProduct\",\n               \"quantization\": \"scalar\"\n             }\n           ]\n         }\n     }\n\n     // run the helper method\n     const result = await collection.createSearchIndex(index);\n     console.log(`New search index named ${result} is building.`);\n\n     // wait for the index to be ready to query\n     console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n     let isQueryable = false;\n     while (!isQueryable) {\n       const cursor = collection.listSearchIndexes();\n       for await (const index of cursor) {\n         if (index.name === result) {\n           if (index.queryable) {\n             console.log(`${result} is ready for querying.`);\n             isQueryable = true;\n           } else {\n             await new Promise(resolve => setTimeout(resolve, 5000));\n           }\n         }\n       }\n     }\n   } finally {\n     await client.close();\n   }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 331
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "node vector-index.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "console",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--local-byo-driver-nodejs",
+  "selections": {
+    "deployment-type": "local",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

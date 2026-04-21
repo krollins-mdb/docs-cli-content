@@ -1,0 +1,13 @@
+{
+  "heading": "Dedicated Search Nodes",
+  "headingLevel": 3,
+  "body": "You can deploy [Search Nodes](what-is-search-node) to\nimprove performance, scalability, and resource isolation.\n\nIf you've deployed Search Nodes, consider the following:\n\n- Adding and adjusting [shards](manual/sharding) triggers a\n  rebuild of the MongoDB Search index. During this index rebuild, the index\n  might not have the most current data. Therefore, queries against\n  data on those shards might fail or return incorrect results.\n\n- If you [reshard](manual/core/sharding-reshard-a-collection) a\n  collection with MongoDB Search indexes, MongoDB Search indexes on the collection\n  become unavailable when the resharding operation completes. You\n  *must* manually rebuild the MongoDB Search indexes once the operation\n  completes.\n\n- If you issue the command to [change the primary shard](manual/reference/command/movePrimary) of a database, the MongoDB Search\n  indexes for any unsharded collection under this database become\n  unavailable once the operation completes. You *must* delete and\n  create new MongoDB Search indexes once the [movePrimary](manual/reference/command/movePrimary)\n  operation is complete.\n\n- Scaling your cluster by adding search nodes or by changing the search\n  tier triggers a rebuild of the full MongoDB Search index. However, if your cluster\n  on AWS (Amazon Web Services) or Azure (Microsoft Azure) has dedicated search nodes for which you haven't\n  enabled [Encryption at Rest using Customer Key Management](security-kms-encryption), Atlas provides the following\n  optimizations:\n\n  - When you scale your search nodes, Atlas uses a recent copy of\n    your index in S3 (Simple Storage Service) or Azure Blob Storage instead of rebuilding the entire\n    MongoDB Search index on the new node.\n\n  - For existing nodes, Atlas periodically takes and uploads a new\n    incremental list of index files. Atlas retains index files for up\n    to fourteen (14) days.\n\n  This is not yet available for clusters with dedicated search nodes on\n  Google Cloud.\n\nTo learn more about MongoDB Search node architecture, see\n[MongoDB Search Deployment Options](fts-deployment-options).",
+  "codeBlocks": [],
+  "slug": "dedicated-search-nodes--atlas-driver-python",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

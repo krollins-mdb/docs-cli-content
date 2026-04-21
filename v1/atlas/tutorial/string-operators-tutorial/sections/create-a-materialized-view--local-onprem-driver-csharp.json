@@ -1,0 +1,44 @@
+{
+  "heading": "Create a Materialized View",
+  "headingLevel": 2,
+  "body": "In your terminal, navigate to where you want to create your application,\nthen run the following command to create a directory called\n`atlas-search-project` and initialize your project in that directory:\n\n```shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver\n```\n\nFor more detailed installation instructions, see the\n[MongoDB C# Driver documentation](csharp/get-started).\n\nPaste the following code into the `Program.cs` file.\n\nThis code uses the following aggregation pipeline stages to transform\nthe data as described:\n\n- [$project](manual/reference/operator/aggregation/project):\n\n  - Converts the date objects in the `last_scraped` field\n    into string objects in the `YYYY-MM-DD` format using\n    [$dateToString](manual/reference/operator/aggregation/dateToString) and writes the output to a string\n    field called `lastScrapedDate`.\n\n  - Converts the number objects in the `accommodates` and\n    `minimum_nights` fields into string values using\n    [$toString](manual/reference/operator/aggregation/toString) and writes the output to number fields\n    called `accommodatesNumber` and `minimumNumberOfNights`,\n    respectively.\n\n  - Includes the `name` and `property_type` string fields in\n    the output and renames them to `propertyName` and\n    `propertyType` respectively.\n\n- [$merge](manual/reference/operator/aggregation/merge):\n\n  Writes the output fields from the\n  [$project](manual/reference/operator/aggregation/project) stage to a materialized view named\n  `airbnb_mat_view` in the `sample_airbnb` database.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\n\npublic class CreateMaterializedView\n{\n    // Replace the placeholder with your Atlas connection string\n    private const string uri = \"<connectionString>\";\n    public static void Main(string[] args)\n    {\n        try\n        {\n            // Connect to your cluster\n            var client = new MongoClient(uri);\n            var database = client.GetDatabase(\"sample_airbnb\");\n            var collection = database.GetCollection<BsonDocument>(\"listingsAndReviews\");\n\n            // Defines the aggregation pipeline\n            var pipeline = new BsonDocument[] \n            {\n              new BsonDocument(\"$project\", new BsonDocument\n              {\n                { \"lastScrapedDate\", new BsonDocument(\"$dateToString\", new BsonDocument\n                  {\n                    { \"format\", \"%Y-%m-%d\" },\n                    { \"date\", \"$last_scraped\" }\n                  })\n                },\n                { \"accommodatesNumber\", new BsonDocument(\"$toString\", \"$accommodates\") },\n                { \"maximumNumberOfNights\", new BsonDocument(\"$toString\", \"$maximum_nights\") },\n                { \"propertyName\", \"$name\" },\n                { \"propertyType\", \"$property_type\" }\n              }),\n              new BsonDocument(\"$merge\", new BsonDocument\n              { \n                { \"into\", \"airbnb_mat_view\" }, \n                { \"whenMatched\", \"replace\" } \n              })\n            };\n\n            // Executes the aggregation pipeline\n            collection.Aggregate<BsonDocument>(pipeline);\n            Console.WriteLine(\"Materialized view created!\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\nMaterialized view created!\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\ndotnet new console\n\n# Add the MongoDB .NET/C# Driver to your project\ndotnet add package MongoDB.Driver",
+      "tokenEstimate": 44
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\nusing System;\n\npublic class CreateMaterializedView\n{\n    // Replace the placeholder with your Atlas connection string\n    private const string uri = \"<connectionString>\";\n    public static void Main(string[] args)\n    {\n        try\n        {\n            // Connect to your cluster\n            var client = new MongoClient(uri);\n            var database = client.GetDatabase(\"sample_airbnb\");\n            var collection = database.GetCollection<BsonDocument>(\"listingsAndReviews\");\n\n            // Defines the aggregation pipeline\n            var pipeline = new BsonDocument[] \n            {\n              new BsonDocument(\"$project\", new BsonDocument\n              {\n                { \"lastScrapedDate\", new BsonDocument(\"$dateToString\", new BsonDocument\n                  {\n                    { \"format\", \"%Y-%m-%d\" },\n                    { \"date\", \"$last_scraped\" }\n                  })\n                },\n                { \"accommodatesNumber\", new BsonDocument(\"$toString\", \"$accommodates\") },\n                { \"maximumNumberOfNights\", new BsonDocument(\"$toString\", \"$maximum_nights\") },\n                { \"propertyName\", \"$name\" },\n                { \"propertyType\", \"$property_type\" }\n              }),\n              new BsonDocument(\"$merge\", new BsonDocument\n              { \n                { \"into\", \"airbnb_mat_view\" }, \n                { \"whenMatched\", \"replace\" } \n              })\n            };\n\n            // Executes the aggregation pipeline\n            collection.Aggregate<BsonDocument>(pipeline);\n            Console.WriteLine(\"Materialized view created!\");\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 347
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "Materialized view created!",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-a-materialized-view--local-onprem-driver-csharp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

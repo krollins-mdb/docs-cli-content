@@ -1,0 +1,29 @@
+{
+  "heading": "Step 3: Create the index.",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```shell\ngo run create_index.go\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nThe MongoDB Search `objectId` type takes the following option:\n\n| UI Field Name | JSON Option | Type   | Necessity | Description                                                                   |\n| ------------- | ----------- | ------ | --------- | ----------------------------------------------------------------------------- |\n| Data Type     | type        | string | required  | Human-readable label that identifies this field type. Value must be objectId. |\n\nThe following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.\n\nTo learn how to set up and run the following example code, see\nDefine the Index for the token Type.\n\nCreate an index on a field with the objectId type.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\n\t\"go.mongodb.org/mongo-driver/bson\"\n\t\"go.mongodb.org/mongo-driver/mongo\"\n\t\"go.mongodb.org/mongo-driver/mongo/options\"\n)\n\nfunc main() {\n\t// Set client options\n\tclientOptions := options.Client().ApplyURI(\"mongodb+srv://<username>:<password>@<cluster-url>/sample_mflix\")\n\t\n\t// Connect to MongoDB\n\tclient, err := mongo.Connect(context.TODO(), clientOptions)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\t\n\t// Get a handle for your database\n\tdatabase := client.Database(\"sample_mflix\")\n\t\n\t// Create a MongoDB Search index on the objectId field\n\tindexDefinition := bson.D{\n\t\t{\"createSearchIndexes\", \"comments\"},\n\t\t{\"indexes\", bson.A{\n\t\t\tbson.D{\n\t\t\t\t{\"name\", \"objectid_index\"},\n\t\t\t\t{\"definition\", bson.D{\n\t\t\t\t\t{\"mappings\", bson.D{\n\t\t\t\t\t\t{\"dynamic\", false},\n\t\t\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t\t\t{\"movie_id\", bson.D{\n\t\t\t\t\t\t\t\t{\"type\", \"objectId\"},\n\t\t\t\t\t\t\t}},\n\t\t\t\t\t\t}},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t},\n\t\t}},\n\t}\n\t\n\tresult := database.RunCommand(context.TODO(), indexDefinition)\n\tif result.Err() != nil {\n\t\tlog.Fatal(result.Err())\n\t}\n\t\n\tvar resultDoc bson.M\n\tif err := result.Decode(&resultDoc); err != nil {\n\t\tlog.Fatal(err)\n\t}\n\t\n\tfmt.Println(\"Successfully created Atlas Search index:\", resultDoc)\n}\n\n```\n\nYou can use the MongoDB Search `objectId` type to index [ObjectId](manual/reference/bson-types) values. You can query fields of type\n`objectId` using the [equals](equals-ref) and [in](in-ref)\noperators.\n\nYou can also use the `objectId` type to index:\n\n- Fields whose value is an array of `objectId`. To learn more, see\n  [How to Index the Elements of an Array](fts-array-ref).\n\n- `objectId` fields inside an array of documents indexed as the\n  [embeddedDocuments](bson-data-types-embedded-documents) type.\n\nIf you enable [dynamic mappings](static-dynamic-mappings), MongoDB Search\nautomatically indexes fields of type dateFacet. You can\nuse the **Visual Editor** or the  **JSON Editor** in the Atlas UI to\nindex fields as the dateFacet type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "go run create_index.go",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\n\t\"go.mongodb.org/mongo-driver/bson\"\n\t\"go.mongodb.org/mongo-driver/mongo\"\n\t\"go.mongodb.org/mongo-driver/mongo/options\"\n)\n\nfunc main() {\n\t// Set client options\n\tclientOptions := options.Client().ApplyURI(\"mongodb+srv://<username>:<password>@<cluster-url>/sample_mflix\")\n\t\n\t// Connect to MongoDB\n\tclient, err := mongo.Connect(context.TODO(), clientOptions)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\t\n\t// Get a handle for your database\n\tdatabase := client.Database(\"sample_mflix\")\n\t\n\t// Create a MongoDB Search index on the objectId field\n\tindexDefinition := bson.D{\n\t\t{\"createSearchIndexes\", \"comments\"},\n\t\t{\"indexes\", bson.A{\n\t\t\tbson.D{\n\t\t\t\t{\"name\", \"objectid_index\"},\n\t\t\t\t{\"definition\", bson.D{\n\t\t\t\t\t{\"mappings\", bson.D{\n\t\t\t\t\t\t{\"dynamic\", false},\n\t\t\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t\t\t{\"movie_id\", bson.D{\n\t\t\t\t\t\t\t\t{\"type\", \"objectId\"},\n\t\t\t\t\t\t\t}},\n\t\t\t\t\t\t}},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t},\n\t\t}},\n\t}\n\t\n\tresult := database.RunCommand(context.TODO(), indexDefinition)\n\tif result.Err() != nil {\n\t\tlog.Fatal(result.Err())\n\t}\n\t\n\tvar resultDoc bson.M\n\tif err := result.Decode(&resultDoc); err != nil {\n\t\tlog.Fatal(err)\n\t}\n\t\n\tfmt.Println(\"Successfully created Atlas Search index:\", resultDoc)\n}\n",
+      "tokenEstimate": 331
+    }
+  ],
+  "slug": "step-3-create-the-index--atlas-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,19 @@
+{
+  "heading": "Use Relative Path for Stored Source",
+  "headingLevel": 3,
+  "body": "The following index definition automatically indexes all the fields in\nthe `funding_rounds` array of objects for querying. It also uses the\n`storedSource` field to store the `round_code`,\n`raised_currency_code`, and `raised_amount` fields on `mongot`.\nThis allows you to query these stored fields using any operator that\nsupports queries against these field types and retrieve these stored\nfields inside the parent object (`funding_rounds`) as individual\ndocuments. For a sample query that demonstrates this, see the [range](range-ref)\n[Embedded Documents Example](range-embedded-documents-eg). To query and\nretrieve other fields in the parent object (`funding_rounds`), you\nmust use the `embeddedDocument` operator.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_training\");\n    const collection = database.collection(\"companies\");\n\n    // Create the Atlas Search index definition for the embeddedDocuments field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": { \n              \"dynamic\": false,\n              \"fields\": { \n                \"funding_rounds\": { \n                  \"type\": \"embeddedDocuments\",\n                  \"dynamic\": true,\n                  \"storedSource\": {\n                    \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n                  }\n                } \n              }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_training\");\n    const collection = database.collection(\"companies\");\n\n    // Create the Atlas Search index definition for the embeddedDocuments field\n    const index = {\n        name: \"default\",\n        definition: {\n            \"mappings\": { \n              \"dynamic\": false,\n              \"fields\": { \n                \"funding_rounds\": { \n                  \"type\": \"embeddedDocuments\",\n                  \"dynamic\": true,\n                  \"storedSource\": {\n                    \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n                  }\n                } \n              }\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n",
+      "tokenEstimate": 219
+    }
+  ],
+  "slug": "use-relative-path-for-stored-source--local-onprem-driver-nodejs",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

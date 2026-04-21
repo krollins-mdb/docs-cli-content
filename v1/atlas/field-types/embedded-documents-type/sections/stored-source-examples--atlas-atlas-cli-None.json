@@ -1,0 +1,24 @@
+{
+  "heading": "Stored Source Examples",
+  "headingLevel": 2,
+  "body": "The following index definition automatically indexes all the fields in\nthe `funding_rounds` array of objects for querying. It also uses the\n`storedSource` field to store the `round_code`,\n`raised_currency_code`, and `raised_amount` fields on `mongot`.\nThis allows you to query these stored fields using any operator that\nsupports queries against these field types and retrieve these stored\nfields inside the parent object (`funding_rounds`) as individual\ndocuments. For a sample query that demonstrates this, see the [range](range-ref)\n[Embedded Documents Example](range-embedded-documents-eg). To query and\nretrieve other fields in the parent object (`funding_rounds`), you\nmust use the `embeddedDocument` operator.\n\n```bash\n{\n  \"mappings\": { \n  \"dynamic\": false,\n  \"fields\": { \n    \"funding_rounds\": { \n      \"type\": \"embeddedDocuments\",\n      \"dynamic\": true,\n      \"storedSource\": {\n        \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n      }\n    } \n  }\n}\n```\n\nThe following index definition indexes all fields in the the\n`products` array of objects. It stores the `name` field\nindependently for querying the `name` field and the `products`\narray of objects. You can use any operator that supports queries\nagainst the field types in the `products` array of objects to query\nand retrieve the stored fields as individual documents.\n\n```bash\n{\n  \"mappings\": { \n    \"dynamic\": false,\n    \"fields\": { \n      \"products\": { \n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"storedSource\": true\n      } \n    }\n  },\n  \"storedSource\": {\n    \"include\": [ \"_id\", \"name\" ]\n  }\n}\n```\n\n> **Note:** The MongoDB Search [embeddedDocuments](bson-data-types-embedded-documents)\n> type, [embeddedDocument](embedded-document-ref) operator, and [embedded](scoring-embedded)\n> scoring option are in preview.\n\nYou can use the MongoDB Search `embeddedDocuments` type to index fields in\ndocuments and objects that are elements of an array. MongoDB Search indexes\nembedded documents independent of their parent document. Each indexed\ndocument contains only fields that are part of the embedded document\narray element.\n\nTo query fields indexed within an `embeddedDocuments`\nmapping, you must do one of the following:\n\n- Use the [embeddedDocument](embedded-document-ref) operator with\n  the `path` specified as the `embeddedDocuments` field.\n\n- Use `storedSource` index option and specify the\n  `embeddedDocuments` field in the `returnScope` query option.\n\nYou can also [configure dynamic mappings](fts-configure-dynamic-mappings)\nto automatically index fields that are part of the embedded document\narray element.",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "{\n  \"mappings\": { \n  \"dynamic\": false,\n  \"fields\": { \n    \"funding_rounds\": { \n      \"type\": \"embeddedDocuments\",\n      \"dynamic\": true,\n      \"storedSource\": {\n        \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n      }\n    } \n  }\n}",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "bash",
+      "content": "{\n  \"mappings\": { \n    \"dynamic\": false,\n    \"fields\": { \n      \"products\": { \n        \"type\": \"embeddedDocuments\",\n        \"dynamic\": true,\n        \"storedSource\": true\n      } \n    }\n  },\n  \"storedSource\": {\n    \"include\": [ \"_id\", \"name\" ]\n  }\n}",
+      "tokenEstimate": 75
+    }
+  ],
+  "slug": "stored-source-examples--atlas-atlas-cli-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "atlas-cli",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

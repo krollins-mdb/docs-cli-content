@@ -1,0 +1,55 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "For installation instructions based on your environment and the version\nof Scala you are using, refer to the [MongoDB Scala Driver documentation](languages/scala/scala-driver/current/get-started).\n\nFor this quick start, we create a project named `quick-start`, by using\n[sbt](https://www.scala-sbt.org).\n\n```sh\nsbt new scala/hello-world.g8\n```\n\nWhen prompted, name the application `quick-start`.\n\nCopy and paste the following code into the file.\n\n```scala\nimport org.mongodb.scala._\nimport org.mongodb.scala.model._\nimport com.mongodb.client.model.SearchIndexType\n\nclass VectorIndex {\n  def createIndex(): Unit = {\n    val collection =\n      MongoClient(\"<connectionString>\")\n        .getDatabase(\"sample_mflix\")\n        .getCollection(\"embedded_movies\")\n    val indexName = \"vector_index\"\n    val indexNameAsOption = Option(indexName)\n    val indexDefinition = Document(\n      \"fields\" -> List(\n        Document(\n          \"type\" -> \"vector\",\n          \"path\" -> \"plot_embedding_voyage_3_large\",\n          \"numDimensions\" -> 2048,\n          \"similarity\" -> \"dotProduct\",\n          \"quantization\" -> \"scalar\"\n        )\n      )\n    )\n    val indexType = Option(SearchIndexType.vectorSearch())\n    val indexModel: SearchIndexModel = SearchIndexModel(\n      indexNameAsOption, indexDefinition, indexType\n    )\n    collection.createSearchIndexes(List(indexModel)).foreach { doc => println(s\"New search index named $doc is building.\") }\n    Thread.sleep(2000)\n    println(\"Polling to check if the index is ready. This may take up to a minute.\")\n    var indexReady = false\n    while (!indexReady) {\n      val searchIndexes = collection.listSearchIndexes()\n      searchIndexes.foreach { current =>\n        val document = current.toBsonDocument()\n        val name = document.get(\"name\").asString().getValue\n        val queryable = document.get(\"queryable\").asBoolean().getValue\n        if (name == indexName && queryable) {\n          indexReady = true\n        }\n      }\n      if (!indexReady) {\n        Thread.sleep(5000)\n      }\n    }\n    println(s\"$indexName is ready for querying.\")\n  }\n}\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n```scala\nobject Main extends App {\n   private val indexInstance = new VectorIndex\n   indexInstance.createIndex()\n}\n```\n\nThere are many tools and environments in which Scala runs. In this example,\nwe run the new Scala project by starting the sbt server with the `sbt`\ncommand, then typing `~run`.\n\n**Input:**\n\n```shell\nsbt:quick-start> ~run\n```\n\n**Output:**\n\n```console\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "sbt new scala/hello-world.g8",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "scala",
+      "content": "import org.mongodb.scala._\nimport org.mongodb.scala.model._\nimport com.mongodb.client.model.SearchIndexType\n\nclass VectorIndex {\n  def createIndex(): Unit = {\n    val collection =\n      MongoClient(\"<connectionString>\")\n        .getDatabase(\"sample_mflix\")\n        .getCollection(\"embedded_movies\")\n    val indexName = \"vector_index\"\n    val indexNameAsOption = Option(indexName)\n    val indexDefinition = Document(\n      \"fields\" -> List(\n        Document(\n          \"type\" -> \"vector\",\n          \"path\" -> \"plot_embedding_voyage_3_large\",\n          \"numDimensions\" -> 2048,\n          \"similarity\" -> \"dotProduct\",\n          \"quantization\" -> \"scalar\"\n        )\n      )\n    )\n    val indexType = Option(SearchIndexType.vectorSearch())\n    val indexModel: SearchIndexModel = SearchIndexModel(\n      indexNameAsOption, indexDefinition, indexType\n    )\n    collection.createSearchIndexes(List(indexModel)).foreach { doc => println(s\"New search index named $doc is building.\") }\n    Thread.sleep(2000)\n    println(\"Polling to check if the index is ready. This may take up to a minute.\")\n    var indexReady = false\n    while (!indexReady) {\n      val searchIndexes = collection.listSearchIndexes()\n      searchIndexes.foreach { current =>\n        val document = current.toBsonDocument()\n        val name = document.get(\"name\").asString().getValue\n        val queryable = document.get(\"queryable\").asBoolean().getValue\n        if (name == indexName && queryable) {\n          indexReady = true\n        }\n      }\n      if (!indexReady) {\n        Thread.sleep(5000)\n      }\n    }\n    println(s\"$indexName is ready for querying.\")\n  }\n}",
+      "tokenEstimate": 371
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "scala",
+      "content": "object Main extends App {\n   private val indexInstance = new VectorIndex\n   indexInstance.createIndex()\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "shell",
+      "content": "sbt:quick-start> ~run",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "console",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--atlas-byo-driver-scala",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "scala"
+  },
+  "variantAgnostic": false
+}

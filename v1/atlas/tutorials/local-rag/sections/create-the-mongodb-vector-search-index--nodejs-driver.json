@@ -1,0 +1,23 @@
+{
+  "heading": "Create the MongoDB Vector Search Index",
+  "headingLevel": 2,
+  "body": "To create a MongoDB Vector Search index for a collection using the\n[MongoDB Node driver](node/fundamentals/indexes)\nv6.6.0 or later, perform the following steps:\n\nCreate a file named `vector-index.js` and paste the following code in\nthe file:\n\n```javascript\nimport { MongoClient } from 'mongodb';\n\n// Connect to your MongoDB cluster\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_airbnb\");\n      const collection = database.collection(\"listingsAndReviews\");\n\n      // Define your Vector Search index\n      const index = {\n          name: \"vector_index\",\n          type: \"vectorSearch\",\n          definition: {\n            \"fields\": [\n              {\n                \"type\": \"vector\",\n                \"numDimensions\": 1024,\n                \"path\": \"embeddings\",\n                \"similarity\": \"cosine\"\n              }\n            ]\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);\n```\n\nThis index definition indexes the `embeddings` field\nin an index of the [index definition](avs-types-vector-search) type\nfor the `sample_airbnb.listingsAndReviews` collection.\nThis field contains the embeddings created using the\nembedding model. The index definition specifies `1024` vector\ndimensions and measures similarity using `cosine`.\n\n- Save the file, and then run the following command in your terminal\n  to execute the code:\n\n  ```sh\n  node --env-file=.env vector-index.js\n  ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import { MongoClient } from 'mongodb';\n\n// Connect to your MongoDB cluster\nconst client = new MongoClient(process.env.MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_airbnb\");\n      const collection = database.collection(\"listingsAndReviews\");\n\n      // Define your Vector Search index\n      const index = {\n          name: \"vector_index\",\n          type: \"vectorSearch\",\n          definition: {\n            \"fields\": [\n              {\n                \"type\": \"vector\",\n                \"numDimensions\": 1024,\n                \"path\": \"embeddings\",\n                \"similarity\": \"cosine\"\n              }\n            ]\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 180
+    },
+    {
+      "language": "sh",
+      "content": "node --env-file=.env vector-index.js",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "create-the-mongodb-vector-search-index--nodejs-driver",
+  "selections": {
+    "language-no-interface": "nodejs",
+    "index-creation-method": "driver"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,18 @@
+{
+  "heading": "Try an Example for the vector Type",
+  "headingLevel": 2,
+  "body": "```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"embedded_movies\");\n\n// define your MongoDB Search index\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true },\n        { \"fields\", new BsonDocument\n          {\n            { \"plot_embedding_voyage_3_large\", new BsonDocument\n              {\n                { \"numDimensions\", 2048 },\n                { \"quantization\", \"scalar\" },\n                { \"similarity\", \"dotProduct\" },\n                { \"type\", \"vector\" }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_mflix\");\nvar collection = db.GetCollection<BsonDocument>(\"embedded_movies\");\n\n// define your MongoDB Search index\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true },\n        { \"fields\", new BsonDocument\n          {\n            { \"plot_embedding_voyage_3_large\", new BsonDocument\n              {\n                { \"numDimensions\", 2048 },\n                { \"quantization\", \"scalar\" },\n                { \"similarity\", \"dotProduct\" },\n                { \"type\", \"vector\" }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 208
+    }
+  ],
+  "slug": "try-an-example-for-the-vector-type--driver-csharp",
+  "selections": {
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

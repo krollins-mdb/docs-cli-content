@@ -1,0 +1,49 @@
+{
+  "heading": "Run a Query on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to run a query against the newly updated and indexed\n`monthlyPhoneTransactions` collection.\n\nCreate a `query.cpp` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```cpp\n#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/builder/basic/array.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/pipeline.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\nusing bsoncxx::builder::basic::make_array;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n    \n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_supplies\"];\n    auto collection = db[\"monthlyPhoneTransactions\"];\n    \n    // Build the aggregation pipeline\n    mongocxx::pipeline pipeline{};\n    \n    // Create the $search stage\n    auto search_doc = make_document(\n        kvp(\"$search\", make_document(\n            kvp(\"index\", \"monthlySalesIndex\"),\n            kvp(\"range\", make_document(\n                kvp(\"gt\", 10000),\n                kvp(\"path\", make_array(\"sales_price\"))\n            ))\n        ))\n    );\n    \n    // Create the $count stage\n    auto count_doc = make_document(\n        kvp(\"$count\", \"months_w_over_10000\")\n    );\n    \n    // Add stages to the pipeline\n    pipeline.append_stage(search_doc.view());\n    pipeline.append_stage(count_doc.view());\n    \n    try {\n        // Run the aggregation pipeline and print results\n        auto cursor = collection.aggregate(pipeline);\n\n        // Process and print the results\n        for (auto&& doc : cursor) {\n            std::cout << bsoncxx::to_json(doc) << std::endl;\n        }\n    } catch (const std::exception& e) {\n        std::cerr << \"Error executing query: \" << e.what() << std::endl;\n    }\n    \n    return 0;\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\nc++ --std=c++17 query.cpp $(pkg-config --cflags --libs libmongocxx) -o ./query.out\n./query.out\n```\n\n**Output:**\n\n```\n{ \"months_w_over_10000\" : 4 }\n```\n\n> **Tip:**&#x20;\n>\n> MacOS Error\n>\n> MacOS users might see the following error after running the preceding\n> commands:\n>\n> ```sh\n> dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib\n> ```\n>\n> To resolve this error, use the `-Wl,-rpath` linker option to set\n> the `@rpath`, as shown in the following code:\n>\n> ```sh\n> c++ --std=c++17 query.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./query.out\n> ./query.out\n> ```\n\nThe above query returns `4`, indicating that only 4 months out of all the months in the\n`monthlyPhoneTransactions` materialized view had total sales\ngreater than or equal to 10000 dollars. This result reflects data\nfrom both the `sample_supplies.sales` and\n`sample_supplies.purchaseOrders` collections.\n\nThis page contains tutorials that demonstrate the\ndifferent ways you can run MongoDB Search queries across multiple collections:\n\n- To join collections and search across them, use [$lookup](manual/reference/operator/aggregation/lookup) with [$search](pipe.$search).\n\n- To combine search results from multiple collections, use [$unionWith](manual/reference/operator/aggregation/unionWith) with [$search](pipe.$search).\n\n- To consolidate multiple collections so you can index and search them together, use\n  materialized views.\n\nBefore you begin, ensure that your cluster meets the\nrequirements described in the [Prerequisites](fts-design-patterns-prereqs).\n\nStarting in v6.0, the MongoDB [$lookup](manual/reference/operator/aggregation/lookup) aggregation stage\nsupports [$search](pipe.$search) inside the [$lookup](manual/reference/operator/aggregation/lookup)\n`pipeline` option. Using [$lookup](manual/reference/operator/aggregation/lookup), you can join\nmultiple collections in the same database at query-time and run a\n[$search](pipe.$search) query to further narrow down your search.\n\nThis tutorial demonstrates how to run a [$lookup](manual/reference/operator/aggregation/lookup) query\nwith [$search](pipe.$search) against the `accounts` and `customers`\ncollections in the `sample_analytics` database.\nIt takes you through the following steps:\n\n- Create a default MongoDB Search index on the `accounts`\n  collection in the `sample_analytics` database.\n\n- Run a [$lookup](manual/reference/operator/aggregation/lookup) query with [$search](pipe.$search) to find\n  customers from the `customers` collection whose accounts have\n  purchased both `CurrencyService` and `InvestmentStock` products\n  in the `accounts` collection.",
+  "codeBlocks": [
+    {
+      "language": "cpp",
+      "content": "#include <iostream>\n\n#include <bsoncxx/builder/basic/document.hpp>\n#include <bsoncxx/builder/basic/array.hpp>\n#include <bsoncxx/json.hpp>\n#include <mongocxx/client.hpp>\n#include <mongocxx/instance.hpp>\n#include <mongocxx/uri.hpp>\n#include <mongocxx/pipeline.hpp>\n\nusing bsoncxx::builder::basic::kvp;\nusing bsoncxx::builder::basic::make_document;\nusing bsoncxx::builder::basic::make_array;\n\nint main() {\n    // Initialize the MongoDB C++ driver\n    mongocxx::instance instance{};\n    \n    // Connect to your MongoDB deployment\n    mongocxx::uri uri(\"<connection-string>\");\n    mongocxx::client client(uri);\n\n    auto db = client[\"sample_supplies\"];\n    auto collection = db[\"monthlyPhoneTransactions\"];\n    \n    // Build the aggregation pipeline\n    mongocxx::pipeline pipeline{};\n    \n    // Create the $search stage\n    auto search_doc = make_document(\n        kvp(\"$search\", make_document(\n            kvp(\"index\", \"monthlySalesIndex\"),\n            kvp(\"range\", make_document(\n                kvp(\"gt\", 10000),\n                kvp(\"path\", make_array(\"sales_price\"))\n            ))\n        ))\n    );\n    \n    // Create the $count stage\n    auto count_doc = make_document(\n        kvp(\"$count\", \"months_w_over_10000\")\n    );\n    \n    // Add stages to the pipeline\n    pipeline.append_stage(search_doc.view());\n    pipeline.append_stage(count_doc.view());\n    \n    try {\n        // Run the aggregation pipeline and print results\n        auto cursor = collection.aggregate(pipeline);\n\n        // Process and print the results\n        for (auto&& doc : cursor) {\n            std::cout << bsoncxx::to_json(doc) << std::endl;\n        }\n    } catch (const std::exception& e) {\n        std::cerr << \"Error executing query: \" << e.what() << std::endl;\n    }\n    \n    return 0;\n}\n",
+      "tokenEstimate": 412
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "c++ --std=c++17 query.cpp $(pkg-config --cflags --libs libmongocxx) -o ./query.out\n./query.out",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "text",
+      "content": "{ \"months_w_over_10000\" : 4 }",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "sh",
+      "content": "dyld[54430]: Library not loaded: @rpath/libmongocxx._noabi.dylib",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "sh",
+      "content": "c++ --std=c++17 query.cpp -Wl,-rpath,/usr/local/lib/ $(pkg-config --cflags --libs libmongocxx) -o ./query.out\n./query.out",
+      "tokenEstimate": 42
+    }
+  ],
+  "slug": "run-a-query-on-the-materialized-view--local-onprem-driver-cpp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "cpp"
+  },
+  "variantAgnostic": false
+}

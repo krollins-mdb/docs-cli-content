@@ -1,0 +1,29 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Paste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<database>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection>\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        // \"dynamic\" can be a boolean or an object with \"typeSet\" name\n        { \"dynamic\", <true|false> | new BsonDocument { { \"typeSet\", \"<typeSet-name>\" } } },\n        { \"fields\", new BsonDocument\n          {\n            { \"<field-name>\", new BsonDocument\n              {\n                { \"type\", \"embeddedDocuments\" },\n                // \"dynamic\" can be a boolean or an object with \"typeSet\" name\n                { \"dynamic\", <true|false> | new BsonDocument { { \"typeSet\", \"<typeSet-name>\" } } },\n                { \"fields\", new BsonDocument\n                  {\n                    { \"<field-name>\", new BsonDocument\n                      {\n                        // <field-mapping-definition>\n                      }\n                    }\n                    // ... additional fields \n                  }\n                }\n              }\n            }\n            // ... additional fields \n          }\n        }\n      }\n    },\n    { \"typeSets\", new BsonArray\n      {\n        new BsonDocument\n        {\n          { \"name\", \"<typeSet-name>\" },\n          { \"types\", new BsonArray\n            {\n              new BsonDocument\n              {\n                // <field-type-configuration>\n              }\n              // ... additional types \n            }\n          }\n        }\n        // ... additional typeSets \n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<database>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collection>\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        // \"dynamic\" can be a boolean or an object with \"typeSet\" name\n        { \"dynamic\", <true|false> | new BsonDocument { { \"typeSet\", \"<typeSet-name>\" } } },\n        { \"fields\", new BsonDocument\n          {\n            { \"<field-name>\", new BsonDocument\n              {\n                { \"type\", \"embeddedDocuments\" },\n                // \"dynamic\" can be a boolean or an object with \"typeSet\" name\n                { \"dynamic\", <true|false> | new BsonDocument { { \"typeSet\", \"<typeSet-name>\" } } },\n                { \"fields\", new BsonDocument\n                  {\n                    { \"<field-name>\", new BsonDocument\n                      {\n                        // <field-mapping-definition>\n                      }\n                    }\n                    // ... additional fields \n                  }\n                }\n              }\n            }\n            // ... additional fields \n          }\n        }\n      }\n    },\n    { \"typeSets\", new BsonArray\n      {\n        new BsonDocument\n        {\n          { \"name\", \"<typeSet-name>\" },\n          { \"types\", new BsonArray\n            {\n              new BsonDocument\n              {\n                // <field-type-configuration>\n              }\n              // ... additional types \n            }\n          }\n        }\n        // ... additional typeSets \n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 409
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--atlas-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

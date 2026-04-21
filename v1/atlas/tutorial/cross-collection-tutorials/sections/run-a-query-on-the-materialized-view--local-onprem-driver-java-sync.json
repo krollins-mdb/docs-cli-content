@@ -1,0 +1,39 @@
+{
+  "heading": "Run a Query on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to run a query against the newly updated and indexed\n`monthlyPhoneTransactions` collection.\n\nCreate a `MaterializedViewSearchQuery.java` file in your `search-materialized-view` project directory,\nand copy and paste the following code into this file.\n\n```java\nimport com.mongodb.client.model.Aggregates;\nimport java.util.Arrays;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class MaterializedViewSearchQuery {\n\n  public static void main(String[] args) {\n    // connect to your MongoDB deployment\n    String uri = \"<connection-string>\";\n        \n    try (MongoClient mongoClient = MongoClients.create(uri)) {\n      // set namespace\n      MongoDatabase database = mongoClient.getDatabase(\"sample_supplies\");\n      MongoCollection<Document> collection = database.getCollection(\"monthlyPhoneTransactions\");\n            \n      // define pipeline\n      Document searchStage = new Document(\"$search\", \n        new Document(\"index\", \"monthlySalesIndex\")\n          .append(\"range\", \n            new Document(\"gt\", 10000)\n              .append(\"path\", Arrays.asList(\"sales_price\"))\n          )\n      );\n      \n      Document countStage = new Document(\"$count\", \"months_w_over_10000\");\n      \n      // run pipeline and print results\n      collection.aggregate(Arrays.asList(searchStage, countStage))\n        .forEach(doc -> System.out.println(doc.toJson()));\n    }\n  }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nCompile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac MaterializedViewSearchQuery.java\njava MaterializedViewSearchQuery\n```\n\n**Output:**\n\n```\n{ \"months_w_over_10000\" : 4 }\n```\n\nThe above query returns `4`, indicating that only 4 months out of all the months in the\n`monthlyPhoneTransactions` materialized view had total sales\ngreater than or equal to 10000 dollars. This result reflects data\nfrom both the `sample_supplies.sales` and\n`sample_supplies.purchaseOrders` collections.\n\nThis page contains tutorials that demonstrate the\ndifferent ways you can run MongoDB Search queries across multiple collections:\n\n- To join collections and search across them, use [$lookup](manual/reference/operator/aggregation/lookup) with [$search](pipe.$search).\n\n- To combine search results from multiple collections, use [$unionWith](manual/reference/operator/aggregation/unionWith) with [$search](pipe.$search).\n\n- To consolidate multiple collections so you can index and search them together, use\n  materialized views.\n\nBefore you begin, ensure that your cluster meets the\nrequirements described in the [Prerequisites](fts-design-patterns-prereqs).\n\nStarting in v6.0, the MongoDB [$lookup](manual/reference/operator/aggregation/lookup) aggregation stage\nsupports [$search](pipe.$search) inside the [$lookup](manual/reference/operator/aggregation/lookup)\n`pipeline` option. Using [$lookup](manual/reference/operator/aggregation/lookup), you can join\nmultiple collections in the same database at query-time and run a\n[$search](pipe.$search) query to further narrow down your search.\n\nThis tutorial demonstrates how to run a [$lookup](manual/reference/operator/aggregation/lookup) query\nwith [$search](pipe.$search) against the `accounts` and `customers`\ncollections in the `sample_analytics` database.\nIt takes you through the following steps:\n\n- Create a default MongoDB Search index on the `accounts`\n  collection in the `sample_analytics` database.\n\n- Run a [$lookup](manual/reference/operator/aggregation/lookup) query with [$search](pipe.$search) to find\n  customers from the `customers` collection whose accounts have\n  purchased both `CurrencyService` and `InvestmentStock` products\n  in the `accounts` collection.",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.model.Aggregates;\nimport java.util.Arrays;\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class MaterializedViewSearchQuery {\n\n  public static void main(String[] args) {\n    // connect to your MongoDB deployment\n    String uri = \"<connection-string>\";\n        \n    try (MongoClient mongoClient = MongoClients.create(uri)) {\n      // set namespace\n      MongoDatabase database = mongoClient.getDatabase(\"sample_supplies\");\n      MongoCollection<Document> collection = database.getCollection(\"monthlyPhoneTransactions\");\n            \n      // define pipeline\n      Document searchStage = new Document(\"$search\", \n        new Document(\"index\", \"monthlySalesIndex\")\n          .append(\"range\", \n            new Document(\"gt\", 10000)\n              .append(\"path\", Arrays.asList(\"sales_price\"))\n          )\n      );\n      \n      Document countStage = new Document(\"$count\", \"months_w_over_10000\");\n      \n      // run pipeline and print results\n      collection.aggregate(Arrays.asList(searchStage, countStage))\n        .forEach(doc -> System.out.println(doc.toJson()));\n    }\n  }\n}\n",
+      "tokenEstimate": 247
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "javac MaterializedViewSearchQuery.java\njava MaterializedViewSearchQuery",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "text",
+      "content": "{ \"months_w_over_10000\" : 4 }",
+      "tokenEstimate": 13
+    }
+  ],
+  "slug": "run-a-query-on-the-materialized-view--local-onprem-driver-java-sync",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "java-sync"
+  },
+  "variantAgnostic": false
+}

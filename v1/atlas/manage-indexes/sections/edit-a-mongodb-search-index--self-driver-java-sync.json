@@ -1,0 +1,24 @@
+{
+  "heading": "Edit a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To edit a MongoDB Search index using the [Java Driver](java/sync/current):\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class EditIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<document-name>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection-name>\");\n            // define field mappings\n            Document index = new Document(\"analyzer\", \"<analyzer-name>\").append(\n                            \"mappings\", new Document(\"dynamic\", <true|false>)\n                                    .append(\"fields\", new Document(\"<field-name>\",\n                                           new Document(\"type\", \"<field-type>\"))));\n            // run the updateSearchIndex() method\n            collection.updateSearchIndex(\"<index-name>\", index);\n        }\n    }\n}\n\n```\n\n- `<connection-string>` - Your Atlas connection string. To\n  learn more, see [Driver](connect-via-driver).\n\n  IMPORTANT: In your connection string, don't include the\n  [Write Concern](manual/reference/write-concern)\n  setting.\n\n- `<database-name>` - The name of the database that contains the\n  collection.\n\n- `<collection-name>` - The name of the collection for which you\n  want to retrieve the index.\n\n- `<analyzer-name>` - The name of the [Process Data with Analyzers](analyzers-ref).\n\n- `dynamic` - The flag that indicates whether or not to\n  [dynamic mappings](static-dynamic-mappings) index the fields.\n\n- `<field-name>` - The name of the field to index.\n\n- `<field-type>` - The field data [supported](bson-data-types).\n\n- `<index-name>` - The name of the index.\n\n```shell\njavac EditIndex.java\njava EditIndex\n```\n\nThe `updateSearchIndex()` method runs asynchronously. Use the\n`listSearchIndexes()` method to determine if the changes have\nbeen applied to your index. To learn more about retrieving MongoDB Search\nindexes, see [Manage MongoDB Search Indexes](ref-view-index-programmatically).\n\n> **See Also:** [MongoDB Search Indexes](java/sync/current/indexes)\n\n> **Note:** While your updated index is building, different nodes might update at\n> varying speeds. During this period, you might experience mixed query\n> results, reflecting both the new index definition and the previous\n> index definition.",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class EditIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<document-name>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection-name>\");\n            // define field mappings\n            Document index = new Document(\"analyzer\", \"<analyzer-name>\").append(\n                            \"mappings\", new Document(\"dynamic\", <true|false>)\n                                    .append(\"fields\", new Document(\"<field-name>\",\n                                           new Document(\"type\", \"<field-type>\"))));\n            // run the updateSearchIndex() method\n            collection.updateSearchIndex(\"<index-name>\", index);\n        }\n    }\n}\n",
+      "tokenEstimate": 199
+    },
+    {
+      "language": "shell",
+      "content": "javac EditIndex.java\njava EditIndex",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "edit-a-mongodb-search-index--self-driver-java-sync",
+  "selections": {
+    "deployment-type": "self",
+    "interface": "driver",
+    "language": "java-sync"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,19 @@
+{
+  "heading": "Step 2: Copy and paste the code for the query into the  file.",
+  "headingLevel": 2,
+  "body": "This query finds the high schools and requests a count of the number\nof schools that offer classes in each grade.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri = \"<connection-string>\";\nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"local_school_district\");\n        const coll = database.collection(\"schools\");\n\n        // define pipeline\n        const agg = [\n            {\n                \"$searchMeta\": {\n                  \"index\": \"embedded-documents-tutorial\",\n                  \"facet\": {\n                    \"operator\": {\n                      \"text\":{\n                        \"path\": \"name\",\n                        \"query\": \"High\"\n                      }\n                    },\n                    \"facets\": {\n                      \"gradeFacet\": {\n                        \"type\": \"string\",\n                        \"path\": \"teachers.classes.grade\"\n                      }\n                    }\n                  }\n                }\n              }\n        ];\n        \n        // run pipeline\n        const result = coll.aggregate(agg);\n\n        // print results\n        await result.forEach((doc) => console.dir(JSON.stringify(doc)));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri = \"<connection-string>\";\nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"local_school_district\");\n        const coll = database.collection(\"schools\");\n\n        // define pipeline\n        const agg = [\n            {\n                \"$searchMeta\": {\n                  \"index\": \"embedded-documents-tutorial\",\n                  \"facet\": {\n                    \"operator\": {\n                      \"text\":{\n                        \"path\": \"name\",\n                        \"query\": \"High\"\n                      }\n                    },\n                    \"facets\": {\n                      \"gradeFacet\": {\n                        \"type\": \"string\",\n                        \"path\": \"teachers.classes.grade\"\n                      }\n                    }\n                  }\n                }\n              }\n        ];\n        \n        // run pipeline\n        const result = coll.aggregate(agg);\n\n        // print results\n        await result.forEach((doc) => console.dir(JSON.stringify(doc)));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 222
+    }
+  ],
+  "slug": "step-2-copy-and-paste-the-code-for-the-query-into-the-file--local-onprem-driver-nodejs",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

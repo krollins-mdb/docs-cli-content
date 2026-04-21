@@ -1,0 +1,44 @@
+{
+  "heading": "Create Embeddings from Data",
+  "headingLevel": 3,
+  "body": "Use the following code to generate embeddings from an existing\ncollection.\n\nSpecifically, this code uses the `GetEmbeddings()` function\nthat you defined and the MongoDB [Go Driver](go)\nto generate embeddings from an array\nof sample texts and ingest them into the `sample_db.embeddings`\ncollection.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\"my-embeddings-project/common\"\n\t\"os\"\n\n\t\"github.com/joho/godotenv\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar data = []string{\n\t\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n\t\"The Lion King: Lion cub and future king Simba searches for his identity\",\n\t\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\n}\n\ntype TextWithEmbedding struct {\n\tText      string\n\tEmbedding []float32\n}\n\nfunc main() {\n\tctx := context.Background()\n\n\tif err := godotenv.Load(); err != nil {\n\t\tlog.Println(\"no .env file found\")\n\t}\n\n\t// Connect to your MongoDB deployment\n\turi := os.Getenv(\"MONGODB_URI\")\n\tif uri == \"\" {\n\t\tlog.Fatal(\"set your 'MONGODB_URI' environment variable.\")\n\t}\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"sample_db\").Collection(\"embeddings\")\n\n\tembeddings := common.GetEmbeddings(data)\n\tdocsToInsert := make([]interface{}, len(embeddings))\n\tfor i, string := range data {\n\t\tdocsToInsert[i] = TextWithEmbedding{\n\t\t\tText:      string,\n\t\t\tEmbedding: embeddings[i],\n\t\t}\n\t}\n\n\tresult, err := coll.InsertMany(ctx, docsToInsert)\n\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to insert documents: %v\", err)\n\t}\n\tfmt.Printf(\"Successfully inserted %v documents into MongoDB\\n\", len(result.InsertedIDs))\n}\n\n```\n\n```go\n\npackage main\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\"my-embeddings-project/common\"\n\t\"os\"\n\t\"github.com/joho/godotenv\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\nvar data = []string{\n\t\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n\t\"The Lion King: Lion cub and future king Simba searches for his identity\",\n\t\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\n}\ntype TextWithEmbedding struct {\n\tText      string\n\tEmbedding []float64\n}\nfunc main() {\n\tctx := context.Background()\n\tif err := godotenv.Load(); err != nil {\n\t\tlog.Println(\"no .env file found\")\n\t}\n\t// Connect to your MongoDB deployment\n\turi := os.Getenv(\"MONGODB_URI\")\n\tif uri == \"\" {\n\t\tlog.Fatal(\"set your 'MONGODB_URI' environment variable.\")\n\t}\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\t// Set the namespace\n\tcoll := client.Database(\"sample_db\").Collection(\"embeddings\")\n\tembeddings := common.GetEmbeddings(data)\n\tdocsToInsert := make([]interface{}, len(embeddings))\n\tfor i, movie := range data {\n\t\tdocsToInsert[i] = TextWithEmbedding{\n\t\t\tText:      movie,\n\t\t\tEmbedding: embeddings[i],\n\t\t}\n\t}\n\tresult, err := coll.InsertMany(ctx, docsToInsert)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to insert documents: %v\", err)\n\t}\n\tfmt.Printf(\"Successfully inserted %v documents into MongoDB\\n\", len(result.InsertedIDs))\n}\n\n```\n\n**Input:**\n\n```\ngo run create-embeddings.go\n```\n\n**Output:**\n\n```sh\nSuccessfully inserted 3 documents\n```\n\n**Input:**\n\n```\ngo run create-embeddings.go\n```\n\n**Output:**\n\n```sh\nSuccessfully inserted 3 documents\n```\n\nIf you're using Atlas, you can verify your vector embeddings\nby navigating to the `sample_db.embeddings` namespace\n[in the Atlas UI](atlas-ui-view-collections).",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\"my-embeddings-project/common\"\n\t\"os\"\n\n\t\"github.com/joho/godotenv\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nvar data = []string{\n\t\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n\t\"The Lion King: Lion cub and future king Simba searches for his identity\",\n\t\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\n}\n\ntype TextWithEmbedding struct {\n\tText      string\n\tEmbedding []float32\n}\n\nfunc main() {\n\tctx := context.Background()\n\n\tif err := godotenv.Load(); err != nil {\n\t\tlog.Println(\"no .env file found\")\n\t}\n\n\t// Connect to your MongoDB deployment\n\turi := os.Getenv(\"MONGODB_URI\")\n\tif uri == \"\" {\n\t\tlog.Fatal(\"set your 'MONGODB_URI' environment variable.\")\n\t}\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"sample_db\").Collection(\"embeddings\")\n\n\tembeddings := common.GetEmbeddings(data)\n\tdocsToInsert := make([]interface{}, len(embeddings))\n\tfor i, string := range data {\n\t\tdocsToInsert[i] = TextWithEmbedding{\n\t\t\tText:      string,\n\t\t\tEmbedding: embeddings[i],\n\t\t}\n\t}\n\n\tresult, err := coll.InsertMany(ctx, docsToInsert)\n\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to insert documents: %v\", err)\n\t}\n\tfmt.Printf(\"Successfully inserted %v documents into MongoDB\\n\", len(result.InsertedIDs))\n}\n",
+      "tokenEstimate": 406
+    },
+    {
+      "language": "go",
+      "content": "\npackage main\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\t\"my-embeddings-project/common\"\n\t\"os\"\n\t\"github.com/joho/godotenv\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\nvar data = []string{\n\t\"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n\t\"The Lion King: Lion cub and future king Simba searches for his identity\",\n\t\"Avatar: A marine is dispatched to the moon Pandora on a unique mission\",\n}\ntype TextWithEmbedding struct {\n\tText      string\n\tEmbedding []float64\n}\nfunc main() {\n\tctx := context.Background()\n\tif err := godotenv.Load(); err != nil {\n\t\tlog.Println(\"no .env file found\")\n\t}\n\t// Connect to your MongoDB deployment\n\turi := os.Getenv(\"MONGODB_URI\")\n\tif uri == \"\" {\n\t\tlog.Fatal(\"set your 'MONGODB_URI' environment variable.\")\n\t}\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\t// Set the namespace\n\tcoll := client.Database(\"sample_db\").Collection(\"embeddings\")\n\tembeddings := common.GetEmbeddings(data)\n\tdocsToInsert := make([]interface{}, len(embeddings))\n\tfor i, movie := range data {\n\t\tdocsToInsert[i] = TextWithEmbedding{\n\t\t\tText:      movie,\n\t\t\tEmbedding: embeddings[i],\n\t\t}\n\t}\n\tresult, err := coll.InsertMany(ctx, docsToInsert)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to insert documents: %v\", err)\n\t}\n\tfmt.Printf(\"Successfully inserted %v documents into MongoDB\\n\", len(result.InsertedIDs))\n}\n",
+      "tokenEstimate": 406
+    },
+    {
+      "language": "text",
+      "content": "go run create-embeddings.go",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "sh",
+      "content": "Successfully inserted 3 documents",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "go run create-embeddings.go",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "sh",
+      "content": "Successfully inserted 3 documents",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-embeddings-from-data--open-source-new-go",
+  "selections": {
+    "embedding-model": "open-source",
+    "data-source": "new",
+    "language-no-interface": "go"
+  },
+  "variantAgnostic": false
+}

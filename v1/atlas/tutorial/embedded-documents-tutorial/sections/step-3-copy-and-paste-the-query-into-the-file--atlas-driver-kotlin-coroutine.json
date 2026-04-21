@@ -1,0 +1,19 @@
+{
+  "heading": "Step 3: Copy and paste the query into the  file.",
+  "headingLevel": 2,
+  "body": "This query finds the high schools and requests a count of the number\nof schools that offer classes in each grade.\n\n```kotlin\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    // establish connection and set namespace\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"local_school_district\")\n    val collection = database.getCollection<Document>(\"schools\")\n\n    runBlocking {\n\n        // define query\n        val agg = Document(\n            \"\\$searchMeta\",\n                Document(\"index\", \"embedded-documents-tutorial\")\n                .append(\"facet\",\n                    Document(\n                        \"operator\",\n                        Document(\n                            \"text\",\n                            Document(\"path\", \"name\")\n                                .append(\"query\", \"High\")\n                        )\n                    )\n                    .append(\n                        \"facets\",\n                        Document(\n                            \"gradeFacet\",\n                            Document(\"type\", \"string\").append(\"path\", \"teachers.classes.grade\")\n                        )\n                    )\n            )\n        )\n\n        // run query and print results\n        val resultsFlow = collection.aggregate<Document>(listOf(agg))\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    // establish connection and set namespace\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"local_school_district\")\n    val collection = database.getCollection<Document>(\"schools\")\n\n    runBlocking {\n\n        // define query\n        val agg = Document(\n            \"\\$searchMeta\",\n                Document(\"index\", \"embedded-documents-tutorial\")\n                .append(\"facet\",\n                    Document(\n                        \"operator\",\n                        Document(\n                            \"text\",\n                            Document(\"path\", \"name\")\n                                .append(\"query\", \"High\")\n                        )\n                    )\n                    .append(\n                        \"facets\",\n                        Document(\n                            \"gradeFacet\",\n                            Document(\"type\", \"string\").append(\"path\", \"teachers.classes.grade\")\n                        )\n                    )\n            )\n        )\n\n        // run query and print results\n        val resultsFlow = collection.aggregate<Document>(listOf(agg))\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n",
+      "tokenEstimate": 231
+    }
+  ],
+  "slug": "step-3-copy-and-paste-the-query-into-the-file--atlas-driver-kotlin-coroutine",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

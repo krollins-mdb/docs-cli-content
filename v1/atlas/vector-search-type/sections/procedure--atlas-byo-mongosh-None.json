@@ -1,0 +1,65 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To create a MongoDB Vector Search index for a collection using [mongosh](mongodb-shell)\nv2.1.2 or later, perform the following steps:\n\nTo learn more, see [MongoDB Shell](connect-mongo-shell).\n\n> **Example:** **Input:**\n>\n> ```shell\n> use sample_mflix\n> ```\n>\n> **Output:**\n>\n> ```shell\n> switched to db sample_mflix\n> ```\n\nThe [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method has the\nfollowing syntax:\n\n```shell\ndb.<collectionName>.createSearchIndex(\n  \"<index-name>\",\n  \"vectorSearch\", //index type\n  {\n    fields: [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": <number-of-dimensions>,\n        \"path\": \"<field-to-index>\",\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<field-to-index>\"\n      },\n      ...\n    ]\n  }\n);\n```\n\n> **Example:** The following index definition indexes the\n> `plot_embedding_voyage_3_large` field as the `vector` type. The\n> `plot_embedding_voyage_3_large` field contains `2048` vector\n> dimension embeddings created using Voyage AI's `voyage-3-large`\n> embedding model. The index measures similarity using `dotProduct`\n> function.\n>\n> Basic Example\n>\n> The following index definition indexes only the vector\n> embeddings field for performing vector search.\n>\n> ```shell\n> db.embedded_movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"vector\",\n>         \"path\": \"plot_embedding_voyage_3_large\",\n>         \"numDimensions\": 2048,\n>         \"similarity\": \"dotProduct\",\n>         \"quantization\": \"scalar\"\n>       }\n>     ]\n>   }\n> );\n> ```\n>\n> Filter Example\n>\n> This index definition indexes the following fields:\n>\n> - A string field (`genres`) and a numeric field (`year`)\n>   for pre-filtering the data.\n>\n> - The vector embeddings field (`plot_embedding_voyage_3_large`) for\n>   performing vector search against pre-filtered data.\n>\n> ```shell\n> db.embedded_movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"vector\",\n>         \"path\": \"plot_embedding_voyage_3_large\",\n>         \"numDimensions\": 2048,\n>         \"similarity\": \"dotProduct\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"genres\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"year\"\n>       }\n>     ]\n>   }\n> );\n> ```\n\nTo create a MongoDB Vector Search index for a collection using [mongosh](mongodb-shell)\nv2.1.2 or later, perform the following steps:\n\nTo learn more, see [MongoDB Shell](connect-mongo-shell).\n\n> **Example:** **Input:**\n>\n> ```shell\n> use sample_mflix\n> ```\n>\n> **Output:**\n>\n> ```shell\n> switched to db sample_mflix\n> ```\n\nThe [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method has the\nfollowing syntax:\n\n```shell\ndb.<collectionName>.createSearchIndex(\n  \"<index-name>\",\n  \"vectorSearch\", //index type\n  {\n    fields: [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": <number-of-dimensions>,\n        \"path\": \"<field-to-index>\",\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<field-to-index>\"\n      },\n      ...\n    ]\n  }\n);\n```\n\n> **Example:** The following index definition indexes the\n> `plot_embedding_voyage_3_large` field as the `vector` type. The\n> `plot_embedding_voyage_3_large` field contains `2048` vector\n> dimension embeddings created using Voyage AI's `voyage-3-large`\n> embedding model. The index measures similarity using `dotProduct`\n> function.\n>\n> Basic Example\n>\n> The following index definition indexes only the vector\n> embeddings field for performing vector search.\n>\n> ```shell\n> db.embedded_movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"vector\",\n>         \"path\": \"plot_embedding_voyage_3_large\",\n>         \"numDimensions\": 2048,\n>         \"similarity\": \"dotProduct\",\n>         \"quantization\": \"scalar\"\n>       }\n>     ]\n>   }\n> );\n> ```\n>\n> Filter Example\n>\n> This index definition indexes the following fields:\n>\n> - A string field (`genres`) and a numeric field (`year`)\n>   for pre-filtering the data.\n>\n> - The vector embeddings field (`plot_embedding_voyage_3_large`) for\n>   performing vector search against pre-filtered data.\n>\n> ```shell\n> db.embedded_movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"vector\",\n>         \"path\": \"plot_embedding_voyage_3_large\",\n>         \"numDimensions\": 2048,\n>         \"similarity\": \"dotProduct\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"genres\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"year\"\n>       }\n>     ]\n>   }\n> );\n> ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.<collectionName>.createSearchIndex(\n  \"<index-name>\",\n  \"vectorSearch\", //index type\n  {\n    fields: [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": <number-of-dimensions>,\n        \"path\": \"<field-to-index>\",\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<field-to-index>\"\n      },\n      ...\n    ]\n  }\n);",
+      "tokenEstimate": 102
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"genres\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"year\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.<collectionName>.createSearchIndex(\n  \"<index-name>\",\n  \"vectorSearch\", //index type\n  {\n    fields: [\n      {\n        \"type\": \"vector\",\n        \"numDimensions\": <number-of-dimensions>,\n        \"path\": \"<field-to-index>\",\n        \"similarity\": \"euclidean | cosine | dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<field-to-index>\"\n      },\n      ...\n    ]\n  }\n);",
+      "tokenEstimate": 102
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 83
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"genres\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"year\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 111
+    }
+  ],
+  "slug": "procedure--atlas-byo-mongosh-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

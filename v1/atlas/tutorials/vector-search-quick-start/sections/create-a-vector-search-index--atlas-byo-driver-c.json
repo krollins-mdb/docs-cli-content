@@ -1,0 +1,75 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "For detailed installation instructions, refer\nto the [MongoDB C Driver documentation](languages/c/c-driver/current/libmongoc/tutorials/obtaining-libraries).\n\n```bash\nmkdir query-quick-start\n```\n\n```bash\ncd query-quick-start\ntouch CMakeLists.txt\n```\n\nCopy and paste the following lines into the `CMakeLists.txt` file:\n\n```console\ncmake_minimum_required(VERSION 3.30)\n\nproject(atlas-vector-search-quick-start)\n\n# Specify the minimum version for creating a vector index.\nfind_package (mongoc-1.0 1.28.0 REQUIRED)\n\nadd_executable(atlas-vector-search-quick-start\n  vector_index.c\n)\n\ntarget_link_libraries (atlas-vector-search-quick-start PRIVATE mongo::mongoc_shared)\n```\n\nCreate a file named `vector_index.c`. Copy and paste the following\ncode into the file.\n\n```c\n#include <bson/bson.h>\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(void) {\n  mongoc_client_t *client;\n  mongoc_collection_t *collection;\n  bson_error_t error;\n  char database_name[] = \"sample_mflix\";\n  char collection_name[] = \"embedded_movies\";\n  char index_name[] = \"vector_index\";\n\n  mongoc_init();\n\n  // Replace the placeholder with your connection string\n  client =  mongoc_client_new(\"<connection-string>\");\n\n  // Connect to your cluster\n  collection = mongoc_client_get_collection (client, database_name, collection_name);\n\n  bson_t cmd;\n  // Create search index command.\n  {\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n                    \"createSearchIndexes\" : \"%s\",\n                    \"indexes\" : [{\n                      \"definition\": {\n                        \"fields\": [{\n                          \"type\": \"vector\",\n                          \"path\": \"plot_embedding_voyage_3_large\",\n                          \"numDimensions\": 2048,\n                          \"similarity\": \"dotProduct\",\n                          \"quantization\": \"scalar\"\n                        }]\n                      },\n                      \"name\": \"%s\",\n                      \"type\": \"vectorSearch\"\n                    }]\n                  }),\n        collection_name, index_name);\n    if (!bson_init_from_json(&cmd, cmd_str, -1, &error)) {\n      printf(\"Failed to initialize BSON: %s\\n\", error.message);\n      bson_free(cmd_str);\n      return 1;\n    }\n    bson_free (cmd_str);\n  }\n  if (!mongoc_collection_command_simple (collection, &cmd, NULL /* read_prefs */, NULL /* reply */, &error)) {\n    bson_destroy (&cmd);\n    printf (\"Failed to run createSearchIndexes: %s\", error.message);\n    return 1;\n  } else {\n    printf (\"New search index named %s is building.\\n\", index_name);\n    bson_destroy (&cmd);\n  }\n\n  // Polling for index status\n  printf(\"Polling to check if the index is ready. This may take up to a minute.\\n\");\n  int queryable = 0;\n  while (!queryable) {\n    const char *pipeline_str = \"{\\\"pipeline\\\": [{\\\"$listSearchIndexes\\\": {}}]}\";\n    bson_t pipeline;\n    if (!bson_init_from_json(&pipeline, pipeline_str, -1, &error)) {\n      printf(\"Failed to initialize pipeline BSON: %s\\n\", error.message);\n      break; // Exit the loop on error\n    }\n    mongoc_cursor_t *cursor = mongoc_collection_aggregate(collection, MONGOC_QUERY_NONE, &pipeline, NULL, NULL);\n    const bson_t *got;\n    // Check if the cursor returns any documents\n    int found_index = 0;\n    while (mongoc_cursor_next(cursor, &got)) {\n      bson_iter_t iter;\n      if (bson_iter_init(&iter, got) && bson_iter_find(&iter, \"name\")) {\n        const char *name = bson_iter_utf8(&iter, NULL);\n        if (strcmp(name, index_name) == 0) {\n          found_index = 1; // Index found\n          bson_iter_find(&iter, \"queryable\");\n          queryable = bson_iter_bool(&iter);\n          break; // Exit the loop since we found the index\n        }\n      }\n    }\n    if (mongoc_cursor_error(cursor, &error)) {\n      printf(\"Failed to run $listSearchIndexes: %s\\n\", error.message);\n      break; // Exit the loop on error\n    }\n    if (!found_index) {\n      printf(\"Index %s not found yet. Retrying...\\n\", index_name);\n    }\n    bson_destroy(&pipeline);\n    mongoc_cursor_destroy(cursor);\n    sleep(5); // Sleep for 5 seconds before checking again\n  }\n  if (queryable) {\n    printf(\"%s is ready for querying.\\n\", index_name);\n  } else {\n    printf(\"Error occurred or index not found.\\n\");\n  }\n\n  // Cleanup\n  mongoc_collection_destroy(collection);\n  mongoc_client_destroy(client);\n  mongoc_cleanup();\n\n  return 0;\n}\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.\n\nThis code also includes a polling mechanism to check if the index is ready to use.\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\n```bash\nmkdir build && cd build\n```\n\n```bash\ncmake ../\n```\n\n```bash\ncmake --build .\n```\n\n**Input:**\n\n```bash\n./atlas-vector-search-quick-start\n```\n\n**Output:**\n\n```sh\nNew search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n\n```",
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "content": "mkdir query-quick-start",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "cd query-quick-start\ntouch CMakeLists.txt",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "console",
+      "content": "cmake_minimum_required(VERSION 3.30)\n\nproject(atlas-vector-search-quick-start)\n\n# Specify the minimum version for creating a vector index.\nfind_package (mongoc-1.0 1.28.0 REQUIRED)\n\nadd_executable(atlas-vector-search-quick-start\n  vector_index.c\n)\n\ntarget_link_libraries (atlas-vector-search-quick-start PRIVATE mongo::mongoc_shared)",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "c",
+      "content": "#include <bson/bson.h>\n#include <mongoc/mongoc.h>\n#include <stdio.h>\n\nint main(void) {\n  mongoc_client_t *client;\n  mongoc_collection_t *collection;\n  bson_error_t error;\n  char database_name[] = \"sample_mflix\";\n  char collection_name[] = \"embedded_movies\";\n  char index_name[] = \"vector_index\";\n\n  mongoc_init();\n\n  // Replace the placeholder with your connection string\n  client =  mongoc_client_new(\"<connection-string>\");\n\n  // Connect to your cluster\n  collection = mongoc_client_get_collection (client, database_name, collection_name);\n\n  bson_t cmd;\n  // Create search index command.\n  {\n    char *cmd_str = bson_strdup_printf (\n        BSON_STR ({\n                    \"createSearchIndexes\" : \"%s\",\n                    \"indexes\" : [{\n                      \"definition\": {\n                        \"fields\": [{\n                          \"type\": \"vector\",\n                          \"path\": \"plot_embedding_voyage_3_large\",\n                          \"numDimensions\": 2048,\n                          \"similarity\": \"dotProduct\",\n                          \"quantization\": \"scalar\"\n                        }]\n                      },\n                      \"name\": \"%s\",\n                      \"type\": \"vectorSearch\"\n                    }]\n                  }),\n        collection_name, index_name);\n    if (!bson_init_from_json(&cmd, cmd_str, -1, &error)) {\n      printf(\"Failed to initialize BSON: %s\\n\", error.message);\n      bson_free(cmd_str);\n      return 1;\n    }\n    bson_free (cmd_str);\n  }\n  if (!mongoc_collection_command_simple (collection, &cmd, NULL /* read_prefs */, NULL /* reply */, &error)) {\n    bson_destroy (&cmd);\n    printf (\"Failed to run createSearchIndexes: %s\", error.message);\n    return 1;\n  } else {\n    printf (\"New search index named %s is building.\\n\", index_name);\n    bson_destroy (&cmd);\n  }\n\n  // Polling for index status\n  printf(\"Polling to check if the index is ready. This may take up to a minute.\\n\");\n  int queryable = 0;\n  while (!queryable) {\n    const char *pipeline_str = \"{\\\"pipeline\\\": [{\\\"$listSearchIndexes\\\": {}}]}\";\n    bson_t pipeline;\n    if (!bson_init_from_json(&pipeline, pipeline_str, -1, &error)) {\n      printf(\"Failed to initialize pipeline BSON: %s\\n\", error.message);\n      break; // Exit the loop on error\n    }\n    mongoc_cursor_t *cursor = mongoc_collection_aggregate(collection, MONGOC_QUERY_NONE, &pipeline, NULL, NULL);\n    const bson_t *got;\n    // Check if the cursor returns any documents\n    int found_index = 0;\n    while (mongoc_cursor_next(cursor, &got)) {\n      bson_iter_t iter;\n      if (bson_iter_init(&iter, got) && bson_iter_find(&iter, \"name\")) {\n        const char *name = bson_iter_utf8(&iter, NULL);\n        if (strcmp(name, index_name) == 0) {\n          found_index = 1; // Index found\n          bson_iter_find(&iter, \"queryable\");\n          queryable = bson_iter_bool(&iter);\n          break; // Exit the loop since we found the index\n        }\n      }\n    }\n    if (mongoc_cursor_error(cursor, &error)) {\n      printf(\"Failed to run $listSearchIndexes: %s\\n\", error.message);\n      break; // Exit the loop on error\n    }\n    if (!found_index) {\n      printf(\"Index %s not found yet. Retrying...\\n\", index_name);\n    }\n    bson_destroy(&pipeline);\n    mongoc_cursor_destroy(cursor);\n    sleep(5); // Sleep for 5 seconds before checking again\n  }\n  if (queryable) {\n    printf(\"%s is ready for querying.\\n\", index_name);\n  } else {\n    printf(\"Error occurred or index not found.\\n\");\n  }\n\n  // Cleanup\n  mongoc_collection_destroy(collection);\n  mongoc_client_destroy(client);\n  mongoc_cleanup();\n\n  return 0;\n}",
+      "tokenEstimate": 863
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "bash",
+      "content": "mkdir build && cd build",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "cmake ../",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "bash",
+      "content": "cmake --build .",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "bash",
+      "content": "./atlas-vector-search-quick-start",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "sh",
+      "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\nvector_index is ready for querying.\n",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "create-a-vector-search-index--atlas-byo-driver-c",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "c"
+  },
+  "variantAgnostic": false
+}

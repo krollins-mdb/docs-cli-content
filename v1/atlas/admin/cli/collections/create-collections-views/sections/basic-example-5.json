@@ -1,12 +1,12 @@
 {
   "heading": "Basic Example",
-  "headingLevel": 3,
-  "body": "The following command creates a collection named `airbnb` in\nthe `sampleDB` database in the storage configuration. The\n`airbnb` collection includes a partition for\neach URL (Uniform Resource Locator) in the collection. The `allowInsecure` flag is\nnot set and defaults to `false`.\n\n**Input:**\n\n```javascript\nuse sampleDB\ndb.runCommand({ \"create\" : \"airbnb\", \"dataSources\" : [{ \"storeName\" : \"http-store\", \"urls\": [\"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"], \"defaultFormat\" : \".json\" }]})\n```\n\n**Output:**\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following commands show that the collection was\nsuccessfully created:\n\n**Input:**\n\n```javascript\nshow collections\n```\n\n**Output:**\n\n```javascript\nairbnb\n```\n\n**Input:**\n\n```javascript\ndb.runCommand({\"storageGetConfig\":1})\n```\n\n**Output:**\n\n```json\n{\n     \"ok\" : 1,\n        \"storage\" : {\n                \"stores\" : [\n                        {\n                                \"name\" : \"http-store\",\n                                \"provider\" : \"http\",\n                                \"urls\" : [\n                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\n                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"\n                                ],\n                                \"defaultFormat\" : \".json\"\n                        }\n                ],\n                \"databases\" : [\n                        {\n                                \"name\" : \"sampleDb\",\n                                \"collections\" : [\n                                        {\n                                                \"name\" : \"airbnb\",\n                                                \"dataSources\" : [\n                                                        {\n                                                                \"storeName\" : \"http-store\",\n                                                                \"defaultFormat\" : \".json\",\n                                                                \"urls\" : [\n                                                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\n                                                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"\n                                                                ]\n                                                        }\n                                                ]\n                                        }\n                                ]\n                        }\n                ]\n        }\n}\n```",
+  "headingLevel": 4,
+  "body": "The following example uses the `create` command to\ndynamically create collections for the documents in\nthe `sample_airbnb` database on the Atlas\ncluster name `myTestCluster`.\n\n**Input:**\n\n```javascript\nuse sampleDB\ndb.runCommand({ \"create\" : \"*\", \"dataSources\" : [{ \"storeName\" : \"egAtlasStore\", \"database\": \"sample_airbnb\"}]})\n```\n\n**Output:**\n\n```json\n{ \"ok\" : 1 }\n```\n\nThe following commands show that the collection was\nsuccessfully created:\n\n**Input:**\n\n```javascript\ndb.runCommand({storageGetConfig:1})\n```\n\n**Output:**\n\n```json\n{\n  \"ok\" : 1,\n  \"storage\" : {\n    \"stores\" : [{\n      \"name\" : \"egAtlasStore\",\n      \"provider\" : \"atlas\",\n      \"clusterName\" : \"myTestCluster\",\n      \"projectId\" : \"<project-id>\"\n    }],\n    \"databases\" : [{\n      \"name\" : \"sampleDB\",\n      \"collections\" : [{\n        \"name\" : \"*\",\n        \"dataSources\" : [{\n          \"storeName\" : \"egAtlasStore\",\n          \"database\" : \"sample_airbnb\"\n        }]\n      }]\n    }]\n  }\n}\n```\n\n**Input:**\n\n```javascript\nshow collections\n```\n\n**Output:**\n\n```json\nlistingsAndReviews\n```",
   "codeBlocks": [
     {
       "language": "javascript",
-      "content": "use sampleDB\ndb.runCommand({ \"create\" : \"airbnb\", \"dataSources\" : [{ \"storeName\" : \"http-store\", \"urls\": [\"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"], \"defaultFormat\" : \".json\" }]})",
-      "tokenEstimate": 84
+      "content": "use sampleDB\ndb.runCommand({ \"create\" : \"*\", \"dataSources\" : [{ \"storeName\" : \"egAtlasStore\", \"database\": \"sample_airbnb\"}]})",
+      "tokenEstimate": 39
     },
     {
       "language": "json",
@@ -15,23 +15,23 @@
     },
     {
       "language": "javascript",
-      "content": "show collections",
-      "tokenEstimate": 2
-    },
-    {
-      "language": "javascript",
-      "content": "airbnb",
-      "tokenEstimate": 2
-    },
-    {
-      "language": "javascript",
-      "content": "db.runCommand({\"storageGetConfig\":1})",
+      "content": "db.runCommand({storageGetConfig:1})",
       "tokenEstimate": 10
     },
     {
       "language": "json",
-      "content": "{\n     \"ok\" : 1,\n        \"storage\" : {\n                \"stores\" : [\n                        {\n                                \"name\" : \"http-store\",\n                                \"provider\" : \"http\",\n                                \"urls\" : [\n                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\n                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"\n                                ],\n                                \"defaultFormat\" : \".json\"\n                        }\n                ],\n                \"databases\" : [\n                        {\n                                \"name\" : \"sampleDb\",\n                                \"collections\" : [\n                                        {\n                                                \"name\" : \"airbnb\",\n                                                \"dataSources\" : [\n                                                        {\n                                                                \"storeName\" : \"http-store\",\n                                                                \"defaultFormat\" : \".json\",\n                                                                \"urls\" : [\n                                                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_airbnb/listingsAndReviews.json\",\n                                                                        \"https://atlas-data-lake.s3.amazonaws.com/json/sample_weatherdata/data.json\"\n                                                                ]\n                                                        }\n                                                ]\n                                        }\n                                ]\n                        }\n                ]\n        }\n}",
-      "tokenEstimate": 233
+      "content": "{\n  \"ok\" : 1,\n  \"storage\" : {\n    \"stores\" : [{\n      \"name\" : \"egAtlasStore\",\n      \"provider\" : \"atlas\",\n      \"clusterName\" : \"myTestCluster\",\n      \"projectId\" : \"<project-id>\"\n    }],\n    \"databases\" : [{\n      \"name\" : \"sampleDB\",\n      \"collections\" : [{\n        \"name\" : \"*\",\n        \"dataSources\" : [{\n          \"storeName\" : \"egAtlasStore\",\n          \"database\" : \"sample_airbnb\"\n        }]\n      }]\n    }]\n  }\n}",
+      "tokenEstimate": 128
+    },
+    {
+      "language": "javascript",
+      "content": "show collections",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "json",
+      "content": "listingsAndReviews",
+      "tokenEstimate": 4
     }
   ]
 }
