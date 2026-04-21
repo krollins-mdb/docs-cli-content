@@ -1,0 +1,59 @@
+{
+  "heading": "Define the Index for the dateFacet Type",
+  "headingLevel": 2,
+  "body": "In your IDE, create a new [Maven](https://maven.apache.org/) or\n[Gradle](https://gradle.org/) project. Add the Bill of\nMaterials (BOM) for MongoDB JVM artifacts to your project to\norganize dependency versions. The BOM simplifies dependency\nmanagement by ensuring that you maintain consistent and compatible\nversions of dependencies, such as between the Java driver and\nthe core driver library. Use the BOM to avoid version conflicts\nand simplify upgrades.\n\nSelect from the following **Maven** and **Gradle** tabs\nto view instructions for adding the BOM for each dependency manager:\n\nAdd the following code to the `dependencyManagement` list in your\n`pom.xml` file:\n\n```xml\n<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>org.mongodb</groupId>\n            <artifactId>mongodb-driver-bom</artifactId>\n            <version>5.5.1</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>\n```\n\nAdd the following code to dependencies list in your\n`build.gradle` file:\n\n```groovy\ndependencies {\n    implementation(platform(\"org.mongodb:mongodb-driver-bom:5.5.1\"))\n}\n```\n\nTo view a list of dependencies that the BOM manages, see\nthe [mongodb-driver-bom dependency listing](https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-bom/5.51)\non the Maven Repository website.\n\nAfter adding the BOM, select from the following **Maven** and **Gradle** tabs to view\ninstructions for adding the MongoDB Java Sync Driver as a dependency\nin your project:\n\nAdd the following code to the `dependencies` array in your Maven\nproject's `pom.xml` file:\n\n```xml\n<dependencies>\n    <dependency>    \n      <groupId>org.mongodb</groupId>    \n      <artifactId>mongodb-driver-sync</artifactId>    \n      <version>4.11.1</version>    \n    </dependency>\n</dependencies>\n\n```\n\nAdd the following to the `dependencies` array in your Gradle\nproject's `build.gradle` file:\n\n```json\ndependencies {\n   // MongoDB Java Sync Driver v4.11.0 or later\n   implementation 'org.mongodb:mongodb-driver-sync'\n}\n\n```\n\nRun your package manager to install the dependencies to your project.\n\nFor more detailed installation instructions and version compatibility, see\nthe [MongoDB Java Driver documentation](java/sync/current/get-started).\n\nIn your project's base package directory, create a\n`CreateIndex.java` file and copy and paste the following code\ninto this file.\n\n```java\nimport com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection>\");\n            String indexName = \"default\";\n\n            Document searchIdx = new Document(\"mappings\",\n                    new Document(\"dynamic\", true|false)\n                        .append(\"fields\", new Document(\"<field-name>\", \n                                              new Document(\"type\", \"autocomplete\") \n                                                  .append(\"analyzer\", \"<lucene.analyzer>\")\n                                                  .append(\"tokenization\", \"edgeGram|rightEdgeGram|nGram\")\n                                                  .append(\"minGrams\", <2>)\n                                                  .append(\"analymaxGramszer\", <15>)\n                                                  .append(\"foldDiacritics\", true|false)\n                                                  .append(\"similarity\", new Document(\"type\", \"bm25|boolean|stableTfl\"))\n                                                  )));\n\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nCompile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateIndex.java\njava CreateIndex\n```\n\n**Output:**\n\n```\nNew index name: default\n```",
+  "codeBlocks": [
+    {
+      "language": "xml",
+      "content": "<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>org.mongodb</groupId>\n            <artifactId>mongodb-driver-bom</artifactId>\n            <version>5.5.1</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>",
+      "tokenEstimate": 74
+    },
+    {
+      "language": "groovy",
+      "content": "dependencies {\n    implementation(platform(\"org.mongodb:mongodb-driver-bom:5.5.1\"))\n}",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "xml",
+      "content": "<dependencies>\n    <dependency>    \n      <groupId>org.mongodb</groupId>    \n      <artifactId>mongodb-driver-sync</artifactId>    \n      <version>4.11.1</version>    \n    </dependency>\n</dependencies>\n",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "json",
+      "content": "dependencies {\n   // MongoDB Java Sync Driver v4.11.0 or later\n   implementation 'org.mongodb:mongodb-driver-sync'\n}\n",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.MongoClient;\nimport com.mongodb.client.MongoClients;\nimport com.mongodb.client.MongoCollection;\nimport com.mongodb.client.MongoDatabase;\nimport org.bson.Document;\n\npublic class CreateIndex {\n    public static void main(String[] args) {\n        // connect to your Atlas cluster\n        String uri = \"<connection-string>\";\n\n        try (MongoClient mongoClient = MongoClients.create(uri)) {\n            // set namespace\n            MongoDatabase database = mongoClient.getDatabase(\"<database>\");\n            MongoCollection<Document> collection = database.getCollection(\"<collection>\");\n            String indexName = \"default\";\n\n            Document searchIdx = new Document(\"mappings\",\n                    new Document(\"dynamic\", true|false)\n                        .append(\"fields\", new Document(\"<field-name>\", \n                                              new Document(\"type\", \"autocomplete\") \n                                                  .append(\"analyzer\", \"<lucene.analyzer>\")\n                                                  .append(\"tokenization\", \"edgeGram|rightEdgeGram|nGram\")\n                                                  .append(\"minGrams\", <2>)\n                                                  .append(\"analymaxGramszer\", <15>)\n                                                  .append(\"foldDiacritics\", true|false)\n                                                  .append(\"similarity\", new Document(\"type\", \"bm25|boolean|stableTfl\"))\n                                                  )));\n\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}",
+      "tokenEstimate": 309
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "javac CreateIndex.java\njava CreateIndex",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "define-the-index-for-the-datefacet-type--local-onprem-driver-java-sync",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "java-sync"
+  },
+  "variantAgnostic": false
+}

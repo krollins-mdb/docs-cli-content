@@ -1,0 +1,19 @@
+{
+  "heading": "Enable Dynamic Indexing",
+  "headingLevel": 3,
+  "body": "The following index definition for the\n`sample_training.companies` namespace configures MongoDB Search to\nautomatically index all dynamically indexable fields inside the\nobjects in the `products` array. It also configures the\n`category_code` field to be indexed as the [token](bson-data-types-token) type, which is not included in the default type\nset for dynamic mappings, to support MongoDB Search [faceted navigation](fts-facet-ref) queries\nagainst that field.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_training\");\nvar collection = db.GetCollection<BsonDocument>(\"companies\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field with dynamic mapping\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true },\n        { \"fields\", new BsonDocument\n          {\n            { \"products\", new BsonDocument\n              {\n                { \"dynamic\", true },\n                { \"type\", \"embeddedDocuments\" }\n              }\n            },\n            { \"category_code\", new BsonDocument\n              {\n                { \"type\", \"token\" }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_training\");\nvar collection = db.GetCollection<BsonDocument>(\"companies\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field with dynamic mapping\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true },\n        { \"fields\", new BsonDocument\n          {\n            { \"products\", new BsonDocument\n              {\n                { \"dynamic\", true },\n                { \"type\", \"embeddedDocuments\" }\n              }\n            },\n            { \"category_code\", new BsonDocument\n              {\n                { \"type\", \"token\" }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 217
+    }
+  ],
+  "slug": "enable-dynamic-indexing--local-onprem-driver-csharp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

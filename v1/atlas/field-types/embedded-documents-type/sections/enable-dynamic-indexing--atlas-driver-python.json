@@ -1,0 +1,19 @@
+{
+  "heading": "Enable Dynamic Indexing",
+  "headingLevel": 3,
+  "body": "The following index definition for the\n`sample_training.companies` namespace configures MongoDB Search to\nautomatically index all dynamically indexable fields inside the\nobjects in the `products` array. It also configures the\n`category_code` field to be indexed as the [token](bson-data-types-token) type, which is not included in the default type\nset for dynamic mappings, to support MongoDB Search [faceted navigation](fts-facet-ref) queries\nagainst that field.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_training\"]\ncollection = database[\"companies\"]\n\n# Create the MongoDB Search index definition for the embeddedDocuments field with dynamic mapping\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n            \"fields\": {\n                \"products\": {\n                    \"dynamic\": True,\n                    \"type\": \"embeddedDocuments\"\n                },\n                \"category_code\": {\n                    \"type\": \"token\"\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_training\"]\ncollection = database[\"companies\"]\n\n# Create the MongoDB Search index definition for the embeddedDocuments field with dynamic mapping\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n            \"fields\": {\n                \"products\": {\n                    \"dynamic\": True,\n                    \"type\": \"embeddedDocuments\"\n                },\n                \"category_code\": {\n                    \"type\": \"token\"\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n",
+      "tokenEstimate": 162
+    }
+  ],
+  "slug": "enable-dynamic-indexing--atlas-driver-python",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

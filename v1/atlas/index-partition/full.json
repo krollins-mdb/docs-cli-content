@@ -13,35 +13,25 @@
           "content": "{\n  \"numPartitions\": <integer>\n}",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Supported Values",
       "headingLevel": 2,
       "body": "The MongoDB Search `numPartitions` option takes the following values:\n\n- `1` - to create a single index, with no additional partitions. This\n  is the default value.\n\n- `2` - to create up to two partitions for up to four billion documents.\n\n- `4` - to create up to four partitions for up to eight billion documents.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "supported-values",
+      "variantAgnostic": true
     },
     {
       "heading": "Example",
       "headingLevel": 2,
-      "body": "The following index example uses the `sample_mflix.movies` collection\nto demonstrate how to configure up to `4` partitions for the data in\nthe collection. You can use the Visual Editor or the JSON (Javascript Object Notation) Editor in\nthe Atlas UI and [MongoDB Search indexes](fts-manage-indexes) to create the index.\n\n- Create a file named `indexDef.json` similar to the following:\n\n  ```\n  {\n      \"collectionName\": \"movies\",\n      \"database\": \"sample_mflix\",\n      \"definition\": {\n        \"mappings\": {\n         \"dynamic\": true\n        },\n      },\n      \"name\": \"partitioned_index\",\n      \"numPartitions\": 4\n    }\n  ```\n\n- Run the following command to create the index.\n\n  ```shell\n\n  atlas deployments search indexes create --file indexDef.json\n\n  ```\n\n```shell\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'\n```",
-      "codeBlocks": [
-        {
-          "language": "text",
-          "content": "{\n    \"collectionName\": \"movies\",\n    \"database\": \"sample_mflix\",\n    \"definition\": {\n      \"mappings\": {\n       \"dynamic\": true\n      },\n    },\n    \"name\": \"partitioned_index\",\n    \"numPartitions\": 4\n  }",
-          "tokenEstimate": 59
-        },
-        {
-          "language": "shell",
-          "content": "\natlas deployments search indexes create --file indexDef.json\n",
-          "tokenEstimate": 13
-        },
-        {
-          "language": "shell",
-          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'",
-          "tokenEstimate": 153
-        }
-      ]
+      "body": "The following index example uses the `sample_mflix.movies` collection\nto demonstrate how to configure up to `4` partitions for the data in\nthe collection. You can use the Visual Editor or the JSON (Javascript Object Notation) Editor in\nthe Atlas UI and [MongoDB Search indexes](fts-manage-indexes) to create the index.",
+      "codeBlocks": [],
+      "slug": "example",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Specify the index definition.",
@@ -77,6 +67,101 @@
           "language": "python",
           "content": "from pymongo.mongo_client import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\ndef create_index():\n    # Connect to your Atlas deployment\n    uri = \"<connectionString>\"\n    client = MongoClient(uri)\n\n    # Access your database and collection\n    database = client[\"sample_mflix\"]\n    collection = database[\"movies\"]\n\n    # Create your index model, then create the search index\n    search_index_model = SearchIndexModel(\n        definition={\n            \"mappings\": {\n                \"dynamic\": True\n            },\n            \"numPartitions\": 4\n        },\n        name=\"partitioned_index\",\n    )\n\n    result = collection.create_search_index(model=search_index_model)\n    print(result)\n\n",
           "tokenEstimate": 139
+        }
+      ],
+      "slug": "step-1-specify-the-index-definition--atlas-ui-None",
+      "selections": {
+        "interface": "atlas-ui",
+        "language": "None"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "- Create a file named `indexDef.json` similar to the following:\n\n  ```\n  {\n      \"collectionName\": \"movies\",\n      \"database\": \"sample_mflix\",\n      \"definition\": {\n        \"mappings\": {\n         \"dynamic\": true\n        },\n      },\n      \"name\": \"partitioned_index\",\n      \"numPartitions\": 4\n    }\n  ```\n\n- Run the following command to create the index.\n\n  ```shell\n\n  atlas deployments search indexes create --file indexDef.json\n\n  ```",
+      "codeBlocks": [
+        {
+          "language": "text",
+          "content": "{\n    \"collectionName\": \"movies\",\n    \"database\": \"sample_mflix\",\n    \"definition\": {\n      \"mappings\": {\n       \"dynamic\": true\n      },\n    },\n    \"name\": \"partitioned_index\",\n    \"numPartitions\": 4\n  }",
+          "tokenEstimate": 59
+        },
+        {
+          "language": "shell",
+          "content": "\natlas deployments search indexes create --file indexDef.json\n",
+          "tokenEstimate": 13
+        }
+      ],
+      "slug": "example--atlas-cli-None",
+      "selections": {
+        "interface": "atlas-cli",
+        "language": "None"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "```shell\ncurl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'\n```",
+      "codeBlocks": [
+        {
+          "language": "shell",
+          "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n--header \"Accept: application/json\" \\\n--header \"Content-Type: application/json\" \\\n--include \\\n--request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n--data '\n  {\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"name\": \"partitioned_index\",\n  \"type\": \"search\",\n  \"definition\": {\n    \"analyzer\": \"lucene.standard\",\n    \"mappings\": {\n      \"dynamic\": true,\n    },\n    \"numPartitions\": 4,\n    \"searchAnalyzer\": \"lucene.standard\"\n  }\n}'",
+          "tokenEstimate": 153
+        }
+      ],
+      "slug": "example--atlas-api-None",
+      "selections": {
+        "interface": "atlas-api",
+        "language": "None"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "Interface",
+      "default": "driver",
+      "selections": [
+        {
+          "value": "atlas-cli",
+          "text": "Atlas CLI"
+        },
+        {
+          "value": "atlas-api",
+          "text": "Atlas Administration API"
+        },
+        {
+          "value": "atlas-ui",
+          "text": "Atlas UI"
+        },
+        {
+          "value": "driver",
+          "text": "Driver"
+        }
+      ]
+    },
+    {
+      "value": "language",
+      "text": "Language",
+      "default": "nodejs",
+      "selections": [
+        {
+          "value": "nodejs",
+          "text": "Node.js"
+        },
+        {
+          "value": "csharp",
+          "text": "C#"
+        },
+        {
+          "value": "java-sync",
+          "text": "Java (Sync)"
+        },
+        {
+          "value": "python",
+          "text": "Python"
         }
       ]
     }

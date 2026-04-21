@@ -1,0 +1,20 @@
+{
+  "heading": "Considerations",
+  "headingLevel": 2,
+  "body": "If your collection already has embeddings, you must use the `vector`\ntype fields to index the embeddings. In a `vectorSearch` type index\ndefinition, you can index arrays with only a single element. You can't\nindex embedding fields inside arrays of documents or embedding fields\ninside arrays of objects. You can index embedding fields inside\ndocuments using dot notation. The same embedding field can't be\nindexed multiple times in the same index definition.\n\nBefore indexing your embeddings, we recommend converting your embeddings\nto BSON (Binary Javascript Object Notation) [BinData](manual/reference/method/BinData) vectors with\nsubtype `float32`, `int1`, or `int8` for efficient storage\nin your cluster.  To learn more, see [How to Ingest Pre-Quantized Vectors](avs-bindata-vector-subtype).\n\nIf you make changes to the collection for which you defined a MongoDB Vector Search\nindex, the latest data might not be available immediately for queries.\nHowever, `mongot` monitors the change streams and updates stored\ncopies of data, making MongoDB Vector Search indexes eventually consistent. You can\nimplement a polling logic similar to the following to ensure that the\nindex is ready for querying before attempting to use it.\n\n> **Example:**&#x20;\n>\n> ```\n> console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\n> let isQueryable = false;\n> while (!isQueryable) {\n>   const cursor = collection.listSearchIndexes();\n>   for await (const index of cursor) {\n>     if (index.name === result) {\n>       if (index.queryable) {\n>         console.log(`${result} is ready for querying.`);\n>         isQueryable = true;\n>       } else {\n>         await new Promise(resolve => setTimeout(resolve, 5000));\n>       }\n>     }\n>   }\n> }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "text",
+      "content": "console.log(\"Polling to check if the index is ready. This may take up to a minute.\")\nlet isQueryable = false;\nwhile (!isQueryable) {\n  const cursor = collection.listSearchIndexes();\n  for await (const index of cursor) {\n    if (index.name === result) {\n      if (index.queryable) {\n        console.log(`${result} is ready for querying.`);\n        isQueryable = true;\n      } else {\n        await new Promise(resolve => setTimeout(resolve, 5000));\n      }\n    }\n  }\n}",
+      "tokenEstimate": 110
+    }
+  ],
+  "slug": "considerations--self-byo-None-None",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "byo",
+    "interface": "None",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

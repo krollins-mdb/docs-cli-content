@@ -1,0 +1,50 @@
+{
+  "heading": "Set Up Cluster",
+  "headingLevel": 2,
+  "body": "To download the `mongot` Docker image and the latest MongoDB Community\nEdition image, run the following command:\n\n```shell\ndocker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest\n```\n\n> **Note:** You must have a minimum of MongoDB 8.2.0 to use MongoDB Search with a\n> self-managed deployment. For more information, see [MongoDB Search Compatibility](fts-feature-availability).\n\nTo download the sample data, run the following command:\n\n```shell\ncurl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive\n```\n\nCreate a password file for `mongot` to connect to `mongod`.\n\n> **Important:** Do not include trailing new lines in your password file. `mongot`\n> rejects password files that contain trailing newlines.\n\nSelect your operating system and run the command to create your password file:\n\n```shell\necho -n \"mongotPassword\" > pwfile\nchmod 400 pwfile\n```\n\n> **Note:** The `-n` flag prevents a trailing newline.\n\n```shell\necho|set /p=\"mongotPassword\" > pwfile\n```\n\nNew files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:\n\n```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```\n\n```shell\n[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")\n```\n\nNew files created in Windows inherit permissions from the\nparent folder. Run the following commands to reset\npermissions and set read-only permissions for the local\ngroup `docker-users`:\n\n```shell\nSET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r\n```\n\n> **Note:**&#x20;\n>\n> - If you change the `mongot` password, you must also update the\n>   password value in the `init-mongo-sh` script.\n>\n> - Most text editors automatically add newlines to files when you\n>   edit files manually.\n\nCreate the following configuration files in your project folder and paste\nthe provided code for each file:",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "docker pull mongodb/mongodb-community-server:latest && docker pull mongodb/mongodb-community-search:latest",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "curl https://atlas-education.s3.amazonaws.com/sampledata.archive -o sampledata.archive",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "echo -n \"mongotPassword\" > pwfile\nchmod 400 pwfile",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "echo|set /p=\"mongotPassword\" > pwfile",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "shell",
+      "content": "[System.IO.File]::WriteAllText(\"pwfile\", \"mongotPassword\")",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "shell",
+      "content": "SET pwpath=.\\pwfile\n\n# Reset permissions to remove explicit permissions\nicacls.exe %pwpath% /reset\n# Grant read-only permissions to docker users group\nicacls.exe %pwpath% /GRANT:R \"docker-users:(R)\"\n# Disable inheritance and remove inherited permissions\nicacls.exe %pwpath% /inheritance:r",
+      "tokenEstimate": 73
+    }
+  ],
+  "slug": "set-up-cluster--self-byo-None-None",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "byo",
+    "interface": "None",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

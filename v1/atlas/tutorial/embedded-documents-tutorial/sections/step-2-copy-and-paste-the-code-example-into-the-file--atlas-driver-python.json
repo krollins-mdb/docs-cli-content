@@ -1,0 +1,19 @@
+{
+  "heading": "Step 2: Copy and paste the code example into the  file.",
+  "headingLevel": 2,
+  "body": "This query finds the high schools and requests a count of the number\nof schools that offer classes in each grade.\n\n```python\nimport pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [{\"$searchMeta\": { \n    \"index\": \"embedded-documents-tutorial\",\n    \"facet\": {\n        \"operator\": {\n          \"text\": {\"path\": \"name\", \"query\": 'High'}\n        },\n        \"facets\": {\n          \"gradeFacet\": {\"type\": \"string\", \"path\": \"teachers.classes.grade\"}\n        }\n    }\n}}]\n\n# run pipeline\nresult = client[\"local_school_district\"][\"schools\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient('<connection-string>')\n\n# define pipeline\npipeline = [{\"$searchMeta\": { \n    \"index\": \"embedded-documents-tutorial\",\n    \"facet\": {\n        \"operator\": {\n          \"text\": {\"path\": \"name\", \"query\": 'High'}\n        },\n        \"facets\": {\n          \"gradeFacet\": {\"type\": \"string\", \"path\": \"teachers.classes.grade\"}\n        }\n    }\n}}]\n\n# run pipeline\nresult = client[\"local_school_district\"][\"schools\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)",
+      "tokenEstimate": 135
+    }
+  ],
+  "slug": "step-2-copy-and-paste-the-code-example-into-the-file--atlas-driver-python",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

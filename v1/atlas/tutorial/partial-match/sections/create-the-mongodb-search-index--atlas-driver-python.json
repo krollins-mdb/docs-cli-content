@@ -1,0 +1,49 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "- Install the MongoDB Python Driver.\n\n  ```shell\n  pip install pymongo\n  ```\n\n  For detailed installation instructions, see\n  [MongoDB Python Driver documentation](languages/python/pymongo-driver/get-started).\n\n- Create the index.\n\n  autocomplete\n\n  Create a file named `create_auto_complete_index.py` and paste the following code:\n\n  ```python\n  from pymongo import MongoClient\n\n  # connect to your Atlas deployment\n  uri = \"<connection-string>\"\n\n  client = MongoClient(uri)\n\n  def run():\n      try:\n          # set namespace\n          database = client[\"sample_mflix\"]\n          collection = database[\"movies\"]\n\n      # define your MongoDB Search index\n          index = {\n              \"name\": \"partial-match-tutorial-autocomplete\",\n              \"definition\": {\n                  # search index definition fields\n                  \"mappings\": {\n                      \"dynamic\": False,\n                      \"fields\": {\n                          \"title\": {\n                              \"type\": \"autocomplete\",\n                              \"analyzer\": \"lucene.standard\",\n                              \"tokenization\": \"edgeGram\",\n                              \"minGrams\": 3,\n                              \"maxGrams\": 5,\n                              \"foldDiacritics\": False\n                          }\n                      }\n                  }\n              }\n          }\n\n          # run the helper method\n          result = collection.create_search_index(index)\n          print(f\"New index name: {result}\")\n      finally:\n          client.close()\n\n  if __name__ == \"__main__\":\n      run()\n\n  ```\n\n  string\n\n  Create a file named `create_string_index.py` and paste the following code:\n\n  ```python\n  from pymongo import MongoClient\n\n  # connect to your Atlas deployment\n  uri = \"<connection-string>\"\n\n  client = MongoClient(uri)\n\n  def run():\n      try:\n          # set namespace\n          database = client[\"sample_mflix\"]\n          collection = database[\"movies\"]\n\n      # define your MongoDB Search index\n          index = {\n              \"name\": \"partial-match-tutorial\",\n              \"definition\": {\n                  # search index definition fields\n                  \"mappings\": {\n                      \"dynamic\": False,\n                      \"fields\": {\n                          \"title\": {\n                              \"type\": \"string\",\n                          }\n                      }\n                  }\n              }\n          }\n\n          # run the helper method\n          result = collection.create_search_index(index)\n          print(f\"New index name: {result}\")\n      finally:\n          client.close()\n\n  if __name__ == \"__main__\":\n      run()\n\n  ```\n\n  Atlas Cluster\n\n  Replace `<connection-string>` with the connection string for your\n  Atlas cluster or local Atlas deployment.\n\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n\n  Local or Self-Managed\n\n  Your connection string should use the\n  following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n  To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  IMPORTANT: Ensure that your connection string includes your database\n  user's credentials. To learn more about finding your connection string,\n  see [Driver](connect-via-driver).\n\n  Local Deployment\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n- Run the script.\n\n  ```shell\n  python create_auto_complete_index.py\n  # or\n  python create_string_index.py\n  ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "pip install pymongo",
+      "tokenEstimate": 3
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\n\nclient = MongoClient(uri)\n\ndef run():\n    try:\n        # set namespace\n        database = client[\"sample_mflix\"]\n        collection = database[\"movies\"]\n\n    # define your MongoDB Search index\n        index = {\n            \"name\": \"partial-match-tutorial-autocomplete\",\n            \"definition\": {\n                # search index definition fields\n                \"mappings\": {\n                    \"dynamic\": False,\n                    \"fields\": {\n                        \"title\": {\n                            \"type\": \"autocomplete\",\n                            \"analyzer\": \"lucene.standard\",\n                            \"tokenization\": \"edgeGram\",\n                            \"minGrams\": 3,\n                            \"maxGrams\": 5,\n                            \"foldDiacritics\": False\n                        }\n                    }\n                }\n            }\n        }\n\n        # run the helper method\n        result = collection.create_search_index(index)\n        print(f\"New index name: {result}\")\n    finally:\n        client.close()\n\nif __name__ == \"__main__\":\n    run()\n",
+      "tokenEstimate": 218
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\n\n# connect to your Atlas deployment\nuri = \"<connection-string>\"\n\nclient = MongoClient(uri)\n\ndef run():\n    try:\n        # set namespace\n        database = client[\"sample_mflix\"]\n        collection = database[\"movies\"]\n\n    # define your MongoDB Search index\n        index = {\n            \"name\": \"partial-match-tutorial\",\n            \"definition\": {\n                # search index definition fields\n                \"mappings\": {\n                    \"dynamic\": False,\n                    \"fields\": {\n                        \"title\": {\n                            \"type\": \"string\",\n                        }\n                    }\n                }\n            }\n        }\n\n        # run the helper method\n        result = collection.create_search_index(index)\n        print(f\"New index name: {result}\")\n    finally:\n        client.close()\n\nif __name__ == \"__main__\":\n    run()\n",
+      "tokenEstimate": 169
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_auto_complete_index.py\n# or\npython create_string_index.py",
+      "tokenEstimate": 15
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--atlas-driver-python",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

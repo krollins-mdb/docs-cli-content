@@ -7,19 +7,34 @@
       "heading": "Resource Requirements",
       "headingLevel": 2,
       "body": "> **Important:** If you create a MongoDB Search index for a collection that has or will soon\n> have more than 2.1 billion index objects, use the [numPartitions](fts-index-partition)\n> index option to partition your index\n> or [Deploy a Sharded Cluster](create-cluster-sharding). Index partitions\n> are limited to 2.1 billion objects per partition.\n\nWhen you [create a MongoDB Search index](ref-create-index) a MongoDB Search index, field mapping\ndefaults to [dynamic mappings](static-dynamic-mappings), which means that\nMongoDB Search dynamically indexes all the [supported types](bson-data-chart) in your collection. Other options\nsuch as enabling highlights can also result in your index taking up more\ndisk space. You can reduce the size and performance footprint of your\nMongoDB Search index by:\n\n- Specifying a custom [index definitions](ref-index-definitions) to narrow the amount and type of data that is\n  indexed.\n\n- Setting the `store` option to `false` when specifying a\n  [string](bson-data-types-string) type in an index definition.\n\n> **Note:** Some limitations apply to MongoDB Search on Free clusters and Flex clusters\n> only. To learn more, see\n> [MongoDB Search Search Free and Flex Tier Limitations](atlas-fts-shared-tier-limitations).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "resource-requirements--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "Some index configuration options can lead to indexes that take up a\nsignificant proportion of your disk space. In some cases, your index\ncould be many times larger than the size of your data. Although this is\nexpected behavior, it's important to be aware of the following\nindexing-intensive features:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Autocomplete",
       "headingLevel": 3,
       "body": "The MongoDB Search [autocomplete](autocomplete-ref) operator can be used to build\nfunctionality similar to search-as-you-type in your application. The\nMongoDB Search [tokenization](bson-data-types-autocomplete) field type\ncan cause large indexes, especially in the following cases:\n\n- Using `nGram` tokenization.\n\n- Setting a wide `minGrams` to `maxGrams`  range.\n\n- Setting a `minGram` value of `1` on a collection with millions of\n  documents.\n\nYou can reduce the space used by the `autocomplete` type index by\ndoing the following:\n\n- Reduce the range of `minGrams` and `maxGrams` to the minimum.\n  Generally, we recommend setting `maxGrams` to the character count of\n  the longest word in the field that you want to query. If you are\n  unsure, for English language fields, we recommend starting with\n  `maxGrams` value of `10`.\n\n- Avoid `nGram` tokenization strategy as, for a given string, MongoDB Search\n  creates more tokens for `nGram` than for `edgeGram` or\n  `rightEdgeGram` tokenization.\n\nWhen indexing a `string` field as the [tokenization](bson-data-types-autocomplete) type, we recommend that you index the\nfield as the MongoDB Search [string](bson-data-types-string) type also for\nthe following advantages:\n\n- Boost the score of exact matches when using the\n  [autocomplete](autocomplete-ref) operator.\n\n- Query the same field in the same query using the\n  [autocomplete](autocomplete-ref) operator and another operator that supports\n  string search, such as the [text](text-ref) operator. For an example,\n  see the [Search Across Multiple Fields](autocomplete-compound) example.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "autocomplete--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Embedded Documents",
@@ -61,25 +76,45 @@
           "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 7\nTotal number of index objects: 1000 x 7 = 7000",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "embedded-documents--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Faceted Search",
       "headingLevel": 3,
       "body": "If you want to filter and facet your data using the same field, we\nrecommend that you index the field as following MongoDB Search types:\n\n- [token](bson-data-types-token)\n\n- [number](bson-data-types-number)\n\n- [date](bson-data-types-date)\n\nFor an example of filtering the data by another field for faceting, see\nthe [How to Use Facets with MongoDB Search](facet-tutorial) tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "faceted-search--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "multi Analyzers",
       "headingLevel": 3,
       "body": "Using a `multi` analyzer to analyze the same field multiple\ndifferent ways can cause large indexes, especially when analyzing\nfields with very long values.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multi-analyzers--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Multilingual Search",
       "headingLevel": 3,
       "body": "You can use the MongoDB Search [Language awareness](ref-language-analyzers) to index many\nlanguages. For the list of languages for which MongoDB Search provides built-in\nanalyzers, see the [Language awareness](ref-language-analyzers). To index and query\nlanguages that are currently not in the list of built-in\n[Language awareness](ref-language-analyzers), you can create a [Custom analyzers](custom-analyzers). For an example, see the\n[Custom Language Analyzer Example](custom-language-analyzer-eg).\n\nSuppose you have one document for each language in your collection.\nConsider the following:\n\n- You can index the fields separately in the same index using the\n  [Language awareness](ref-language-analyzers). A single index can support multiple\n  languages in the same query.\n\n- Alternatively, you can create an index per language, which is useful\n  in isolating the different language documents. Note that each index\n  is a change stream cursor and so this might be expensive to\n  maintain.\n\n- If you have the language documents nested inside a parent document,\n  you can create a single index. However, your index definition payload\n  might be large and your query might be complex.\n\nTo learn how to do a Multilingual Search, see [Multilingual Search Example](fts-multilingual-example)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multilingual-search--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Synonym Collections",
@@ -96,37 +131,67 @@
           "content": "{\n  ruleBuilder: [\n    {name: ruleName1, data: <data>},\n    {name: ruleName2, data: <data>},\n    ...\n    {name: ruleName1025, data: <data>}\n  ]\n}",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "synonym-collections--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Scaling Considerations",
       "headingLevel": 2,
       "body": "MongoDB Search is deployed on your Atlas cluster. When a new version of\nMongoDB Search is deployed, your Atlas cluster might experience brief\nnetwork failures in returning query results. To mitigate issues during\ndeployment and minimize impact to your application, consider the\nfollowing:\n\n- Implement retry logic in your application.\n\n- Configure Atlas [Configure Maintenance Window](configure-maintenance-window).\n\n  > **Note:** MongoDB Search upgrades start only during the maintenance window and might\n  > continue after the maintenance window.\n\nTo learn more about the changes in each release, see [MongoDB Search Changelog](fts-changelog).\n\nYou can scale up your initial sync and steady state indexing for a\nMongoDB Search index by upgrading your cluster to a higher [Select Cluster Tier](create-cluster-instance) with more cores. MongoDB Search uses a percentage of\nall available cores to run both initial sync and steady state indexing\nand performance improves as new cores are made available by upgrading\nyour cluster.\n\nIf you reconfigure your deployment to use the local NVMe (non-volatile memory express) storage type\nor upscale an NVMe (non-volatile memory express)-based cluster, MongoDB Search performs an initial sync\nof all configured MongoDB Search indexes after each node completes its underlying\nconfiguration or upscale action. If the MongoDB Search index initial syncs take\nlonger than the time it took to complete the cluster configuration\nchange, you can't run [$search](pipe.$search) queries until the initial\nsync completes on all the nodes in your Atlas cluster.\n\nWe recommend deploying [Search Nodes](configure-search-nodes) to scale your Atlas cluster and\n[$search](pipe.$search) workloads independently. Dedicated Search Nodes\nrun only the `mongot` process and therefore improve the availability,\nperformance, and workload balancing of the `mongot` process.\n\nScaling your cluster by adding search nodes or by changing the search\ntier triggers a rebuild of the full MongoDB Search index. However, if your cluster\non AWS (Amazon Web Services) or Azure (Microsoft Azure) has dedicated search nodes for which you haven't\nenabled [Encryption at Rest using Customer Key Management](security-kms-encryption), Atlas provides the following\noptimizations:\n\n- When you scale your search nodes, Atlas uses a recent copy of\n  your index in S3 (Simple Storage Service) or Azure Blob Storage instead of rebuilding the entire\n  MongoDB Search index on the new node.\n\n- For existing nodes, Atlas periodically takes and uploads a new\n  incremental list of index files. Atlas retains index files for up\n  to fourteen (14) days.\n\nThis is not yet available for clusters with dedicated search nodes on\nGoogle Cloud.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scaling-considerations--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Initial Sync in Progress",
       "headingLevel": 2,
       "body": "MongoDB Search starts the initial sync process in the following scenarios:\n\n- When you create a new cluster or perform certain upgrades on a\n  cluster, an initial sync process occurs.\n\n- If you add shards to a collection with an existing MongoDB Search index, an\n  initial sync occurs on the added shards for that index.\n\n- If you shard a collection that already has a MongoDB Search index, an initial\n  sync occurs on shards where the collection begins to exist.\n\nThe initial sync process includes the following steps:\n\n- The `mongod` performs an initial sync.\n\n- The `mongot` performs an initial sync, which rebuilds the search indexes.\n\nWhile a search index rebuilds, you can still perform `$search` queries\non the existing indexed fields. However, MongoDB Search might return an error if you run a\n`$search` query against a new field or a node that you've recently created.\n\n> **Warning:** Rolling resyncs cause colocated search instances to fall off the oplog, which affects\n> processes dependant on oplog data. We recommend migrating to [Search Nodes](configure-search-nodes) to avoid this issue.\n\nCheck the status of the `mongot` initial\nsync using the following steps:\n\n- In the index's `Status` column, click\n  View Status Details.\n\n- Check the state of the index for the node. During `mongot`\n  initial sync, the status is `INITIAL SYNC`. When `mongot`\n  finishes rebuilding the index, the status is `ACTIVE`.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "initial-sync-in-progress--atlas",
+      "selections": {
+        "deployment-type": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Resource Requirements",
       "headingLevel": 2,
       "body": "> **Important:** If you create a MongoDB Search index for a collection that has or will soon\n> have more than 2.1 billion index objects, use the [numPartitions](fts-index-partition)\n> index option to partition your index\n> or [Deploy a Sharded Cluster](create-cluster-sharding). Index partitions\n> are limited to 2.1 billion objects per partition.\n\nWhen you [create a MongoDB Search index](ref-create-index) a MongoDB Search index, field mapping\ndefaults to [dynamic mappings](static-dynamic-mappings), which means that\nMongoDB Search dynamically indexes all the [supported types](bson-data-chart) in your collection. Other options\nsuch as enabling highlights can also result in your index taking up more\ndisk space. You can reduce the size and performance footprint of your\nMongoDB Search index by:\n\n- Specifying a custom [index definitions](ref-index-definitions) to narrow the amount and type of data that is\n  indexed.\n\n- Setting the `store` option to `false` when specifying a\n  [string](bson-data-types-string) type in an index definition.\n\n> **Note:** Some limitations apply to MongoDB Search on Free clusters and Flex clusters\n> only. To learn more, see\n> [MongoDB Search Search Free and Flex Tier Limitations](atlas-fts-shared-tier-limitations).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "resource-requirements--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "Some index configuration options can lead to indexes that take up a\nsignificant proportion of your disk space. In some cases, your index\ncould be many times larger than the size of your data. Although this is\nexpected behavior, it's important to be aware of the following\nindexing-intensive features:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Autocomplete",
       "headingLevel": 3,
       "body": "The MongoDB Search [autocomplete](autocomplete-ref) operator can be used to build\nfunctionality similar to search-as-you-type in your application. The\nMongoDB Search [tokenization](bson-data-types-autocomplete) field type\ncan cause large indexes, especially in the following cases:\n\n- Using `nGram` tokenization.\n\n- Setting a wide `minGrams` to `maxGrams`  range.\n\n- Setting a `minGram` value of `1` on a collection with millions of\n  documents.\n\nYou can reduce the space used by the `autocomplete` type index by\ndoing the following:\n\n- Reduce the range of `minGrams` and `maxGrams` to the minimum.\n  Generally, we recommend setting `maxGrams` to the character count of\n  the longest word in the field that you want to query. If you are\n  unsure, for English language fields, we recommend starting with\n  `maxGrams` value of `10`.\n\n- Avoid `nGram` tokenization strategy as, for a given string, MongoDB Search\n  creates more tokens for `nGram` than for `edgeGram` or\n  `rightEdgeGram` tokenization.\n\nWhen indexing a `string` field as the [tokenization](bson-data-types-autocomplete) type, we recommend that you index the\nfield as the MongoDB Search [string](bson-data-types-string) type also for\nthe following advantages:\n\n- Boost the score of exact matches when using the\n  [autocomplete](autocomplete-ref) operator.\n\n- Query the same field in the same query using the\n  [autocomplete](autocomplete-ref) operator and another operator that supports\n  string search, such as the [text](text-ref) operator. For an example,\n  see the [Search Across Multiple Fields](autocomplete-compound) example.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "autocomplete--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Embedded Documents",
@@ -168,25 +233,45 @@
           "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 7\nTotal number of index objects: 1000 x 7 = 7000",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "embedded-documents--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Faceted Search",
       "headingLevel": 3,
       "body": "If you want to filter and facet your data using the same field, we\nrecommend that you index the field as following MongoDB Search types:\n\n- [token](bson-data-types-token)\n\n- [number](bson-data-types-number)\n\n- [date](bson-data-types-date)\n\nFor an example of filtering the data by another field for faceting, see\nthe [How to Use Facets with MongoDB Search](facet-tutorial) tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "faceted-search--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "multi Analyzers",
       "headingLevel": 3,
       "body": "Using a `multi` analyzer to analyze the same field multiple\ndifferent ways can cause large indexes, especially when analyzing\nfields with very long values.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multi-analyzers--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Multilingual Search",
       "headingLevel": 3,
       "body": "You can use the MongoDB Search [Language awareness](ref-language-analyzers) to index many\nlanguages. For the list of languages for which MongoDB Search provides built-in\nanalyzers, see the [Language awareness](ref-language-analyzers). To index and query\nlanguages that are currently not in the list of built-in\n[Language awareness](ref-language-analyzers), you can create a [Custom analyzers](custom-analyzers). For an example, see the\n[Custom Language Analyzer Example](custom-language-analyzer-eg).\n\nSuppose you have one document for each language in your collection.\nConsider the following:\n\n- You can index the fields separately in the same index using the\n  [Language awareness](ref-language-analyzers). A single index can support multiple\n  languages in the same query.\n\n- Alternatively, you can create an index per language, which is useful\n  in isolating the different language documents. Note that each index\n  is a change stream cursor and so this might be expensive to\n  maintain.\n\n- If you have the language documents nested inside a parent document,\n  you can create a single index. However, your index definition payload\n  might be large and your query might be complex.\n\nTo learn how to do a Multilingual Search, see [Multilingual Search Example](fts-multilingual-example)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multilingual-search--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Synonym Collections",
@@ -203,31 +288,56 @@
           "content": "{\n  ruleBuilder: [\n    {name: ruleName1, data: <data>},\n    {name: ruleName2, data: <data>},\n    ...\n    {name: ruleName1025, data: <data>}\n  ]\n}",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "synonym-collections--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Scaling Considerations",
       "headingLevel": 2,
       "body": "When you deploy a new version of MongoDB Search, your MongoDB cluster might\nexperience brief network failures in returning query results. To\nmitigate issues during deployment and minimize impact to your\napplication, consider implementing retry logic in your application.\nFor details on sizing, see [Introduction to mongot Deployment Sizing](manual/tutorial/mongot-sizing/introduction).\n\nTo learn more about the changes in each release, see [MongoDB Search Changelog](fts-changelog).\n\nYou can scale up your initial sync and steady state indexing for a\nMongoDB Search index by upgrading your cluster to a higher [Select Cluster Tier](create-cluster-instance) with more cores. MongoDB Search uses a percentage of\nall available cores to run both initial sync and steady state indexing\nand performance improves as new cores are made available by upgrading\nyour cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scaling-considerations--local",
+      "selections": {
+        "deployment-type": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Resource Requirements",
       "headingLevel": 2,
       "body": "> **Important:** If you create a MongoDB Search index for a collection that has or will soon\n> have more than 2.1 billion index objects, use the [numPartitions](fts-index-partition)\n> index option to partition your index\n> or [Deploy a Sharded Cluster](create-cluster-sharding). Index partitions\n> are limited to 2.1 billion objects per partition.\n\nWhen you [create a MongoDB Search index](ref-create-index) a MongoDB Search index, field mapping\ndefaults to [dynamic mappings](static-dynamic-mappings), which means that\nMongoDB Search dynamically indexes all the [supported types](bson-data-chart) in your collection. Other options\nsuch as enabling highlights can also result in your index taking up more\ndisk space. You can reduce the size and performance footprint of your\nMongoDB Search index by:\n\n- Specifying a custom [index definitions](ref-index-definitions) to narrow the amount and type of data that is\n  indexed.\n\n- Setting the `store` option to `false` when specifying a\n  [string](bson-data-types-string) type in an index definition.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "resource-requirements--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "Some index configuration options can lead to indexes that take up a\nsignificant proportion of your disk space. In some cases, your index\ncould be many times larger than the size of your data. Although this is\nexpected behavior, it's important to be aware of the following\nindexing-intensive features:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Autocomplete",
       "headingLevel": 3,
       "body": "The MongoDB Search [autocomplete](autocomplete-ref) operator can be used to build\nfunctionality similar to search-as-you-type in your application. The\nMongoDB Search [tokenization](bson-data-types-autocomplete) field type\ncan cause large indexes, especially in the following cases:\n\n- Using `nGram` tokenization.\n\n- Setting a wide `minGrams` to `maxGrams`  range.\n\n- Setting a `minGram` value of `1` on a collection with millions of\n  documents.\n\nYou can reduce the space used by the `autocomplete` type index by\ndoing the following:\n\n- Reduce the range of `minGrams` and `maxGrams` to the minimum.\n  Generally, we recommend setting `maxGrams` to the character count of\n  the longest word in the field that you want to query. If you are\n  unsure, for English language fields, we recommend starting with\n  `maxGrams` value of `10`.\n\n- Avoid `nGram` tokenization strategy as, for a given string, MongoDB Search\n  creates more tokens for `nGram` than for `edgeGram` or\n  `rightEdgeGram` tokenization.\n\nWhen indexing a `string` field as the [tokenization](bson-data-types-autocomplete) type, we recommend that you index the\nfield as the MongoDB Search [string](bson-data-types-string) type also for\nthe following advantages:\n\n- Boost the score of exact matches when using the\n  [autocomplete](autocomplete-ref) operator.\n\n- Query the same field in the same query using the\n  [autocomplete](autocomplete-ref) operator and another operator that supports\n  string search, such as the [text](text-ref) operator. For an example,\n  see the [Search Across Multiple Fields](autocomplete-compound) example.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "autocomplete--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Embedded Documents",
@@ -269,25 +379,45 @@
           "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 7\nTotal number of index objects: 1000 x 7 = 7000",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "embedded-documents--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Faceted Search",
       "headingLevel": 3,
       "body": "If you want to filter and facet your data using the same field, we\nrecommend that you index the field as following MongoDB Search types:\n\n- [token](bson-data-types-token)\n\n- [number](bson-data-types-number)\n\n- [date](bson-data-types-date)\n\nFor an example of filtering the data by another field for faceting, see\nthe [How to Use Facets with MongoDB Search](facet-tutorial) tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "faceted-search--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "multi Analyzers",
       "headingLevel": 3,
       "body": "Using a `multi` analyzer to analyze the same field multiple\ndifferent ways can cause large indexes, especially when analyzing\nfields with very long values.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multi-analyzers--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Multilingual Search",
       "headingLevel": 3,
       "body": "You can use the MongoDB Search [Language awareness](ref-language-analyzers) to index many\nlanguages. For the list of languages for which MongoDB Search provides built-in\nanalyzers, see the [Language awareness](ref-language-analyzers). To index and query\nlanguages that are currently not in the list of built-in\n[Language awareness](ref-language-analyzers), you can create a [Custom analyzers](custom-analyzers). For an example, see the\n[Custom Language Analyzer Example](custom-language-analyzer-eg).\n\nSuppose you have one document for each language in your collection.\nConsider the following:\n\n- You can index the fields separately in the same index using the\n  [Language awareness](ref-language-analyzers). A single index can support multiple\n  languages in the same query.\n\n- Alternatively, you can create an index per language, which is useful\n  in isolating the different language documents. Note that each index\n  is a change stream cursor and so this might be expensive to\n  maintain.\n\n- If you have the language documents nested inside a parent document,\n  you can create a single index. However, your index definition payload\n  might be large and your query might be complex.\n\nTo learn how to do a Multilingual Search, see [Multilingual Search Example](fts-multilingual-example)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multilingual-search--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Synonym Collections",
@@ -304,13 +434,44 @@
           "content": "{\n  ruleBuilder: [\n    {name: ruleName1, data: <data>},\n    {name: ruleName2, data: <data>},\n    ...\n    {name: ruleName1025, data: <data>}\n  ]\n}",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "synonym-collections--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Scaling Considerations",
       "headingLevel": 2,
       "body": "When you deploy a new version of MongoDB Search, your MongoDB cluster might\nexperience brief network failures in returning query results. To\nmitigate issues during deployment and minimize impact to your\napplication, consider implementing retry logic in your application.\nFor details on sizing, see [Introduction to mongot Deployment Sizing](manual/tutorial/mongot-sizing/introduction).\n\nTo learn more about the changes in each release, see [MongoDB Search Changelog](fts-changelog).\n\nYou can scale up your initial sync and steady state indexing for a\nMongoDB Search index by upgrading your CPU and RAM. MongoDB Search uses a percentage of\nall available cores to run both initial sync and steady state indexing\nand performance improves as new cores are made available by upgrading\nyour cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scaling-considerations--self",
+      "selections": {
+        "deployment-type": "self"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "deployment-type",
+      "text": "Deployment Type",
+      "default": "atlas",
+      "selections": [
+        {
+          "value": "atlas",
+          "text": "Atlas (Cloud)"
+        },
+        {
+          "value": "local",
+          "text": "Atlas (Local)"
+        },
+        {
+          "value": "self",
+          "text": "Self-Managed (On-Premises)"
+        }
+      ]
     }
   ]
 }

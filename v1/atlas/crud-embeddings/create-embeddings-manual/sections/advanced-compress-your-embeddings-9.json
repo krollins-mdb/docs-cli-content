@@ -1,0 +1,32 @@
+{
+  "heading": "(Advanced) Compress your embeddings.",
+  "headingLevel": 2,
+  "body": "Optionally, you can compress your embeddings by converting them\nto BSON (Binary Javascript Object Notation) binary format, also called `binData` vectors,\nfor efficient storage and retrieval.\nTo learn more, see [Vector Compression](avs-vector-compression).\n\nThis code does the following:\n\n- Defines a function named `generate_bson_vector` to convert\n  embeddings to `binData` vectors by using binary tools from the\n  [PyMongo driver](pymongo).\n\n- Converts the embeddings you generated for the\n  string `foo` to `binData` vectors.\n  The exact embedding varies depending on the model you use.\n\n> **Note:** When you convert your embeddings to `binData` vectors, your embeddings\n> appear in binary format.\n\n**Input:**\n\n```python\nfrom bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")\n```\n\n**Output:**\n\n```shell\nThe converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]\n```\n\nIn this section, you use an embedding model to generate vector embeddings.\nThis example also includes an optional function that\nyou can use to compress your embeddings for efficient storage\nand improved query performance. To learn more,\nsee [Vector Compression](avs-vector-compression).\n\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension, and then run the\nfollowing command in the notebook to install the dependencies:\n\n```python\npip install --quiet --upgrade sentence-transformers pymongo einops\n```\n\nPaste and run the following code in your notebook to create\na function that generates vector embeddings by using an\nopen-source embedding model from\n[Nomic AI](https://www.nomic.ai). This code does the following:\n\n- Loads the [nomic-embed-text-v1](https://huggingface.co/nomic-ai/nomic-embed-text-v1) embedding model.\n\n- Creates a function named `get_embedding()` that uses the model\n  to generate embeddings for a given text input. The default\n  precision is `float32`.\n\n- Generates embeddings for the string, `foo`.\n\n**Input:**\n\n```python\nfrom sentence_transformers import SentenceTransformer\n\n# Load the embedding model\nmodel = SentenceTransformer(\"nomic-ai/nomic-embed-text-v1\", trust_remote_code=True)\n\n# Define a function to generate embeddings\ndef get_embedding(data, precision=\"float32\"):\n   return model.encode(data, precision=precision).tolist()\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)\n```\n\n**Output:**\n\n```shell\n[-0.02980827  0.03841474 -0.02561123 ... -0.0532876 -0.0335409 -0.02591543]\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "shell",
+      "content": "The converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "python",
+      "content": "pip install --quiet --upgrade sentence-transformers pymongo einops",
+      "tokenEstimate": 12
+    },
+    {
+      "language": "python",
+      "content": "from sentence_transformers import SentenceTransformer\n\n# Load the embedding model\nmodel = SentenceTransformer(\"nomic-ai/nomic-embed-text-v1\", trust_remote_code=True)\n\n# Define a function to generate embeddings\ndef get_embedding(data, precision=\"float32\"):\n   return model.encode(data, precision=precision).tolist()\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "shell",
+      "content": "[-0.02980827  0.03841474 -0.02561123 ... -0.0532876 -0.0335409 -0.02591543]",
+      "tokenEstimate": 39
+    }
+  ]
+}

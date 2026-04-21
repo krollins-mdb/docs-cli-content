@@ -1,0 +1,19 @@
+{
+  "heading": "Use Relative Path for Stored Source",
+  "headingLevel": 3,
+  "body": "The following index definition automatically indexes all the fields in\nthe `funding_rounds` array of objects for querying. It also uses the\n`storedSource` field to store the `round_code`,\n`raised_currency_code`, and `raised_amount` fields on `mongot`.\nThis allows you to query these stored fields using any operator that\nsupports queries against these field types and retrieve these stored\nfields inside the parent object (`funding_rounds`) as individual\ndocuments. For a sample query that demonstrates this, see the [range](range-ref)\n[Embedded Documents Example](range-embedded-documents-eg). To query and\nretrieve other fields in the parent object (`funding_rounds`), you\nmust use the `embeddedDocument` operator.\n\n```javascript\ndb.companies.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": { \n      \"dynamic\": false,\n      \"fields\": { \n        \"funding_rounds\": { \n          \"type\": \"embeddedDocuments\",\n          \"dynamic\": true,\n          \"storedSource\": {\n            \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n          }\n        } \n      }\n    }\n  }\n)\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.companies.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": { \n      \"dynamic\": false,\n      \"fields\": { \n        \"funding_rounds\": { \n          \"type\": \"embeddedDocuments\",\n          \"dynamic\": true,\n          \"storedSource\": {\n            \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n          }\n        } \n      }\n    }\n  }\n)",
+      "tokenEstimate": 91
+    }
+  ],
+  "slug": "use-relative-path-for-stored-source--local-onprem-mongosh-None",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

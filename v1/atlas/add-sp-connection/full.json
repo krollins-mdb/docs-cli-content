@@ -7,31 +7,57 @@
       "heading": "Connection Types",
       "headingLevel": 2,
       "body": "Atlas Stream Processing supports a variety of [connection types](atlas-sp-manage-connections-considerations). The following\nprocedures describe how to create these connections with standard\nsecurity features.\n\nTo learn how to configure Atlas Stream Processing connections with advanced\nsecurity features, see the following pages:\n\n- [VPC peering](atlas-sp-manage-vpc-peering)\n\n- [Add a Kafka Private Link Connection](atlas-sp-pl-kafka-add)\n\n- [AWS S3 Private Link Connections](atlas-sp-pl-s3-add)\n\n- [Add a Kinesis Private Link Connection](atlas-sp-pl-kinesis-add)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "connection-types",
+      "variantAgnostic": true
     },
     {
       "heading": "Add a Kafka Connection through the Atlas Administration API",
       "headingLevel": 3,
       "body": "The Atlas Administration API provides an endpoint for adding a\nconnection to a connection registry. For more information,\nsee [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\n\n> **Important:** After adding an external connection such as an [Apache Kafka](https://kafka.apache.org/) cluster to\n> your connection registry, you must add Atlas IP addresses to\n> an access list for that external connection. For more information,\n> see [Atlas IP addresses](atlas-add-inbound-ips).\n\nEach interface for creating a Kafka connection allows you to provide\nconfiguration parameters for your Kafka cluster. These configurations\ntake the form of key-value pairs, and correspond to one of the\nfollowing:\n\n- A subset of [Producer](https://kafka.apache.org/documentation/#producerconfigs)\n  configurations\n\n- A subset of [Consumer](https://kafka.apache.org/documentation/#consumerconfigs)\n  configurations.\n\nAtlas Stream Processing passes only these parameters to your Kafka cluster. If\nyou declare any parameters not explicitly allowed, Atlas Stream Processing ignores\nthem.\n\n| Interface                | Configuration Mechanism                                                            |\n| ------------------------ | ---------------------------------------------------------------------------------- |\n| Atlas CLI                | Provide configurations as a .json file specified with the --file flag.             |\n| Atlas Administration API | Provide configurations as a .json object specified in the config field.            |\n| Atlas UI                 | Provide configurations in the Configuration File field of the Add Connection page. |\n\nAtlas Stream Processing supports the following configurations:\n\nProducer Parameters\n\n- [acks](https://kafka.apache.org/documentation/#producerconfigs_acks)\n\n- [batch.size](https://kafka.apache.org/documentation/#producerconfigs_batch.size)\n\n- [client.dns.lookup](https://kafka.apache.org/documentation/#connectconfigs_client.dns.lookup)\n\n- [client.id](https://kafka.apache.org/documentation/#consumerconfigs_client.id)\n\n- [compression.type](https://kafka.apache.org/documentation/#producerconfigs_compression.type)\n\n- [connections.max.idle.ms](https://kafka.apache.org/documentation/#brokerconfigs_connections.max.idle.ms)\n\n- [delivery.timeout.ms](https://kafka.apache.org/documentation/#producerconfigs_delivery.timeout.ms)\n\n- [enable.idempotence](https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence)\n\n- [linger.ms](https://kafka.apache.org/documentation/#producerconfigs_linger.ms)\n\n- [max.in.flight.requests.per.connection](https://kafka.apache.org/documentation/#producerconfigs_max.in.flight.requests.per.connection)\n\n- [message.max.bytes](https://kafka.apache.org/documentation/#brokerconfigs_message.max.bytes)\n\n- [queue.buffering.max.messages](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md)\n\n- [request.timeout.ms](https://kafka.apache.org/documentation/#producerconfigs_request.timeout.ms)\n\n- [retries](https://kafka.apache.org/documentation/#producerconfigs_retries)\n\n- [transactional.id](https://kafka.apache.org/documentation/#producerconfigs_transactional.id)\n\nConsumer Parameters\n\n- [allow.auto.create.topics](https://kafka.apache.org/documentation/#consumerconfigs_allow.auto.create.topics)\n\n- [auto.offset.reset](https://kafka.apache.org/documentation/#consumerconfigs_auto.offset.reset)\n\n- [client.dns.lookup](https://kafka.apache.org/documentation/#consumerconfigs_client.dns.lookup)\n\n- [client.id](https://kafka.apache.org/documentation/#consumerconfigs_client.id)\n\n- [connections.max.idle.ms](https://kafka.apache.org/documentation/#consumerconfigs_connections.max.idle.ms)\n\n- [fetch.max.bytes](https://kafka.apache.org/documentation/#consumerconfigs_fetch.max.bytes)\n\n- [fetch.min.bytes](https://kafka.apache.org/documentation/#consumerconfigs_fetch.min.bytes)\n\n- [group.id](https://kafka.apache.org/documentation/#consumerconfigs_group.id)\n\n- [heartbeat.interval.ms](https://kafka.apache.org/documentation/#consumerconfigs_heartbeat.interval.ms)\n\n- [isolation.level](https://kafka.apache.org/documentation/#consumerconfigs_isolation.level)\n\n- [max.partition.fetch.bytes](https://kafka.apache.org/documentation/#consumerconfigs_max.partition.fetch.bytes)\n\n- [max.poll.interval.ms](https://kafka.apache.org/documentation/#consumerconfigs_max.poll.interval.ms)\n\n- [request.timeout.ms](https://kafka.apache.org/documentation/#consumerconfigs_request.timeout.ms)\n\n- [session.timeout.ms](https://kafka.apache.org/documentation/#consumerconfigs_session.timeout.ms)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-kafka-connection-through-the-atlas-administration-api--atlas-admin-api-kafka",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "kafka"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add an Atlas Cluster Connection through the Atlas Administration API",
       "headingLevel": 3,
       "body": "The Atlas Administration API provides an endpoint for adding a\nconnection to a connection registry.\n\n[Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\n\nTo add a Kinesis connection to your stream processing workspace through the\nAtlas Administration API, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-an-atlas-cluster-connection-through-the-atlas-administration-api--atlas-admin-api-atlas",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS Access](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-admin-api).\n\nEnsure that you grant your IAM role the following permissions:\n\n- `SubscribeToShard`\n\n- `ListShards`\n\n- `DescribeStreamSummary`\n\n- `PutRecords`\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-admin-api-kinesis",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-admin-api-kinesis",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the Kinesis Connection.",
@@ -43,31 +69,61 @@
           "content": "curl --user \"<publicApiKey>:<privateApiKey>\" --digest \\\n  --header \"Content-Type: application/json\" \\\n  --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n  --include \\\n  --data '{\"name\": \"HTTPSConnection\",\"type\": \"Https\",\"url\": \"<apiBasePath>\"}' \\\n  --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<projectID>/streams/<tenantName>/connections\"",
           "tokenEstimate": 102
         }
-      ]
+      ],
+      "slug": "step-3-create-the-kinesis-connection--atlas-admin-api-kinesis",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS\nAccess](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-admin-api).\n\nEnsure that you grant your IAM role `ListAllMyBuckets` and\n`PutObject` permissions.\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-admin-api-s3",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-admin-api-s3",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the S3 Connection.",
       "headingLevel": 2,
       "body": "The Atlas Administration API provides an endpoint to\n[Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection). You must send this\nrequest using digest authorization.\n\nIn your HTTP request interface, enable digest authorization. For\nthe `username`, provide the public key you generated\npreviously. For the `password`, provide the private key you\ngenerated previously.\n\nFor an AWS (Amazon Web Services) S3 (Simple Storage Service) connection, set the following key-value pairs:\n\n| Key         | Value                                      |\n| ----------- | ------------------------------------------ |\n| type        | \"S3\"                                       |\n| aws.roleArn | Value of the ARN noted in an earlier step. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-create-the-s3-connection--atlas-admin-api-s3",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Supported Aggregation Behavior",
       "headingLevel": 3,
       "body": "AWS (Amazon Web Services) S3 (Simple Storage Service) sink connections support only the `$emit` stage, not\nthe `$merge` stage. For more information, see [$emit](atlas-sp-agg-emit).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "supported-aggregation-behavior--atlas-admin-api-s3",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add an External Function Connection through the Atlas Administration API",
@@ -79,181 +135,361 @@
           "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n   --header \"Content-Type: application/json\" \\\n   --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n   --include \\\n   --data '{\"name\": \"TestAWSLambdaConnection\",\"type\": \"AWSLambda\",\"aws\": {\"roleArn\": \"arn:aws:iam::<aws_account>:role/<role_name>\"}}' \\\n   --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<group_id>/streams/<tenant_name>/connections\"",
           "tokenEstimate": 119
         }
-      ]
+      ],
+      "slug": "add-an-external-function-connection-through-the-atlas-administration-api--atlas-admin-api-external",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "external"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Schema Registry Connection through the Atlas Administration API",
       "headingLevel": 3,
       "body": "To add a [Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) connection\nto your stream processing workspace through the Atlas Administration API, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-schema-registry-connection-through-the-atlas-administration-api--atlas-admin-api-schema-registry",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a Schema Registry.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/get-started/schema-registry.html).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-create-a-schema-registry--atlas-admin-api-schema-registry",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create a Confluent Cloud API Key.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/security/authenticate/workload-identities/service-accounts/api-keys/manage-api-keys.html#add-an-api-key)\nto create a Confluent Cloud API Key for your Schema Registry.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-a-confluent-cloud-api-key--atlas-admin-api-schema-registry",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the Schema Registry Connection.",
       "headingLevel": 2,
       "body": "The Atlas Administration API provides an endpoint to\n[Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection).\n\nFor a Confluent Cloud Schema Registry connection, set all\nrequired key-value pairs. The following must have specific\nvalues:\n\n| Key                                   | Value                                                                                                                                                                       |\n| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| type                                  | \"SchemaRegistry\"                                                                                                                                                            |\n| provider                              | \"CONFLUENT\"                                                                                                                                                                 |\n| schemaRegistryUrls                    | The URLs associated with your schema registry.                                                                                                                              |\n| schemaRegistryAuthentication.type     | \"USER\\_INFO\" or \"SASL\\_INHERIT\". If you use \"USER\\_INFO\", you must also provide values for schemaRegistryAuthentication.username and schemaRegistryAuthentication.password. |\n| schemaRegistryAuthentication.username | The username associated with your Confluent Cloud API Key.                                                                                                                  |\n| schemaRegistryAuthentication.password | The password associated with your Confluent Cloud API Key.                                                                                                                  |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-create-the-schema-registry-connection--atlas-admin-api-schema-registry",
+      "selections": {
+        "interface": "atlas-admin-api",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Kafka Connection through the Atlas UI",
       "headingLevel": 3,
       "body": "To add a Kafka connection to your Stream Processing Workspace through the\nAtlas UI, follow these steps:\n\n- Locate the overview panel of the stream processing workspace you want to\n  modify and click Manage.\n\n- Select the Connection Registry tab.\n\n* Select a Kafka connection.\n\n* Provide a Connection Name. Each connection name must be unique within a stream processing workspace.\n  This is the name used to reference the connection in Atlas Stream Processing [Aggregation pipeline stages](atlas-sp-aggregation).\n\n* Select a Network Access type. Atlas Stream Processing\n  supports Public IP or VPC Peering\n  connections.\n\nPublic IP\n\nClick the Public IP button. No further\nconfiguration is needed for this network access type.\n\nVPC Peering\n\n- Click the VPC Peering button.\n\n- Toggle Enable VPC Peering on.\n  Atlas Stream Processing automatically selects the appropriate\n  VPC peering connection from your configured\n  connections.\n\nIf you do not have a VPC peering connection,\n[Configure an Atlas Network Peering Connection](create-network-peer-connection).\n\n- Specify an IP address for one or more [bootstrap servers](https://kafka.apache.org/documentation/#streamsconfigs_bootstrap.servers)\n  for your [Apache Kafka](https://kafka.apache.org/) system.\n\n- From the dropdown menu, select a Security Protocol Method.\n\n  Atlas Stream Processing supports `SASL_PLAINTEXT`, `SASL_SSL`, and `SSL`.\n\n  `SASL_PLAINTEXT`\n\n  `SASL_PLAINTEXT` is incompatible with\n  VPC peering. To use VPC peering, you must\n  select the `SASL_SSL` or the `SSL` method.\n\n  - From the dropdown menu, select a SASL Mechanism.\n\n    Atlas Stream Processing supports:\n\n    - `PLAIN`\n\n    - `SCRAM-SHA-256`\n\n    - `SCRAM-SHA-512`\n\n    - `OAUTHBEARER`\n\n  - If you select `PLAIN`, `SCRAM-SHA-256`, or `SCRAM-SHA-512`, you must also provide the following:\n\n    - A Username for authentication.\n\n    - A password for authentication.\n\n  - If you select `OAUTHBEARER`, you must also provide the following:\n\n    - Token endpoint URL - OAUTH issuer (IdP provider) token endpoint HTTP(S) URI used to retrieve the token.\n\n    - Client ID - Public identifier for the Kafka client.\n\n    - Client secret - Secret known only to the Kafka client and the authorization server.\n\n  - If you select `OAUTHBEARER`, you can also provide the following optional fields:\n\n    - Scope - Scope of the access request to the broker specified by the Kafka clients.\n\n    - SASL Extensions - Additional information to provide to the Kafka broker.\n\n  - Click Add connection.\n\n  `SASL_SSL`\n\n  - From the dropdown menu, select a SASL Mechanism.\n\n    Atlas Stream Processing supports:\n\n    - `PLAIN`\n\n    - `SCRAM-SHA-256`\n\n    - `SCRAM-SHA-512`\n\n    - `OAUTHBEARER`\n\n  - Click Upload to upload your Certificate Authority PEM file.\n\n  - If you select `PLAIN`, `SCRAM-SHA-256`, or `SCRAM-SHA-512`, you must also provide the following:\n\n    - A Username for authentication.\n\n    - A password for authentication.\n\n  - If you select `OAUTHBEARER`, you must also provide the following:\n\n    - Token endpoint URL - OAUTH issuer (IdP provider) token endpoint HTTP(S) URI used to retrieve the token.\n\n    - Client ID - Public identifier for the Kafka client.\n\n    - Client secret - Secret known only to the Kafka client and the authorization server.\n\n  - If you select `OAUTHBEARER`, you can also provide the following optional fields:\n\n    - Scope - Scope of the access request to the broker specified by the Kafka clients.\n\n    - SASL Extensions - Additional information to provide to the Kafka broker.\n\n  - Click Add connection.\n\n  `SSL`\n\n  - **(Optional)** If you are using a Certificate Authority other than the default [Apache Kafka](https://kafka.apache.org/) CA,\n    click Upload to upload your Certificate Authority PEM file.\n\n  - Click Upload to upload your Client SSL Certificate.\n\n  - Click Upload to upload your Client SSL Keyfile.\n\n  - **(Optional)** If your Client SSL Keyfile is password-protected,\n    type your password into the Client key password field.\n\n  - Click Add connection.\n\n> **Important:** After adding an external connection such as an [Apache Kafka](https://kafka.apache.org/) cluster to\n> your connection registry, you must add Atlas IP addresses to\n> an access list for that external connection. For more information,\n> see [Atlas IP addresses](atlas-add-inbound-ips).\n\nEach interface for creating a Kafka connection allows you to provide\nconfiguration parameters for your Kafka cluster. These configurations\ntake the form of key-value pairs, and correspond to one of the\nfollowing:\n\n- A subset of [Producer](https://kafka.apache.org/documentation/#producerconfigs)\n  configurations\n\n- A subset of [Consumer](https://kafka.apache.org/documentation/#consumerconfigs)\n  configurations.\n\nAtlas Stream Processing passes only these parameters to your Kafka cluster. If\nyou declare any parameters not explicitly allowed, Atlas Stream Processing ignores\nthem.\n\n| Interface                | Configuration Mechanism                                                            |\n| ------------------------ | ---------------------------------------------------------------------------------- |\n| Atlas CLI                | Provide configurations as a .json file specified with the --file flag.             |\n| Atlas Administration API | Provide configurations as a .json object specified in the config field.            |\n| Atlas UI                 | Provide configurations in the Configuration File field of the Add Connection page. |\n\nAtlas Stream Processing supports the following configurations:\n\nProducer Parameters\n\n- [acks](https://kafka.apache.org/documentation/#producerconfigs_acks)\n\n- [batch.size](https://kafka.apache.org/documentation/#producerconfigs_batch.size)\n\n- [client.dns.lookup](https://kafka.apache.org/documentation/#connectconfigs_client.dns.lookup)\n\n- [client.id](https://kafka.apache.org/documentation/#consumerconfigs_client.id)\n\n- [compression.type](https://kafka.apache.org/documentation/#producerconfigs_compression.type)\n\n- [connections.max.idle.ms](https://kafka.apache.org/documentation/#brokerconfigs_connections.max.idle.ms)\n\n- [delivery.timeout.ms](https://kafka.apache.org/documentation/#producerconfigs_delivery.timeout.ms)\n\n- [enable.idempotence](https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence)\n\n- [linger.ms](https://kafka.apache.org/documentation/#producerconfigs_linger.ms)\n\n- [max.in.flight.requests.per.connection](https://kafka.apache.org/documentation/#producerconfigs_max.in.flight.requests.per.connection)\n\n- [message.max.bytes](https://kafka.apache.org/documentation/#brokerconfigs_message.max.bytes)\n\n- [queue.buffering.max.messages](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md)\n\n- [request.timeout.ms](https://kafka.apache.org/documentation/#producerconfigs_request.timeout.ms)\n\n- [retries](https://kafka.apache.org/documentation/#producerconfigs_retries)\n\n- [transactional.id](https://kafka.apache.org/documentation/#producerconfigs_transactional.id)\n\nConsumer Parameters\n\n- [allow.auto.create.topics](https://kafka.apache.org/documentation/#consumerconfigs_allow.auto.create.topics)\n\n- [auto.offset.reset](https://kafka.apache.org/documentation/#consumerconfigs_auto.offset.reset)\n\n- [client.dns.lookup](https://kafka.apache.org/documentation/#consumerconfigs_client.dns.lookup)\n\n- [client.id](https://kafka.apache.org/documentation/#consumerconfigs_client.id)\n\n- [connections.max.idle.ms](https://kafka.apache.org/documentation/#consumerconfigs_connections.max.idle.ms)\n\n- [fetch.max.bytes](https://kafka.apache.org/documentation/#consumerconfigs_fetch.max.bytes)\n\n- [fetch.min.bytes](https://kafka.apache.org/documentation/#consumerconfigs_fetch.min.bytes)\n\n- [group.id](https://kafka.apache.org/documentation/#consumerconfigs_group.id)\n\n- [heartbeat.interval.ms](https://kafka.apache.org/documentation/#consumerconfigs_heartbeat.interval.ms)\n\n- [isolation.level](https://kafka.apache.org/documentation/#consumerconfigs_isolation.level)\n\n- [max.partition.fetch.bytes](https://kafka.apache.org/documentation/#consumerconfigs_max.partition.fetch.bytes)\n\n- [max.poll.interval.ms](https://kafka.apache.org/documentation/#consumerconfigs_max.poll.interval.ms)\n\n- [request.timeout.ms](https://kafka.apache.org/documentation/#consumerconfigs_request.timeout.ms)\n\n- [session.timeout.ms](https://kafka.apache.org/documentation/#consumerconfigs_session.timeout.ms)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-kafka-connection-through-the-atlas-ui--atlas-ui-kafka",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kafka"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add an Atlas Cluster Connection through the Atlas UI",
       "headingLevel": 3,
       "body": "To add an Atlas Cluster connection to your Stream Processing Workspace through the\nAtlas UI, follow these steps:\n\n- Locate the overview panel of the stream processing workspace you want to\n  modify and click Manage.\n\n- Select the Connection Registry tab.\n\nTo create a new connection to an Atlas\n[change stream](manual/changeStreams):\n\n- Select an Atlas Database\n  connection.\n\n- Provide a Connection Name. Each\n  connection name must be unique within an stream processing workspace.\n  This is the name used to reference the connection in\n  Atlas Stream Processing [Aggregation pipeline stages](atlas-sp-aggregation).\n\n- From the dropdown menu, select an Atlas\n  Cluster. Atlas Stream Processing can connect only to\n  dedicated-tier clusters. If you enable cross-project\n  support, the available clusters appear grouped by\n  project.\n\n- Click Add connection.\n\n> **Important:** Atlas Stream Processing currently supports using AWS (Amazon Web Services) Kinesis connections\n> only as sinks.\n\nTo add a Kinesis connection to your stream processing workspace through Atlas UI,\nfollow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-an-atlas-cluster-connection-through-the-atlas-ui--atlas-ui-atlas",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "atlas"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS Access](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-ui).\n\nEnsure that you grant your IAM role the following permissions:\n\n- `SubscribeToShard`\n\n- `ListShards`\n\n- `DescribeStreamSummary`\n\n- `PutRecords`\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "In Atlas, go to the Stream Processing page for your project.",
       "headingLevel": 3,
       "body": "- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Stream Processing under\n  the Streaming Data heading.\n\nThe [Stream Processing](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2FstreamProcessing) page displays.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "in-atlas-go-to-the-stream-processing-page-for-your-project--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Go to the .",
       "headingLevel": 2,
       "body": "- Locate the overview panel of the stream processing workspace you want to\n  modify and click Configure.\n\n- Select the Connection Registry tab.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-go-to-the--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Click .",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-click--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Add a new connection.",
       "headingLevel": 2,
       "body": "- Select an AWS Kinesis connection.\n\n- Provide a Connection Name. Each connection\n  name must be unique within a stream processing workspace.  This is the name\n  used to reference the connection in Atlas Stream Processing\n  [Aggregation pipeline stages](atlas-sp-aggregation).\n\n- Under Network Access, select Public\n  IP.\n\n- From the AWS IAM Role ARN dropdown, select\n  the ARN of the unified access role you authorized in a\n  prior step.\n\n- Click Add connection.\n\nTo add an HTTPS connection to your stream processing workspace through\n\\{+atlas-ui++}, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-add-a-new-connection--atlas-ui-kinesis",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Navigate to your stream processing workspace.",
       "headingLevel": 2,
       "body": "Select the Stream Processing tab in the left sidebar\nmenu in the Atlas UI.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-navigate-to-your-stream-processing-workspace--atlas-ui-https",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "https"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Configure your connection.",
       "headingLevel": 2,
       "body": "- Click the Configure button for the stream processing workspace to which you\n  want to register a connection.\n\n- Select the Connection Registry tab.\n\n- Click the Add Connection button.\n\n- Select HTTPS from the Connection Type dropdown menu.\n\n- Name your new connection.\n\n- Populate the URL input field with the URL your stream\n  processor will make requests to.\n\n- Add any required headers to be sent with the HTTPS request, such\n  as the data type or authentication credentials required by the external API.\n\n- Click the Create Connection button to create the connection.\n\nTo add an S3 (Simple Storage Service) connection to your stream processing workspace through\nAtlas UI, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-configure-your-connection--atlas-ui-https",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "https"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS\nAccess](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-ui).\n\nEnsure that you grant your IAM role `ListAllMyBuckets` and\n`PutObject` permissions.\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "In Atlas, go to the Stream Processing page for your project.",
       "headingLevel": 3,
       "body": "- If it's not already displayed, select the\n  organization that contains your project from the\n  Organizations menu in the navigation bar.\n\n- If it's not already displayed, select your project\n  from the Projects menu in the navigation bar.\n\n- In the sidebar, click Stream Processing under\n  the Streaming Data heading.\n\nThe [Stream Processing](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2FstreamProcessing) page displays.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "in-atlas-go-to-the-stream-processing-page-for-your-project--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Go to the .",
       "headingLevel": 2,
       "body": "- Locate the overview panel of the stream processing workspace you want to\n  modify and click Configure.\n\n- Select the Connection Registry tab.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-go-to-the--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Click .",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-click--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Add a new connection.",
       "headingLevel": 2,
       "body": "- Select an S3 connection.\n\n- Provide a Connection Name. Each connection\n  name must be unique within a stream processing workspace.  This is the name\n  used to reference the connection in Atlas Stream Processing\n  [Aggregation pipeline stages](atlas-sp-aggregation).\n\n- From the AWS IAM Role ARN dropdown, select\n  the ARN of the unified access role you authorized in a\n  prior step.\n\n- Click Add connection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-add-a-new-connection--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Supported Aggregation Behavior",
       "headingLevel": 3,
       "body": "AWS (Amazon Web Services) S3 (Simple Storage Service) sink connections support only the `$emit` stage, not\nthe `$merge` stage. For more information, see [$emit](atlas-sp-agg-emit).\n\nTo add an external function connection to your Stream Processing Workspace through\nAtlas UI, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "supported-aggregation-behavior--atlas-ui-s3",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Navigate to your stream processing workspace.",
       "headingLevel": 2,
       "body": "Select the Stream Processing tab in the left sidebar\nmenu in the Atlas UI.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-navigate-to-your-stream-processing-workspace--atlas-ui-external",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "external"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Configure your connection.",
       "headingLevel": 2,
       "body": "- Click the Configure button for your +\\{spi+} to which\n  you want to register a connection.\n\n- Select the Connection Registry tab.\n\n- Click the Add Connection button.\n\n- Select AWS Lambda from the Connection Type dropdown menu.\n\n- Name your new connection.\n\n- Select an AWS IAM Role ARN from the dropdown menu.\n  To learn more about creating an AWS IAM Role ARN,\n  see [Set Up Unified AWS Access](set-up-unified-aws-access).\n\n- Click the Create Connection button to create the connection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-configure-your-connection--atlas-ui-external",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "external"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Schema Registry Connection through the Atlas UI",
       "headingLevel": 3,
       "body": "To add a [Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) connection\nto your stream processing workspace through the Atlas UI, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-schema-registry-connection-through-the-atlas-ui--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a Schema Registry.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/get-started/schema-registry.html).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-create-a-schema-registry--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create a Confluent Cloud API Key.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/security/authenticate/workload-identities/service-accounts/api-keys/manage-api-keys.html#add-an-api-key)\nto create a Confluent Cloud API Key for your Schema Registry.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-a-confluent-cloud-api-key--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Go to the .",
       "headingLevel": 2,
       "body": "- Locate the overview panel of the stream processing workspace you want to\n  modify and click Configure.\n\n- Select the Connection Registry tab.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-go-to-the--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Click .",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-click--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Add a new connection.",
       "headingLevel": 2,
       "body": "- Select an Schema Registry connection.\n\n- Provide a Connection Name. Each connection\n  name must be unique within a stream processing workspace.  This is the name\n  used to reference the connection in Atlas Stream Processing\n  [Aggregation pipeline stages](atlas-sp-aggregation).\n\n- From the Authentication Type dropdown, select\n  either `USER_INFO` or `SASL_INHERIT`. If you select\n  `SASL_INHERIT`, the connection inherits the same\n  credentials as the Kafka connection with which you pair the\n  Schema Registry, and you won't provide values for\n  Username or Password.\n\n- In the Username field, provide the username\n  associated with your Confluent Cloud API Key.\n\n- In the Password field, provide the password\n  associated with your Confluent Cloud API Key.\n\n- In the Schema Registry URL(s) field, provide any\n  URLs associated with your Schema Registry.\n\n- Click Add connection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-add-a-new-connection--atlas-ui-schema-registry",
+      "selections": {
+        "interface": "atlas-ui",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Kafka Connection through the Atlas CLI",
@@ -275,19 +511,37 @@
           "content": "{\n        \"type\": \"Cluster\",\n        \"clusterName\": \"<clusterName>\",\n        \"dbRoleToExecute\": {\n          \"role\": \"<roleName>\",\n          \"type\": \"<roleType>\"\n      }",
           "tokenEstimate": 43
         }
-      ]
+      ],
+      "slug": "add-a-kafka-connection-through-the-atlas-cli--atlas-cli-kafka",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "kafka"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS Access](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-admin-api).\n\nEnsure that you grant your IAM role the following permissions:\n\n- `SubscribeToShard`\n\n- `ListShards`\n\n- `DescribeStreamSummary`\n\n- `PutRecords`\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-cli-kinesis",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-cli-kinesis",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the Kinesis connection.",
@@ -299,7 +553,13 @@
           "content": "\natlas streams connections create [connectionName] [options]\n",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "step-3-create-the-kinesis-connection--atlas-cli-kinesis",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "kinesis"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a config.json file.",
@@ -311,7 +571,13 @@
           "content": "{\n   \"name\": \"ExampleHTTPSConnection\",\n   \"type\": \"Https\",\n}",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "step-1-create-a-configjson-file--atlas-cli-https",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "https"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create the HTTPS connection.",
@@ -323,19 +589,37 @@
           "content": "atlas streams connections create -i <instance-name> -f </path/to/config.json>",
           "tokenEstimate": 19
         }
-      ]
+      ],
+      "slug": "step-2-create-the-https-connection--atlas-cli-https",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "https"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Set up Unified AWS Access.",
       "headingLevel": 2,
       "body": "Follow the procedure described in [Set Up Unified AWS\nAccess](https://docs.mongodb.com/atlas/security/set-up-unified-aws-access/?interface=atlas-admin-api).\n\nEnsure that you grant your IAM role `ListAllMyBuckets` and\n`PutObject` permissions.\n\nNote the ARN value in `Statement.Principal.AWS` for later in this\nprocedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-set-up-unified-aws-access--atlas-cli-s3",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create an API key.",
       "headingLevel": 2,
       "body": "The [Create One Connection](api/doc/atlas-admin-api-v2/operation/operation-creategroupstreamconnection)\nAPI endpoint requires digest authorization when creating an S3 (Simple Storage Service) connection. To\nsupport this, you must create an API Key.\n\n- In the Project Access Manager, select the\n  Applications tab, then click API Keys.\n\n- Click Create API Key. Provide a short description\n  for the key.\n\n- In the Project Permissions dropdown menu,\n  select both the Project Stream Processing Owner and\n  Project Owner roles. Click Next.\n\n- Save both the public and private keys for later in this procedure.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-an-api-key--atlas-cli-s3",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the S3 connection.",
@@ -347,13 +631,25 @@
           "content": "\natlas streams connections create [connectionName] [options]\n",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "step-3-create-the-s3-connection--atlas-cli-s3",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Supported Aggregation Behavior",
       "headingLevel": 3,
       "body": "AWS (Amazon Web Services) S3 (Simple Storage Service) sink connections support only the `$emit` stage,\nnot the `$merge` stage. To learn more, see [$emit](atlas-sp-agg-emit).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "supported-aggregation-behavior--atlas-cli-s3",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "s3"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add an External Function Connection through the Atlas CLI",
@@ -365,25 +661,49 @@
           "content": "curl --header \"Authorization: Bearer {ACCESS-TOKEN}\" \\\n   --header \"Content-Type: application/json\" \\\n   --header \"Accept: application/vnd.atlas.2023-02-01+json\" \\\n   --include \\\n   --data '{\"name\": \"TestAWSLambdaConnection\",\"type\": \"AWSLambda\",\"aws\": {\"roleArn\": \"arn:aws:iam::<aws_account>:role/<role_name>\"}}' \\\n   --request POST \"https://cloud.mongodb.com/api/atlas/v2/groups/<group_id>/streams/<tenant_name>/connections\"",
           "tokenEstimate": 119
         }
-      ]
+      ],
+      "slug": "add-an-external-function-connection-through-the-atlas-cli--atlas-cli-external",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "external"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Add a Schema Registry Connection through the Atlas CLI",
       "headingLevel": 3,
       "body": "To add a [Schema Registry](https://docs.confluent.io/platform/current/schema-registry/index.html) connection\nto your stream processing workspace through the Atlas UI, follow these steps:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-a-schema-registry-connection-through-the-atlas-cli--atlas-cli-schema-registry",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a Schema Registry.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/get-started/schema-registry.html).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-create-a-schema-registry--atlas-cli-schema-registry",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create a Confluent Cloud API Key.",
       "headingLevel": 2,
       "body": "Follow the procedure outlined in the [Confluent Cloud\ndocumentation](https://docs.confluent.io/cloud/current/security/authenticate/workload-identities/service-accounts/api-keys/manage-api-keys.html#add-an-api-key)\nto create a Confluent Cloud API Key for your Schema Registry.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-a-confluent-cloud-api-key--atlas-cli-schema-registry",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the Schema Registry connection.",
@@ -394,6 +714,68 @@
           "language": "sh",
           "content": "\natlas streams connections create [connectionName] [options]\n",
           "tokenEstimate": 13
+        }
+      ],
+      "slug": "step-3-create-the-schema-registry-connection--atlas-cli-schema-registry",
+      "selections": {
+        "interface": "atlas-cli",
+        "sp-connections": "schema-registry"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "Interface",
+      "default": "atlas-admin-api",
+      "selections": [
+        {
+          "value": "atlas-admin-api",
+          "text": "Atlas Admin API"
+        },
+        {
+          "value": "atlas-ui",
+          "text": "Atlas UI"
+        },
+        {
+          "value": "atlas-cli",
+          "text": "Atlas CLI"
+        }
+      ]
+    },
+    {
+      "value": "sp-connections",
+      "text": "Connection Type",
+      "default": "kafka",
+      "selections": [
+        {
+          "value": "kafka",
+          "text": "Kafka Connection"
+        },
+        {
+          "value": "atlas",
+          "text": "Atlas Connection"
+        },
+        {
+          "value": "kinesis",
+          "text": "AWS Kinesis Connection"
+        },
+        {
+          "value": "https",
+          "text": "HTTPS Connection"
+        },
+        {
+          "value": "s3",
+          "text": "S3 Connection"
+        },
+        {
+          "value": "external",
+          "text": "External Function Connection"
+        },
+        {
+          "value": "schema-registry",
+          "text": "Schema Registry"
         }
       ]
     }

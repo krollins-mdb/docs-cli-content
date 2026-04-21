@@ -1,0 +1,30 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To view MongoDB Vector Search indexes for a collection using\n[C#](csharp/fundamentals/indexes)\ndriver 3.1 or later, perform the following steps:\n\n```csharp\nnamespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void ViewSearchIndexes()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n\n            // Get a list of the collection's search indexes and print them\n            var searchIndexView = collection.SearchIndexes;\n            var indexes = searchIndexView.List(\"<indexName>\");\n            \n            foreach (var index in indexes.ToEnumerable())\n            {\n                Console.WriteLine(index);\n            }\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n```\n\n| \\<connectionString> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries.     |\n| ------------------- | -------------------------------------------------------------------------------------------- |\n| \\<databaseName>     | The name of the database that contains the collection.                                       |\n| \\<collectionName>   | The name of the collection.                                                                  |\n| \\<indexName>        | The name of the index to retrieve. To return all indexes on the collection, omit this value. |\n\n```csharp\nusing query_quick_start;\n\nvar indexService = new IndexService();\nindexService.ViewSearchIndexes();\n```\n\n```shell\ndotnet run\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "namespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void ViewSearchIndexes()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n\n            // Get a list of the collection's search indexes and print them\n            var searchIndexView = collection.SearchIndexes;\n            var indexes = searchIndexView.List(\"<indexName>\");\n            \n            foreach (var index in indexes.ToEnumerable())\n            {\n                Console.WriteLine(index);\n            }\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}",
+      "tokenEstimate": 185
+    },
+    {
+      "language": "csharp",
+      "content": "using query_quick_start;\n\nvar indexService = new IndexService();\nindexService.ViewSearchIndexes();",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    }
+  ],
+  "slug": "procedure--atlas-byo-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

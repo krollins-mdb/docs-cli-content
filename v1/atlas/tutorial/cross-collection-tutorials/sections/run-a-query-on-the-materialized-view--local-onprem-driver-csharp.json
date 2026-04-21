@@ -1,0 +1,39 @@
+{
+  "heading": "Run a Query on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to run a query against the newly updated and indexed\n`monthlyPhoneTransactions` collection.\n\nCopy and paste the following code into the `Program.cs` file.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Bson.Serialization.Attributes;\nusing MongoDB.Bson.Serialization.Conventions;\nusing MongoDB.Driver;\nusing MongoDB.Driver.Core;\nusing MongoDB.Driver.Search;\n\npublic class MaterializedViewSearchQuery {\n\n  static void Main(string[] args) {\n    // allow automapping of the camelCase database fields\n    var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };\n    ConventionRegistry.Register(\"CamelCase\", camelCaseConvention, type => true);\n\n    // connect to your MongoDB deployment\n    var mongoClient = new MongoClient(\"<connection-string>\");\n    \n    // define namespace\n    var suppliesDatabase = mongoClient.GetDatabase(\"sample_supplies\");\n    var transactionsCollection = suppliesDatabase.GetCollection<BsonDocument>(\"monthlyPhoneTransactions\");\n\n    // define pipeline stages\n    var searchStage = new BsonDocument(\"$search\", new BsonDocument{\n      { \"index\", \"monthlySalesIndex\" },\n      { \"range\", new BsonDocument{\n        { \"gt\", 10000 },\n        { \"path\", new BsonArray{ \"sales_price\" } }\n      }}\n    });\n    \n    var countStage = new BsonDocument(\"$count\", \"months_w_over_10000\");\n    \n    var aggregationPipeline = new List<BsonDocument> { searchStage, countStage };\n\n    // run pipeline\n    var results = transactionsCollection.Aggregate<BsonDocument>(aggregationPipeline).ToList();\n\n    // print results\n    foreach (var result in results) {\n        Console.WriteLine(result.ToJson());\n    }\n  }            \n}\n\n// Define a class to represent the materialized view document structure if needed\n[BsonIgnoreExtraElements]\npublic class MonthlyTransactionDocument {\n    [BsonId]\n    [BsonRepresentation(BsonType.ObjectId)]\n    [BsonElement(\"_id\")]\n    public string Id { get; set; }\n\n    [BsonElement(\"month\")]\n    public string Month { get; set; }\n\n    [BsonElement(\"sales_price\")]\n    public double SalesPrice { get; set; }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\n{ \"months_w_over_10000\" : 4 }\n```\n\nThe above query returns `4`, indicating that only 4 months out of all the months in the\n`monthlyPhoneTransactions` materialized view had total sales\ngreater than or equal to 10000 dollars. This result reflects data\nfrom both the `sample_supplies.sales` and\n`sample_supplies.purchaseOrders` collections.\n\nThis page contains tutorials that demonstrate the\ndifferent ways you can run MongoDB Search queries across multiple collections:\n\n- To join collections and search across them, use [$lookup](manual/reference/operator/aggregation/lookup) with [$search](pipe.$search).\n\n- To combine search results from multiple collections, use [$unionWith](manual/reference/operator/aggregation/unionWith) with [$search](pipe.$search).\n\n- To consolidate multiple collections so you can index and search them together, use\n  materialized views.\n\nBefore you begin, ensure that your cluster meets the\nrequirements described in the [Prerequisites](fts-design-patterns-prereqs).\n\nStarting in v6.0, the MongoDB [$lookup](manual/reference/operator/aggregation/lookup) aggregation stage\nsupports [$search](pipe.$search) inside the [$lookup](manual/reference/operator/aggregation/lookup)\n`pipeline` option. Using [$lookup](manual/reference/operator/aggregation/lookup), you can join\nmultiple collections in the same database at query-time and run a\n[$search](pipe.$search) query to further narrow down your search.\n\nThis tutorial demonstrates how to run a [$lookup](manual/reference/operator/aggregation/lookup) query\nwith [$search](pipe.$search) against the `accounts` and `customers`\ncollections in the `sample_analytics` database.\nIt takes you through the following steps:\n\n- Create a default MongoDB Search index on the `accounts`\n  collection in the `sample_analytics` database.\n\n- Run a [$lookup](manual/reference/operator/aggregation/lookup) query with [$search](pipe.$search) to find\n  customers from the `customers` collection whose accounts have\n  purchased both `CurrencyService` and `InvestmentStock` products\n  in the `accounts` collection.",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Bson.Serialization.Attributes;\nusing MongoDB.Bson.Serialization.Conventions;\nusing MongoDB.Driver;\nusing MongoDB.Driver.Core;\nusing MongoDB.Driver.Search;\n\npublic class MaterializedViewSearchQuery {\n\n  static void Main(string[] args) {\n    // allow automapping of the camelCase database fields\n    var camelCaseConvention = new ConventionPack { new CamelCaseElementNameConvention() };\n    ConventionRegistry.Register(\"CamelCase\", camelCaseConvention, type => true);\n\n    // connect to your MongoDB deployment\n    var mongoClient = new MongoClient(\"<connection-string>\");\n    \n    // define namespace\n    var suppliesDatabase = mongoClient.GetDatabase(\"sample_supplies\");\n    var transactionsCollection = suppliesDatabase.GetCollection<BsonDocument>(\"monthlyPhoneTransactions\");\n\n    // define pipeline stages\n    var searchStage = new BsonDocument(\"$search\", new BsonDocument{\n      { \"index\", \"monthlySalesIndex\" },\n      { \"range\", new BsonDocument{\n        { \"gt\", 10000 },\n        { \"path\", new BsonArray{ \"sales_price\" } }\n      }}\n    });\n    \n    var countStage = new BsonDocument(\"$count\", \"months_w_over_10000\");\n    \n    var aggregationPipeline = new List<BsonDocument> { searchStage, countStage };\n\n    // run pipeline\n    var results = transactionsCollection.Aggregate<BsonDocument>(aggregationPipeline).ToList();\n\n    // print results\n    foreach (var result in results) {\n        Console.WriteLine(result.ToJson());\n    }\n  }            \n}\n\n// Define a class to represent the materialized view document structure if needed\n[BsonIgnoreExtraElements]\npublic class MonthlyTransactionDocument {\n    [BsonId]\n    [BsonRepresentation(BsonType.ObjectId)]\n    [BsonElement(\"_id\")]\n    public string Id { get; set; }\n\n    [BsonElement(\"month\")]\n    public string Month { get; set; }\n\n    [BsonElement(\"sales_price\")]\n    public double SalesPrice { get; set; }\n}\n",
+      "tokenEstimate": 417
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "{ \"months_w_over_10000\" : 4 }",
+      "tokenEstimate": 13
+    }
+  ],
+  "slug": "run-a-query-on-the-materialized-view--local-onprem-driver-csharp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

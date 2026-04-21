@@ -1,0 +1,44 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index named `lookup-with-search-tutorial`\non all the fields in the `sample_analytics.accounts` collection.\n\n```shell\n# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo\n```\n\nFor detailed installation instructions, see the\n[MongoDB PyMongo Driver documentation](python/pymongo-driver/current/get-started).\n\nCreate a `create_index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_analytics\"]\ncollection = database[\"accounts\"]\n\n# Create the MongoDB Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": true\n        },\n    },\n    name=\"lookup-with-search-tutorial\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\npython create_index.py\n```\n\n**Output:**\n\n```\nNew index name: lookup-with-search-tutorial\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory for the project\nmkdir atlas-search-project && cd atlas-search-project\n\n# Install PyMongo\npip install pymongo",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_analytics\"]\ncollection = database[\"accounts\"]\n\n# Create the MongoDB Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": true\n        },\n    },\n    name=\"lookup-with-search-tutorial\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "New index name: lookup-with-search-tutorial",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--atlas-driver-python",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,25 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To update a MongoDB Vector Search index for a collection using the\n[MongoDB Node driver](node/fundamentals/indexes)\nv6.6.0 or later, perform the following steps:\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // define your MongoDB Search index\n    const index = {\n        name: \"<indexName>\",\n        type: \"vectorSearch\",\n        //updated search index definition\n        definition: {\n          \"fields\": [\n            {\n              \"type\": \"vector\",\n              \"numDimensions\": <numberOfDimensions>,\n              \"path\": \"<field-to-index>\",\n              \"similarity\": \"euclidean | cosine | dotProduct\"\n            },\n            {\n              \"type\": \"filter\",\n              \"path\": \"<fieldToIndex>\"\n            },\n            ...\n          ]\n        }\n    }\n\n    // run the helper method\n    await collection.updateSearchIndex(\"<index-name>\", index);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\n| \\<connectionString>   | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries.      |\n| --------------------- | --------------------------------------------------------------------------------------------- |\n| \\<databaseName>       | Database that contains the collection for which you want to create the index.                 |\n| \\<collectionName>     | Collection for which you want to create the index.                                            |\n| \\<indexName>          | Name of your index. If you omit the index name, defaults to vector\\_index.                    |\n| \\<numberOfDimensions> | Number of vector dimensions that MongoDB Vector Search enforces at index-time and query-time. |\n| \\<fieldToIndex>       | Vector and filter fields to index.                                                            |\n\n```shell\nnode <file-name>.js\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // define your MongoDB Search index\n    const index = {\n        name: \"<indexName>\",\n        type: \"vectorSearch\",\n        //updated search index definition\n        definition: {\n          \"fields\": [\n            {\n              \"type\": \"vector\",\n              \"numDimensions\": <numberOfDimensions>,\n              \"path\": \"<field-to-index>\",\n              \"similarity\": \"euclidean | cosine | dotProduct\"\n            },\n            {\n              \"type\": \"filter\",\n              \"path\": \"<fieldToIndex>\"\n            },\n            ...\n          ]\n        }\n    }\n\n    // run the helper method\n    await collection.updateSearchIndex(\"<index-name>\", index);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 209
+    },
+    {
+      "language": "shell",
+      "content": "node <file-name>.js",
+      "tokenEstimate": 6
+    }
+  ],
+  "slug": "procedure--atlas-byo-driver-nodejs",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,33 @@
+{
+  "heading": "Step 4: Connect to the cluster and upload the data to the namespace.",
+  "headingLevel": 2,
+  "body": "- Create a file named `upload-data.js` to connect to\n  your cluster and upload the data to the\n  `sample_airbnb.listingsAndReviews` namespace.\n\n  ```shell\n  touch upload-data.js\n  ```\n\n- Copy and paste the following code in the `upload-data.js`\n  file.\n\n  This code does the following:\n\n  - Connects to your cluster and creates a\n    namespace with the database and collection name that you\n    specify.\n\n  - Uploads the data including the embeddings into the\n    `sample_airbnb.listingsAndReviews` namespace.\n\n  ```javascript\n  import fs from 'fs/promises'; \n  import { MongoClient, BSON } from 'mongodb'; \n  import { EJSON, Binary } from 'bson'; \n\n  async function main() {\n    const MONGODB_URI = process.env.MONGODB_URI || \"<CONNECTION-STRING>\";\n    const DB_NAME = \"sample_airbnb\";\n    const COLLECTION_NAME = \"listingsAndReviews\";\n\n    let client;\n    try {\n      // Connect to MongoDB\n      client = new MongoClient(MONGODB_URI);\n      await client.connect();\n      console.log(\"Connected to MongoDB\");\n\n      // Access database and collection\n      const db = client.db(DB_NAME);\n      const collection = db.collection(COLLECTION_NAME);\n\n      // Load embeddings from JSON using EJSON.parse\n      const fileContent = await fs.readFile('embeddings.json', 'utf8');\n      const embeddingsData = EJSON.parse(fileContent); // Use EJSON.parse\n\n      // Map embeddings data to recreate BSON binary representations\n      const documents = embeddingsData.map(({ text, bsonEmbeddings }) => {\n        return {\n          summary: text,\n          bsonEmbeddings: {\n            float32: bsonEmbeddings.float32,\n            int8: bsonEmbeddings.int8,\n            int1: bsonEmbeddings.packedBits\n          }\n        };\n      });\n\n      // Iterate over documents and upsert each into the MongoDB collection\n      for (const doc of documents) {\n        const filter = { summary: doc.summary };\n        const update = { $set: doc };\n\n        // Update the document with the BSON binary data\n        const result = await collection.updateOne(filter, update, { upsert: true });\n        if (result.matchedCount > 0) {\n          console.log(`Updated document with summary: ${doc.summary}`);\n        } else {\n          console.log(`Inserted new document with summary: ${doc.summary}`);\n        }\n      }\n\n      console.log(\"Embeddings stored in MongoDB successfully.\");\n    } catch (error) {\n      console.error('Error storing embeddings in MongoDB:', error);\n    } finally {\n      if (client) {\n        await client.close();\n      }\n    }\n  }\n\n  // Run the main function to load the data\n  main();\n\n  ```\n\n- Replace the `<CONNECTION-STRING>` placeholder if you didn't\n  set the environment variable for your Atlas connection\n  string and then save the file.\n\n- Run the following command to upload the data.\n\n  **Input:**\n\n  ```shell\n  node upload-data.js\n  ```\n\n  **Output:**\n\n  ```shell\n  Connected to MongoDB\n  Updated document with text: ...\n  ...\n  Embeddings stored in MongoDB successfully.\n  ```\n\n- Verify by logging into your cluster and checking\n  the namespace in the Data Explorer.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "touch upload-data.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "import fs from 'fs/promises'; \nimport { MongoClient, BSON } from 'mongodb'; \nimport { EJSON, Binary } from 'bson'; \n\nasync function main() {\n  const MONGODB_URI = process.env.MONGODB_URI || \"<CONNECTION-STRING>\";\n  const DB_NAME = \"sample_airbnb\";\n  const COLLECTION_NAME = \"listingsAndReviews\";\n\n  let client;\n  try {\n    // Connect to MongoDB\n    client = new MongoClient(MONGODB_URI);\n    await client.connect();\n    console.log(\"Connected to MongoDB\");\n\n    // Access database and collection\n    const db = client.db(DB_NAME);\n    const collection = db.collection(COLLECTION_NAME);\n\n    // Load embeddings from JSON using EJSON.parse\n    const fileContent = await fs.readFile('embeddings.json', 'utf8');\n    const embeddingsData = EJSON.parse(fileContent); // Use EJSON.parse\n\n    // Map embeddings data to recreate BSON binary representations\n    const documents = embeddingsData.map(({ text, bsonEmbeddings }) => {\n      return {\n        summary: text,\n        bsonEmbeddings: {\n          float32: bsonEmbeddings.float32,\n          int8: bsonEmbeddings.int8,\n          int1: bsonEmbeddings.packedBits\n        }\n      };\n    });\n\n    // Iterate over documents and upsert each into the MongoDB collection\n    for (const doc of documents) {\n      const filter = { summary: doc.summary };\n      const update = { $set: doc };\n\n      // Update the document with the BSON binary data\n      const result = await collection.updateOne(filter, update, { upsert: true });\n      if (result.matchedCount > 0) {\n        console.log(`Updated document with summary: ${doc.summary}`);\n      } else {\n        console.log(`Inserted new document with summary: ${doc.summary}`);\n      }\n    }\n\n    console.log(\"Embeddings stored in MongoDB successfully.\");\n  } catch (error) {\n    console.error('Error storing embeddings in MongoDB:', error);\n  } finally {\n    if (client) {\n      await client.close();\n    }\n  }\n}\n\n// Run the main function to load the data\nmain();\n",
+      "tokenEstimate": 442
+    },
+    {
+      "language": "shell",
+      "content": "node upload-data.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "Connected to MongoDB\nUpdated document with text: ...\n...\nEmbeddings stored in MongoDB successfully.",
+      "tokenEstimate": 18
+    }
+  ],
+  "slug": "step-4-connect-to-the-cluster-and-upload-the-data-to-the-namespace--nodejs-existing",
+  "selections": {
+    "language-no-interface": "nodejs",
+    "data-source": "existing"
+  },
+  "variantAgnostic": false
+}

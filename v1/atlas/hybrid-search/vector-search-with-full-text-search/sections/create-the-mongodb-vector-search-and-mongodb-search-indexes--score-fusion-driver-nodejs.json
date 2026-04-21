@@ -1,0 +1,49 @@
+{
+  "heading": "Create the MongoDB Vector Search and MongoDB Search Indexes",
+  "headingLevel": 3,
+  "body": "```shell\n# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb\n```\n\nFor detailed installation instructions, see the\n[MongoDB Node Driver documentation](node).\n\nThe following index definition indexes the\n`plot_embedding_voyage_3_large` field as the MongoDB Vector Search field when\nquerying the collection.\n\n- Create a file named `vector-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your vector search index\n        const index = {\n            name: \"hybrid-vector-search\",\n            type: \"vectorSearch\",\n            definition: {\n              \"fields\": [\n                {\n                  \"type\": \"vector\",\n                  \"numDimensions\": 2048,\n                  \"path\": \"plot_embedding_voyage_3_large\",\n                  \"similarity\": \"dotProduct\"\n                }\n              ]\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n\n  ```\n\n- Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node vector-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-vector-search\n  ```\n\n  MongoDB Vector Search might take few minutes to create the index.\n\nThe following index definition automatically indexes all\ndynamically indexable field types in the collection.\n\n- Create a file named `text-search-index.js`, and paste the following\n  code into it:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Connect to your MongoDB deployment\n  const MONGODB_URI = \"<connection-string>\";\n  const client = new MongoClient(MONGODB_URI);\n\n  async function run() {\n      try {\n        const database = client.db(\"sample_mflix\");\n        const collection = database.collection(\"embedded_movies\");\n\n        // Define your search index\n        const index = {\n            name: \"hybrid-full-text-search\",\n            type: \"search\",\n            definition: {\n              \"mappings\": {\n                \"dynamic\": true\n              }\n            }\n        }\n\n        // Call the method to create the index\n        const result = await collection.createSearchIndex(index);\n        console.log(result);\n      } finally {\n        await client.close();\n      }\n  }\n  run().catch(console.dir);\n  ```\n\n- Run the following command to execute the code:\n\n  **Input:**\n\n  ```javascript\n  node text-search-index.js\n  ```\n\n  **Output:**\n\n  ```javascript\n  hybrid-full-text-search\n  ```\n\n  MongoDB Search might take few minutes to create the index.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "# Create a new directory and initialize the project\nmkdir atlas-search-project && cd atlas-search-project\nnpm init -y\n\n# Add the MongoDB Node.js Driver to your project\nnpm install mongodb",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your vector search index\n      const index = {\n          name: \"hybrid-vector-search\",\n          type: \"vectorSearch\",\n          definition: {\n            \"fields\": [\n              {\n                \"type\": \"vector\",\n                \"numDimensions\": 2048,\n                \"path\": \"plot_embedding_voyage_3_large\",\n                \"similarity\": \"dotProduct\"\n              }\n            ]\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 194
+    },
+    {
+      "language": "javascript",
+      "content": "node vector-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-vector-search",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Connect to your MongoDB deployment\nconst MONGODB_URI = \"<connection-string>\";\nconst client = new MongoClient(MONGODB_URI);\n\nasync function run() {\n    try {\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"embedded_movies\");\n\n      // Define your search index\n      const index = {\n          name: \"hybrid-full-text-search\",\n          type: \"search\",\n          definition: {\n            \"mappings\": {\n              \"dynamic\": true\n            }\n          }\n      }\n\n      // Call the method to create the index\n      const result = await collection.createSearchIndex(index);\n      console.log(result);\n    } finally {\n      await client.close();\n    }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "javascript",
+      "content": "node text-search-index.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "content": "hybrid-full-text-search",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-the-mongodb-vector-search-and-mongodb-search-indexes--score-fusion-driver-nodejs",
+  "selections": {
+    "pipeline-stage": "score-fusion",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

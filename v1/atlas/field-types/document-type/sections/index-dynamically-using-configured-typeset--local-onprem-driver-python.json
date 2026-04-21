@@ -1,0 +1,19 @@
+{
+  "heading": "Index Dynamically Using Configured typeSet",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_mflix.movies` collection\nindexes the `awards` field as the `document` type. It references\nthe `typeSet` name, `onlyNumbers`. The field type definition\nnamed `onlyNumbers` enables automatic indexing for only fields of\ntype `number` in the `awards` document.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the Atlas Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n      \"mappings\": {\n        \"dynamic\": false,\n        \"fields\": {\n          \"awards\": {\n            \"type\": \"document\",\n            \"dynamic\": {\n              \"typeSet\": \"onlyNumbers\"\n            }\n          }\n        }\n      },\n      \"typeSets\": [\n        {\n          \"name\": \"onlyNumbers\",\n          \"types\": [\n            {\n              \"type\": \"number\"\n            }\n          ]\n        }\n      ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the Atlas Search index definition for the document field\nsearch_index_model = SearchIndexModel(\n    definition={\n      \"mappings\": {\n        \"dynamic\": false,\n        \"fields\": {\n          \"awards\": {\n            \"type\": \"document\",\n            \"dynamic\": {\n              \"typeSet\": \"onlyNumbers\"\n            }\n          }\n        }\n      },\n      \"typeSets\": [\n        {\n          \"name\": \"onlyNumbers\",\n          \"types\": [\n            {\n              \"type\": \"number\"\n            }\n          ]\n        }\n      ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+      "tokenEstimate": 192
+    }
+  ],
+  "slug": "index-dynamically-using-configured-typeset--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,32 @@
+{
+  "heading": "(Advanced) Compress your embeddings.",
+  "headingLevel": 2,
+  "body": "Optionally, you can compress your embeddings by converting them\nto BSON (Binary Javascript Object Notation) binary format, also called `binData` vectors,\nfor efficient storage and retrieval.\nTo learn more, see [Vector Compression](avs-vector-compression).\n\nThis code does the following:\n\n- Defines a function named `generate_bson_vector` to convert\n  embeddings to `binData` vectors by using binary tools from the\n  [PyMongo driver](pymongo).\n\n- Converts the embeddings you generated for the\n  string `foo` to `binData` vectors.\n  The exact embedding varies depending on the model you use.\n\n> **Note:** When you convert your embeddings to `binData` vectors, your embeddings\n> appear in binary format.\n\n**Input:**\n\n```python\nfrom bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")\n```\n\n**Output:**\n\n```shell\nThe converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]\n```\n\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension, and then run the\nfollowing command in the notebook to install the dependencies:\n\n```python\npip install --quiet --upgrade voyageai pymongo\n```\n\nPaste and run the following code in your notebook to create\na function named `get_embedding()` that generates vector embeddings by\nusing an embedding model from [Voyage AI](https://www.voyageai.com).\nReplace `<api-key>` with your [Voyage API key](https://docs.voyageai.com/docs/api-key-and-installation).\n\nThe function specifies the following:\n\n- `voyage-3-large` as the embedding model to use.\n\n- `input_type` parameter to optimize your embeddings for retrieval.\n  To learn more, see [Voyage AI Python Client](voyageai/api-and-clients).\n\n> **Tip:** For all models and parameters, see [Voyage AI Text Embeddings](voyageai/models/text-embeddings).\n\n**Input:**\n\n```python\nimport os\nimport voyageai\n\n# Specify your Voyage API key and embedding model\nos.environ[\"VOYAGE_API_KEY\"] = \"<api-key>\"\nmodel = \"voyage-3-large\"\nvo = voyageai.Client()\n\n# Define a function to generate embeddings\ndef get_embedding(data, input_type = \"document\"):\n  embeddings = vo.embed(\n      data, model = model, input_type = input_type\n  ).embeddings\n  return embeddings[0]\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)\n```\n\n**Output:**\n\n```shell\n[-0.016463523730635643, -0.040630217641592026, -0.026241062209010124, -0.006248823832720518, ... -0.003811582690104842, -0.01361055113375187, 0.047476209700107574, -0.0030144075863063335]\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "shell",
+      "content": "The converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "python",
+      "content": "pip install --quiet --upgrade voyageai pymongo",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "python",
+      "content": "import os\nimport voyageai\n\n# Specify your Voyage API key and embedding model\nos.environ[\"VOYAGE_API_KEY\"] = \"<api-key>\"\nmodel = \"voyage-3-large\"\nvo = voyageai.Client()\n\n# Define a function to generate embeddings\ndef get_embedding(data, input_type = \"document\"):\n  embeddings = vo.embed(\n      data, model = model, input_type = input_type\n  ).embeddings\n  return embeddings[0]\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)",
+      "tokenEstimate": 111
+    },
+    {
+      "language": "shell",
+      "content": "[-0.016463523730635643, -0.040630217641592026, -0.026241062209010124, -0.006248823832720518, ... -0.003811582690104842, -0.01361055113375187, 0.047476209700107574, -0.0030144075863063335]",
+      "tokenEstimate": 82
+    }
+  ]
+}

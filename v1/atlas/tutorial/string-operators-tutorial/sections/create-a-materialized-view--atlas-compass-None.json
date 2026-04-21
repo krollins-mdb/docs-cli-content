@@ -1,0 +1,24 @@
+{
+  "heading": "Create a Materialized View",
+  "headingLevel": 2,
+  "body": "Open MongoDB Compass and connect to your cluster. For detailed\ninstructions on connecting, see [Compass](atlas-connect-via-compass).\n\nOn the Database screen, click the `sample_airbnb`\ndatabase to access its collections.\n\nFirst, you'll run an aggregation pipeline on the\n`listingsAndReviews` collection to create the materialized view:\n\n- Click on the `listingsAndReviews` collection.\n\n- Click the Aggregations tab.\n\n- Click Select..., then configure each of the\n  following pipeline stages by selecting the stage from the\n  dropdown and adding the query for that stage. Click\n  Add Stage to add additional stages.\n\n  - Stage 1: [$project](manual/reference/operator/aggregation/project)\n\n    This pipeline stage transforms the data from the\n    `listingsAndReviews` collection as follows:\n\n    - Converts the date objects in the `last_scraped` field\n      into string objects in the `YYYY-MM-DD` format using\n      [$dateToString](manual/reference/operator/aggregation/dateToString) and writes the output to a string\n      field called `lastScrapedDate`.\n\n    - Converts the number objects in the `accommodates` and\n      `minimum_nights` fields into string values using\n      [$toString](manual/reference/operator/aggregation/toString) and writes the output to number fields\n      called `accommodatesNumber` and `minimumNumberOfNights`,\n      respectively.\n\n    - Includes the `name` and `property_type` string fields in\n      the output and renames them to `propertyName` and\n      `propertyType` respectively.\n\n    ```javascript\n    {\n      lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n      accommodatesNumber: { $toString: \"$accommodates\" },\n      maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n      propertyName: \"$name\",\n      propertyType: \"$property_type\"\n    }\n    ```\n\n  - Stage 2: [$merge](manual/reference/operator/aggregation/merge)\n\n    This pipeline stage writes the output fields from the\n    [$project](manual/reference/operator/aggregation/project) stage to a materialized view named\n    `airbnb_mat_view` in the `sample_airbnb` database.\n\n    ```javascript\n    {\n      into: \"airbnb_mat_view\",\n      whenMatched: \"replace\"\n    }\n    ```\n\n- Click Run to execute the aggregation pipeline. This\n  creates the initial `airbnb_mat_view` collection\n  from the `listingsAndReviews` data.\n\n* Navigate back to the database view and click on the newly\n  created `airbnb_mat_view` collection.\n\n* Click the Documents tab to view the documents in\n  the collection.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "{\n  lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n  accommodatesNumber: { $toString: \"$accommodates\" },\n  maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n  propertyName: \"$name\",\n  propertyType: \"$property_type\"\n}",
+      "tokenEstimate": 79
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  into: \"airbnb_mat_view\",\n  whenMatched: \"replace\"\n}",
+      "tokenEstimate": 19
+    }
+  ],
+  "slug": "create-a-materialized-view--atlas-compass-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "compass",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,83 @@
+{
+  "heading": "Learn by Watching",
+  "headingLevel": 2,
+  "body": "You can also watch the following videos to\nlearn more about MongoDB Search:\n\nWatch an overview of Atlas and MongoDB Search and get started setting up\nMongoDB Search for your data. The video demonstrates how to load sample data on\nyour cluster, create a MongoDB Search index, and run a sample query using\nSearch Tester and Data Explorer.\n\n*Duration: 10 Minutes*\n\n[https://youtu.be/HsS0z3eOCSQ](https://youtu.be/HsS0z3eOCSQ)\n\nFollow along with the following video to learn how to configure your\nMongoDB Search index and run queries from your application.\n\n*Duration: 7 Minutes*\n\n[https://youtu.be/3fRCD\\_QptVQ](https://youtu.be/3fRCD_QptVQ)\n\nFollow along with the following video tutorial walk-through that\ndemonstrates how to build MongoDB Search queries for a Restaurant Finder demo\napplication, which is also available at [www.atlassearchrestaurants.com](https://www.atlassearchrestaurants.com/).\n\n*Duration: 20 Minutes*\n\n[https://youtu.be/s2kXYZRE7pA](https://youtu.be/s2kXYZRE7pA)\n\nMongoDB Search is an embedded full-text search feature\nthat gives you a seamless, scalable experience for building\nrelevance-based app features. This quick start describes\nhow to get started in the following steps:\n\n- Create a MongoDB Search index on a sample collection.\n\n- Build a MongoDB Search query to search the collection.\n  You will learn how to:\n\n  - Run a basic query to search for a term in a field\n\n  - Use an operator to refine your search\n\n  - Add a search option to process your results\n\n*Time required: 15 minutes*\n\n> **Note:** This tutorial includes examples for a selection of clients.\n> For all supported clients, see the\n> [MongoDB Search indexes](fts-manage-indexes) and\n> [Queries](ref-query-management) pages.\n\na MongoDB Search index is a data structure that categorizes data in an easily\nsearchable format. It maps terms with documents that\ncontain those terms to enable fast retrieval of documents\nat query-time.\n\nYou must configure a MongoDB Search index to query data using MongoDB Search.\nWe recommend that you index the fields that you regularly\nuse to sort or filter your data.\n\nTo learn more, see [MongoDB Search indexes](fts-manage-indexes).\n\nIn this section, you create a MongoDB Search index on the sample\n[movies](mflix-movies) collection. You can create the\nMongoDB Search index in either an Atlas cluster or a\ndeployment hosted on your local computer.\n\nAtlas Cluster\n\n- Connect to the cluster using [mongosh](mongodb-shell).\n\n  Open [mongosh](mongodb-shell) in a terminal window and connect to your Atlas\n  cluster. For detailed instructions on connecting, see\n  [MongoDB Shell](connect-mongo-shell).\n\n- Switch to the database that contains the collection for which you want to create the index.\n\n  > **Example:** **Input:**\n  >\n  > ```shell\n  > use sample_mflix\n  > ```\n  >\n  > **Output:**\n  >\n  > ```shell\n  > switched to db sample_mflix\n  > ```\n\n- Run the [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method to create the index.\n\n  **Input:**\n\n  ```shell\n  db.movies.createSearchIndex(\n     \"default\",\n     { mappings: { dynamic: true } }\n  )\n  ```\n\n  **Output:**\n\n  ```\n  default\n  ```\n\nLocal Deployment\n\n- Connect to the cluster using [mongosh](mongodb-shell).\n\n  Open [mongosh](mongodb-shell) in a terminal window and connect to your Atlas\n  cluster. For detailed instructions on connecting, see\n  [MongoDB Shell](connect-mongo-shell).\n\n- Switch to the database that contains the collection for which you want to create the index.\n\n  > **Example:** **Input:**\n  >\n  > ```shell\n  > use sample_mflix\n  > ```\n  >\n  > **Output:**\n  >\n  > ```shell\n  > switched to db sample_mflix\n  > ```\n\n- Run the [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method to create the index.\n\n  **Input:**\n\n  ```shell\n  db.movies.createSearchIndex(\n     \"default\",\n     { mappings: { dynamic: true } }\n  )\n  ```\n\n  **Output:**\n\n  ```\n  default\n  ```\n\nRun a basic `$search` query by using the\n[text](text-ref) operator.\n\nThis query has the following search criteria:\n\n- The `plot` field must contain the word `baseball`.\n\n- [$limit](manual/reference/operator/aggregation/limit) and\n  [$project](manual/reference/operator/aggregation/project) stages\n  to return only 3 documents and the `title` and `plot` fields.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search:\n    {\n      \"text\": {\n        \"query\": \"baseball\",\n        \"path\": \"plot\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n{\n  \"plot\" : \"A trio of guys try and make up for missed\n  opportunities in childhood by forming a three-player\n  baseball team to compete against standard children\n  baseball squads.\",\n  \"title\" : \"The Benchwarmers\"\n}\n{\n  \"plot\" : \"A young boy is bequeathed the ownership of a\n  professional baseball team.\",\n  \"title\" : \"Little Big League\"\n}\n{\n  \"plot\" : \"A trained chimpanzee plays third base for a\n  minor-league baseball team.\",\n  \"title\" : \"Ed\"\n}\n```\n\nMongoDB Search provides several [operators](fts-operators) that you\ncan use to build complex queries and retrieve more specific\nresults for your use case. Update your `$search` query to use the\n[compound](compound-ref) operator to combine\nmultiple operators into a single query.\n\nThis query has the following search criteria:\n\n- The `plot` field must contain the word `baseball`.\n\n- The `genres` field must not contain either `Comedy` or\n  `Romance`.\n\n- [$limit](manual/reference/operator/aggregation/limit) and\n  [$project](manual/reference/operator/aggregation/project) stages\n  to return only 3 documents and the `title`, `plot`, and\n  `genres` fields.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [\n          {\n            \"text\": {\n              \"query\": \"baseball\",\n              \"path\": \"plot\"\n            }\n          }\n        ],\n        \"mustNot\": [\n          {\n            \"text\": {\n              \"query\": [\"Comedy\", \"Romance\"],\n              \"path\": \"genres\"\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"genres\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  {\n    plot: 'The story of the life and career of the famed baseball player, Lou Gehrig.',\n    genres: [ 'Biography', 'Drama', 'Family' ],\n    title: 'The Pride of the Yankees'\n  },\n  {\n    plot: 'Babe Ruth becomes a baseball legend but is unheroic to those who know him.',\n    genres: [ 'Biography', 'Drama', 'Sport' ],\n    title: 'The Babe'\n  },\n  {\n    plot: 'Dominican baseball star Miguel \"Sugar\" Santos is recruited to play in the U.S. minor-leagues.',\n    genres: [ 'Drama', 'Sport' ],\n    title: 'Sugar'\n  }\n]\n```\n\nMongoDB Search provides several [search options](fts-search-options)\nthat you can use to further process your MongoDB Search query results.\nAdd the [sorting](sort-ref) option to your query to\ndisplay the results in a specific order.\n\nThis query has the following search criteria:\n\n- The `plot` field must contain the word `baseball`.\n\n- The `genres` field must not contain either `Comedy` or\n  `Romance`.\n\n- Sort the results by the `released` date\n  field in descending order.\n  MongoDB Search returns the most recent movies first.\n\n- [$limit](manual/reference/operator/aggregation/limit) and\n  [$project](manual/reference/operator/aggregation/project) stages\n  to return only 3 documents and the `title`, `plot`,\n  `genres`, and `released` fields.\n\n**Input:**\n\n```shell\ndb.movies.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [ {\n          \"text\": {\n            \"query\": \"baseball\",\n            \"path\": \"plot\"\n          }\n        }],\n        \"mustNot\": [ {\n          \"text\": {\n            \"query\": [\"Comedy\", \"Romance\"],\n            \"path\": \"genres\"\n          }\n        } ]\n      },\n      \"sort\": {\n        \"released\": -1\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"genres\": 1,\n      \"released\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```shell\n[\n  {\n    plot: 'A sports agent stages an unconventional recruitment strategy to get talented Indian cricket players to play Major League Baseball.',\n    genres: [ 'Biography', 'Drama', 'Sport' ],\n    title: 'Million Dollar Arm',\n    released: ISODate('2014-05-16T00:00:00.000Z')\n  },\n  {\n    plot: 'A Taiwanese high school baseball team travels to Japan in 1931 to compete in a national tournament.',\n    genres: [ 'Biography', 'Drama', 'History' ],\n    title: 'Kano',\n    released: ISODate('2014-02-27T00:00:00.000Z')\n  },\n  {\n    plot: \"12-year-old Josh is a mixed race boy and a promising baseball player...\",\n    genres: [ 'Drama' ],\n    title: 'Calloused Hands',\n    released: ISODate('2013-03-03T00:00:00.000Z')\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.movies.createSearchIndex(\n   \"default\",\n   { mappings: { dynamic: true } }\n)",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "default",
+      "tokenEstimate": 1
+    },
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.movies.createSearchIndex(\n   \"default\",\n   { mappings: { dynamic: true } }\n)",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "default",
+      "tokenEstimate": 1
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search:\n    {\n      \"text\": {\n        \"query\": \"baseball\",\n        \"path\": \"plot\"\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1\n    }\n  }\n])",
+      "tokenEstimate": 82
+    },
+    {
+      "language": "shell",
+      "content": "{\n  \"plot\" : \"A trio of guys try and make up for missed\n  opportunities in childhood by forming a three-player\n  baseball team to compete against standard children\n  baseball squads.\",\n  \"title\" : \"The Benchwarmers\"\n}\n{\n  \"plot\" : \"A young boy is bequeathed the ownership of a\n  professional baseball team.\",\n  \"title\" : \"Little Big League\"\n}\n{\n  \"plot\" : \"A trained chimpanzee plays third base for a\n  minor-league baseball team.\",\n  \"title\" : \"Ed\"\n}",
+      "tokenEstimate": 120
+    },
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [\n          {\n            \"text\": {\n              \"query\": \"baseball\",\n              \"path\": \"plot\"\n            }\n          }\n        ],\n        \"mustNot\": [\n          {\n            \"text\": {\n              \"query\": [\"Comedy\", \"Romance\"],\n              \"path\": \"genres\"\n            }\n          }\n        ]\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"genres\": 1\n    }\n  }\n])",
+      "tokenEstimate": 144
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    plot: 'The story of the life and career of the famed baseball player, Lou Gehrig.',\n    genres: [ 'Biography', 'Drama', 'Family' ],\n    title: 'The Pride of the Yankees'\n  },\n  {\n    plot: 'Babe Ruth becomes a baseball legend but is unheroic to those who know him.',\n    genres: [ 'Biography', 'Drama', 'Sport' ],\n    title: 'The Babe'\n  },\n  {\n    plot: 'Dominican baseball star Miguel \"Sugar\" Santos is recruited to play in the U.S. minor-leagues.',\n    genres: [ 'Drama', 'Sport' ],\n    title: 'Sugar'\n  }\n]",
+      "tokenEstimate": 150
+    },
+    {
+      "language": "shell",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"compound\": {\n        \"must\": [ {\n          \"text\": {\n            \"query\": \"baseball\",\n            \"path\": \"plot\"\n          }\n        }],\n        \"mustNot\": [ {\n          \"text\": {\n            \"query\": [\"Comedy\", \"Romance\"],\n            \"path\": \"genres\"\n          }\n        } ]\n      },\n      \"sort\": {\n        \"released\": -1\n      }\n    }\n  },\n  {\n    $limit: 3\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"genres\": 1,\n      \"released\": 1\n    }\n  }\n])",
+      "tokenEstimate": 160
+    },
+    {
+      "language": "shell",
+      "content": "[\n  {\n    plot: 'A sports agent stages an unconventional recruitment strategy to get talented Indian cricket players to play Major League Baseball.',\n    genres: [ 'Biography', 'Drama', 'Sport' ],\n    title: 'Million Dollar Arm',\n    released: ISODate('2014-05-16T00:00:00.000Z')\n  },\n  {\n    plot: 'A Taiwanese high school baseball team travels to Japan in 1931 to compete in a national tournament.',\n    genres: [ 'Biography', 'Drama', 'History' ],\n    title: 'Kano',\n    released: ISODate('2014-02-27T00:00:00.000Z')\n  },\n  {\n    plot: \"12-year-old Josh is a mixed race boy and a promising baseball player...\",\n    genres: [ 'Drama' ],\n    title: 'Calloused Hands',\n    released: ISODate('2013-03-03T00:00:00.000Z')\n  }\n]",
+      "tokenEstimate": 212
+    }
+  ],
+  "slug": "learn-by-watching--atlas-atlas-ui",
+  "selections": {
+    "deployment-type": "atlas",
+    "language-atlas-only-2": "atlas-ui"
+  },
+  "variantAgnostic": false
+}

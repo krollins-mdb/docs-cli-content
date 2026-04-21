@@ -1,0 +1,34 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create_index.go` file in your project directory,\nand copy and paste the following code into the file.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"<database>\").Collection(\"<collection>\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index for the UUID field\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", true | false},\n\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t{\"<field-name>\", bson.D{\n\t\t\t\t\t\t{\"type\", \"uuid\"},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n\n```\n\nAtlas Cluster\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nIMPORTANT: Ensure that your connection string includes your database\nuser's credentials. To learn more about finding your connection string,\nsee [Driver](connect-via-driver).\n\nLocal Deployment\n\nYour connection string should use the following format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\turi := \"<connection-string>\"\n\tclient, err := mongo.Connect(options.Client().\n\t\tApplyURI(uri))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\tdefer func() {\n\t\tif err := client.Disconnect(context.TODO()); err != nil {\n\t\t\tpanic(err)\n\t\t}\n\t}()\n\n\tcoll := client.Database(\"<database>\").Collection(\"<collection>\")\n\tconst indexName = \"default\"\n\topts := options.SearchIndexes().SetName(indexName).SetType(\"search\")\n\n\t// Define the MongoDB Search index for the UUID field\n\tsearchIndexModel := mongo.SearchIndexModel{\n\t\tDefinition: bson.D{\n\t\t\t{\"mappings\", bson.D{\n\t\t\t\t{\"dynamic\", true | false},\n\t\t\t\t{\"fields\", bson.D{\n\t\t\t\t\t{\"<field-name>\", bson.D{\n\t\t\t\t\t\t{\"type\", \"uuid\"},\n\t\t\t\t\t}},\n\t\t\t\t}},\n\t\t\t}},\n\t\t},\n\t\tOptions: opts,\n\t}\n\n\t// Create the index\n\tsearchIndexName, err := coll.SearchIndexes().CreateOne(ctx, searchIndexModel)\n\tif err != nil {\n\t\tlog.Fatalf(\"Failed to create the Atlas Search index: %v\", err)\n\t}\n\n\tfmt.Println(\"Name of index created: \" + searchIndexName)\n}\n",
+      "tokenEstimate": 310
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "step-2-define-the-index--local-onprem-driver-go",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

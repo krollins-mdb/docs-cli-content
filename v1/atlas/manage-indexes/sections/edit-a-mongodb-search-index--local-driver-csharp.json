@@ -1,0 +1,24 @@
+{
+  "heading": "Edit a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To use the [.NET/C# Driver](csharp) to edit a MongoDB Search index,\nuse the `Update()` or `UpdateAsync()` method.\n\nThe following sample application updates an existing index definition.\nSpecify the following values:\n\n- Your Atlas connection string. To learn more, see [Driver](connect-via-driver).\n\n- The database and collection where you created the search index.\n\n- The new index definition to replace the existing definition. In the example,\n  you update an index to use [dynamic mappings](static-dynamic-mappings).\n  You can alter this definition to suit your specific indexing needs. To learn more,\n  see [index definitions](ref-index-definitions).\n\n- The name of the index that you want to update.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  // updated search index definition\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", false },\n      { \"fields\", new BsonDocument\n        {\n          { \"<field-name>\", new BsonDocument\n            {\n              { \"type\", \"<field-type>\" }\n            }\n          }\n        }\n      }\n    }\n  }\n};\n\ncollection.SearchIndexes.Update(\"<index-name>\", index);\n\n```\n\nTo run the sample application, create a new .NET console project named\n`csharp-update-index` and copy the previous code example into the\n`Program.cs` file. Then, use the following command to run the project:\n\n```csharp\ndotnet run csharp-update-index.csproj\n```\n\n> **Note:** The dropSearchIndex() method doesn't return an output. To view your\n> [index status](manual/reference/method/db.collection.getSearchIndexes), you can use the\n> Atlas CLI to list MongoDB Search indexes. To learn more, see\n> [atlas clusters search index list](atlas/cli/current/command/atlas-clusters-search-indexes-list) or [atlas\n> deployments search index list](atlas/cli/current/command/atlas-deployments-search-indexes-list).\n\n> **Tip:**&#x20;\n>\n> API Documentation\n>\n> To learn more about the methods on this page, see the\n> [API documentation](https://mongodb.github.io/mongo-csharp-driver/2.21/apidocs/html/Methods_T_MongoDB_Driver_Search_IMongoSearchIndexManager.htm)\n> for the .NET/C# driver.\n\n> **Note:** While your updated index is building, different nodes might update at\n> varying speeds. During this period, you might experience mixed query\n> results, reflecting both the new index definition and the previous\n> index definition.",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  // updated search index definition\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", false },\n      { \"fields\", new BsonDocument\n        {\n          { \"<field-name>\", new BsonDocument\n            {\n              { \"type\", \"<field-type>\" }\n            }\n          }\n        }\n      }\n    }\n  }\n};\n\ncollection.SearchIndexes.Update(\"<index-name>\", index);\n",
+      "tokenEstimate": 155
+    },
+    {
+      "language": "csharp",
+      "content": "dotnet run csharp-update-index.csproj",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "edit-a-mongodb-search-index--local-driver-csharp",
+  "selections": {
+    "deployment-type": "local",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,29 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "- Install the MongoDB Node.js Driver.\n\n  For installation instructions, see the\n  [MongoDB Node.js Driver documentation](node).\n\n- Create the index.\n\n  autocomplete\n\n  Create a file named `create_auto_complete_index.js` and paste the following code:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // connect to your Atlas deployment\n  const uri =  \"<connection-string>\";\n\n  const client = new MongoClient(uri);\n\n  async function run() {\n    try {\n\n      // set namespace\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"movies\");\n\n      // define your MongoDB Search index\n      const index = {\n        name: \"partial-match-tutorial-autocomplete\",\n        definition: {\n          /* search index definition fields */\n          \"mappings\": {\n            \"dynamic\": false,\n            \"fields\": {\n              \"title\": {\n                \"type\": \"autocomplete\",\n                \"analyzer\": \"lucene.standard\",\n                \"tokenization\": \"edgeGram\",\n                \"minGrams\": 3,\n                \"maxGrams\": 5,\n                \"foldDiacritics\": false\n              }\n            }\n          }\n        }\n      }\n\n      // run the helper method\n      const result = await collection.createSearchIndex(index);\n      console.log(\"New index name: \" + result);\n    } finally {\n      await client.close();\n    }\n  }\n\n  run().catch(console.dir);\n  ```\n\n  string\n\n  Create a file named `create_string_index.js` and paste the following code:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // connect to your Atlas deployment\n  const uri =  \"<connection-string>\";\n\n  const client = new MongoClient(uri);\n\n  async function run() {\n    try {\n\n      // set namespace\n      const database = client.db(\"sample_mflix\");\n      const collection = database.collection(\"movies\");\n\n      // define your MongoDB Search index\n      const index = {\n        name: \"partial-match-tutorial\",\n        definition: {\n          /* search index definition fields */\n          \"mappings\": {\n            \"dynamic\": false,\n            \"fields\": {\n              \"title\": {\n                \"type\": \"string\",\n              }\n            }\n          }\n        }\n      }\n\n      // run the helper method\n      const result = await collection.createSearchIndex(index);\n      console.log(\"New index name: \" + result);\n    } finally {\n      await client.close();\n    }\n  }\n\n  run().catch(console.dir);\n  ```\n\n- Run the program.\n\n  ```shell\n  node create_auto_complete_index.js\n  # or\n  node create_string_index.js\n  ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // define your MongoDB Search index\n    const index = {\n      name: \"partial-match-tutorial-autocomplete\",\n      definition: {\n        /* search index definition fields */\n        \"mappings\": {\n          \"dynamic\": false,\n          \"fields\": {\n            \"title\": {\n              \"type\": \"autocomplete\",\n              \"analyzer\": \"lucene.standard\",\n              \"tokenization\": \"edgeGram\",\n              \"minGrams\": 3,\n              \"maxGrams\": 5,\n              \"foldDiacritics\": false\n            }\n          }\n        }\n      }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+      "tokenEstimate": 233
+    },
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // define your MongoDB Search index\n    const index = {\n      name: \"partial-match-tutorial\",\n      definition: {\n        /* search index definition fields */\n        \"mappings\": {\n          \"dynamic\": false,\n          \"fields\": {\n            \"title\": {\n              \"type\": \"string\",\n            }\n          }\n        }\n      }\n    }\n\n    // run the helper method\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);",
+      "tokenEstimate": 184
+    },
+    {
+      "language": "shell",
+      "content": "node create_auto_complete_index.js\n# or\nnode create_string_index.js",
+      "tokenEstimate": 15
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--atlas-driver-nodejs",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

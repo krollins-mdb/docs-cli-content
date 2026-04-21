@@ -1,0 +1,32 @@
+{
+  "heading": "(Advanced) Compress your embeddings.",
+  "headingLevel": 2,
+  "body": "Optionally, you can compress your embeddings by converting them\nto BSON (Binary Javascript Object Notation) binary format, also called `binData` vectors,\nfor efficient storage and retrieval.\nTo learn more, see [Vector Compression](avs-vector-compression).\n\nThis code does the following:\n\n- Defines a function named `generate_bson_vector` to convert\n  embeddings to `binData` vectors by using binary tools from the\n  [PyMongo driver](pymongo).\n\n- Converts the embeddings you generated for the\n  string `foo` to `binData` vectors.\n  The exact embedding varies depending on the model you use.\n\n> **Note:** When you convert your embeddings to `binData` vectors, your embeddings\n> appear in binary format.\n\n**Input:**\n\n```python\nfrom bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")\n```\n\n**Output:**\n\n```shell\nThe converted BSON embedding is: b'\\'\\x00:y\\xbf\\...\\xbb\\xdaC\\x9a\\xbc'\n```\n\nIn this section, you use an embedding model to generate vector embeddings.\nThis example also includes an optional function that\nyou can use to compress your embeddings for efficient storage\nand improved query performance. To learn more,\nsee [Vector Compression](avs-vector-compression).\n\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension, and then run the\nfollowing command in the notebook to install the dependencies:\n\n```python\npip install --quiet --upgrade openai pymongo\n```\n\nPaste and run the following code in your notebook to create\na function that generates vector embeddings by using a\nproprietary embedding model from\n[OpenAI](http://openai.com).\nReplace `<api-key>` with your OpenAI API (Application Programming Interface) key.\nThis code does the following:\n\n- Specifies the `text-embedding-3-small` embedding model.\n\n- Creates a function named `get_embedding()` that calls the model's API (Application Programming Interface)\n  to generate an embedding for a given text input.\n\n- Tests the function by generating a single embedding\n  for the string `foo`.\n\n**Input:**\n\n```python\nimport os\nfrom openai import OpenAI\n\n# Specify your OpenAI API key and embedding model\nos.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nmodel = \"text-embedding-3-small\"\nopenai_client = OpenAI()\n\n# Define a function to generate embeddings\ndef get_embedding(text):\n   \"\"\"Generates vector embeddings for the given text.\"\"\"\n\n   embedding = openai_client.embeddings.create(input = [text], model=model).data[0].embedding\n   return embedding\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)\n```\n\n**Output:**\n\n```sh\n[-0.005843308754265308, -0.013111298903822899, -0.014585349708795547, 0.03580040484666824, 0.02671629749238491, ... ]\n```\n\n> **See Also:** For API (Application Programming Interface) details and a list of available models, refer to\n> the [OpenAI documentation](https://platform.openai.com/docs/guides/embeddings).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "shell",
+      "content": "The converted BSON embedding is: b'\\'\\x00:y\\xbf\\...\\xbb\\xdaC\\x9a\\xbc'",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "python",
+      "content": "pip install --quiet --upgrade openai pymongo",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "python",
+      "content": "import os\nfrom openai import OpenAI\n\n# Specify your OpenAI API key and embedding model\nos.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nmodel = \"text-embedding-3-small\"\nopenai_client = OpenAI()\n\n# Define a function to generate embeddings\ndef get_embedding(text):\n   \"\"\"Generates vector embeddings for the given text.\"\"\"\n\n   embedding = openai_client.embeddings.create(input = [text], model=model).data[0].embedding\n   return embedding\n\n# Generate an embedding\nembedding = get_embedding(\"foo\")\nprint(embedding)",
+      "tokenEstimate": 118
+    },
+    {
+      "language": "sh",
+      "content": "[-0.005843308754265308, -0.013111298903822899, -0.014585349708795547, 0.03580040484666824, 0.02671629749238491, ... ]",
+      "tokenEstimate": 52
+    }
+  ]
+}

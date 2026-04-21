@@ -1,0 +1,19 @@
+{
+  "heading": "Specified Fields Example",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_training.companies`\nnamespace configures MongoDB Search to index only the `country_code` and\n`state_code` fields as the MongoDB Search `string` type in the `offices`\narray of objects.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_training\"]\ncollection = database[\"companies\"]\n\n# Create the MongoDB Search index definition for the embeddedDocuments field with specified fields\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"fields\": {\n                \"offices\": {\n                    \"type\": \"embeddedDocuments\",\n                    \"dynamic\": False,\n                    \"fields\": {\n                        \"country_code\": {\n                            \"type\": \"string\"\n                        },\n                        \"state_code\": {\n                            \"type\": \"string\"\n                        }\n                    }\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_training\"]\ncollection = database[\"companies\"]\n\n# Create the MongoDB Search index definition for the embeddedDocuments field with specified fields\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"fields\": {\n                \"offices\": {\n                    \"type\": \"embeddedDocuments\",\n                    \"dynamic\": False,\n                    \"fields\": {\n                        \"country_code\": {\n                            \"type\": \"string\"\n                        },\n                        \"state_code\": {\n                            \"type\": \"string\"\n                        }\n                    }\n                }\n            }\n        },\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n",
+      "tokenEstimate": 179
+    }
+  ],
+  "slug": "specified-fields-example--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

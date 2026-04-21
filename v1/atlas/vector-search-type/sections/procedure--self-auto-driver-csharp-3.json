@@ -1,0 +1,30 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "```csharp\nnamespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void EditVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n            \n            var definition = new BsonDocument\n            {\n                { \"fields\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"type\", \"autoEmbed\" },\n                            { \"modality\", \"text\" },\n                            { \"path\", \"<indexedField>\" },\n                            { \"model\", \"<embeddingModel>\" }\n                        },\n                        new BsonDocument\n                        {\n                            { \"type\", \"filter\" },\n                            { \"path\", \"<fieldToIndex>\" }\n                        },\n                        new BsonDocument\n                        {\n                            { \"type\", \"filter\" },\n                            { \"path\", \"<fieldToIndex>\" }\n                        }\n                    }\n                }\n            };\n            \n            // Update your search index\n            var searchIndexView = collection.SearchIndexes;\n            searchIndexView.Update(<indexName>, definition);\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n\n```\n\n| \\<connectionString> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| ------------------- | ---------------------------------------------------------------------------------------- |\n| \\<databaseName>     | Database that contains the collection for which you want to create the index.            |\n| \\<collectionName>   | Collection for which you want to create the index.                                       |\n| \\<indexName>        | Name of your index. If you omit the index name, defaults to vector\\_index.               |\n| \\<indexedField>     | Name of the field indexed as the autoEmbed type.                                         |\n| \\<embeddingModel>   | Voyage AI embedding model to use for generating embeddings.                              |\n| \\<fieldToIndex>     | Vector and filter fields to index.                                                       |\n\n```csharp\nusing query_quick_start;\n\nvar indexService = new IndexService();\nindexService.EditVectorIndex();\n```\n\n```shell\ndotnet run\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "namespace query_quick_start;\n\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\npublic class IndexService\n{\n    private const string MongoConnectionString = \"<connectionString>\";\n    // Other class methods here...\n    public void EditVectorIndex()\n    {\n        try\n        {\n            // connect to your deployment\n            var client = new MongoClient(MongoConnectionString);\n\n            // Access your database and collection\n            var database = client.GetDatabase(\"<databaseName>\");\n            var collection = database.GetCollection<BsonDocument>(\"<collectionName>\");\n            \n            var definition = new BsonDocument\n            {\n                { \"fields\", new BsonArray\n                    {\n                        new BsonDocument\n                        {\n                            { \"type\", \"autoEmbed\" },\n                            { \"modality\", \"text\" },\n                            { \"path\", \"<indexedField>\" },\n                            { \"model\", \"<embeddingModel>\" }\n                        },\n                        new BsonDocument\n                        {\n                            { \"type\", \"filter\" },\n                            { \"path\", \"<fieldToIndex>\" }\n                        },\n                        new BsonDocument\n                        {\n                            { \"type\", \"filter\" },\n                            { \"path\", \"<fieldToIndex>\" }\n                        }\n                    }\n                }\n            };\n            \n            // Update your search index\n            var searchIndexView = collection.SearchIndexes;\n            searchIndexView.Update(<indexName>, definition);\n        }\n        catch (Exception e)\n        {\n            Console.WriteLine($\"Exception: {e.Message}\");\n        }\n    }\n}\n",
+      "tokenEstimate": 297
+    },
+    {
+      "language": "csharp",
+      "content": "using query_quick_start;\n\nvar indexService = new IndexService();\nindexService.EditVectorIndex();",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run",
+      "tokenEstimate": 3
+    }
+  ],
+  "slug": "procedure--self-auto-driver-csharp",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "auto",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

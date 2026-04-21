@@ -1,0 +1,29 @@
+{
+  "heading": "Step 3: Create a  index.",
+  "headingLevel": 2,
+  "body": "Run the [atlas clusters indexes create](atlas/cli/current/command/atlas-clusters-indexes-create)\ncommand in your terminal, replacing `<clusterName>` with the\nname of the cluster, and `<path-to-file>` with the\npath to the `search-index.json` file:\n\n```shell\natlas clusters search indexes create --clusterName <cluster-name> --file <path-to-file>\n```\n\nThe MongoDB Search `date` type takes the following parameter:\n\n| Option | Type   | Necessity | Description                                                               |\n| ------ | ------ | --------- | ------------------------------------------------------------------------- |\n| type   | string | required  | Human-readable label that identifies this field type. Value must be date. |\n\nThe following index definition examples use collections in the\n[sample data sets](available-sample-datasets). After you\n[Load Sample Data Into Atlas](load-sample-data), you can use\nthese examples to index fields as the dateFacet type.\n\nBasic Example\n\nThe following example index definition indexes the  `released`\nfield as the MongoDB Search `date` type to support queries against that\nfield using MongoDB Search operators such as [near](near-ref),\n[range](range-ref), and [equals](equals-ref).\n\n```bash\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}\n\n```\n\nMultiple Types Example\n\nThe following example index definition indexes the  `released`\nfield as the `date` and `dateFacet` types to return the\nfollowing types of results for your queries:\n\n- Search results for queries using MongoDB Search operators like\n  [near](near-ref), [equals](equals-ref), and [range](range-ref).\n\n- Metadata results for queries using MongoDB Search [faceted navigation](fts-facet-ref).\n\n```bash\n{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": [\n        {\n          \"type\": \"date\"\n        },\n        {\n          \"type\": \"dateFacet\"\n        }\n      ]\n    }\n  }\n}\n```\n\nTo learn how to set up and run the following example code, see\nDefine the Index for the token Type.\n\nYou can use the MongoDB Search `date` type to index date values. You can query\nfields of type `date` using the MongoDB Search [range](range-ref),\n[near](near-ref), [in](in-ref), and [equals](equals-ref) operators. You can\nalso run a [faceted navigation](fts-facet-ref) query on `date` type fields.\n\nYou can also use the `date` type to index:\n\n- Fields whose value is an array of dates. To learn more, see\n  [How to Index the Elements of an Array](fts-array-ref).\n\n- Date fields inside an array of documents indexed as the\n  [embeddedDocuments](bson-data-types-embedded-documents) type.\n\n- Date fields for sorting. MongoDB Search automatically indexes all date fields\n  in indexes created after [July 2023](fts20230710) for\n  [sorting](sort-ref) the MongoDB Search results. For preexisting indexes,\n  you must rebuild the index to use date fields in the index for\n  sorting. To learn more, see [index update](fts-index-rebuild) and\n  [sorting](sort-ref).\n\n> **Note:** To query indexed date values inside arrays, you must use the [range](range-ref)\n> operator. You can't use the [near](near-ref) operator\n> to query date values stored in an array, even if you have a MongoDB Search\n> index on the date values inside the array.\n\nIf you enable [dynamic mappings](static-dynamic-mappings), MongoDB Search\nautomatically indexes fields of type dateFacet. You can\nuse the **Visual Editor** or the  **JSON Editor** in the Atlas UI to\nindex fields as the dateFacet type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "atlas clusters search indexes create --clusterName <cluster-name> --file <path-to-file>",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "bash",
+      "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": {\n        \"type\": \"date\"\n      }\n    }\n  }\n}\n",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "bash",
+      "content": "{\n  \"name\": \"default\",\n  \"collectionName\": \"movies\",\n  \"database\": \"sample_mflix\",\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"released\": [\n        {\n          \"type\": \"date\"\n        },\n        {\n          \"type\": \"dateFacet\"\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 78
+    }
+  ],
+  "slug": "step-3-create-a-index--atlas-atlas-cli-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "atlas-cli",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,39 @@
+{
+  "heading": "Create a MongoDB Search Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nCreate a `create-index.js` file in your `search-materialized-view` project directory,\nand copy and paste the following code into the file.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_supplies\");\n    const collection = database.collection(\"monthlyPhoneTransactions\");\n\n    // Create the MongoDB Search index definition\n    const index = {\n        name: \"monthlySalesIndex\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\nnode create-index.js\n```\n\n**Output:**\n\n```\nNew index name: monthlySalesIndex\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the connection string with your MongoDB deployment's connection string\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_supplies\");\n    const collection = database.collection(\"monthlyPhoneTransactions\");\n\n    // Create the MongoDB Search index definition\n    const index = {\n        name: \"monthlySalesIndex\",\n        definition: {\n            \"mappings\": {\n                \"dynamic\": true\n            }\n        }\n    }\n\n    // Create the index\n    const result = await collection.createSearchIndex(index);\n    console.log(\"New index name: \" + result);\n  } finally {\n    await client.close();\n  }\n}\n\nrun().catch(console.dir);\n",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "node create-index.js",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "New index name: monthlySalesIndex",
+      "tokenEstimate": 7
+    }
+  ],
+  "slug": "create-a-mongodb-search-index-on-the-materialized-view--local-onprem-driver-nodejs",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

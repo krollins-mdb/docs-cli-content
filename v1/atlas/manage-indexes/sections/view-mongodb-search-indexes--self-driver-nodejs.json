@@ -1,0 +1,29 @@
+{
+  "heading": "View MongoDB Search Indexes",
+  "headingLevel": 2,
+  "body": "To retrieve your MongoDB Search indexes through the [Node Driver](node),\nuse the `listSearchIndexes` helper method.\n\nYou can use the following sample application named `list-indexes.js`\nto return the indexes on your collection. Specify the following values:\n\n- Your Atlas connection string. To learn more, see [Driver](connect-via-driver).\n\n- The database and collection that contains the search indexes\n  that you want to retrieve.\n\n- The index name if you want to retrieve a specific index. To return all\n  indexes on the collection, omit this value.\n\n> **Note:** The `listSearchIndexes` command returns a cursor. As a result,\n> it doesn't immediately return the indexes matched by the command.\n> To access the results, use a cursor paradigm such\n> as the `toArray()` method. To learn more, see [Access Data From a Cursor](node/fundamentals/crud/read-operations/cursor).\n\n```javascript\nimport { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // run the helper method\n    const result = await collection.listSearchIndexes(\"<index-name>\").toArray();\n    console.log(result);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\nTo run the sample application, use the following command.\nYour results should resemble the example output:\n\n**Input:**\n\n```shell\nnode list-indexes.js\n```\n\n**Output:**\n\n```json\n[\n   {\n      id: '648b4ad4d697b73bf9d2e5e0',\n      name: 'default',\n      status: 'READY',\n      queryable: true,\n      latestDefinition: { mappings: { dynamic: true } }\n   },\n   {\n      id: '648b4ad4d697b73bf9d2e5e1',\n      name: 'example-index',\n      status: 'PENDING',\n      queryable: false,\n      latestDefinition: {\n         mappings: { dynamic: false, fields: { text: { type: 'string' } } }\n      }\n   }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// connect to your Atlas deployment\nconst uri =  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"<databaseName>\");\n    const collection = database.collection(\"<collectionName>\");\n\n    // run the helper method\n    const result = await collection.listSearchIndexes(\"<index-name>\").toArray();\n    console.log(result);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "shell",
+      "content": "node list-indexes.js",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "json",
+      "content": "[\n   {\n      id: '648b4ad4d697b73bf9d2e5e0',\n      name: 'default',\n      status: 'READY',\n      queryable: true,\n      latestDefinition: { mappings: { dynamic: true } }\n   },\n   {\n      id: '648b4ad4d697b73bf9d2e5e1',\n      name: 'example-index',\n      status: 'PENDING',\n      queryable: false,\n      latestDefinition: {\n         mappings: { dynamic: false, fields: { text: { type: 'string' } } }\n      }\n   }\n]",
+      "tokenEstimate": 134
+    }
+  ],
+  "slug": "view-mongodb-search-indexes--self-driver-nodejs",
+  "selections": {
+    "deployment-type": "self",
+    "interface": "driver",
+    "language": "nodejs"
+  },
+  "variantAgnostic": false
+}

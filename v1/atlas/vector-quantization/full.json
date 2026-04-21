@@ -7,97 +7,141 @@
       "heading": "About Quantization",
       "headingLevel": 2,
       "body": "Quantization is the process of shrinking full-fidelity vectors into\nfewer bits. It reduces the amount of main memory required to store each\nvector in a MongoDB Vector Search index by indexing the reduced representation\nvectors instead. This allows for storage of more vectors or vectors with\nhigher dimensions. Therefore, quantization reduces resource\nconsumption and improves speed. We recommend quantization for\napplications with a large number of vectors, such as over 100,000.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-quantization",
+      "variantAgnostic": true
     },
     {
       "heading": "Scalar Quantization",
       "headingLevel": 3,
       "body": "[Scalar quantization](manual/reference/glossary) involves first\nidentifying the minimum and maximum values for each dimension of the\nindexed vectors to establish a range of values for a dimension. Then,\nthe range is divided into equally sized intervals or bins. Finally, each\nfloat value is mapped to a bin to convert the continuous float values\ninto discrete integers. In MongoDB Vector Search, this quantization reduces the vector\nembedding's RAM cost to about one fourth (`1/3.75`) of the\npre-quantization cost.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scalar-quantization",
+      "variantAgnostic": true
     },
     {
       "heading": "Binary Quantization",
       "headingLevel": 3,
       "body": "Binary quantization involves assuming a\nmidpoint of `0` for each dimension, which is typically appropriate for\nembeddings normalized to length `1` such as  OpenAI's\n`text-embedding-3-large`. Then, each value in the vector is\ncompared to the midpoint and assigned a binary value of `1` if it's\ngreater than the midpoint and a binary value of `0` if it's less than\nor equal to the midpoint. In MongoDB Vector Search, this quantization reduces the\nvector embedding's RAM cost to one twenty-fourth (`1/24`) of the\npre-quantization cost. The reason it's not `1/32` is because the data\nstructure containing the Hierarchical Navigable Small Worlds graph itself, separate from the vector\nvalues, isn't compressed.\n\nWhen you run a query, MongoDB Vector Search converts the float value in the query\nvector into a binary vector using the same midpoint for efficient\ncomparison between the query vector and indexed binary vectors. It then\nrescores by reevaluating the identified candidates in the binary\ncomparison using the original float values associated with those results\nfrom the binary index to further refine the results. The full fidelity\nvectors are stored in their own data structure on disk, and are only\nreferenced during rescoring when you configure binary quantization or\nwhen you perform exact search against either binary or scalar quantized\nvectors.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "binary-quantization",
+      "variantAgnostic": true
     },
     {
       "heading": "Requirements",
       "headingLevel": 2,
       "body": "The following table shows the requirements for automatically quantizing\nand ingesting quantized vectors.\n\n| Requirement                                                                         | For int1 Ingestion | For int8 Ingestion        | For Automatic Scalar Quantization | For Automatic Binary Quantization |\n| ----------------------------------------------------------------------------------- | ------------------ | ------------------------- | --------------------------------- | --------------------------------- |\n| Requires index definition settings                                                  | No                 | No                        | Yes                               | Yes                               |\n| Requires BSON (Binary Javascript Object Notation) binData format                    | Yes                | Yes                       | No                                | No                                |\n| Storage on mongod                                                                   | binData(int1)      | binData(int8)             | binData(float32)array(double)     | binData(float32)array(double)     |\n| Supported Similarity method                                                         | euclidean          | cosineeuclideandotProduct | cosineeuclideandotProduct         | cosineeuclideandotProduct         |\n| Maximum Dimensionality                                                              | Multiple of 8      | 8192                      | 8192                              | 8192                              |\n| Supports ANN (Approximate Nearest Neighbor) and ENN (Exact Nearest Neighbor) Search | Yes                | Yes                       | Yes                               | Yes                               |\n\n> **Note:** Atlas stores all floating-point values as the `double` data type\n> internally; therefore, both 32-bit and 64-bit embeddings are compatible\n> with automatic quantization without conversion.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "requirements",
+      "variantAgnostic": true
     },
     {
       "heading": "How to Enable Automatic Quantization of Vectors",
       "headingLevel": 2,
       "body": "You can configure MongoDB Vector Search to automatically quantize float\nvector embeddings in your collection to reduced representation types,\nsuch as `int8` (scalar) and `binary` in your vector indexes.\n\nTo set or change the quantization type, specify a `quantization` field\nvalue of either `scalar` or `binary` in your index definition. This\ntriggers an index rebuild similar to any other index definition change.\nThe specified quantization type applies to all indexed vectors and\nquery vectors at query-time. You don't need to change your query as your\nquery vectors are automatically quantized.\n\nFor most embedding models, we recommend binary quantization with\nrescoring. If you want to use lower dimension models that are not\nQAT (Quantization-Aware-Trained), use scalar quantization\nbecause it has less representational loss and therefore, incurs less\nrepresentational capacity loss.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "how-to-enable-automatic-quantization-of-vectors",
+      "variantAgnostic": true
     },
     {
       "heading": "Benefits",
       "headingLevel": 3,
       "body": "MongoDB Vector Search provides native capabilities for scalar quantization as well as\nbinary quantization with rescoring. Automatic quantization increases\nscalability and cost savings for your applications by reducing the\ncomputational resources for efficient processing of your\nvectors. Automatic quantization reduces the RAM for `mongot` by 3.75x\nfor scalar and by 24x for binary; the vector values shrink by 4x and 32x\nrespectively, but Hierarchical Navigable Small Worlds graph itself does not shrink. This improves\nperformance, even at the highest volume and scale.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "benefits",
+      "variantAgnostic": true
     },
     {
       "heading": "Use Cases",
       "headingLevel": 3,
       "body": "We recommend automatic quantization if you have large number of full\nfidelity vectors, typically over 100,000 vectors. After quantization, you\nindex reduced representation vectors without compromising the accuracy\nwhen retrieving vectors.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "use-cases",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 3,
       "body": "To enable automatic quantization:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedure",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Specify the type of quantization you want in your MongoDB Vector Search index.",
       "headingLevel": 4,
       "body": "In a new or existing MongoDB Vector Search index, specify one of the following\nquantization types in the `fields.quantization` field\nfor your [index definition](avs-index-definition):\n\n- `scalar`: to produce byte vectors from float input vectors.\n\n- `binary`: to produce bit vectors from float input vectors.\n\nIf you specify automatic quantization on data that is not an\narray of float values, MongoDB Vector Search silently ignores that vector\ninstead of indexing it, and those vectors will be skipped.\nSince Atlas stores float values (both 32-bit and 64-bit)\nas the `double` type internally, embeddings from models\nthat output either precision will work with automatic quantization.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-specify-the-type-of-quantization-you-want-in-your-mongodb-vector-search-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Create or update the index.",
       "headingLevel": 4,
       "body": "The index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.\n\nThe specified quantization type applies to all indexed\nvectors and query vectors at query-time.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-create-or-update-the-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 4,
       "body": "When you view your quantized index [in the Atlas UI](avs-view-index-procedure), the index size might appear larger\nthan an index without quantization. This is because the **Size** metric\nrepresents the *total data stored*, which includes the Hierarchical Navigable Small Worlds graph\n(in memory), the quantized vectors (in memory), and the\nfull-fidelity vectors (on disk). To estimate the amount of memory\nused by the index at query-time, refer to the **Required Memory** metric.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "How to Ingest Pre-Quantized Vectors",
       "headingLevel": 2,
       "body": "MongoDB Vector Search also supports ingestion and indexing of scalar and\nbinary quantized vectors from certain embedding models. If you don't already\nhave quantized vectors, you can convert your embeddings to BSON (Binary Javascript Object Notation)\n[BinData](manual/reference/method/BinData) vectors with\n`float32`, `int1`, or `int8` subtype.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "how-to-ingest-pre-quantized-vectors",
+      "variantAgnostic": true
     },
     {
       "heading": "Use Cases",
       "headingLevel": 3,
       "body": "We recommend ingesting quantized BSON (Binary Javascript Object Notation) `binData` vectors\nfor the following use cases:\n\n- You need to index quantized vector output from embedding models.\n\n- You have a large number of float vectors and want to reduce the\n  storage and [WiredTiger](manual/core/wiredtiger) footprint\n  (such as disk and memory usage) in `mongod`.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "use-cases",
+      "variantAgnostic": true
     },
     {
       "heading": "Benefits",
       "headingLevel": 3,
       "body": "[BinData](manual/reference/method/BinData) is a BSON (Binary Javascript Object Notation) data type\nthat stores binary data. It compresses your vector embeddings and requires\nabout three times less disk space in your cluster compared to embeddings\nthat use a standard `float32` array. To learn more, see [Vector Compression](avs-vector-compression).\n\nThis subtype also allows you to index your vectors with\nalternate types such as `int1` or `int8` vectors, reducing the\nmemory needed to build the MongoDB Vector Search index for your collection. It reduces\nthe RAM for `mongot` by 3.75x for scalar and by 24x for binary; the\nvector values shrink by 4x and 32x respectively, but the Hierarchical Navigable Small Worlds graph\nitself doesn't shrink.\n\nIf you don't already have `binData` vectors, you can convert your\nembeddings to this format by using any supported driver before writing\nyour data to a collection. The following procedure walks you through the steps for\nconverting your embeddings to the [BinData](manual/reference/method/BinData) vectors with `float32`,\n`int8`, and `int1` subtypes.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "benefits",
+      "variantAgnostic": true
     },
     {
       "heading": "Supported Drivers",
       "headingLevel": 3,
       "body": "BSON (Binary Javascript Object Notation) [BinData](manual/reference/method/BinData) vectors with\n`float32`, `int1`, and `int8` subtypes is supported by\nthe following drivers:\n\n- [C++ Driver](languages/cpp/cpp-driver/current) v4.1.0 or later\n\n- [C#/.NET Driver](csharp) v3.2.0 or later\n\n- [Go Driver](go) v2.1.0 or later\n\n- [PyMongo Driver](pymongo) v4.10 or later\n\n- [Node.js Driver](node) v6.11 or later\n\n- [Java Driver](java/sync/current) v5.3.1 or later",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "supported-drivers",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 3,
-      "body": "The examples in this procedure use either new data or existing data and\nembeddings generated by using [Voyage AI's](https://www.voyageai.com/)\n`voyage-3-large` model. The example for new data uses sample text\nstrings, which you can replace with your own data. The example for\nexisting data uses a subset of documents without any embeddings from the\n`listingsAndReviews` collection in the `sample_airbnb` database,\nwhich you can replace with your own database and collection (with or\nwithout any embeddings).\n\nSelect whether you want to quantize `binData` vectors for new data or for data you already have in your cluster using the **Data Source** dropdown menu below. Select your preferred programming language as well.\n\nTo quantize your BSON (Binary Javascript Object Notation) `binData` vectors, you must have the\nfollowing:\n\n- A cluster running MongoDB version 6.0.11, 7.0.2, or\n  later.\n\n  Ensure that your IP address (Internet Protocol address) is\n  included in your Atlas project's [IP Access List](access-list).\n\n- Access to an embedding model that supports byte vector output.\n\n  The outputs from the following embedding models\n  can be used to generate BSON (Binary Javascript Object Notation) `binData` vectors with\n  a supported MongoDB driver:\n\n  | Embedding Model Provider | Embedding Model            |\n  | ------------------------ | -------------------------- |\n  | Voyage AI                | voyage-3-large             |\n  | Cohere                   | embed-english-v3.0         |\n  | Nomic                    | nomic-embed-text-v1.5      |\n  | Jina                     | jina-embeddings-v2-base-en |\n  | Mixedbread               | mxbai-embed-large-v1       |\n\n  Scalar quantization preserves recall for these\n  models because these models are all trained to be quantization aware.\n  Therefore, [recall](manual/reference/glossary) degradation for scalar quantized embeddings\n  produced by these models is minimal even at lower dimensions like 384.\n\n* A terminal and code editor to run your Node.js project.\n\n* [npm and Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)\n  installed.",
-      "codeBlocks": []
+      "body": "The examples in this procedure use either new data or existing data and\nembeddings generated by using [Voyage AI's](https://www.voyageai.com/)\n`voyage-3-large` model. The example for new data uses sample text\nstrings, which you can replace with your own data. The example for\nexisting data uses a subset of documents without any embeddings from the\n`listingsAndReviews` collection in the `sample_airbnb` database,\nwhich you can replace with your own database and collection (with or\nwithout any embeddings).\n\nSelect whether you want to quantize `binData` vectors for new data or for data you already have in your cluster using the **Data Source** dropdown menu below. Select your preferred programming language as well.",
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Prerequisites",
+      "headingLevel": 3,
+      "body": "To quantize your BSON (Binary Javascript Object Notation) `binData` vectors, you must have the\nfollowing:\n\n- A cluster running MongoDB version 6.0.11, 7.0.2, or\n  later.\n\n  Ensure that your IP address (Internet Protocol address) is\n  included in your Atlas project's [IP Access List](access-list).\n\n- Access to an embedding model that supports byte vector output.\n\n  The outputs from the following embedding models\n  can be used to generate BSON (Binary Javascript Object Notation) `binData` vectors with\n  a supported MongoDB driver:\n\n  | Embedding Model Provider | Embedding Model            |\n  | ------------------------ | -------------------------- |\n  | Voyage AI                | voyage-3-large             |\n  | Cohere                   | embed-english-v3.0         |\n  | Nomic                    | nomic-embed-text-v1.5      |\n  | Jina                     | jina-embeddings-v2-base-en |\n  | Mixedbread               | mxbai-embed-large-v1       |\n\n  Scalar quantization preserves recall for these\n  models because these models are all trained to be quantization aware.\n  Therefore, [recall](manual/reference/glossary) degradation for scalar quantized embeddings\n  produced by these models is minimal even at lower dimensions like 384.\n\n* A terminal and code editor to run your Node.js project.\n\n* [npm and Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)\n  installed.",
+      "codeBlocks": [],
+      "slug": "prerequisites--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Generate the vector embeddings for your data.",
@@ -124,7 +168,13 @@
           "content": " Embeddings saved to embeddings.json",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "step-1-generate-the-vector-embeddings-for-your-data--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Convert the vector embeddings to  vectors.",
@@ -151,7 +201,13 @@
           "content": "Embeddings with BSON vectors have been saved to embeddings.json",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-2-convert-the-vector-embeddings-to-vectors--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Connect to the cluster and upload the data to a collection.",
@@ -173,7 +229,13 @@
           "content": "node upload-data.js",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-3-connect-to-the-cluster-and-upload-the-data-to-a-collection--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Create the MongoDB Vector Search index on the collection.",
@@ -195,7 +257,13 @@
           "content": "node create-index.js",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-4-create-the-mongodb-vector-search-index-on-the-collection--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Generate the embeddings for the query text.",
@@ -222,7 +290,13 @@
           "content": "Embeddings with BSON vectors have been saved to query-embeddings.json",
           "tokenEstimate": 14
         }
-      ]
+      ],
+      "slug": "step-5-generate-the-embeddings-for-the-query-text--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 6: Run a MongoDB Vector Search query.",
@@ -249,7 +323,13 @@
           "content": "Connected to MongoDB\nRunning vector search using \"float32\" embedding...\nRunning vector search using \"int8\" embedding...\nRunning vector search using \"int1\" embedding...\nMongoDB connection closed\nResults from Float32 embeddings:\nResult 1: {\n  text: 'The Great Wall of China is visible from space.',\n  score: 0.7719700336456299\n}\nResult 2: {\n  text: 'Mount Everest is the highest peak on Earth at 8,848m.',\n  score: 0.735608696937561\n}\nResults from Int8 embeddings:\nResult 1: {\n  text: 'The Great Wall of China is visible from space.',\n  score: 0.5051995515823364\n}\nResult 2: {\n  text: 'Mount Everest is the highest peak on Earth at 8,848m.',\n  score: 0.5044659972190857\n}\nResults from Int1 (PackedBits) embeddings:\nResult 1: {\n  text: 'The Great Wall of China is visible from space.',\n  score: 0.6845703125\n}\nResult 2: {\n  text: 'Mount Everest is the highest peak on Earth at 8,848m.',\n  score: 0.6650390625\n}",
           "tokenEstimate": 270
         }
-      ]
+      ],
+      "slug": "step-6-run-a-mongodb-vector-search-query--nodejs-new",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Fetch the data from your cluster.",
@@ -276,7 +356,13 @@
           "content": "Subset of documents written to: ./subset.json",
           "tokenEstimate": 9
         }
-      ]
+      ],
+      "slug": "step-1-fetch-the-data-from-your-cluster--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Generate the vector embeddings for your data.",
@@ -303,7 +389,13 @@
           "content": " Embeddings saved to embeddings.json",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "step-2-generate-the-vector-embeddings-for-your-data--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Convert the vector embeddings to  vectors.",
@@ -330,7 +422,13 @@
           "content": "Embeddings with BSON vectors have been saved to embeddings.json",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-3-convert-the-vector-embeddings-to-vectors--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Connect to the cluster and upload the data to the namespace.",
@@ -357,7 +455,13 @@
           "content": "Connected to MongoDB\nUpdated document with text: ...\n...\nEmbeddings stored in MongoDB successfully.",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "step-4-connect-to-the-cluster-and-upload-the-data-to-the-namespace--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Create the MongoDB Vector Search index on the collection.",
@@ -384,7 +488,13 @@
           "content": "New search index named vector_index is building.\nPolling to check if the index is ready. This may take up to a minute.\n<INDEX-NAME> is ready for querying.",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "step-5-create-the-mongodb-vector-search-index-on-the-collection--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 6: Generate the embeddings for the query text.",
@@ -411,7 +521,13 @@
           "content": "Embeddings with BSON vectors have been saved to query-embeddings.json",
           "tokenEstimate": 14
         }
-      ]
+      ],
+      "slug": "step-6-generate-the-embeddings-for-the-query-text--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 7: Run a MongoDB Vector Search query.",
@@ -438,7 +554,13 @@
           "content": "Results from embeddings_float32 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.799713134765625\"}}\n{\"_id\":\"10227000\",\"summary\":\"THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!\",\"score\":{\"$numberDouble\":\"0.7568193078041077\"}}\n{\"_id\":\"1001265\",\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.7500505447387695\"}}\n{\"summary\":\"Quarto com vista para a Lagoa Rodrigo de Freitas, cartão postal do Rio de Janeiro. Linda Vista.  1 Quarto e 1 banheiro  Amplo, arejado, vaga na garagem. Prédio com piscina, sauna e playground.  Fácil acesso, próximo da praia e shoppings.\",\"score\":{\"$numberDouble\":\"0.7367454171180725\"},\"_id\":\"10030955\"}\n{\"_id\":\"10220130\",\"summary\":\"Cozy and comfortable apartment. Ideal for families and vacations.  3 bedrooms, 2 of them suites.  Located 20-min walk to the beach and close to the Rio 2016 Olympics Venues. Situated in a modern and secure condominium, with many entertainment available options around.\",\"score\":{\"$numberDouble\":\"0.7315733432769775\"}}\nResults from embeddings_int8 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.5056195259094238\"}}\n{\"_id\":\"10227000\",\"summary\":\"THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!\",\"score\":{\"$numberDouble\":\"0.5048412084579468\"}}\n{\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.5047098398208618\"},\"_id\":\"1001265\"}\n{\"_id\":\"10030955\",\"summary\":\"Quarto com vista para a Lagoa Rodrigo de Freitas, cartão postal do Rio de Janeiro. Linda Vista.  1 Quarto e 1 banheiro  Amplo, arejado, vaga na garagem. Prédio com piscina, sauna e playground.  Fácil acesso, próximo da praia e shoppings.\",\"score\":{\"$numberDouble\":\"0.5043320655822754\"}}\n{\"_id\":\"10220130\",\"summary\":\"Cozy and comfortable apartment. Ideal for families and vacations.  3 bedrooms, 2 of them suites.  Located 20-min walk to the beach and close to the Rio 2016 Olympics Venues. Situated in a modern and secure condominium, with many entertainment available options around.\",\"score\":{\"$numberDouble\":\"0.5043137073516846\"}}\nResults from embeddings_int1 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.7119140625\"}}\n{\"_id\":\"1001265\",\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.6787109375\"}}\n{\"summary\":\"A friendly apartment block where everyone knows each other and there is a strong communal vibe. Property has a huge backyard with vege garden and skate ramp. 7min walk to the beach and 2min to buses.\",\"score\":{\"$numberDouble\":\"0.671875\"},\"_id\":\"10209136\"}\n{\"_id\":\"10227000\",\"summary\":\"THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!\",\"score\":{\"$numberDouble\":\"0.6669921875\"}}\n{\"_id\":\"10264100\",\"summary\":\"Having a large airy living room. The apartment is well divided. Fully furnished and cozy. The building has a 24h doorman and camera services in the corridors. It is very well located, close to the beach, restaurants, pubs and several shops and supermarkets. And it offers a good mobility being close to the subway.\",\"score\":{\"$numberDouble\":\"0.6669921875\"}}",
           "tokenEstimate": 1490
         }
-      ]
+      ],
+      "slug": "step-7-run-a-mongodb-vector-search-query--nodejs-existing",
+      "selections": {
+        "language-no-interface": "nodejs",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Load the data for which you want to generate  vectors in your notebook.",
@@ -450,7 +572,13 @@
           "content": "data = [\n    \"The Great Wall of China is visible from space.\",\n    \"The Eiffel Tower was completed in Paris in 1889.\",\n    \"Mount Everest is the highest peak on Earth at 8,848m.\",\n    \"Shakespeare wrote 37 plays and 154 sonnets during his lifetime.\",\n    \"The Mona Lisa was painted by Leonardo da Vinci.\",\n]",
           "tokenEstimate": 78
         }
-      ]
+      ],
+      "slug": "step-1-load-the-data-for-which-you-want-to-generate-vectors-in-your-notebook--python-new",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Generate and convert the embeddings.",
@@ -467,7 +595,13 @@
           "content": "# For all vectors in your collection, generate BSON vectors of float32, int8, and int1 embeddings\nbson_float32_embeddings = []\nbson_int8_embeddings = []\nbson_int1_embeddings = []\nfor i, (f32_emb, int8_emb, int1_emb) in enumerate(zip(float32_embeddings, int8_embeddings, int1_embeddings)):\n   bson_float32_embeddings.append(generate_bson_vector(f32_emb, BinaryVectorDtype.FLOAT32))\n   bson_int8_embeddings.append(generate_bson_vector(int8_emb, BinaryVectorDtype.INT8))\n   bson_int1_embeddings.append(generate_bson_vector(int1_emb, BinaryVectorDtype.PACKED_BIT))",
           "tokenEstimate": 140
         }
-      ]
+      ],
+      "slug": "step-2-generate-and-convert-the-embeddings--python-new",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create documents and load to your cluster.",
@@ -484,7 +618,13 @@
           "content": "import pymongo\n\nmongo_client = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n# Insert documents into a new database and collection\ndb = mongo_client[\"<DATABASE-NAME>\"]\ncollection_name = \"<COLLECTION-NAME>\"\ndb.create_collection(collection_name)\ncollection = db[collection_name]\n\ncollection.insert_many(documents)",
           "tokenEstimate": 64
         }
-      ]
+      ],
+      "slug": "step-3-create-documents-and-load-to-your-cluster--python-new",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Create the MongoDB Vector Search index on the collection.",
@@ -501,7 +641,13 @@
           "content": "New search index named <INDEX-NAME> is building.\nPolling to check if the index is ready. This may take up to a minute.\n<INDEX-NAME> is ready for querying.",
           "tokenEstimate": 40
         }
-      ]
+      ],
+      "slug": "step-4-create-the-mongodb-vector-search-index-on-the-collection--python-new",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Run MongoDB Vector Search queries on the collection.",
@@ -523,7 +669,13 @@
           "content": "Results from float32-embeddings embeddings\n[{'data': 'The Great Wall of China is visible from space.',\n'score': 0.7810189723968506},\n{'data': 'Mount Everest is the highest peak on Earth at 8,848m.',\n'score': 0.7339795827865601}]\nResults from int8-embeddings embeddings\n[{'data': 'The Great Wall of China is visible from space.',\n'score': 0.5053843259811401},\n{'data': 'Mount Everest is the highest peak on Earth at 8,848m.',\n'score': 0.5043729543685913}]\nResults from int1-embeddings embeddings\n[{'data': 'The Great Wall of China is visible from space.', 'score': 0.6640625},\n{'data': 'Mount Everest is the highest peak on Earth at 8,848m.',\n'score': 0.6220703125}]",
           "tokenEstimate": 202
         }
-      ]
+      ],
+      "slug": "step-5-run-mongodb-vector-search-queries-on-the-collection--python-new",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Connect to the cluster and retrieve existing data.",
@@ -535,7 +687,13 @@
           "content": "import pymongo  \n\n# Connect to your MongoDB cluster\nmongo_client = pymongo.MongoClient(\"<CONNECTION-STRING>\")\ndb = mongo_client[\"<DATABASE-NAME>\"]\ncollection = db[\"<COLLECTION-NAME>\"]\n\n# Filter to exclude null or empty summary fields\nfilter = { \"<TEXT-FIELD-NAME>\": {\"$nin\": [None, \"\"]} }\n\n# Get a subset of documents in the collection\ndocuments = collection.find(filter).limit(50)\n\n# Initialize the count of updated documents\nupdated_doc_count = 0",
           "tokenEstimate": 109
         }
-      ]
+      ],
+      "slug": "step-1-connect-to-the-cluster-and-retrieve-existing-data--python-existing",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Generate, convert, and load embeddings into your collection.",
@@ -547,7 +705,13 @@
           "content": "model_name = \"<EMBEDDING-MODEL>\"\noutput_dimension = <NUMBER-OF-DIMENSIONS>\nfloat32_field = \"<FIELD-NAME-FOR-FLOAT32-TYPE>\"\nint8_field = \"<FIELD-NAME-FOR-INT8-TYPE>\"\nint1_field = \"<FIELD-NAME-FOR-INT1-TYPE>\"\n\n# Process and update each document\nupdated_doc_count = 0  \nfor document in documents:  \n    summary = document.get(\"<TEXT-FIELD-NAME>\")  \n    if not summary:  \n        continue  \n  \n    # Generate embeddings for the summary field  \n    float_embeddings = generate_embeddings([summary], model=model_name, dtype=\"float\", output_dimension=output_dimension)  \n    int8_embeddings = generate_embeddings([summary], model=model_name, dtype=\"int8\", output_dimension=output_dimension)  \n    ubinary_embeddings = generate_embeddings([summary], model=model_name, dtype=\"ubinary\", output_dimension=output_dimension)  \n  \n    # Convert embeddings to BSON-compatible format  \n    bson_float = generate_bson_vector(float_embeddings[0], BinaryVectorDtype.FLOAT32)  \n    bson_int8 = generate_bson_vector(int8_embeddings[0], BinaryVectorDtype.INT8)  \n    bson_ubinary = generate_bson_vector(ubinary_embeddings[0], BinaryVectorDtype.PACKED_BIT)  \n  \n    # Prepare the updated document  \n    updated_fields = {  \n        float32_field: bson_float,  \n        int8_field: bson_int8,  \n        int1_field: bson_ubinary,\n    }  \n  \n    # Update the document in MongoDB  \n    result = collection.update_one({\"_id\": document[\"_id\"]}, {\"$set\": updated_fields})  \n    if result.modified_count > 0:  \n        updated_doc_count += 1  \n  \n# Print the results  \nprint(f\"Number of documents updated: {updated_doc_count}\") ",
           "tokenEstimate": 387
         }
-      ]
+      ],
+      "slug": "step-2-generate-convert-and-load-embeddings-into-your-collection--python-existing",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create the MongoDB Vector Search index on the collection.",
@@ -564,7 +728,13 @@
           "content": "New search index named <INDEX-NAME> is building.\nPolling to check if the index is ready. This may take up to a minute.\n<INDEX-NAME> is ready for querying.",
           "tokenEstimate": 40
         }
-      ]
+      ],
+      "slug": "step-3-create-the-mongodb-vector-search-index-on-the-collection--python-existing",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Run MongoDB Vector Search queries on the collection.",
@@ -586,7 +756,13 @@
           "content": "Results from float32-embeddings\n[{'score': 0.8044508695602417,\n'summary': 'A beautiful and comfortable 1 Bedroom Air Conditioned Condo in '\n            'Makaha Valley - stunning Ocean & Mountain views All the '\n            'amenities of home, suited for longer stays. Full kitchen & large '\n            \"bathroom.  Several gas BBQ's for all guests to use & a large \"\n            'heated pool surrounded by reclining chairs to sunbathe.  The '\n            'Ocean you see in the pictures is not even a mile away, known as '\n            'the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  '\n            'paddle boarding, surfing are all just minutes from the front '\n            'door.'},\n{'score': 0.7622430920600891,\n'summary': 'THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE '\n            'BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU '\n            'WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO '\n            'THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!'},\n{'score': 0.7484776973724365,\n'summary': 'Para 2 pessoas. Vista de mar a 150 mts. Prédio com 2 elevadores. '\n            'Tem: - quarto com roupeiro e cama de casal (colchão '\n            'magnetizado); - cozinha: placa de discos, exaustor, frigorifico, '\n            'micro-ondas e torradeira; casa de banho completa; - sala e '\n            'varanda.'},\n{'score': 0.7452666759490967,\n'summary': 'Quarto com vista para a Lagoa Rodrigo de Freitas, cartão postal '\n            'do Rio de Janeiro. Linda Vista.  1 Quarto e 1 banheiro  Amplo, '\n            'arejado, vaga na garagem. Prédio com piscina, sauna e '\n            'playground.  Fácil acesso, próximo da praia e shoppings.'},\n{'score': 0.73777174949646,\n'summary': 'próximo aos principais pontos turísticos,,do lado do metro, '\n            'vista p o CRISTO REDENTOR, GARAGEM, FAXINEIRA, PLAY.'}]\nResults from int8-embeddings embeddings\n[{'score': 0.5057082176208496,\n'summary': 'A beautiful and comfortable 1 Bedroom Air Conditioned Condo in '\n            'Makaha Valley - stunning Ocean & Mountain views All the '\n            'amenities of home, suited for longer stays. Full kitchen & large '\n            \"bathroom.  Several gas BBQ's for all guests to use & a large \"\n            'heated pool surrounded by reclining chairs to sunbathe.  The '\n            'Ocean you see in the pictures is not even a mile away, known as '\n            'the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  '\n            'paddle boarding, surfing are all just minutes from the front '\n            'door.'},\n{'score': 0.5048595666885376,\n'summary': 'THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE '\n            'BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU '\n            'WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO '\n            'THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!'},\n{'score': 0.5045757293701172,\n'summary': 'Para 2 pessoas. Vista de mar a 150 mts. Prédio com 2 elevadores. '\n            'Tem: - quarto com roupeiro e cama de casal (colchão '\n            'magnetizado); - cozinha: placa de discos, exaustor, frigorifico, '\n            'micro-ondas e torradeira; casa de banho completa; - sala e '\n            'varanda.'},\n{'score': 0.5044537782669067,\n'summary': 'Quarto com vista para a Lagoa Rodrigo de Freitas, cartão postal '\n            'do Rio de Janeiro. Linda Vista.  1 Quarto e 1 banheiro  Amplo, '\n            'arejado, vaga na garagem. Prédio com piscina, sauna e '\n            'playground.  Fácil acesso, próximo da praia e shoppings.'},\n{'score': 0.5044353604316711,\n'summary': 'The ultimate way to experience Sydney Harbour; fireworks, the '\n            'bridge, and the proximity to the city means you can experience '\n            'everything this city has to offer.  Tucked into the Balmain '\n            \"Peninsula, you're close to parks, pubs, shops, buses, and more!\"}]\nResults from int1-embeddings embeddings\n[{'score': 0.7158203125,\n'summary': 'A beautiful and comfortable 1 Bedroom Air Conditioned Condo in '\n            'Makaha Valley - stunning Ocean & Mountain views All the '\n            'amenities of home, suited for longer stays. Full kitchen & large '\n            \"bathroom.  Several gas BBQ's for all guests to use & a large \"\n            'heated pool surrounded by reclining chairs to sunbathe.  The '\n            'Ocean you see in the pictures is not even a mile away, known as '\n            'the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  '\n            'paddle boarding, surfing are all just minutes from the front '\n            'door.'},\n{'score': 0.6865234375,\n'summary': 'Para 2 pessoas. Vista de mar a 150 mts. Prédio com 2 elevadores. '\n            'Tem: - quarto com roupeiro e cama de casal (colchão '\n            'magnetizado); - cozinha: placa de discos, exaustor, frigorifico, '\n            'micro-ondas e torradeira; casa de banho completa; - sala e '\n            'varanda.'},\n{'score': 0.677734375,\n'summary': 'próximo aos principais pontos turísticos,,do lado do metro, '\n            'vista p o CRISTO REDENTOR, GARAGEM, FAXINEIRA, PLAY.'},\n{'score': 0.6748046875,\n'summary': 'Cozy and comfortable apartment. Ideal for families and '\n            'vacations.  3 bedrooms, 2 of them suites.  Located 20-min walk '\n            'to the beach and close to the Rio 2016 Olympics Venues. Situated '\n            'in a modern and secure condominium, with many entertainment '\n            'available options around.'},\n{'score': 0.6728515625,\n'summary': 'THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE '\n            'BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU '\n            'WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO '\n            'THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!'}]",
           "tokenEstimate": 1680
         }
-      ]
+      ],
+      "slug": "step-4-run-mongodb-vector-search-queries-on-the-collection--python-existing",
+      "selections": {
+        "language-no-interface": "python",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Generate embeddings from your data.",
@@ -613,7 +789,13 @@
           "content": "Embeddings saved to embeddings.json",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "step-1-generate-embeddings-from-your-data--java-sync-new",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Ingest the data and create a MongoDB Vector Search index.",
@@ -640,7 +822,13 @@
           "content": "Inserted documents into MongoDB\nSuccessfully created vector index named: <INDEX_NAME>\nIt may take up to a minute for the index to leave the BUILDING status and become queryable.\nPolling to confirm the index has changed from the BUILDING status.\n<INDEX_NAME> index is ready to query",
           "tokenEstimate": 59
         }
-      ]
+      ],
+      "slug": "step-2-ingest-the-data-and-create-a-mongodb-vector-search-index--java-sync-new",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create and run a query against the collection.",
@@ -667,7 +855,13 @@
           "content": "Fetching embeddings...\nUsing embeddings in vector search queries...\n{\"text\": \"The Great Wall of China is visible from space.\", \"vectorSearchScore\": 0.5}\n{\"text\": \"The Eiffel Tower was completed in Paris in 1889.\", \"vectorSearchScore\": 0.5}\nResults from int8 embeddings:\n{\"text\": \"The Great Wall of China is visible from space.\", \"vectorSearchScore\": 0.5051995515823364}\n{\"text\": \"Mount Everest is the highest peak on Earth at 8,848m.\", \"vectorSearchScore\": 0.5044659972190857}\nResults from int1 embeddings:\n{\"text\": \"The Great Wall of China is visible from space.\", \"vectorSearchScore\": 0.6845703125}\n{\"text\": \"Mount Everest is the highest peak on Earth at 8,848m.\", \"vectorSearchScore\": 0.6650390625}",
           "tokenEstimate": 196
         }
-      ]
+      ],
+      "slug": "step-3-create-and-run-a-query-against-the-collection--java-sync-new",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: (Conditional) Generate embeddings from your data.",
@@ -694,7 +888,13 @@
           "content": "[main] INFO GenerateAndConvertEmbeddings - Connecting to MongoDB at URI: <CONNECTION-STRING>\n...\n[main] INFO GenerateAndConvertEmbeddings - Retrieved 50 summaries from MongoDB.\n[main] INFO GenerateAndConvertEmbeddings - Embeddings with BSON vectors have been saved to embeddings.json",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "step-1-conditional-generate-embeddings-from-your-data--java-sync-existing",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Ingest the data and create a MongoDB Vector Search index.",
@@ -721,7 +921,13 @@
           "content": "Processed document with summary: ...\n...\nSuccessfully created vector index named: <INDEX_NAME>\nIt may take up to a minute for the index to leave the BUILDING status and become queryable.\nPolling to confirm the index has changed from the BUILDING status.\n<INDEX_NAME> index is ready to query",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "step-2-ingest-the-data-and-create-a-mongodb-vector-search-index--java-sync-existing",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create and run query against the collection.",
@@ -748,7 +954,13 @@
           "content": "Fetching embeddings...\nUsing embeddings in vector search queries...\nResults from float32 embeddings:\n{\"summary\": \"Fantastic duplex apartment with three bedrooms, located in the historic area of Porto, Ribeira (Cube) - UNESCO World Heritage Site. Centenary building fully rehabilitated, without losing their original character.\", \"vectorSearchScore\": 0.5}\n{\"summary\": \"One bedroom + sofa-bed in quiet and bucolic neighbourhood right next to the Botanical Garden. Small garden, outside shower, well equipped kitchen and bathroom with shower and tub. Easy for transport with many restaurants and basic facilities in the area.\", \"vectorSearchScore\": 0.5}\nResults from int8 embeddings:\n{\"summary\": \"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\", \"vectorSearchScore\": 0.5056195259094238}\n{\"summary\": \"THIS IS A VERY SPACIOUS 1 BEDROOM FULL CONDO (SLEEPS 4) AT THE BEAUTIFUL VALLEY ISLE RESORT ON THE BEACH IN LAHAINA, MAUI!! YOU WILL LOVE THE PERFECT LOCATION OF THIS VERY NICE HIGH RISE! ALSO THIS SPACIOUS FULL CONDO, FULL KITCHEN, BIG BALCONY!!\", \"vectorSearchScore\": 0.5048412084579468}\nResults from int1 embeddings:\n{\"summary\": \"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\", \"vectorSearchScore\": 0.7119140625}\n{\"summary\": \"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\", \"vectorSearchScore\": 0.6787109375}",
           "tokenEstimate": 571
         }
-      ]
+      ],
+      "slug": "step-3-create-and-run-query-against-the-collection--java-sync-existing",
+      "selections": {
+        "language-no-interface": "java-sync",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: (Conditional) Generate embeddings from your data.",
@@ -775,7 +987,13 @@
           "content": "Embeddings successfully stored in embeddings.json",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "step-1-conditional-generate-embeddings-from-your-data--go-new",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Ingest the data and create a MongoDB Vector Search index.",
@@ -802,7 +1020,13 @@
           "content": "Inserted documents into MongoDB\nCreating the index.\nPolling to confirm successful index creation.\nNOTE: This may take up to a minute.\nName of Index Created: <INDEX-NAME>",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "step-2-ingest-the-data-and-create-a-mongodb-vector-search-index--go-new",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create and run query against the collection.",
@@ -829,7 +1053,13 @@
           "content": "Results from embeddings_float32 embeddings:\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521d\"},\"text\":\"The Great Wall of China is visible from space.\",\"score\":{\"$numberDouble\":\"0.7723928093910217\"}}\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521f\"},\"text\":\"Mount Everest is the highest peak on Earth at 8,848m.\",\"score\":{\"$numberDouble\":\"0.7363046407699585\"}}\nResults from embeddings_int8 embeddings:\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521d\"},\"text\":\"The Great Wall of China is visible from space.\",\"score\":{\"$numberDouble\":\"0.5051995515823364\"}}\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521f\"},\"text\":\"Mount Everest is the highest peak on Earth at 8,848m.\",\"score\":{\"$numberDouble\":\"0.5044659972190857\"}}\nResults from embeddings_int1 embeddings:\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521d\"},\"text\":\"The Great Wall of China is visible from space.\",\"score\":{\"$numberDouble\":\"0.6845703125\"}}\n{\"_id\":{\"$oid\":\"68630fc85cb353712a1c521f\"},\"text\":\"Mount Everest is the highest peak on Earth at 8,848m.\",\"score\":{\"$numberDouble\":\"0.6650390625\"}}",
           "tokenEstimate": 314
         }
-      ]
+      ],
+      "slug": "step-3-create-and-run-query-against-the-collection--go-new",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "new"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: (Conditional) Generate embeddings from your data.",
@@ -856,7 +1086,13 @@
           "content": "Embeddings successfully saved to embeddings.json",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "step-1-conditional-generate-embeddings-from-your-data--go-existing",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Ingest the data and create a MongoDB Vector Search index.",
@@ -883,7 +1119,13 @@
           "content": "Creating the index.\nPolling to confirm successful index creation.\nNOTE: This may take up to a minute.\nName of Index Created: <INDEX-NAME>",
           "tokenEstimate": 32
         }
-      ]
+      ],
+      "slug": "step-2-ingest-the-data-and-create-a-mongodb-vector-search-index--go-existing",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create and run query against the collection.",
@@ -910,13 +1152,61 @@
           "content": "Results from embeddings_float32 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.7278661131858826\"}}\n{\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.688639760017395\"},\"_id\":\"1001265\"}\nResults from embeddings_int8 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.5215557217597961\"}}\n{\"_id\":\"1001265\",\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.5179016590118408\"}}\nResults from embeddings_int1 embeddings:\n{\"_id\":\"10266175\",\"summary\":\"A beautiful and comfortable 1 Bedroom Air Conditioned Condo in Makaha Valley - stunning Ocean & Mountain views All the amenities of home, suited for longer stays. Full kitchen & large bathroom.  Several gas BBQ's for all guests to use & a large heated pool surrounded by reclining chairs to sunbathe.  The Ocean you see in the pictures is not even a mile away, known as the famous Makaha Surfing Beach. Golfing, hiking,snorkeling  paddle boarding, surfing are all just minutes from the front door.\",\"score\":{\"$numberDouble\":\"0.6591796875\"}}\n{\"_id\":\"1001265\",\"summary\":\"A short distance from Honolulu's billion dollar mall, and the same distance to Waikiki. Parking included. A great location that work perfectly for business, education, or simple visit. Experience Yacht Harbor views and 5 Star Hilton Hawaiian Village.\",\"score\":{\"$numberDouble\":\"0.6337890625\"}}",
           "tokenEstimate": 649
         }
-      ]
+      ],
+      "slug": "step-3-create-and-run-query-against-the-collection--go-existing",
+      "selections": {
+        "language-no-interface": "go",
+        "data-source": "existing"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Evaluate Your Query Results",
       "headingLevel": 2,
       "body": "You can measure the accuracy of your MongoDB Vector Search query by evaluating how\nclosely the results for an ANN (Approximate Nearest Neighbor) search match the results of an ENN (Exact Nearest Neighbor)\nsearch against your quantized vectors. That is, you can compare the\nresults of ANN (Approximate Nearest Neighbor) search with the results of ENN (Exact Nearest Neighbor) search for the same\nquery criteria and measure how frequently the ANN (Approximate Nearest Neighbor) search results\ninclude the nearest neighbors in the results from the ENN (Exact Nearest Neighbor) search.\n\nFor a demonstration of evaluating your query results, see\n[How to Measure the Accuracy of Your Query Results](avs-improve-results).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "evaluate-your-query-results",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language-no-interface",
+      "text": "Language",
+      "default": "nodejs",
+      "selections": [
+        {
+          "value": "nodejs",
+          "text": "Node.js"
+        },
+        {
+          "value": "python",
+          "text": "Python"
+        },
+        {
+          "value": "java-sync",
+          "text": "Java (Sync)"
+        },
+        {
+          "value": "go",
+          "text": "Go"
+        }
+      ]
+    },
+    {
+      "value": "data-source",
+      "text": "Data Source",
+      "default": "new",
+      "selections": [
+        {
+          "value": "new",
+          "text": "New Data"
+        },
+        {
+          "value": "existing",
+          "text": "Existing Data"
+        }
+      ]
     }
   ]
 }

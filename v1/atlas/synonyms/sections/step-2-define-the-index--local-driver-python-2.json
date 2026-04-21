@@ -1,0 +1,19 @@
+{
+  "heading": "Step 2: Define the index.",
+  "headingLevel": 2,
+  "body": "Create a `create-dynamic-index.py` file in your project directory,\nand copy and paste the following code into the file.\n\n```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your Atlas deployment\nuri = \"<connection-string>\"\nclient = MongoClient(uri)\n\ndatabase = client[\"sample_mflix\"]\ncollection = database[\"movies\"]\n\n# Create the MongoDB Search index definition\nsearch_index_model = SearchIndexModel(\n    definition={\n        \"mappings\": {\n            \"dynamic\": True,\n        },\n        \"synonyms\": [\n            {\n                \"analyzer\": \"lucene.standard\",\n                \"name\": \"my_synonyms\",\n                \"source\": {\n                    \"collection\": \"synonymous_terms\"\n                }\n            }\n        ]\n    },\n    name=\"default\",\n)\n\n# Create the index\nresult = collection.create_search_index(model=search_index_model)\nprint(f\"New index name: {result}\")",
+      "tokenEstimate": 159
+    }
+  ],
+  "slug": "step-2-define-the-index--local-driver-python",
+  "selections": {
+    "deployment-type": "local",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

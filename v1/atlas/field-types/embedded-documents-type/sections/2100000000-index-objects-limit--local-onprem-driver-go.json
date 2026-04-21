@@ -1,0 +1,49 @@
+{
+  "heading": "2,100,000,000 Index Objects Limit",
+  "headingLevel": 3,
+  "body": "MongoDB Search stops replicating changes for indexes larger than 2,100,000,000\nindex objects per partition, on a replica set or single shard, where each indexed\nembedded parent document counts as a single object. Surpassing this limit may\nresult in stale query results.\n\nUsing the `embeddedDocuments` field type can result in indexing objects over\nthis index size limit, because each indexed embedded document is counted as a single object.\nIf you create a MongoDB Search index that has or will soon\nhave more than 2.1 billion index objects, use the [numPartitions](fts-index-partition) index option\nto partition your index (supported only on Search Nodes deployments) or [Deploy a Sharded Cluster](create-cluster-sharding).\n\nThe exact number of index objects can vary based on the rate of document\nchanges and deletions. The [MongoDB Search charts](review-atlas-search-metrics) metric provides the upper bound of the\ncurrent number of index objects across all indexes per replica set or\nshard. This metric indicates the largest count of Lucene documents in a\nsingle search index within a replica set or shard. For example, if the\nmetric displays \"1.5 billion\", among all your search indexes, the index\nwith the highest number of Lucene documents contains about 1.5 billion\ndocuments.\n\nYou can approximate the expected number of index objects in a single\nindex by doing the following steps:\n\n- Calculate the number of index objects per document. For every level of nesting, each embedded document counts as a separate index object.\n\n  ```shell\n  number of index objects in document = 1 + number of nested embedded documents\n  ```\n\n- Multiply the number of index objects per document by the\n  total number of documents in the collection\n\n  ```shell\n  total number of index objects = number of index objects in document x total number of documents in collection\n  ```\n\nNote that this approximation is a lower bound.\n\n> **Example:** Consider the [collection](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6601831bf3ec7476bd9da8c9) named\n> `schools`, described in this [collection](embedded-documents-tutorial-sample-collection), and suppose the\n> collection contains 1000 documents similar to the following:\n>\n> ```json\n> {\n>   \"_id\": 0,\n>   \"name\": \"Springfield High\",\n>   \"mascot\": \"Pumas\",\n>   \"teachers\": [\n>     {\n>       \"first\": \"Jane\",\n>       \"last\": \"Smith\",\n>       \"classes\": [\n>         {\n>           \"subject\": \"art of science\",\n>           \"grade\": \"12th\"\n>         },\n>         ... // 2 more embedded documents\n>       ]\n>     },\n>     ... // 1 more embedded document\n>   ],\n>   \"clubs\": {\n>     \"stem\": [\n>       {\n>         \"club_name\": \"chess\",\n>         \"description\": \"provides students opportunity to play the board game of chess informally and competitively in tournaments.\"\n>       },\n>       ... // 1 more embedded document\n>     ],\n>     ... // 1 more embedded document\n>   }\n> }\n> ```\n>\n> Now consider the index definition for the following fields in the\n> `schools` collection:\n>\n> Nested Array\n>\n> The array of documents named `teachers` is indexed as the\n> `embeddedDocuments` type with dynamic mappings enabled.\n> However, the `classes` field *isn't indexed*. Use the\n> following to calculate the index objects:\n>\n> - Calculate the number of index objects per document.\n>\n>   ```shell\n>   Number of ``teachers`` embedded documents = up to 2\n>   Total number of index objects per document = 1 + 2 = 3\n>   ```\n>\n> - Multiply by the total number of documents in the collection.\n>\n>   ```shell\n>   Number of documents in the collection = 1000\n>   Number of index objects per document = 3\n>   Total number of index objects for collection = 1000 x 3 = 3000\n>   ```\n>\n> Nested Array Within Array\n>\n> The arrays of documents named `teachers` and\n> `teachers.classes` are indexed as the `embeddedDocuments`\n> type with dynamic mappings enabled. Use the following to\n> calculate the index objects:\n>\n> - Calculate the number of index objects per document:\n>\n>   ```shell\n>   Number of documents = 1\n>   Number of ``teachers`` embedded documents  = up to 2\n>   Number of ``classes`` embedded documents = up to 3\n>   Number of index objects per document = 1 + ( 2 x 3 ) = 7\n>   ```\n>\n> - Multiply by the total number of documents in the collection.\n>\n>   ```shell\n>   Number of documents in the collection = 1000\n>   Number of index objects per document = 7\n>   Total number of index objects: 1000 x 7 = 7000\n>   ```\n\nIf your collection has large arrays that might generate 2,100,000,000\nindex objects, you must [Deploy a Sharded Cluster](create-cluster-sharding) any\nclusters that contain indexes with the `embeddedDocuments` type.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "number of index objects in document = 1 + number of nested embedded documents",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "shell",
+      "content": "total number of index objects = number of index objects in document x total number of documents in collection",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\": 0,\n  \"name\": \"Springfield High\",\n  \"mascot\": \"Pumas\",\n  \"teachers\": [\n    {\n      \"first\": \"Jane\",\n      \"last\": \"Smith\",\n      \"classes\": [\n        {\n          \"subject\": \"art of science\",\n          \"grade\": \"12th\"\n        },\n        ... // 2 more embedded documents\n      ]\n    },\n    ... // 1 more embedded document\n  ],\n  \"clubs\": {\n    \"stem\": [\n      {\n        \"club_name\": \"chess\",\n        \"description\": \"provides students opportunity to play the board game of chess informally and competitively in tournaments.\"\n      },\n      ... // 1 more embedded document\n    ],\n    ... // 1 more embedded document\n  }\n}",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "shell",
+      "content": "Number of ``teachers`` embedded documents = up to 2\nTotal number of index objects per document = 1 + 2 = 3",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "shell",
+      "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 3\nTotal number of index objects for collection = 1000 x 3 = 3000",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "shell",
+      "content": "Number of documents = 1\nNumber of ``teachers`` embedded documents  = up to 2\nNumber of ``classes`` embedded documents = up to 3\nNumber of index objects per document = 1 + ( 2 x 3 ) = 7",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "shell",
+      "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 7\nTotal number of index objects: 1000 x 7 = 7000",
+      "tokenEstimate": 37
+    }
+  ],
+  "slug": "2100000000-index-objects-limit--local-onprem-driver-go",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

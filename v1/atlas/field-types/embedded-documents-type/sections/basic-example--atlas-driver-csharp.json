@@ -1,0 +1,19 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 2,
+  "body": "The following index definition for the `sample_training.companies`\nnamespace indexes the array of objects in the `products` field. It also\nconfigures MongoDB Search to automatically index all dynamically indexable fields\ninside the objects in the `products` array.\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_supplies\");\nvar collection = db.GetCollection<BsonDocument>(\"sales\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", false },\n        { \"fields\", new BsonDocument\n          {\n            { \"items\", new BsonDocument\n              {\n                { \"type\", \"embeddedDocuments\" },\n                { \"dynamic\", true }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_supplies\");\nvar collection = db.GetCollection<BsonDocument>(\"sales\");\n\n// Create the MongoDB Search index definition for the embeddedDocuments field\nvar index =  new CreateSearchIndexModel(\n  \"default\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", false },\n        { \"fields\", new BsonDocument\n          {\n            { \"items\", new BsonDocument\n              {\n                { \"type\", \"embeddedDocuments\" },\n                { \"dynamic\", true }\n              }\n            }\n          }\n        }\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");",
+      "tokenEstimate": 189
+    }
+  ],
+  "slug": "basic-example--atlas-driver-csharp",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,25 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To delete a MongoDB Vector Search index for a collection using\n[MongoDB Go driver](go/indexes)\nv2.0 or later, perform the following steps:\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your connection string\n\tconst uri = \"<connectionString>\"\n\n\t// Connect to your cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<databaseName>\").Collection(\"<collectionName>\")\n\tindexName := \"<indexName>\"\n\n\terr = coll.SearchIndexes().DropOne(ctx, indexName)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to delete the index: %v\", err)\n\t}\n\n\tfmt.Println(\"Successfully deleted the Vector Search index\")\n}\n\n```\n\n| \\<connectionString> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| ------------------- | ---------------------------------------------------------------------------------------- |\n| \\<databaseName>     | The database that contains the collection for which you want to create the index.        |\n| \\<collectionName>   | The collection for which you want to create the index.                                   |\n| \\<indexName>        | The name of your index. If you omit the index name, defaults to vector\\_index.           |\n\n```shell\ngo run delete-index.go\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your connection string\n\tconst uri = \"<connectionString>\"\n\n\t// Connect to your cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<databaseName>\").Collection(\"<collectionName>\")\n\tindexName := \"<indexName>\"\n\n\terr = coll.SearchIndexes().DropOne(ctx, indexName)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to delete the index: %v\", err)\n\t}\n\n\tfmt.Println(\"Successfully deleted the Vector Search index\")\n}\n",
+      "tokenEstimate": 203
+    },
+    {
+      "language": "shell",
+      "content": "go run delete-index.go",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "procedure--atlas-byo-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

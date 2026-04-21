@@ -1,0 +1,49 @@
+{
+  "heading": "Step 3: Create the index.",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```shell\npython create_index.py\n```\n\n**Output:**\n\n```\nNew index name: default\n```\n\nYou can use [faceted navigation](fts-facet-ref) in queries that use the\n[$search](pipe.$search) and [$searchMeta](pipe.$searchMeta) stages. In this\nsection, you will connect to your cluster and the run the sample query\nagainst the `sample_mflix.movies` collection using the\n[$searchMeta](pipe.$searchMeta) or [$search](pipe.$search) stage to group the\n`genre` and `year` fields into buckets. To optimize performance:\n\n- Use [$searchMeta](pipe.$searchMeta) stage if you only need the `facet` metadata.\n\n- Use [$search](pipe.$search) stage if you want to retrieve both the query\n  results and the `facet` metadata.\n\n* Create a file named `facet-query.py`.\n\n  ```shell\n  touch facet-query.py\n  ```\n\n* Copy and paste the following code into the `facet-query.py`\n  file.\n\n  The following code example:\n\n  - Imports `pymongo`, MongoDB's Python driver, and the `dns`\n    module, which is required to connect `pymongo` to `Atlas`\n    using a DNS (Domain Name System) seed list connection string.\n\n  - Creates an instance of the `MongoClient` class to establish a\n    connection to your cluster.\n\n  - Uses the following to query the collection:\n\n    - [near](near-ref) to search for movies released with a\n      `pivot` distance from  `origin` of approximately three months\n      from November 11, 1921\n\n    - `facets` to request the number of movies in each genre in the\n      `genres` string array field and the number of movies in the years\n      1910 to 1939, inclusive\n\n  - Iterates over the cursor to print the documents that match the\n    query.\n\n  You can run this query using [$searchMeta](pipe.$searchMeta) or using\n  [$search](pipe.$search) with the `SEARCH_META` aggregation variable.\n\n  $searchMeta\n\n  ```python\n  import pymongo\n  import datetime\n\n  # connect to your Atlas cluster\n  client = pymongo.MongoClient(\"<connection-string>\")\n\n  # define pipeline\n  pipeline = [{\"$searchMeta\": { \n      \"index\": \"facet-tutorial\",\n      \"facet\": {\n          \"operator\": {\n            \"near\": {\"path\": \"released\", \"origin\": datetime.datetime(1921, 11, 1, 0, 0, 0, 0), \"pivot\": 7776000000}\n          },\n          \"facets\": {\n            \"genresFacet\": {\"type\": \"string\", \"path\": \"genres\"},\n            \"yearFacet\" : {\"type\" : \"number\", \"path\" : \"year\", \"boundaries\" : [1910,1920,1930,1940]}\n          }}}}]\n  # run pipeline\n  result = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n  # print results\n  for i in result:\n      print(i)\n\n  ```\n\n  $search with $$SEARCH_META\n\n  ```python\n  import pymongo\n  from datetime import datetime, timezone  # Import timezone for tzinfo=timezone.utc\n\n  # Connect to your Atlas cluster\n  client = pymongo.MongoClient(\"<connection-string>\")\n\n  # Define pipeline\n  pipeline = [{\n      \"$search\": {\n          \"index\": \"facet-tutorial\",\n          \"facet\": {\n              \"operator\": {\n                  \"near\": {\n                      \"path\": \"released\",\n                      \"origin\": datetime(1921, 11, 1, 0, 0, 0, tzinfo=timezone.utc),  # Corrected timezone\n                      \"pivot\": 7776000000\n                  }\n              },\n              \"facets\": {\n                  \"genresFacet\": {\n                      \"type\": \"string\", \"path\": \"genres\"\n                  },\n                  \"yearFacet\": {\n                      \"type\": \"number\", \"path\": \"year\", \"boundaries\": [1910, 1920, 1930, 1940]\n                  }\n              }\n          }\n      }\n  }, {\n      \"$facet\": {\n          \"meta\": [\n              {\"$replaceWith\": \"$$SEARCH_META\"},\n              {\"$limit\": 1}\n          ]\n      }\n  }, {\n      \"$set\": {\n          \"meta\": {\"$arrayElemAt\": [\"$meta\", 0]}\n      }\n  }]\n  # Run pipeline\n  result = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n  # Print results\n  for doc in result:\n      print(doc)\n\n  ```\n\n* Before you run the sample, replace `<connection-string>` with your\n  Atlas connection string. Ensure that your connection string\n  includes your database user's credentials. To learn more, see\n  [Driver](connect-via-driver).\n\n**Input:**\n\n```shell\npython facet-query.py\n```\n\n**Output:**\n\n```python\n{\n  'meta': {\n    'count': {'lowerBound': 20878},\n      'facet': {\n        'genresFacet': {\n          'buckets': [\n            {'_id': 'Drama', 'count': 12149},\n            {'_id': 'Comedy', 'count': 6436},\n            {'_id': 'Romance', 'count': 3274},\n            {'_id': 'Crime', 'count': 2429},\n            {'_id': 'Thriller', 'count': 2400},\n            {'_id': 'Action', 'count': 2349},\n            {'_id': 'Adventure', 'count': 1876},\n            {'_id': 'Documentary', 'count': 1755},\n            {'_id': 'Horror', 'count': 1432},\n            {'_id': 'Biography', 'count': 1244}\n          ]\n        },\n        'yearFacet': {\n          'buckets': [\n            {'_id': 1910, 'count': 14},\n            {'_id': 1920, 'count': 47},\n            {'_id': 1930, 'count': 238}\n          ]\n        }\n      }\n    }\n  }\n}\n```\n\nThe results show metadata results for two types of facet search. The\n`genresFacet` document shows the number of movies in each genre and\nthe `yearFacet` document shows a count of the number of movies\nwithin the boundaries:\n\n- `1910-1920`, inclusive lower bound for the `1910` bucket and exclusive upper bound for the `1920` bucket\n\n- `1920-1930`, inclusive lower bound for the `1920` bucket and exclusive\n  upper bound for the `1930` bucket\n\n- `1930-1940`, inclusive lower bound for the `1930` bucket and exclusive\n  upper bound for the `1940` bucket\n\nYou can learn more about the [faceted navigation](fts-facet-ref) in MongoDB Search with the following\ncourse or video.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "python create_index.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "text",
+      "content": "New index name: default",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "shell",
+      "content": "touch facet-query.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\nimport datetime\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<connection-string>\")\n\n# define pipeline\npipeline = [{\"$searchMeta\": { \n    \"index\": \"facet-tutorial\",\n    \"facet\": {\n        \"operator\": {\n          \"near\": {\"path\": \"released\", \"origin\": datetime.datetime(1921, 11, 1, 0, 0, 0, 0), \"pivot\": 7776000000}\n        },\n        \"facets\": {\n          \"genresFacet\": {\"type\": \"string\", \"path\": \"genres\"},\n          \"yearFacet\" : {\"type\" : \"number\", \"path\" : \"year\", \"boundaries\" : [1910,1920,1930,1940]}\n        }}}}]\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 200
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\nfrom datetime import datetime, timezone  # Import timezone for tzinfo=timezone.utc\n\n# Connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<connection-string>\")\n\n# Define pipeline\npipeline = [{\n    \"$search\": {\n        \"index\": \"facet-tutorial\",\n        \"facet\": {\n            \"operator\": {\n                \"near\": {\n                    \"path\": \"released\",\n                    \"origin\": datetime(1921, 11, 1, 0, 0, 0, tzinfo=timezone.utc),  # Corrected timezone\n                    \"pivot\": 7776000000\n                }\n            },\n            \"facets\": {\n                \"genresFacet\": {\n                    \"type\": \"string\", \"path\": \"genres\"\n                },\n                \"yearFacet\": {\n                    \"type\": \"number\", \"path\": \"year\", \"boundaries\": [1910, 1920, 1930, 1940]\n                }\n            }\n        }\n    }\n}, {\n    \"$facet\": {\n        \"meta\": [\n            {\"$replaceWith\": \"$$SEARCH_META\"},\n            {\"$limit\": 1}\n        ]\n    }\n}, {\n    \"$set\": {\n        \"meta\": {\"$arrayElemAt\": [\"$meta\", 0]}\n    }\n}]\n# Run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# Print results\nfor doc in result:\n    print(doc)\n",
+      "tokenEstimate": 299
+    },
+    {
+      "language": "shell",
+      "content": "python facet-query.py",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "python",
+      "content": "{\n  'meta': {\n    'count': {'lowerBound': 20878},\n      'facet': {\n        'genresFacet': {\n          'buckets': [\n            {'_id': 'Drama', 'count': 12149},\n            {'_id': 'Comedy', 'count': 6436},\n            {'_id': 'Romance', 'count': 3274},\n            {'_id': 'Crime', 'count': 2429},\n            {'_id': 'Thriller', 'count': 2400},\n            {'_id': 'Action', 'count': 2349},\n            {'_id': 'Adventure', 'count': 1876},\n            {'_id': 'Documentary', 'count': 1755},\n            {'_id': 'Horror', 'count': 1432},\n            {'_id': 'Biography', 'count': 1244}\n          ]\n        },\n        'yearFacet': {\n          'buckets': [\n            {'_id': 1910, 'count': 14},\n            {'_id': 1920, 'count': 47},\n            {'_id': 1930, 'count': 238}\n          ]\n        }\n      }\n    }\n  }\n}",
+      "tokenEstimate": 264
+    }
+  ],
+  "slug": "step-3-create-the-index--local-onprem-driver-python",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "python"
+  },
+  "variantAgnostic": false
+}

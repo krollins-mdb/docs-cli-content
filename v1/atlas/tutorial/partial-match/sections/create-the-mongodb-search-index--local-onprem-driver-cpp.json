@@ -1,0 +1,34 @@
+{
+  "heading": "Create the MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "You can use the MongoDB Search Visual Editor or the MongoDB Search JSON\nEditor in the Atlas user interface to create the index.\n\nVisual Editor\n\n- Click Refine Your Index.\n\n- In the Index Configurations section, toggle to\n  disable Dynamic Mapping.\n\n- In the Field Mappings section, click\n  Add Field to display the Add Field\n  Mapping window.\n\n- Configure the field mapping based on the operator you intend to use:\n\n  autocomplete\n\n  - Click Quick Start for Text Fields.\n\n  - Select the Search-as-you-type\n    template from the dropdown and review the\n    default settings.\n\n    To learn more about these settings, see\n    [tokenization](bson-data-types-autocomplete).\n\n  phrase\n\n  - Click Quick Start for Text Fields.\n\n  - Select the Full Text Search template\n    from the dropdown and review the default\n    settings.\n\n    To learn more about these settings, see\n    [string](bson-data-types-string).\n\n  regex\n\n  - Select Customized Configuration from\n    the dropdown.\n\n  - Select String from the\n    Data Type dropdown to run the query\n    using the [wildcard](wildcard-ref) operator.\n\n  - Modify the default settings for the data type as shown\n    below:\n\n    | UI Field Name   | Configuration  |\n    | --------------- | -------------- |\n    | Index Analyzer  | lucene.keyword |\n    | Search Analyzer | lucene.keyword |\n    | Index Options   | offsets        |\n    | Store           | true           |\n    | Ignore Above    | None           |\n    | Norms           | include        |\n\n    To learn more about these settings, see\n    [string](bson-data-types-string).\n\n  wildcard\n\n  - Select Customized Configuration from\n    the dropdown.\n\n  - Select String from the\n    Data Type dropdown to run the query\n    using the [wildcard](wildcard-ref) operator.\n\n  - Modify the default settings for the data type as shown\n    below:\n\n    | UI Field Name   | Configuration  |\n    | --------------- | -------------- |\n    | Index Analyzer  | lucene.keyword |\n    | Search Analyzer | lucene.keyword |\n    | Index Options   | offsets        |\n    | Store           | true           |\n    | Ignore Above    | None           |\n    | Norms           | include        |\n\n    To learn more about these settings, see\n    [string](bson-data-types-string).\n\n- Select `plot` from the Field Name dropdown.\n\n- Click Add to add the field to the list in\n  Field Mappings section.\n\n- Click Save Changes.\n\nJSON Editor\n\n- Replace the default index definition with the following example\n  index definition for the operator you intend to use for running\n  the query.\n\n  autocomplete\n\n  ```json\n  {\n    \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n        \"plot\": [\n          {\n            \"type\": \"autocomplete\",\n            \"tokenization\": \"edgeGram\",\n            \"minGrams\": 2,\n            \"maxGrams\": 15,\n            \"foldDiacritics\": true\n          }\n        ]\n      }\n    }\n  }\n  ```\n\n  phrase\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"plot\": {\n          \"analyzer\": \"lucene.standard\",\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n  ```\n\n  regex\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"plot\": {\n          \"analyzer\": \"lucene.keyword\",\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n  ```\n\n  wildcard\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"plot\": {\n          \"analyzer\": \"lucene.keyword\",\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n  ```\n\n- Click Next.\n\nA modal window appears to let you know your index is building. Click\nthe Close button.\n\nThe index should take about one minute to build. While it is\nbuilding, the Status column reads `Build in\nProgress`. When it is finished building, the\nStatus column reads `Active`.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"plot\": [\n        {\n          \"type\": \"autocomplete\",\n          \"tokenization\": \"edgeGram\",\n          \"minGrams\": 2,\n          \"maxGrams\": 15,\n          \"foldDiacritics\": true\n        }\n      ]\n    }\n  }\n}",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"plot\": {\n        \"analyzer\": \"lucene.standard\",\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"plot\": {\n        \"analyzer\": \"lucene.keyword\",\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 41
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"plot\": {\n        \"analyzer\": \"lucene.keyword\",\n        \"type\": \"string\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 41
+    }
+  ],
+  "slug": "create-the-mongodb-search-index--local-onprem-driver-cpp",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "driver",
+    "language": "cpp"
+  },
+  "variantAgnostic": false
+}

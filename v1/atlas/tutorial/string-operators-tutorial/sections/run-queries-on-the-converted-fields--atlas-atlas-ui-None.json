@@ -1,0 +1,44 @@
+{
+  "heading": "Run Queries on the Converted Fields",
+  "headingLevel": 2,
+  "body": "- For the cluster that contains the sample data,\n  click Browse Collections.\n\n- In the left navigation pane, select the\n  sample\\_airbnb database.\n\n- Select the listingsAndReviews collection.\n\nIf you created an index that uses dynamic mappings, you can query the\n`airbnb_mat_view` collection using the [queryString](querystring-ref)\noperator. If you created an index that uses static mappings, you can\nquery the `airbnb_mat_view` collection using the\n[autocomplete](autocomplete-ref) operator.\n\n- Click Add Stage.\n\n- Select the [$search](pipe.$search) stage from the Select drop-down menu.\n\n- Add the following syntax to the aggregation pipeline editor,\n  depending on the operator for which you created the index and\n  the type of query you wish to run:\n\n  queryString Operator\n\n  AND Query\n\n  The following query searches for properties where the property type\n  is `Apartment` or `Condominium`, accommodates `2` people, and\n  was listed in `2019`.\n\n  ```json\n  {\n    \"index\": \"date-number-fields-tutorial\",\n    \"queryString\": {\n      \"defaultPath\": \"propertyType\",\n      \"query\": \"propertyType: (Apartment OR Condominium) AND accommodatesNumber: 4 AND lastScrapedDate: 2019\"\n    }\n  }\n  ```\n\n  OR Query\n\n  The following query searches for properties where the property type\n  is `House`, accommodates `2` people, was listed in `2019`, or\n  allows stay for up to `30` nights.\n\n  ```json\n  {\n    \"index\": \"date-number-fields-tutorial\",\n    \"queryString\": {\n      \"defaultPath\": \"propertyType\",\n      \"query\": \"propertyType: House OR accommodatesNumber: 2 OR lastScrapedDate: 2019 OR maximumNumberOfNights: 30\"\n    }\n  }\n  ```\n\n  autocomplete Operator\n\n  Year Search\n\n  The following query searches for properties listed sometime starting\n  with `2`  and allows stay of number of nights starting with `1`.\n\n  ```json\n  {\n    \"index\": \"date-number-fields-tutorial\",\n    \"compound\": {\n      \"should\": [{\n        \"autocomplete\": {\n          \"path\": \"lastScrapedDate\",\n          \"query\": \"2\"\n        }\n      },\n      {\n        \"autocomplete\": {\n          \"path\": \"maximumNumberOfNights\",\n          \"query\": \"1\"\n        }\n      }]\n    }\n  }\n  ```\n\n  Number Search\n\n  The following query searches for properties that can allow stay of\n  number of nights starting with `3` and accomodate number of people\n  starting with `2`.\n\n  ```json\n  {\n   \"index\": \"date-number-fields-tutorial\",\n   \"compound\": {\n     \"should\": [{\n       \"autocomplete\": {\n         \"path\": \"maximumNumberOfNights\",\n         \"query\": \"3\"\n       }\n     },\n     {\n       \"autocomplete\": {\n         \"path\": \"accommodatesNumber\",\n         \"query\": \"2\"\n       }\n     }]\n   }\n  }\n  ```\n\n* Click Add Stage.\n\n* Select the [$limit](manual/reference/operator/aggregation/limit) stage from the Select drop-down menu.\n\n* Add the following syntax to the aggregation pipeline editor:\n\n  ```json\n  5\n  ```\n\n- Click Add Stage.\n\n- Select the [$project](manual/reference/operator/aggregation/project) stage from the Select drop-down menu.\n\n- Add the following syntax to the aggregation pipeline editor:\n\n  ```json\n  {\n    \"_id\": 0\n  }\n  ```\n\n- View the results.\n\nThe Atlas UI document view displays a sample of the results of\nyour aggregation pipeline.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"index\": \"date-number-fields-tutorial\",\n  \"queryString\": {\n    \"defaultPath\": \"propertyType\",\n    \"query\": \"propertyType: (Apartment OR Condominium) AND accommodatesNumber: 4 AND lastScrapedDate: 2019\"\n  }\n}",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"index\": \"date-number-fields-tutorial\",\n  \"queryString\": {\n    \"defaultPath\": \"propertyType\",\n    \"query\": \"propertyType: House OR accommodatesNumber: 2 OR lastScrapedDate: 2019 OR maximumNumberOfNights: 30\"\n  }\n}",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"index\": \"date-number-fields-tutorial\",\n  \"compound\": {\n    \"should\": [{\n      \"autocomplete\": {\n        \"path\": \"lastScrapedDate\",\n        \"query\": \"2\"\n      }\n    },\n    {\n      \"autocomplete\": {\n        \"path\": \"maximumNumberOfNights\",\n        \"query\": \"1\"\n      }\n    }]\n  }\n}",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "json",
+      "content": "{\n \"index\": \"date-number-fields-tutorial\",\n \"compound\": {\n   \"should\": [{\n     \"autocomplete\": {\n       \"path\": \"maximumNumberOfNights\",\n       \"query\": \"3\"\n     }\n   },\n   {\n     \"autocomplete\": {\n       \"path\": \"accommodatesNumber\",\n       \"query\": \"2\"\n     }\n   }]\n }\n}",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "json",
+      "content": "5",
+      "tokenEstimate": 1
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"_id\": 0\n}",
+      "tokenEstimate": 9
+    }
+  ],
+  "slug": "run-queries-on-the-converted-fields--atlas-atlas-ui-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "atlas-ui",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

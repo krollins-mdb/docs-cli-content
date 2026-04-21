@@ -1,0 +1,39 @@
+{
+  "heading": "Create Embeddings from Data",
+  "headingLevel": 3,
+  "body": "> **Note:** This example uses the `sample_airbnb.listingsAndReviews`\n> collection from our [Load Sample Data Into Atlas](sample-data),\n> but you can adapt the code to work with any collection\n> in your cluster.\n\nLoad data from your MongoDB deployment. The following code gets\na subset of `50` documents from the `sample_airbnb.listingAndReviews`\ncollection.\n\n```python\nimport pymongo\n\n# Connect to your MongoDB deployment\nmongo_client = pymongo.MongoClient(\"<connection-string>\")\ndb = mongo_client[\"sample_airbnb\"]\ncollection = db[\"listingsAndReviews\"]\n\n# Define a filter to exclude documents with null or empty 'summary' fields\nfilter = { 'summary': { '$exists': True, \"$nin\": [ None, \"\" ] } }\n\n# Get a subset of documents in the collection\ndocuments = collection.find(filter, {'_id': 1, 'summary': 1}).limit(50)\n```\n\n> **Note:** Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> Atlas Cluster\n>\n> Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n> ```\n>\n> To learn more, see [Driver](connect-via-driver).\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).\n\nGenerate embeddings from the documents you loaded in the previous step.\nThis code does the following:\n\n- Generates embeddings from each document's `summary` field\n  by using the `get_embedding()` function that you defined.\n\n- Updates each document with a new `embedding` field\n  that contains the embedding value.\n\nIf you defined the `generate_bson_vector` function to\nconvert your vector embeddings to BSON (Binary Javascript Object Notation) `binData` vectors,\nuncomment the line that calls this function before running the code.\n\n> **Note:** This operation might take a few minutes to complete.\n\n**Input:**\n\n```python\nfrom pymongo import UpdateOne\n\n# Generate the list of bulk write operations\noperations = []\nfor doc in documents:\n   summary = doc[\"summary\"]\n   # Generate embeddings for this document\n   embedding = get_embedding(summary)\n\n   # Uncomment the following line to convert to BSON vectors\n   # embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n   # Add the update operation to the list\n   operations.append(UpdateOne(\n      {\"_id\": doc[\"_id\"]},\n      {\"$set\": {\n         \"embedding\": embedding\n      }}\n   ))\n\n# Execute the bulk write operation\nif operations:\n   result = collection.bulk_write(operations)\n   updated_doc_count = result.modified_count\n\nprint(f\"Updated {updated_doc_count} documents.\")\n```\n\n**Output:**\n\n```shell\nUpdated 50 documents.\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# Connect to your MongoDB deployment\nmongo_client = pymongo.MongoClient(\"<connection-string>\")\ndb = mongo_client[\"sample_airbnb\"]\ncollection = db[\"listingsAndReviews\"]\n\n# Define a filter to exclude documents with null or empty 'summary' fields\nfilter = { 'summary': { '$exists': True, \"$nin\": [ None, \"\" ] } }\n\n# Get a subset of documents in the collection\ndocuments = collection.find(filter, {'_id': 1, 'summary': 1}).limit(50)",
+      "tokenEstimate": 109
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "python",
+      "content": "from pymongo import UpdateOne\n\n# Generate the list of bulk write operations\noperations = []\nfor doc in documents:\n   summary = doc[\"summary\"]\n   # Generate embeddings for this document\n   embedding = get_embedding(summary)\n\n   # Uncomment the following line to convert to BSON vectors\n   # embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n   # Add the update operation to the list\n   operations.append(UpdateOne(\n      {\"_id\": doc[\"_id\"]},\n      {\"$set\": {\n         \"embedding\": embedding\n      }}\n   ))\n\n# Execute the bulk write operation\nif operations:\n   result = collection.bulk_write(operations)\n   updated_doc_count = result.modified_count\n\nprint(f\"Updated {updated_doc_count} documents.\")",
+      "tokenEstimate": 157
+    },
+    {
+      "language": "shell",
+      "content": "Updated 50 documents.",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "create-embeddings-from-data--openai-existing-python",
+  "selections": {
+    "embedding-model": "openai",
+    "data-source": "existing",
+    "language-no-interface": "python"
+  },
+  "variantAgnostic": false
+}

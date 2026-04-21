@@ -1,0 +1,39 @@
+{
+  "heading": "Create and Update the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a materialized view that stores\ncumulative sales data for each month. This view uses data from the `sample_supplies.sales`\nand `sample_supplies.purchaseOrders` collections. Then, create a function to update\nthe materialized view each month.\n\nIn your terminal, connect to your Atlas cloud-hosted\ndeployment or local deployment from [mongosh](mongodb-shell). For detailed\ninstructions on how to connect, see\n[Connect to a Deployment](mongodb-shell/connect).\n\n**Input:**\n\n```shell\n use sample_supplies\n```\n\n**Output:**\n\n```shell\nswitched to db sample_supplies\n```\n\nCreate a materialized view of monthly phone transactions by running the\nfollowing aggregation pipelines. This creates a new collection that\ncontains aggregated data about phone transactions by month:\n\n```shell\n   db.sales.aggregate([\n     { $match: { purchaseMethod: \"Phone\" } },\n     { $unwind: { path: \"$items\" } },\n     {\n       $group: {\n         _id: {\n           $dateToString: {\n             format: \"%Y-%m\",\n             date: \"$saleDate\"\n           }\n         },\n         sales_quantity: { $sum: \"$items.quantity\" },\n         sales_price: { $sum: \"$items.price\" }\n       }\n     },\n     { $set: { sales_price: { $toDouble: \"$sales_price\" } } },\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ])\n\n   db.purchaseOrders.aggregate([\n     { $match: { purchaseMethod: \"Phone\" } },\n     { $unwind: { path: \"$items\" } },\n     {\n       $group: {\n         _id: {\n           $dateToString: {\n             format: \"%Y-%m\",\n             date: \"$saleDate\"\n           }\n         },\n         sales_quantity: { $sum: \"$items.quantity\" },\n         sales_price: { $sum: \"$items.price\" }\n       }\n     },\n     { $set: { sales_price: { $toDouble: \"$sales_price\" } } },\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ])\n```\n\nFor production environments, you should set up a scheduled task to\nupdate the materialized view. You can do this with:\n\n- **MongoDB Scheduled Triggers**: If using MongoDB Atlas, create a\n  scheduled trigger through the Atlas UI to run this aggregation\n  on a monthly basis.\n\n- **Cron Job**: Set up a cron job on your server that runs a script\n  to connect to MongoDB and execute the aggregation pipeline.\n\n- **Application Logic**: Implement scheduled updates in your application\n  using the example code shown in the programming language examples\n  of this guide.\n\n**Input:**\n\n```shell\ndb.monthlyPhoneTransactions.find().sort({_id: 1}).limit(3)\n```\n\n**Output:**\n\n```\n[\n  { _id: '2013-01', sales_quantity: 200, sales_price: 2941.47 },\n  { _id: '2013-02', sales_quantity: 191, sales_price: 4822.15 },\n  { _id: '2013-03', sales_quantity: 74, sales_price: 2429.12 }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": " use sample_supplies",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_supplies",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "   db.sales.aggregate([\n     { $match: { purchaseMethod: \"Phone\" } },\n     { $unwind: { path: \"$items\" } },\n     {\n       $group: {\n         _id: {\n           $dateToString: {\n             format: \"%Y-%m\",\n             date: \"$saleDate\"\n           }\n         },\n         sales_quantity: { $sum: \"$items.quantity\" },\n         sales_price: { $sum: \"$items.price\" }\n       }\n     },\n     { $set: { sales_price: { $toDouble: \"$sales_price\" } } },\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ])\n\n   db.purchaseOrders.aggregate([\n     { $match: { purchaseMethod: \"Phone\" } },\n     { $unwind: { path: \"$items\" } },\n     {\n       $group: {\n         _id: {\n           $dateToString: {\n             format: \"%Y-%m\",\n             date: \"$saleDate\"\n           }\n         },\n         sales_quantity: { $sum: \"$items.quantity\" },\n         sales_price: { $sum: \"$items.price\" }\n       }\n     },\n     { $set: { sales_price: { $toDouble: \"$sales_price\" } } },\n     { $merge: { into: \"monthlyPhoneTransactions\", whenMatched: \"replace\" } }\n   ])",
+      "tokenEstimate": 289
+    },
+    {
+      "language": "shell",
+      "content": "db.monthlyPhoneTransactions.find().sort({_id: 1}).limit(3)",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "text",
+      "content": "[\n  { _id: '2013-01', sales_quantity: 200, sales_price: 2941.47 },\n  { _id: '2013-02', sales_quantity: 191, sales_price: 4822.15 },\n  { _id: '2013-03', sales_quantity: 74, sales_price: 2429.12 }\n]",
+      "tokenEstimate": 80
+    }
+  ],
+  "slug": "create-and-update-the-materialized-view--atlas-mongosh-None",
+  "selections": {
+    "deployment-type": "atlas",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

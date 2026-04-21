@@ -1,0 +1,40 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To create a MongoDB Vector Search index for a collection using [mongosh](mongodb-shell), perform the\nfollowing steps:\n\nTo learn more, see [MongoDB Shell](connect-mongo-shell).\n\n> **Example:** **Input:**\n>\n> ```shell\n> use sample_mflix\n> ```\n>\n> **Output:**\n>\n> ```shell\n> switched to db sample_mflix\n> ```\n\n- Define the index in the `db.collection.createSearchIndex()` method\n\n  The [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method has the\n  following syntax:\n\n  ```shell\n  db.<collectionName>.createSearchIndex(\n  \"<index-name>\",\n  \"vectorSearch\", //index type\n  {\n     fields: [\n        {\n        \"type\": \"autoEmbed\",\n        \"modality\": \"text\",\n        \"path\": \"<field-to-index>\",\n        \"model\": \"<embedding-model>\",\n        },\n        {\n        \"type\": \"filter\",\n        \"path\": \"<field-to-index>\"\n        },\n        ...\n     ]\n  });\n  ```\n\n- Replace the following placeholder values in your index definition:\n\n  | \\<collectionName>  | Name of the collection.                                     |\n  | ------------------ | ----------------------------------------------------------- |\n  | \\<index-name>      | Name of the index.                                          |\n  | \\<field-to-index>  | Name of the field to index.                                 |\n  | \\<embedding-model> | Voyage AI embedding model to use for generating embeddings. |\n\n- Run the `db.collection.createSearchIndex()` method.\n\n> **Example:**&#x20;\n>\n> Basic Example\n>\n> The following index definition indexes the `fullplot` field as the\n> `autoEmbed` type to enable Automated Embedding for that field. It\n> specifies the `voyage-4` embedding model as the embedding model\n> to use for generating embeddings for the `fullplot` field.\n>\n> ```shell\n> db.embedded_movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"autoEmbed\",\n>         \"modality\": \"text\",\n>         \"path\": \"fullplot\",\n>         \"model\": \"voyage-4\"\n>       }\n>     ]\n>   }\n> );\n> ```\n>\n> Filter Example\n>\n> This index definition indexes the following fields:\n>\n> - A string field (`genres`) and a numeric field (`year`) for\n>   pre-filtering the data.\n>\n> - The `fullplot` field as the `autoEmbed` type to enable\n>   Automated Embedding for that field using the `voyage-4` embedding\n>   model.\n>\n> ```shell\n> db.movies.createSearchIndex(\n>   \"vector_index\", \n>   \"vectorSearch\", \n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"autoEmbed\",\n>         \"modality\": \"text\",\n>         \"path\": \"fullplot\",\n>         \"model\": \"voyage-4\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"genres\"\n>       },\n>       {\n>         \"type\": \"filter\",\n>         \"path\": \"year\"\n>       }\n>     ]\n>   }\n> );\n> ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.<collectionName>.createSearchIndex(\n\"<index-name>\",\n\"vectorSearch\", //index type\n{\n   fields: [\n      {\n      \"type\": \"autoEmbed\",\n      \"modality\": \"text\",\n      \"path\": \"<field-to-index>\",\n      \"model\": \"<embedding-model>\",\n      },\n      {\n      \"type\": \"filter\",\n      \"path\": \"<field-to-index>\"\n      },\n      ...\n   ]\n});",
+      "tokenEstimate": 88
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"autoEmbed\",\n        \"modality\": \"text\",\n        \"path\": \"fullplot\",\n        \"model\": \"voyage-4\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "shell",
+      "content": "db.movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"autoEmbed\",\n        \"modality\": \"text\",\n        \"path\": \"fullplot\",\n        \"model\": \"voyage-4\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"genres\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"year\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 104
+    }
+  ],
+  "slug": "procedure--self-auto-mongosh-None",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "auto",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

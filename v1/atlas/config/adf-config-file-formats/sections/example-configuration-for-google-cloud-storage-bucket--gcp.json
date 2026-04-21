@@ -1,0 +1,27 @@
+{
+  "heading": "Example Configuration for Google Cloud Storage Bucket",
+  "headingLevel": 2,
+  "body": "Consider a Google Cloud Storage bucket `datacenter-alpha` containing data\ncollected from a datacenter:\n\n```none\n|--metrics\n  |--hardware\n```\n\nThe `/metrics/hardware` path stores JSON files with metrics\nderived from the datacenter hardware, where each filename is\nthe UNIX timestamp in milliseconds of the 24 hour period\ncovered by that file:\n\n```none\n/hardware/1564671291998.json\n```\n\nThe following configuration:\n\n- Defines a federated database instance store on the `datacenter-alpha` Google Cloud Storage bucket\n  in the `us-central1` Google Cloud region. The federated database instance store is\n  specifically restricted to include only data files in the\n  `metrics` directory path. A delimiter of `/` is defined to\n  simulate a file system hierarchy for ease of navigation and\n  retrieval.\n\n- Maps files from the `hardware` directory to a MongoDB database\n  `datacenter-alpha-metrics` and collection `hardware`. The\n  configuration mapping includes parsing logic for capturing the\n  timestamp implied in the filename.\n\n```json\n{\n  \"stores\" : [\n    {\n      \"name\" : \"datacenter-alpha\",\n      \"provider\" : \"gcs\",\n      \"region\" : \"us-central1\",\n      \"bucket\" : \"datacenter-alpha\",\n      \"prefix\": \"metrics\",\n      \"delimiter\": \"/\"\n    }\n  ],\n  \"databases\" : [\n    {\n      \"name\" : \"datacenter-alpha-metrics\",\n      \"collections\" : [\n        {\n          \"name\" : \"hardware\",\n          \"dataSources\" : [\n            {\n              \"storeName\" : \"datacenter-alpha\",\n              \"path\" : \"/hardware/{date date}\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n```\n\nAtlas Data Federation parses the Google Cloud Storage bucket `datacenter-alpha` and processes\nall files under `/metrics/hardware/`. The `collections` object\nuses the [definitions](adf-path-syntax) to map the\nfilename to the `date` field, which is an ISO-8601 date, in each\ndocument. If a matching `date` field does not exist in a document,\nAtlas Data Federation adds it.\n\nUsers connected to the federated database instance can use the MongoDB Query Language and\nsupported aggregations to analyze data in the Google Cloud Storage bucket through\nthe `datacenter-alpha-metrics.hardware` collection.\n\nAtlas Data Federation supports publicly accessible URL (Uniform Resource Locator)s as federated database instance stores. You\nmust define mappings in your federated database instance to your HTTP (HyperText Transport Protocol) data stores to run\nqueries against your data.\n\n> **Important:** Information in your storage configuration is visible internally at\n> MongoDB and stored as operational data to monitor and improve the\n> performance of Atlas Data Federation. So, we recommend that you do not use\n> PII (Personally Identifiable Information) in your\n> configurations.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "|--metrics\n  |--hardware",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "none",
+      "content": "/hardware/1564671291998.json",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"stores\" : [\n    {\n      \"name\" : \"datacenter-alpha\",\n      \"provider\" : \"gcs\",\n      \"region\" : \"us-central1\",\n      \"bucket\" : \"datacenter-alpha\",\n      \"prefix\": \"metrics\",\n      \"delimiter\": \"/\"\n    }\n  ],\n  \"databases\" : [\n    {\n      \"name\" : \"datacenter-alpha-metrics\",\n      \"collections\" : [\n        {\n          \"name\" : \"hardware\",\n          \"dataSources\" : [\n            {\n              \"storeName\" : \"datacenter-alpha\",\n              \"path\" : \"/hardware/{date date}\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 145
+    }
+  ],
+  "slug": "example-configuration-for-google-cloud-storage-bucket--gcp",
+  "selections": {
+    "adf-cloud-provider": "gcp"
+  },
+  "variantAgnostic": false
+}

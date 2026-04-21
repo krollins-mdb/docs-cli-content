@@ -1,0 +1,25 @@
+{
+  "heading": "Procedure",
+  "headingLevel": 3,
+  "body": "To view a MongoDB Vector Search index for a collection using\n[MongoDB Go driver](go/indexes)\nv2.0 or later, perform the following steps:\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your connection string\n\tconst uri = \"<connectionString>\"\n\n\t// Connect to your cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<databaseName>\").Collection(\"<collectionName>\")\n\n\t// Specify the options for the index to retrieve\n\tindexName := \"<indexName>\"\n\topts := options.SearchIndexes().SetName(indexName)\n\n\t// Get the index\n\tcursor, err := coll.SearchIndexes().List(ctx, opts)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to get the index: %v\", err)\n\t}\n\n\t// Print the index details to the console as JSON\n\tvar results []bson.M\n\tif err := cursor.All(ctx, &results); err != nil {\n\t\tlog.Fatalf(\"failed to unmarshal results to bson: %v\", err)\n\t}\n\tres, err := json.Marshal(results)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to marshal results to json: %v\", err)\n\t}\n\tfmt.Println(string(res))\n}\n\n```\n\n| \\<connectionString> | Cluster connection string. To learn more, see Connect to a Cluster via Client Libraries.                                                                                                                      |\n| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| \\<databaseName>     | The database that contains the collection.                                                                                                                                                                    |\n| \\<collectionName>   | The collection for which you want to retrieve the indexes.                                                                                                                                                    |\n| \\<indexName>        | The name of your index if you want to retrieve a specific index. To return all indexes on the collection, omit this value and remove the call to the SetName() method when creating the Search index options. |\n\n```shell\ngo run get-index.go\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"log\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\tctx := context.Background()\n\n\t// Replace the placeholder with your connection string\n\tconst uri = \"<connectionString>\"\n\n\t// Connect to your cluster\n\tclientOptions := options.Client().ApplyURI(uri)\n\tclient, err := mongo.Connect(clientOptions)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to connect to the server: %v\", err)\n\t}\n\tdefer func() { _ = client.Disconnect(ctx) }()\n\n\t// Set the namespace\n\tcoll := client.Database(\"<databaseName>\").Collection(\"<collectionName>\")\n\n\t// Specify the options for the index to retrieve\n\tindexName := \"<indexName>\"\n\topts := options.SearchIndexes().SetName(indexName)\n\n\t// Get the index\n\tcursor, err := coll.SearchIndexes().List(ctx, opts)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to get the index: %v\", err)\n\t}\n\n\t// Print the index details to the console as JSON\n\tvar results []bson.M\n\tif err := cursor.All(ctx, &results); err != nil {\n\t\tlog.Fatalf(\"failed to unmarshal results to bson: %v\", err)\n\t}\n\tres, err := json.Marshal(results)\n\tif err != nil {\n\t\tlog.Fatalf(\"failed to marshal results to json: %v\", err)\n\t}\n\tfmt.Println(string(res))\n}\n",
+      "tokenEstimate": 323
+    },
+    {
+      "language": "shell",
+      "content": "go run get-index.go",
+      "tokenEstimate": 5
+    }
+  ],
+  "slug": "procedure--atlas-byo-driver-go",
+  "selections": {
+    "deployment-type": "atlas",
+    "embedding": "byo",
+    "interface": "driver",
+    "language": "go"
+  },
+  "variantAgnostic": false
+}

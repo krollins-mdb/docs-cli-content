@@ -1,0 +1,54 @@
+{
+  "heading": "Create a MongoDB Search Index",
+  "headingLevel": 2,
+  "body": "To use the [.NET/C# Driver](csharp) to create a MongoDB Search index:\n\n- Construct a `BsonDocument` that defines the index.\n\n- Pass the `BsonDocument` to the `CreateOne()` or\n  `CreateOneAsync()` method.\n\n> **Note:** The MongoDB Search index management methods run asynchronously. The\n> driver methods can return before confirming that they ran\n> successfully. To determine the current status of the search indexes,\n> call the `List()` method on a `SearchIndexes()` instance.\n\n- Run the following command to create a new directory called\n  `csharp-create-index`.\n\n  ```sh\n  mkdir csharp-create-index\n  ```\n\n- Run the following command to change to the new directory.\n\n  ```sh\n  cd csharp-create-index\n  ```\n\n- Run the following command to initialize your project.\n\n  ```sh\n  dotnet new console\n  ```\n\nRun the following command:\n\n```sh\ndotnet add package MongoDB.Driver\n```\n\nCreate One Search Index\n\nReplace the placeholder values in the following example\napplication, which uses the `SearchIndexes.CreateOne` command to define a MongoDB Search index:\n\n| Value                | Description                                                                                 |\n| -------------------- | ------------------------------------------------------------------------------------------- |\n| \\<connection-string> | Your Atlas connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| \\<databaseName>      | Database for which you want to create the index.                                            |\n| \\<collectionName>    | Collection for which you want to create the index.                                          |\n| \\<IndexName>         | The name of your index. If you omit the index name, MongoDB Search names the index default. |\n| \\<IndexDefinition>   | The definition of your index. To learn about index definition syntax, see Index Reference.  |\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", true }\n    }\n  }\n};\n\nvar result = collection.SearchIndexes.CreateOne(index, \"<indexName>\");\nConsole.WriteLine(result);\n\n```\n\nCreate Multiple Search Indexes\n\nReplace the placeholder values in the following example\napplication, which uses the `SearchIndexes.CreateMany` command to define a MongoDB Search index:\n\n| Value                | Description                                                                                 |\n| -------------------- | ------------------------------------------------------------------------------------------- |\n| \\<connection-string> | Your Atlas connection string. To learn more, see Connect to a Cluster via Client Libraries. |\n| \\<databaseName>      | Database for which you want to create the index.                                            |\n| \\<collectionName>    | Collection for which you want to create the index.                                          |\n| \\<firstIndexName>    | Name of your first index.                                                                   |\n| \\<lastIndexName>     | Name of your last index.                                                                    |\n| \\<IndexDefinition>   | The definition of your index. To learn about index definition syntax, see Index Reference.  |\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search indexes\nvar indexes = new List<CreateSearchIndexModel>\n{\n    new CreateSearchIndexModel(\n        \"<firstIndexName>\",\n        new BsonDocument\n        {\n            <IndexDefinition>// search index definition fields\n        }\n    ),\n    ...\n    new CreateSearchIndexModel(\n        \"<lastIndexName>\",\n        new BsonDocument\n        {\n            <IndexDefinition> // search index definition fields\n        }\n    )\n};\n\nvar result = collection.SearchIndexes.CreateMany(indexes);\n\n```\n\nUse the following command to run the project:\n\n**Input:**\n\n```shell\ndotnet run csharp-create-index.csproj\n```\n\n**Output:**\n\n```\ndefault\n```\n\n> **Tip:**&#x20;\n>\n> API Documentation\n>\n> To learn more about the methods on this page, see the\n> [API documentation](https://mongodb.github.io/mongo-csharp-driver/2.21/apidocs/html/Methods_T_MongoDB_Driver_Search_IMongoSearchIndexManager.htm)\n> for the .NET/C# driver.",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "mkdir csharp-create-index",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "sh",
+      "content": "cd csharp-create-index",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "sh",
+      "content": "dotnet new console",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "sh",
+      "content": "dotnet add package MongoDB.Driver",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search index\nvar index = new BsonDocument\n{\n  { \"mappings\", new BsonDocument\n    {\n      { \"dynamic\", true }\n    }\n  }\n};\n\nvar result = collection.SearchIndexes.CreateOne(index, \"<indexName>\");\nConsole.WriteLine(result);\n",
+      "tokenEstimate": 113
+    },
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// connect to your Atlas deployment\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"<databaseName>\");\nvar collection = db.GetCollection<BsonDocument>(\"<collectionName>\");\n\n// define your MongoDB Search indexes\nvar indexes = new List<CreateSearchIndexModel>\n{\n    new CreateSearchIndexModel(\n        \"<firstIndexName>\",\n        new BsonDocument\n        {\n            <IndexDefinition>// search index definition fields\n        }\n    ),\n    ...\n    new CreateSearchIndexModel(\n        \"<lastIndexName>\",\n        new BsonDocument\n        {\n            <IndexDefinition> // search index definition fields\n        }\n    )\n};\n\nvar result = collection.SearchIndexes.CreateMany(indexes);\n",
+      "tokenEstimate": 158
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run csharp-create-index.csproj",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "text",
+      "content": "default",
+      "tokenEstimate": 1
+    }
+  ],
+  "slug": "create-a-mongodb-search-index--local-driver-csharp",
+  "selections": {
+    "deployment-type": "local",
+    "interface": "driver",
+    "language": "csharp"
+  },
+  "variantAgnostic": false
+}

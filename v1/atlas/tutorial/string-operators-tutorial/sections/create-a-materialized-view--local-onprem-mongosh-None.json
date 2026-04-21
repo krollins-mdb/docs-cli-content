@@ -1,0 +1,49 @@
+{
+  "heading": "Create a Materialized View",
+  "headingLevel": 2,
+  "body": "Open [mongosh](mongodb-shell) in a terminal window and connect to your\ncluster. For detailed instructions on connecting, see\n[MongoDB Shell](connect-mongo-shell).\n\n- Run the following command to verify that the database exists\n  in your cluster:\n\n  **Input:**\n\n  ```sh\n  show dbs\n  ```\n\n  **Output:**\n\n  ```sh\n  sample_airbnb       55.3 MB\n  sample_analytics    9.59 MB\n  sample_geospatial   1.43 MB\n  sample_guides         41 kB\n  sample_mflix        51.1 MB\n  sample_restaurants  6.95 MB\n  sample_supplies     1.21 MB\n  sample_training     55.5 MB\n  sample_weatherdata  2.89 MB\n  admin                348 kB\n  local                2.1 GB\n  ```\n\n- Run the following command to switch to the `sample_airbnb`\n  database.\n\n  **Input:**\n\n  ```sh\n  use sample_airbnb\n  ```\n\n  **Output:**\n\n  ```sh\n  switched to db sample_airbnb\n  ```\n\nTo create a materialized view, run the following query with the\nfollowing aggregation pipeline stages:\n\n- [$project](manual/reference/operator/aggregation/project):\n\n  - Converts the date objects in the `last_scraped` field\n    into string objects in the `YYYY-MM-DD` format using\n    [$dateToString](manual/reference/operator/aggregation/dateToString) and writes the output to a string\n    field called `lastScrapedDate`.\n\n  - Converts the number objects in the `accommodates` and\n    `minimum_nights` fields into string values using\n    [$toString](manual/reference/operator/aggregation/toString) and writes the output to number fields\n    called `accommodatesNumber` and `minimumNumberOfNights`,\n    respectively.\n\n  - Includes the `name` and `property_type` string fields in\n    the output and renames them to `propertyName` and\n    `propertyType` respectively.\n\n- [$merge](manual/reference/operator/aggregation/merge):\n\n  Writes the output fields from the\n  [$project](manual/reference/operator/aggregation/project) stage to a materialized view named\n  `airbnb_mat_view` in the `sample_airbnb` database.\n\n```sh\ndb.listingsAndReviews.aggregate( [\n  {\n    $project: {\n      lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n      accommodatesNumber: { $toString: \"$accommodates\" },\n      maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n      propertyName: \"$name\",\n      propertyType: \"$property_type\"\n    }\n  },\n  { $merge: { into: \"airbnb_mat_view\", whenMatched: \"replace\" } }\n] )\n```\n\nTo verify, run the following command to view one document in the\n`airbnb_mat_view` materialized view:\n\n**Input:**\n\n```sh\ndb.airbnb_mat_view.findOne() \n\n```\n\n**Output:**\n\n```json\n{\n  _id: '10006546',\n  lastScrapedDate: '2019-02-16',\n  accommodatesNumber: '8',\n  maximumNumberOfNights: '30',\n  propertyName: 'Ribeira Charming Duplex',\n  propertyType: 'House'\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "show dbs",
+      "tokenEstimate": 2
+    },
+    {
+      "language": "sh",
+      "content": "sample_airbnb       55.3 MB\nsample_analytics    9.59 MB\nsample_geospatial   1.43 MB\nsample_guides         41 kB\nsample_mflix        51.1 MB\nsample_restaurants  6.95 MB\nsample_supplies     1.21 MB\nsample_training     55.5 MB\nsample_weatherdata  2.89 MB\nadmin                348 kB\nlocal                2.1 GB",
+      "tokenEstimate": 101
+    },
+    {
+      "language": "sh",
+      "content": "use sample_airbnb",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "sh",
+      "content": "switched to db sample_airbnb",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "sh",
+      "content": "db.listingsAndReviews.aggregate( [\n  {\n    $project: {\n      lastScrapedDate: { $dateToString: { format: \"%Y-%m-%d\", date: \"$last_scraped\" } },\n      accommodatesNumber: { $toString: \"$accommodates\" },\n      maximumNumberOfNights: { $toString: \"$maximum_nights\" },\n      propertyName: \"$name\",\n      propertyType: \"$property_type\"\n    }\n  },\n  { $merge: { into: \"airbnb_mat_view\", whenMatched: \"replace\" } }\n] )",
+      "tokenEstimate": 121
+    },
+    {
+      "language": "sh",
+      "content": "db.airbnb_mat_view.findOne() \n",
+      "tokenEstimate": 8
+    },
+    {
+      "language": "json",
+      "content": "{\n  _id: '10006546',\n  lastScrapedDate: '2019-02-16',\n  accommodatesNumber: '8',\n  maximumNumberOfNights: '30',\n  propertyName: 'Ribeira Charming Duplex',\n  propertyType: 'House'\n}",
+      "tokenEstimate": 62
+    }
+  ],
+  "slug": "create-a-materialized-view--local-onprem-mongosh-None",
+  "selections": {
+    "deployment-type": "local-onprem",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

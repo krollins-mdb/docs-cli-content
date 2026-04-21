@@ -1,0 +1,35 @@
+{
+  "heading": "Create a Vector Search Index",
+  "headingLevel": 2,
+  "body": "Open [mongosh](mongodb-shell) in a terminal window and connect to your Atlas\ncluster. For detailed instructions on connecting, see\n[MongoDB Shell](connect-mongo-shell).\n\n```shell\nmongosh \"mongodb://localhost:27017\"\n```\n\n> **Example:** **Input:**\n>\n> ```shell\n> use sample_mflix\n> ```\n>\n> **Output:**\n>\n> ```shell\n> switched to db sample_mflix\n> ```\n\nYou can create an index of `vector` type to run queries using\nvector embeddings.\n\n```shell\ndb.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      }\n    ]\n  }\n);\n```\n\nThis index definition:\n\n- Indexes the `plot_embedding_voyage_3_large` field as the `vector`\n  [vector](avs-types-vector). This field contains [vector embeddings](<vector embeddings>) that represent the summary of a movie's plot.\n\n  - Specifies `2048` [vectors](vector).\n\n  - Measures [About the Similarity Functions](avs-similarity-functions) using `dotProduct` similarity.\n\n  - Enables [automatically quantize](avs-automatic-quantization)\n    `quantization` of the vectors.",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "mongosh \"mongodb://localhost:27017\"",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "shell",
+      "content": "use sample_mflix",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "shell",
+      "content": "switched to db sample_mflix",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "shell",
+      "content": "db.embedded_movies.createSearchIndex(\n  \"vector_index\", \n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"vector\",\n        \"path\": \"plot_embedding_voyage_3_large\",\n        \"numDimensions\": 2048,\n        \"similarity\": \"dotProduct\",\n        \"quantization\": \"scalar\"\n      }\n    ]\n  }\n);",
+      "tokenEstimate": 83
+    }
+  ],
+  "slug": "create-a-vector-search-index--self-byo-mongosh-None",
+  "selections": {
+    "deployment-type": "self",
+    "embedding": "byo",
+    "interface": "mongosh",
+    "language": "None"
+  },
+  "variantAgnostic": false
+}

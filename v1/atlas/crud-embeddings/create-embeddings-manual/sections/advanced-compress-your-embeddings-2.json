@@ -1,0 +1,42 @@
+{
+  "heading": "(Advanced) Compress your embeddings.",
+  "headingLevel": 2,
+  "body": "Optionally, you can compress your embeddings by converting them\nto BSON (Binary Javascript Object Notation) binary format, also called `binData` vectors,\nfor efficient storage and retrieval.\nTo learn more, see [Vector Compression](avs-vector-compression).\n\nThis code does the following:\n\n- Defines a function named `generate_bson_vector` to convert\n  embeddings to `binData` vectors by using binary tools from the\n  [PyMongo driver](pymongo).\n\n- Converts the embeddings you generated for the\n  string `foo` to `binData` vectors.\n  The exact embedding varies depending on the model you use.\n\n> **Note:** When you convert your embeddings to `binData` vectors, your embeddings\n> appear in binary format.\n\n**Input:**\n\n```python\nfrom bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")\n```\n\n**Output:**\n\n```shell\nThe converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]\n```\n\nIn a terminal window, run the following command:\n\n```\nnpm install mongodb voyageai\n```\n\n- In your project, create a `.env` file with the following\n  contents:\n\n  ```\n  VOYAGE_API_KEY = \"<api-key>\"\n  MONGODB_URI = \"<connection-string>\"\n  ```\n\n- Replace the `<api-key>` placeholder value with your [Voyage API key](https://docs.voyageai.com/docs/api-key-and-installation).\n\n- Replace `<connection-string>` with the connection string for your\n  Atlas cluster or local Atlas deployment.\n\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n\n  Local or Self-Managed\n\n  Your connection string should use the\n  following format:\n\n  ```\n  mongodb://localhost:<port-number>/?directConnection=true\n  ```\n\n  To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  > **Note:**&#x20;\n  >\n  > Minimum Node.js Version Requirements\n  >\n  > Node.js v20.x introduced the `--env-file` option. If you are using an\n  > older version of Node.js, add the `dotenv` package to your project, or\n  > use a different method to manage your environment variables.\n\n- Save the file.\n\n* Create a file named `get-embeddings.js`.\n\n* Paste the following code. This code defines a function named `getEmbedding()`\n  that uses the `voyage-3-large` model to generate an\n  embedding for a given text input.\n\n  ```js\n  import { VoyageAIClient } from 'voyageai';\n\n  // Set up Voyage AI configuration\n  const client = new VoyageAIClient({apiKey: process.env.VOYAGE_API_KEY});\n\n  // Function to generate embeddings using the Voyage AI API\n  export async function getEmbedding(text) {\n      const results = await client.embed({\n          input: text,\n          model: \"voyage-3-large\"\n      });\n      return results.data[0].embedding;\n  }\n\n  ```\n\n  > **Tip:** To learn more, see [Voyage Typescript Library](https://www.npmjs.com/package/voyageai) and [voyage-3-large](voyageai/models).\n\n* Save the file.",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "from bson.binary import Binary \nfrom bson.binary import BinaryVectorDtype\n\n# Define a function to generate BSON vectors\ndef generate_bson_vector(vector, vector_dtype):\n   return Binary.from_vector(vector, vector_dtype)\n\n# Generate BSON vector from the sample float32 embedding\nbson_float32_embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n# Print the converted embedding\nprint(f\"The converted BSON embedding is: {bson_float32_embedding}\")",
+      "tokenEstimate": 94
+    },
+    {
+      "language": "shell",
+      "content": "The converted BSON embedding is: [Binary(b'\\'\\x00x0\\xf4\\ ... x9bL\\xd4\\xbc', 9), Binary(b'\\'\\x007 ... \\x9e?\\xe6<', 9)]",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "text",
+      "content": "npm install mongodb voyageai",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "VOYAGE_API_KEY = \"<api-key>\"\nMONGODB_URI = \"<connection-string>\"",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "js",
+      "content": "import { VoyageAIClient } from 'voyageai';\n\n// Set up Voyage AI configuration\nconst client = new VoyageAIClient({apiKey: process.env.VOYAGE_API_KEY});\n\n// Function to generate embeddings using the Voyage AI API\nexport async function getEmbedding(text) {\n    const results = await client.embed({\n        input: text,\n        model: \"voyage-3-large\"\n    });\n    return results.data[0].embedding;\n}\n",
+      "tokenEstimate": 93
+    }
+  ]
+}

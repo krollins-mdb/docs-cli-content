@@ -1,0 +1,59 @@
+{
+  "heading": "Create Embeddings from Data",
+  "headingLevel": 3,
+  "body": "The following code defines an array of sample texts.\n\n```python\n# Sample data\ntexts = [\n  \"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n  \"The Lion King: Lion cub and future king Simba searches for his identity\",\n  \"Avatar: A marine is dispatched to the moon Pandora on a unique mission\"\n]\n```\n\nUse the `get_embedding()` function to generate\nembeddings from the sample texts. Your\nembeddings might vary depending on the model you use.\n\nIf you defined the `generate_bson_vector` function,\nuncomment the line that calls this function to compress\nyour embeddings to `binData` vectors. Your embeddings\nwill appear in binary format.\n\n**Input:**\n\n```python\n# Generate embeddings from the sample data\nembeddings = []\nfor text in texts:\n embedding = get_embedding(text)\n\n # Uncomment the following line to convert to BSON\n # embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n embeddings.append(embedding)\n\n # Print the embeddings\n print(f\"\\nText: {text}\")\n print(f\"Embedding: {embedding[:3]}... (truncated)\")\n```\n\n**Output:**\n\n```shell\nText: Titanic: The story of the 1912 sinking of the largest luxury liner ever built\nEmbedding: [-0.01089042  0.05926645 -0.00291325]... (truncated)\n\nText: The Lion King: Lion cub and future king Simba searches for his identity\nEmbedding: [-0.05607051 -0.01360618  0.00523855]... (truncated)\n\nText: Avatar: A marine is dispatched to the moon Pandora on a unique mission\nEmbedding: [-0.0275258   0.01144342 -0.02360895]... (truncated)\n```\n\nPerform the following steps to create documents with the\nembeddings and ingest them into your MongoDB deployment:\n\n- Define a function to create documents.\n\n  ```python\n  def create_docs_with_embeddings(embeddings, data):\n     docs = []\n     for i, (embedding, text) in enumerate(zip(embeddings, data)):\n        doc = {\n              \"_id\": i,\n              \"text\": text,\n              \"embedding\": embedding,\n        }\n        docs.append(doc)\n     return docs\n  ```\n\n- Create the documents with your embeddings.\n\n  ```python\n  # Create documents with embeddings and sample data\n  docs = create_docs_with_embeddings(embeddings, texts)\n  ```\n\n- Insert the documents into a MongoDB collection.\n\n  Paste and run the following code in your notebook\n  to connect to your MongoDB deployment and ingest the embeddings\n  into the specified database and collection.\n\n  **Input:**\n\n  ```python\n  import pymongo\n\n  # Connect to your MongoDB deployment\n  mongo_client = pymongo.MongoClient(\"<connection-string>\")\n  db = mongo_client[\"sample_db\"]\n  collection = db[\"embeddings\"]\n\n  # Ingest data into the collection\n  collection.insert_many(docs)\n  ```\n\n  **Output:**\n\n  ```\n  InsertManyResult([0, 1, 2], acknowledged=True)\n  ```\n\n  > **Note:** Replace `<connection-string>` with the connection string for your\n  > Atlas cluster or local Atlas deployment.\n  >\n  > Atlas Cluster\n  >\n  > Your connection string should use the following format:\n  >\n  > ```\n  > mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  > ```\n  >\n  > To learn more, see [Driver](connect-via-driver).\n  >\n  > Local or Self-Managed\n  >\n  > Your connection string should use the\n  > following format:\n  >\n  > ```\n  > mongodb://localhost:<port-number>/?directConnection=true\n  > ```\n  >\n  > To learn more, see [Connection Strings](manual/reference/connection-string).\n\n  If you're using Atlas, you can verify your vector embeddings\n  by navigating to the `sample_db.embeddings` namespace\n  [in the Atlas UI](atlas-ui-view-collections).",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "# Sample data\ntexts = [\n  \"Titanic: The story of the 1912 sinking of the largest luxury liner ever built\",\n  \"The Lion King: Lion cub and future king Simba searches for his identity\",\n  \"Avatar: A marine is dispatched to the moon Pandora on a unique mission\"\n]",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "python",
+      "content": "# Generate embeddings from the sample data\nembeddings = []\nfor text in texts:\n embedding = get_embedding(text)\n\n # Uncomment the following line to convert to BSON\n # embedding = generate_bson_vector(embedding, BinaryVectorDtype.FLOAT32)\n\n embeddings.append(embedding)\n\n # Print the embeddings\n print(f\"\\nText: {text}\")\n print(f\"Embedding: {embedding[:3]}... (truncated)\")",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "shell",
+      "content": "Text: Titanic: The story of the 1912 sinking of the largest luxury liner ever built\nEmbedding: [-0.01089042  0.05926645 -0.00291325]... (truncated)\n\nText: The Lion King: Lion cub and future king Simba searches for his identity\nEmbedding: [-0.05607051 -0.01360618  0.00523855]... (truncated)\n\nText: Avatar: A marine is dispatched to the moon Pandora on a unique mission\nEmbedding: [-0.0275258   0.01144342 -0.02360895]... (truncated)",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "python",
+      "content": "def create_docs_with_embeddings(embeddings, data):\n   docs = []\n   for i, (embedding, text) in enumerate(zip(embeddings, data)):\n      doc = {\n            \"_id\": i,\n            \"text\": text,\n            \"embedding\": embedding,\n      }\n      docs.append(doc)\n   return docs",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "python",
+      "content": "# Create documents with embeddings and sample data\ndocs = create_docs_with_embeddings(embeddings, texts)",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "python",
+      "content": "import pymongo\n\n# Connect to your MongoDB deployment\nmongo_client = pymongo.MongoClient(\"<connection-string>\")\ndb = mongo_client[\"sample_db\"]\ncollection = db[\"embeddings\"]\n\n# Ingest data into the collection\ncollection.insert_many(docs)",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "text",
+      "content": "InsertManyResult([0, 1, 2], acknowledged=True)",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    }
+  ],
+  "slug": "create-embeddings-from-data--openai-new-python",
+  "selections": {
+    "embedding-model": "openai",
+    "data-source": "new",
+    "language-no-interface": "python"
+  },
+  "variantAgnostic": false
+}
