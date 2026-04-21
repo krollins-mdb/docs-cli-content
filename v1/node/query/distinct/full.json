@@ -1,0 +1,196 @@
+{
+  "path": "node/query/distinct",
+  "product": "node",
+  "title": "Retrieve Distinct Values",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Use the `distinct()` method to retrieve all distinct values for a specified field\nacross a collection.",
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Sample Documents",
+      "headingLevel": 3,
+      "body": "To follow the examples in this guide, use the following code snippet to insert documents\nthat describe restaurants into the `myDB.restaurants` collection:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"restaurants\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"restaurant\": \"White Bear\", \"borough\": \"Queens\", \"cuisine\": \"Chinese\" },\n  { \"_id\": 2, \"restaurant\": \"Via Carota\", \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" },\n  { \"_id\": 3, \"restaurant\": \"Borgatti's\", \"borough\": \"Bronx\", \"cuisine\": \"Italian\" },\n  { \"_id\": 4, \"restaurant\": \"Tanoreen\", \"borough\": \"Brooklyn\", \"cuisine\": \"Middle Eastern\" },\n  { \"_id\": 5, \"restaurant\": \"Äpfel\", \"borough\": \"Queens\", \"cuisine\": \"German\" },\n  { \"_id\": 6, \"restaurant\": \"Samba Kitchen\", \"borough\": \"Manhattan\", \"cuisine\": \"Brazilian\" },\n]);\n```\n\n> **Note:** Your query operation may return a reference to a\n> cursor that contains matching documents. To learn how to\n> examine data stored in the cursor, see the\n> [Access Data From a Cursor](node-access-cursor).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"restaurants\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"restaurant\": \"White Bear\", \"borough\": \"Queens\", \"cuisine\": \"Chinese\" },\n  { \"_id\": 2, \"restaurant\": \"Via Carota\", \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" },\n  { \"_id\": 3, \"restaurant\": \"Borgatti's\", \"borough\": \"Bronx\", \"cuisine\": \"Italian\" },\n  { \"_id\": 4, \"restaurant\": \"Tanoreen\", \"borough\": \"Brooklyn\", \"cuisine\": \"Middle Eastern\" },\n  { \"_id\": 5, \"restaurant\": \"Äpfel\", \"borough\": \"Queens\", \"cuisine\": \"German\" },\n  { \"_id\": 6, \"restaurant\": \"Samba Kitchen\", \"borough\": \"Manhattan\", \"cuisine\": \"Brazilian\" },\n]);",
+          "tokenEstimate": 215
+        }
+      ],
+      "slug": "sample-documents",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Distinct",
+      "headingLevel": 2,
+      "body": "The `distinct()` method requires a document field as a parameter. You can specify the\nfollowing optional parameters to adjust the method output:\n\n- A `query` parameter to refine your results\n\n- An `options` parameter to set collation rules",
+      "codeBlocks": [],
+      "slug": "distinct",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Document Field Parameter",
+      "headingLevel": 3,
+      "body": "Pass the name of the document field to return a list of the field's unique values.",
+      "codeBlocks": [],
+      "slug": "document-field-parameter",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 3,
+      "body": "The `\"Queens\"` and `\"Manhattan\"` borough values each appear more than\nonce in the sample documents. However, the following example retrieves the\nunique values of the `borough` field:\n\n```javascript\n// specify \"borough\" as the field to return values for\nconst cursor = myColl.distinct(\"borough\");\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nThis code outputs the following `borough` values:\n\n```json\n[ \"Bronx\", \"Brooklyn\", \"Manhattan\", \"Queens\" ]\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// specify \"borough\" as the field to return values for\nconst cursor = myColl.distinct(\"borough\");\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 38
+        },
+        {
+          "language": "json",
+          "content": "[ \"Bronx\", \"Brooklyn\", \"Manhattan\", \"Queens\" ]",
+          "tokenEstimate": 18
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Query Parameter",
+      "headingLevel": 3,
+      "body": "You can specify a query parameter to return unique values for documents that match\nyour query.\n\nVisit [Specify a Query](node-fundamentals-query-document) for more information on constructing a\nquery filter.",
+      "codeBlocks": [],
+      "slug": "query-parameter",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 4,
+      "body": "The following example outputs the distinct values of the `cuisine` field but\nexcludes restaurants in `\"Brooklyn\"`:\n\n```javascript\n// exclude Brooklyn restaurants from the output\nconst query = { borough: { $ne: \"Brooklyn\" }};\n\n// find the filtered distinct values of \"cuisine\"\nconst cursor = myColl.distinct(\"cuisine\", query);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nIn this case, the query filter matches every borough value except for `\"Brooklyn\"`. This\nprevents `distinct()` from outputting one `cuisine` value, `\"Middle Eastern\"`.\nThe code outputs the following values:\n\n```json\n[ \"Brazilian\", \"Chinese\", \"German\", \"Italian\" ]\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// exclude Brooklyn restaurants from the output\nconst query = { borough: { $ne: \"Brooklyn\" }};\n\n// find the filtered distinct values of \"cuisine\"\nconst cursor = myColl.distinct(\"cuisine\", query);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 63
+        },
+        {
+          "language": "json",
+          "content": "[ \"Brazilian\", \"Chinese\", \"German\", \"Italian\" ]",
+          "tokenEstimate": 15
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Options Parameter",
+      "headingLevel": 3,
+      "body": "You can specify the collation to the `distinct()` method by defining a\n`collation` field as an `options` parameter. This field allows you to set\nregional rules for string ordering and comparisons.\n\nSee the [Collation](node-collations) section of the [Configure CRUD Operations](node-configure) guide for\ninstructions on applying collations.\n\n> **Note:** When using the `options` parameter, you must also specify a `query` parameter. If\n> you don't want to use a query filter, define the query as `{}`.",
+      "codeBlocks": [],
+      "slug": "options-parameter",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 4,
+      "body": "The following example uses a `collation` field to specify German language ordering\nconventions when outputting the distinct `restaurant` values:\n\n```javascript\n// define an empty query document\nconst query = {};\n// specify German string ordering conventions\nconst options = { collation: { locale: \"de\" }};\n\nconst cursor = myColl.distinct(\"restaurant\", query, options);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}\n```\n\nIn this case, German string ordering conventions place words beginning with \"Ä\" before\nthose beginning with \"B\". The code outputs the following:\n\n```json\n[ \"Äpfel\", \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\" ]\n```\n\nIf you do not specify the `collation` field, the output order follows default\nbinary collation rules. These rules place words beginning with \"Ä\" after the those\nwith unaccented first letters:\n\n```json\n[ \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\", \"Äpfel\" ]\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// define an empty query document\nconst query = {};\n// specify German string ordering conventions\nconst options = { collation: { locale: \"de\" }};\n\nconst cursor = myColl.distinct(\"restaurant\", query, options);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+          "tokenEstimate": 62
+        },
+        {
+          "language": "json",
+          "content": "[ \"Äpfel\", \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\" ]",
+          "tokenEstimate": 32
+        },
+        {
+          "language": "json",
+          "content": "[ \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\", \"Äpfel\" ]",
+          "tokenEstimate": 32
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "distinct() Example: Full File",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following snippet retrieves a list of distinct values for the `year`\ndocument field from the `movies` collection. It uses a query document to\nmatch movies that include `\"Barbara Streisand\"` in the `director` array.\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example, results in the following output:\n\n```json\n[ 1983, 1991, 1996 ]\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "[ 1983, 1991, 1996 ]",
+          "tokenEstimate": 13
+        }
+      ],
+      "slug": "distinct-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "distinct() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 175
+        }
+      ],
+      "slug": "distinct-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "distinct() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 143
+        }
+      ],
+      "slug": "distinct-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the types or methods discussed in this guide, see the\nfollowing API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [Db](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html)\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html)\n\n- [distinct()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#distinct).",
+      "codeBlocks": [],
+      "slug": "api-documentation",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language",
+      "text": "language",
+      "default": "javascript",
+      "selections": [
+        {
+          "value": "javascript",
+          "text": "javascript"
+        },
+        {
+          "value": "typescript",
+          "text": "typescript"
+        }
+      ]
+    }
+  ]
+}

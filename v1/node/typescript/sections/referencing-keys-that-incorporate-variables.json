@@ -1,0 +1,17 @@
+{
+  "heading": "Referencing Keys that Incorporate Variables",
+  "headingLevel": 4,
+  "body": "To query a collection or perform another operation with a key that incorporates\nvariables, you must use an `as const` assertion when specifying the key. This\nmechanism allows your code to compile successfully if the input types are\ncorrect.\n\nThe following code snippet defines the `ClassificationPet` interface\nand the `Mealtime` interface. `ClassificationPet` includes a\n`mealtimes` field that contains an array of `Mealtime` interfaces,\neach of which includes a `time` field:\n\n```typescript\ninterface ClassificationPet {\n  name: string;\n  mealtimes: Mealtime[];\n}\n\ninterface Mealtime{\n  time: string;\n  amount: number;\n}\n```\n\nThe following code snippet performs a find-and-update operation on a\ncollection of `ClassificationPet` documents. The operation\nupdates the nested `time` field of the `Mealtime` instance at index\n`1`. The index position is specified by the variable `mealCounter`:\n\n```typescript\nconst mealCounter = 1;\n\nawait myColl.findOneAndUpdate(\n  { name: \"Lassie\" },\n  { $set: { [`mealtimes.${mealCounter}.time` as const]: '04:00 PM' } },\n);\n```\n\nTo learn more about dot notation, see\n[Dot Notation](manual/core/document)\nin the MongoDB manual.\n\nTo learn more about the limitations of dot notation in the\nNode.js driver, see the\n[Recursive Types and Dot Notation](node-driver-recursive-types-dot-notation)\nsection.",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "interface ClassificationPet {\n  name: string;\n  mealtimes: Mealtime[];\n}\n\ninterface Mealtime{\n  time: string;\n  amount: number;\n}",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "typescript",
+      "content": "const mealCounter = 1;\n\nawait myColl.findOneAndUpdate(\n  { name: \"Lassie\" },\n  { $set: { [`mealtimes.${mealCounter}.time` as const]: '04:00 PM' } },\n);",
+      "tokenEstimate": 51
+    }
+  ]
+}

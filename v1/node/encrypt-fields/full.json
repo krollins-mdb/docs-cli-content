@@ -1,0 +1,25 @@
+{
+  "path": "node/encrypt-fields",
+  "product": "node",
+  "title": "In-Use Encryption",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "You can use the Node.js driver to encrypt specific document fields by using a\nset of features called **in-use encryption**. In-use encryption allows\nyour application to encrypt data *before* sending it to MongoDB\nand query documents with encrypted fields.\n\n> **Warning:**&#x20;\n>\n> MongoDB 8.2 Known Issue\n>\n> Version 8.2.0 of `mongocryptd` might not run on Windows.\n> This bug affects In-Use Encryption with the driver if you\n> specify the `--logpath NUL` argument when starting\n> `mongocryptd`.\n>\n> To learn more about this issue and how to resolve it, see [Known Issues](manual/release-notes/8.2)\n> in the MongoDB 8.2 Release Notes.\n\nIn-use encryption prevents unauthorized users from viewing plaintext\ndata as it is sent to MongoDB or while it is in an encrypted database. To\nenable in-use encryption in an application and authorize it to decrypt\ndata, you must create encryption keys that only your application can\naccess. Only applications that have access to your encryption\nkeys can access the decrypted, plaintext data. If an attacker gains\naccess to the database, they can only see the encrypted ciphertext data\nbecause they lack access to the encryption keys.\n\nYou might use in-use encryption to encrypt fields in your MongoDB\ndocuments that contain the following types of sensitive data:\n\n- Credit card numbers\n\n- Addresses\n\n- Health information\n\n- Financial information\n\n- Any other sensitive or personally identifiable information (PII)\n\nMongoDB offers the following features to enable in-use encryption:\n\n- [Queryable Encryption](subsection-qe)\n\n- [Client-side Field Level Encryption](subsection-csfle)",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Queryable Encryption",
+      "headingLevel": 3,
+      "body": "Queryable Encryption is the next-generation in-use encryption feature,\nfirst introduced as a preview feature in MongoDB Server version 6.0 and\nas a generally available (GA) feature in MongoDB 7.0. Queryable\nEncryption supports searching encrypted fields for equality and encrypts\neach value uniquely.\n\n> **Important:**&#x20;\n>\n> Preview Feature Incompatible with MongoDB 7.0\n>\n> The implementation of Queryable Encryption in MongoDB 6.0 is incompatible with the GA version introduced in MongoDB 7.0. The Queryable Encryption preview feature is no longer supported.\n\nTo learn more about Queryable Encryption, see [Queryable\nEncryption](manual/core/queryable-encryption) in the Server manual.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Client-side Field Level Encryption",
+      "headingLevel": 3,
+      "body": "Client-side Field Level Encryption (CSFLE) was introduced in MongoDB\nServer version 4.2 and supports searching encrypted fields for equality.\nCSFLE differs from Queryable Encryption in that you can select either a\ndeterministic or random encryption algorithm to encrypt fields. You can only\nquery encrypted fields that use a deterministic encryption algorithm when\nusing CSFLE. When you use a random encryption algorithm to encrypt\nfields in CSFLE, they can be decrypted, but you cannot perform equality\nqueries on those fields. When you use Queryable Encryption, you cannot\nspecify the encryption algorithm, but you can query all encrypted\nfields.\n\nWhen you deterministically encrypt a value, the same input value\nproduces the same output value. While deterministic encryption allows\nyou to perform queries on those encrypted fields, encrypted data with\nlow cardinality is susceptible to code breaking by frequency analysis.\n\n> **Tip:** To learn more about these concepts, see the following Wikipedia\n> entries:\n>\n> - [Cardinality](https://en.wikipedia.org/wiki/w/index.php?title=Cardinality_\\(data_modeling\\)\\&oldid=1182661589)\n>\n> - [Frequency Analysis](https://en.wikipedia.org/wiki/w/index.php?title=Frequency_analysis\\&oldid=1182536787)\n\nTo learn more about CSFLE, see [CSFLE](manual/core/csfle) in the\nServer manual.",
+      "codeBlocks": []
+    }
+  ]
+}

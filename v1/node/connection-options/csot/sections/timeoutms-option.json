@@ -1,0 +1,14 @@
+{
+  "heading": "timeoutMS Option",
+  "headingLevel": 2,
+  "body": "To specify a timeout when connecting to a MongoDB deployment, set the\n`timeoutMS` connection option to the timeout length in milliseconds. You can\ndo this in two ways: by passing an argument to the `MongoClient` constructor\nor through a parameter in your connection string.\n\nThe following code examples use the `timeoutMS` option to specify a timeout of\n30 seconds:\n\nMongoClient\n\nConnection String\n\n> **Note:** The `timeoutMS` connection option takes precedence over the\n> following options:\n>\n> - `socketTimeoutMS`\n>\n> - `waitQueueTimeoutMS`\n>\n> - `wTimeoutMS`\n>\n> - `maxTimeMS`\n>\n> - `maxCommitTimeMS`\n>\n> When the CSOT feature is no longer experimental, the preceding options will\n> be deprecated.\n\nIf you specify the `timeoutMS` option, the driver automatically applies the\nspecified timeout per each server operation. The following code example specifies\na timeout of 10 seconds at the client level, and then calls the `insertOne()`\nmethod:\n\n```javascript\nconst uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  timeoutMS: 10000\n});\n\nasync function run() {\n    try {\n      const db = client.db(\"test-db\");\n      const coll = db.collection(\"test-collection\");\n\n      const result = await coll.insertOne({ name: \"Yngwie\" });\n      console.log(\"Insert result:\", result);\n    } finally {\n      await client.close();\n    }\n  }\n  \nrun().catch(console.dir);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const uri = \"<connection string uri>\";\nconst client = new MongoClient(uri, {\n  timeoutMS: 10000\n});\n\nasync function run() {\n    try {\n      const db = client.db(\"test-db\");\n      const coll = db.collection(\"test-collection\");\n\n      const result = await coll.insertOne({ name: \"Yngwie\" });\n      console.log(\"Insert result:\", result);\n    } finally {\n      await client.close();\n    }\n  }\n  \nrun().catch(console.dir);",
+      "tokenEstimate": 99
+    }
+  ],
+  "slug": "timeoutms-option",
+  "variantAgnostic": true
+}

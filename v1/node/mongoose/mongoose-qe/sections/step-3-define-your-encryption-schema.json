@@ -1,0 +1,12 @@
+{
+  "heading": "Step 3: Define your encryption schema.",
+  "headingLevel": 4,
+  "body": "To create the encrypted schema definition, paste the following code after\nthe `// Paste encryption schema below` code comment:\n\n```javascript\nconst patientSchema = new mongoose.Schema({\n  patientName: {\n    type: String,\n    required: true\n  },\n  patientId: {\n    type: Number,\n    required: true\n  },\n  patientRecord: {\n    ssn: {\n      type: String,\n      encrypt: {\n        keyId: keyId1,\n        queries: { queryType: 'equality' } \n      }\n    },\n    billing: {\n      type: {\n        type: String,\n        encrypt: {\n          keyId: keyId2,\n        }\n      },\n      number: {\n        type: String,\n        encrypt: {\n          keyId: keyId3\n        }\n      }\n    },\n    billAmount: Number\n  }\n}, { \n  encryptionType: 'queryableEncryption',\n  collection: encryptedCollectionName \n});\n```\n\nThis schema defines the structure for documents in the `patients` collection and\nspecifies the following encrypted fields:\n\n- `patientRecord.ssn`: Encrypted and configured for equality queries\n\n- `patientRecord.billing.type`: Encrypted, but not queryable\n\n- `patientRecord.billing.number`: Encrypted, but not queryable",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const patientSchema = new mongoose.Schema({\n  patientName: {\n    type: String,\n    required: true\n  },\n  patientId: {\n    type: Number,\n    required: true\n  },\n  patientRecord: {\n    ssn: {\n      type: String,\n      encrypt: {\n        keyId: keyId1,\n        queries: { queryType: 'equality' } \n      }\n    },\n    billing: {\n      type: {\n        type: String,\n        encrypt: {\n          keyId: keyId2,\n        }\n      },\n      number: {\n        type: String,\n        encrypt: {\n          keyId: keyId3\n        }\n      }\n    },\n    billAmount: Number\n  }\n}, { \n  encryptionType: 'queryableEncryption',\n  collection: encryptedCollectionName \n});",
+      "tokenEstimate": 169
+    }
+  ]
+}

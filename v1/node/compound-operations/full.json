@@ -1,0 +1,31 @@
+{
+  "path": "node/compound-operations",
+  "product": "node",
+  "title": "Compound Operations",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "Most database requests either read data from a database or write data into\na database. However, there are instances where you may require a single\noperation that reads and writes data.\n\n**Compound operations** combine read and write operations\nin a single atomic statement, so there's no chance of data changing in\nbetween a read and a subsequent write.\n\nIf you execute each operation separately, another request may alter the\ndata between the read and write operations. These data changes may not\nprevent your operation from succeeding, but they can make error handling\nmore difficult. When your application handles potential errors at\nany stage of the process, it can become brittle and difficult\nto test.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Built-in Methods",
+      "headingLevel": 2,
+      "body": "The Node.js driver provides the following methods to perform compound\noperations:\n\n- [findOneAndDelete()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndDelete)\n\n- [findOneAndUpdate()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndUpdate)\n\n- [findOneAndReplace()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#findOneAndReplace)\n\nThese methods accept an optional `options` object with\nconfigurable [sort()](node-fundamentals-sort) and\n[Specify Which Fields to Return](node-fundamentals-project) options.\n\nYou can also set the `includeResultMetadata`\noption to specify the return type of each\nof these methods. To learn more about this option, see the\n[includeResultMetadata Option](node-compound-metadata-option)\nsection of this guide.\n\nThe `findOneAndUpdate()` and `findOneAndDelete()` methods take the\n`returnDocument` setting, which specifies if the method returns the\npre-update or post-update version of the modified document.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "includeResultMetadata Option",
+      "headingLevel": 3,
+      "body": "The `includeResultMetadata` option determines the return type of the\ncompound methods.\n\nThis setting defaults to `false`, which means that each method returns the matched\ndocument. If no document is matched, each method returns `null`. If you set\n`includeResultMetadata` to `true`, the method returns a `ModifyResult` type that\ncontains the found document and metadata.\n\nSuppose a collection contains only the following document:\n\n```json\n{ _id: 1, x: \"on\" }\n```\n\nThe following table shows how the value of the\n`includeResultMetadata` option changes the return type of\nthe `findOneAndDelete()` method:\n\n| Option Value   | Syntax and Output                                                                                                                                     |\n| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Default: false | Document matchedawait coll.findOneAndDelete(\\{ x: \"on\" });\\{ \\_id: 1, x: 'on' }No document matchedawait coll.findOneAndDelete(\\{ x: \"off\" });null     |\n| true           | await coll.findOneAndDelete(\\{ x: \"on\" }, \\{ includeResultMetadata: true });\\{ lastErrorObject: \\{ n: 1 }, value: \\{ \\_id: 1, x: 'on' }, ok: 1, ... } |",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{ _id: 1, x: \"on\" }",
+          "tokenEstimate": 13
+        }
+      ]
+    }
+  ]
+}

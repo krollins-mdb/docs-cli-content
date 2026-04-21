@@ -1,0 +1,162 @@
+{
+  "path": "node/query/distinct",
+  "product": "node",
+  "title": "Retrieve Distinct Values",
+  "summary": {
+    "total": 11,
+    "byLanguage": {
+      "javascript": 5,
+      "json": 5,
+      "typescript": 1
+    },
+    "bySection": [
+      {
+        "heading": "Sample Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 215
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 38
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 18
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 63
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 15
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 62
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 32
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 32
+          }
+        ]
+      },
+      {
+        "heading": "distinct() Example: Full File",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 13
+          }
+        ]
+      },
+      {
+        "heading": "distinct() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 175
+          }
+        ]
+      },
+      {
+        "heading": "distinct() Example: Full File",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 143
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Sample Documents",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"restaurants\");\n\nawait myColl.insertMany([\n  { \"_id\": 1, \"restaurant\": \"White Bear\", \"borough\": \"Queens\", \"cuisine\": \"Chinese\" },\n  { \"_id\": 2, \"restaurant\": \"Via Carota\", \"borough\": \"Manhattan\", \"cuisine\": \"Italian\" },\n  { \"_id\": 3, \"restaurant\": \"Borgatti's\", \"borough\": \"Bronx\", \"cuisine\": \"Italian\" },\n  { \"_id\": 4, \"restaurant\": \"Tanoreen\", \"borough\": \"Brooklyn\", \"cuisine\": \"Middle Eastern\" },\n  { \"_id\": 5, \"restaurant\": \"Äpfel\", \"borough\": \"Queens\", \"cuisine\": \"German\" },\n  { \"_id\": 6, \"restaurant\": \"Samba Kitchen\", \"borough\": \"Manhattan\", \"cuisine\": \"Brazilian\" },\n]);",
+      "tokenEstimate": 215
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "// specify \"borough\" as the field to return values for\nconst cursor = myColl.distinct(\"borough\");\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 38
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[ \"Bronx\", \"Brooklyn\", \"Manhattan\", \"Queens\" ]",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "// exclude Brooklyn restaurants from the output\nconst query = { borough: { $ne: \"Brooklyn\" }};\n\n// find the filtered distinct values of \"cuisine\"\nconst cursor = myColl.distinct(\"cuisine\", query);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 63
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[ \"Brazilian\", \"Chinese\", \"German\", \"Italian\" ]",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "// define an empty query document\nconst query = {};\n// specify German string ordering conventions\nconst options = { collation: { locale: \"de\" }};\n\nconst cursor = myColl.distinct(\"restaurant\", query, options);\nfor await (const doc of cursor) {\n  console.dir(doc);\n}",
+      "tokenEstimate": 62
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[ \"Äpfel\", \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\" ]",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "json",
+      "section": "Example",
+      "content": "[ \"Borgatti's\", \"Samba Kitchen\", \"Tanoreen\", \"Via Carota\", \"White Bear\", \"Äpfel\" ]",
+      "tokenEstimate": 32
+    },
+    {
+      "language": "json",
+      "section": "distinct() Example: Full File",
+      "content": "[ 1983, 1991, 1996 ]",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "javascript",
+      "section": "distinct() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Specify the document field to find distinct values for\n    const fieldName = \"year\";\n\n    // Specify an optional query document to narrow results\n    const query = { directors: \"Barbra Streisand\" };\n\n    // Execute the distinct operation\n    const distinctValues = await movies.distinct(fieldName, query);\n\n    // Print the result\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 175
+    },
+    {
+      "language": "typescript",
+      "section": "distinct() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  directors: string;\n  year: number;\n}\n\nasync function run() {\n  try {\n    // define a database and collection on which to run the method\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    const distinctValues = await movies.distinct(\"year\", {\n      directors: \"Barbra Streisand\",\n    });\n\n    console.log(distinctValues);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 143
+    }
+  ]
+}

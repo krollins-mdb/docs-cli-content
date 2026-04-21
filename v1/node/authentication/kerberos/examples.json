@@ -1,0 +1,30 @@
+{
+  "path": "node/authentication/kerberos",
+  "product": "node",
+  "title": "Kerberos (GSSAPI) Authentication Mechanism",
+  "summary": {
+    "total": 1,
+    "byLanguage": {
+      "js": 1
+    },
+    "bySection": [
+      {
+        "heading": "Specify Kerberos (GSSAPI) Authentication",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 223
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "js",
+      "section": "Specify Kerberos (GSSAPI) Authentication",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the placeholder values with the values for your environment in the following lines\nconst clusterUrl = \"<cluster_url>\";\nconst principal = encodeURIComponent(\"<Kerberos principal and realm>\");\nconst serviceRealm = \"<Kerberos service realm>\";\nconst canonicalizationSetting = \"<canonicalization setting>\";\nconst authMechanismProperties = `SERVICE_REALM:${serviceRealm},CANONICALIZE_HOST_NAME:${canonicalizationSetting}`;\n\nconst authMechanism = \"GSSAPI\";\n\n// Connection URI\nconst uri = `mongodb+srv://${principal}@${clusterUrl}/?authMechanism=${authMechanism}&authMechanismProperties=${authMechanismProperties}`;\n\nconst client = new MongoClient(uri);\n\n// Function to connect to the server\nasync function run() {\n  try {\n    // Establish and verify connection\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server\");\n  } finally {\n    // Ensures that the client will close when you finish/error\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
+      "tokenEstimate": 223
+    }
+  ]
+}

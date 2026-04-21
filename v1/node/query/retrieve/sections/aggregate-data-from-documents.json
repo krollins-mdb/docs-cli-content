@@ -1,0 +1,24 @@
+{
+  "heading": "Aggregate Data from Documents",
+  "headingLevel": 2,
+  "body": "If you want to run a custom processing pipeline to retrieve data from your\ndatabase, you can use the `aggregate()` method. This method accepts\naggregation expressions to run in sequence. These expressions let you filter,\ngroup, and arrange the result data from a collection.\n\n> **Example:** A pizza restaurant wants to run a status report on-demand to\n> summarize pizza orders over the past week. They run the following\n> `aggregate()` query on the `orders` collection to fetch the\n> totals for each distinct \"status\" field:\n>\n> ```javascript\n>     // Group orders by status within the last week\n>     const aggregateResult = orders.aggregate([\n>       {\n>         $match: {\n>           date: {\n>             $gte: new Date(new Date().getTime() - 1000 * 3600 * 24 * 7),\n>             $lt: new Date(),\n>           },\n>         },\n>       },\n>       {\n>         $group: {\n>           _id: \"$status\",\n>           count: {\n>             $sum: 1,\n>           },\n>         },\n>       },\n>     ]);\n> ```\n>\n> Once the operation returns, the `aggregateResult` variable references a\n> `Cursor`. You can print the documents retrieved using the `for await...of`\n> syntax as shown below:\n>\n> ```javascript\n> for await (const doc of aggregateResult) {\n>   console.log(doc);\n> }\n> ```\n>\n> The output might resemble the following:\n>\n> ```javascript\n> [\n>   { _id: 'delivering', count: 5 },\n>   { _id: 'delivered', count: 37 },\n>   { _id: 'created', count: 9 }\n> ]\n> ```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "    // Group orders by status within the last week\n    const aggregateResult = orders.aggregate([\n      {\n        $match: {\n          date: {\n            $gte: new Date(new Date().getTime() - 1000 * 3600 * 24 * 7),\n            $lt: new Date(),\n          },\n        },\n      },\n      {\n        $group: {\n          _id: \"$status\",\n          count: {\n            $sum: 1,\n          },\n        },\n      },\n    ]);",
+      "tokenEstimate": 102
+    },
+    {
+      "language": "javascript",
+      "content": "for await (const doc of aggregateResult) {\n  console.log(doc);\n}",
+      "tokenEstimate": 16
+    },
+    {
+      "language": "javascript",
+      "content": "[\n  { _id: 'delivering', count: 5 },\n  { _id: 'delivered', count: 37 },\n  { _id: 'created', count: 9 }\n]",
+      "tokenEstimate": 43
+    }
+  ],
+  "slug": "aggregate-data-from-documents",
+  "variantAgnostic": true
+}

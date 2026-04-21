@@ -1,0 +1,135 @@
+{
+  "path": "node/query/cursor",
+  "product": "node",
+  "title": "Access Data From a Cursor",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "javascript": 8
+    },
+    "bySection": [
+      {
+        "heading": "Asynchronous Iteration",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 31
+          }
+        ]
+      },
+      {
+        "heading": "Manual Iteration",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 26
+          }
+        ]
+      },
+      {
+        "heading": "Return an Array of All Documents",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 17
+          }
+        ]
+      },
+      {
+        "heading": "Stream API",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 22
+          }
+        ]
+      },
+      {
+        "heading": "Event API",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 33
+          }
+        ]
+      },
+      {
+        "heading": "Rewind",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 58
+          }
+        ]
+      },
+      {
+        "heading": "Close",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 5
+          }
+        ]
+      },
+      {
+        "heading": "Abort",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 106
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Asynchronous Iteration",
+      "content": "  const cursor = myColl.find({});\n  console.log(\"async\");\n  for await (const doc of cursor) {\n    console.log(doc);\n  }",
+      "tokenEstimate": 31
+    },
+    {
+      "language": "javascript",
+      "section": "Manual Iteration",
+      "content": "  const cursor = myColl.find({});\n\n  while (await cursor.hasNext()) {\n    console.log(await cursor.next());\n  }",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "javascript",
+      "section": "Return an Array of All Documents",
+      "content": "  const cursor = myColl.find({});\n  const allValues = await cursor.toArray();",
+      "tokenEstimate": 17
+    },
+    {
+      "language": "javascript",
+      "section": "Stream API",
+      "content": "  const cursor = myColl.find({});\n  cursor.stream().on(\"data\", doc => console.log(doc));",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "javascript",
+      "section": "Event API",
+      "content": "  const cursor = myColl.find({});\n  // the \"data\" event is fired once per document\n  cursor.on(\"data\", data => console.log(data));",
+      "tokenEstimate": 33
+    },
+    {
+      "language": "javascript",
+      "section": "Rewind",
+      "content": "  const cursor = myColl.find({});\n  const firstResult = await cursor.toArray();\n  console.log(\"First count: \" + firstResult.length);\n  await cursor.rewind();\n  const secondResult = await cursor.toArray();\n  console.log(\"Second count: \" + secondResult.length);",
+      "tokenEstimate": 58
+    },
+    {
+      "language": "javascript",
+      "section": "Close",
+      "content": "  await cursor.close();",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "javascript",
+      "section": "Abort",
+      "content": "  const controller = new AbortController();\n  const { signal } = controller;\n\n  process.on('SIGINT', () => controller.abort(new Error('^C pressed')));\n\n  try {\n    const cursor = myColl.find({}, { signal });\n    for await (const doc of cursor) {\n      console.log(doc);\n    }\n  } catch (error) {\n    if (error === signal.reason) {\n      console.error('Operation aborted:', error);\n    } else {\n      console.error('Unexpected error:', error);\n    }\n  }",
+      "tokenEstimate": 106
+    }
+  ]
+}

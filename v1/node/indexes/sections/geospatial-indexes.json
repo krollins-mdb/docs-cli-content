@@ -1,0 +1,17 @@
+{
+  "heading": "Geospatial Indexes",
+  "headingLevel": 3,
+  "body": "MongoDB supports queries of geospatial coordinate data using **2dsphere\nindexes**. With a 2dsphere index, you can query the geospatial data for\ninclusion, intersection, and proximity. For more information on querying\ngeospatial data with the MongoDB Node.js driver, read our\nSearch Geospatial guide.\n\nTo create a 2dsphere index, you must specify a field that contains\nonly **GeoJSON objects**. For more details on this type, see the MongoDB\nServer manual page on [GeoJSON objects](manual/reference/geojson).\n\nThe `location.geo` field in following sample document from the\n`theaters` collection in the `sample_mflix` database is a GeoJSON Point\nobject that describes the coordinates of the theater:\n\n```json\n{\n   \"_id\" : ObjectId(\"59a47286cfa9a3a73e51e75c\"),\n   \"theaterId\" : 104,\n   \"location\" : {\n      \"address\" : {\n         \"street1\" : \"5000 W 147th St\",\n         \"city\" : \"Hawthorne\",\n         \"state\" : \"CA\",\n         \"zipcode\" : \"90250\"\n      },\n      \"geo\" : {\n         \"type\" : \"Point\",\n         \"coordinates\" : [\n            -118.36559,\n            33.897167\n         ]\n      }\n   }\n}\n```\n\nThe following example uses the `createIndexes()` method to create a\n`2dsphere` index on the `location.geo` field in the `theaters`\ncollection in the `sample_mflix` database to enable geospatial searches.\n\n```js\nconst database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n/* Create a 2dsphere index on the \"location.geo\" field in the\n\"movies\" collection */\nconst result = await movies.createIndex({ \"location.geo\": \"2dsphere\" });\n\n// Print the result of the index creation\nconsole.log(`Index created: ${result}`);\n```\n\nMongoDB also supports `2d` indexes for calculating distances on a\nEuclidean plane and for working with the \"legacy coordinate pairs\" syntax\nused in MongoDB 2.2 and earlier. To learn more, see\n[Geospatial Queries](manual/geospatial-queries).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n   \"_id\" : ObjectId(\"59a47286cfa9a3a73e51e75c\"),\n   \"theaterId\" : 104,\n   \"location\" : {\n      \"address\" : {\n         \"street1\" : \"5000 W 147th St\",\n         \"city\" : \"Hawthorne\",\n         \"state\" : \"CA\",\n         \"zipcode\" : \"90250\"\n      },\n      \"geo\" : {\n         \"type\" : \"Point\",\n         \"coordinates\" : [\n            -118.36559,\n            33.897167\n         ]\n      }\n   }\n}",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "js",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n/* Create a 2dsphere index on the \"location.geo\" field in the\n\"movies\" collection */\nconst result = await movies.createIndex({ \"location.geo\": \"2dsphere\" });\n\n// Print the result of the index creation\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 78
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "path": "node/authentication/aws-iam",
+  "product": "node",
+  "title": "AWS IAM Authentication Mechanism",
+  "summary": {
+    "total": 8,
+    "byLanguage": {
+      "bash": 4,
+      "javascript": 4
+    },
+    "bySection": [
+      {
+        "heading": "Specify MONGODB-AWS Authentication",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 28
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 147
+          }
+        ]
+      },
+      {
+        "heading": "Specify MONGODB-AWS Authentication",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 9
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 18
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 147
+          }
+        ]
+      },
+      {
+        "heading": "Manually Specify AWS Credentials",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 65
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 77
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "bash",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "export AWS_ACCESS_KEY_ID=<awsKeyId>\nexport AWS_SECRET_ACCESS_KEY=<awsSecretKey>\nexport AWS_SESSION_TOKEN=<awsSessionToken>",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "bash",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "export AWS_STS_REGIONAL_ENDPOINTS=regional // Enables regional endpoints\nexport AWS_REGION=us-east-1 // Sets your AWS region",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "bash",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "npm install @aws-sdk/credential-providers",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "bash",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "export AWS_WEB_IDENTITY_TOKEN_FILE=<absolute path to file containing your OIDC token>",
+      "tokenEstimate": 18
+    },
+    {
+      "language": "javascript",
+      "section": "Specify MONGODB-AWS Authentication",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Remember to specify your AWS credentials in environment variables.\nconst clusterUrl = \"<cluster_url>\";\nconst authMechanism = \"MONGODB-AWS\";\n\nlet uri =\n  `mongodb+srv://${clusterUrl}/?authSource=%24external&authMechanism=${authMechanism}`;\n\n// Create a new MongoClient.\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Establish and verify connection.\n    await client.db(\"admin\").command({ ping: 1 });\n    console.log(\"Connected successfully to server.\");\n  } finally {\n    // Ensure that the client closes when it finishes/errors.\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 147
+    },
+    {
+      "language": "javascript",
+      "section": "Manually Specify AWS Credentials",
+      "content": "const { MongoClient } = require('mongodb');\nconst { fromNodeProviderChain } = require('@aws-sdk/credential-providers');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: fromNodeProviderChain()\n    }\n});",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "javascript",
+      "section": "Manually Specify AWS Credentials",
+      "content": "const { MongoClient } = require('mongodb');\n\nconst client = new MongoClient('<cluster_url>?authMechanism=MONGODB-AWS', {\n    authMechanismProperties: {\n        AWS_CREDENTIAL_PROVIDER: async () => {\n            return {\n                accessKeyId: process.env.ACCESS_KEY_ID,\n                secretAccessKey: process.env.SECRET_ACCESS_KEY\n            }\n        }\n    }\n});",
+      "tokenEstimate": 77
+    }
+  ]
+}

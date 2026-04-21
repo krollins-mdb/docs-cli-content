@@ -1,0 +1,204 @@
+{
+  "path": "node/insert",
+  "product": "node",
+  "title": "Insert Documents",
+  "summary": {
+    "total": 14,
+    "byLanguage": {
+      "javascript": 5,
+      "text": 3,
+      "none": 2,
+      "typescript": 2,
+      "json": 2
+    },
+    "bySection": [
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 70
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 26
+          }
+        ]
+      },
+      {
+        "heading": "insertOne() Example: Full File",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 10
+          }
+        ]
+      },
+      {
+        "heading": "insertOne() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 245
+          }
+        ]
+      },
+      {
+        "heading": "insertOne() Example: Full File",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 208
+          }
+        ]
+      },
+      {
+        "heading": "Insert Multiple Documents",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 56
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 227
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 53
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 28
+          }
+        ]
+      },
+      {
+        "heading": "Example",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 132
+          },
+          {
+            "language": "text",
+            "tokenEstimate": 73
+          }
+        ]
+      },
+      {
+        "heading": "insertMany() Example: Full File",
+        "blocks": [
+          {
+            "language": "none",
+            "tokenEstimate": 4
+          }
+        ]
+      },
+      {
+        "heading": "insertMany() Example: Full File",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 317
+          }
+        ]
+      },
+      {
+        "heading": "insertMany() Example: Full File",
+        "blocks": [
+          {
+            "language": "typescript",
+            "tokenEstimate": 300
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"pizzaMenu\");\n\nconst doc = { name: \"Neapolitan pizza\", shape: \"round\" };\nconst result = await myColl.insertOne(doc);\nconsole.log(\n   `A document was inserted with the _id: ${result.insertedId}`,\n);",
+      "tokenEstimate": 70
+    },
+    {
+      "language": "text",
+      "section": "Example",
+      "content": "A document was inserted with the _id: 60c79c0f4cc72b6bb31e3836",
+      "tokenEstimate": 26
+    },
+    {
+      "language": "none",
+      "section": "insertOne() Example: Full File",
+      "content": "A document was inserted with the _id: ...",
+      "tokenEstimate": 10
+    },
+    {
+      "language": "javascript",
+      "section": "insertOne() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\n// Create a new client and connect to MongoDB\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Connect to the \"sample_mflix\" database and access its \"movies\" collection\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n    \n    // Create a document to insert\n    const doc = {\n      title: \"Charade\",\n      genres: [\"Comedy\", \"Romance\", \"Thriller\"],\n      year: 1963,\n      cast: [\"Cary Grant\", \"Audrey Hepburn\", \"Walter Matthau\"],\n    }\n    // Insert the defined document into the \"movies\" collection\n    const result = await movies.insertOne(doc);\n\n    // Print the ID of the inserted document\n    console.log(`A document was inserted with the _id: ${result.insertedId}`);\n  } finally {\n     // Close the MongoDB client connection\n    await client.close();\n  }\n}\n// Run the function and handle any errors\nrun().catch(console.dir);\n",
+      "tokenEstimate": 245
+    },
+    {
+      "language": "typescript",
+      "section": "insertOne() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n  content: string[];\n  year: number;\n  cast: string[];\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a Schema is optional, but it enables type hints on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n    const result = await movies.insertOne({\n      title: \"Charade\",\n      genres: [\"Comedy\", \"Romance\", \"Thriller\"],\n      year: 1963,\n      cast: [\"Cary Grant\", \"Audrey Hepburn\", \"Walter Matthau\"],\n    });\n    console.log(`A document was inserted with the _id: ${result.insertedId}`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 208
+    },
+    {
+      "language": "json",
+      "section": "Insert Multiple Documents",
+      "content": "{ \"_id\": 1, \"color\": \"red\" }\n{ \"_id\": 2, \"color\": \"purple\" }\n{ \"_id\": 1, \"color\": \"yellow\" }\n{ \"_id\": 3, \"color\": \"blue\" }",
+      "tokenEstimate": 56
+    },
+    {
+      "language": "javascript",
+      "section": "Insert Multiple Documents",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"colors\");\n\ntry {\n   const docs = [\n      { \"_id\": 1, \"color\": \"red\"},\n      { \"_id\": 2, \"color\": \"purple\"},\n      { \"_id\": 1, \"color\": \"yellow\"},\n      { \"_id\": 3, \"color\": \"blue\"}\n   ];\n\n   const insertManyresult = await myColl.insertMany(docs);\n   let ids = insertManyresult.insertedIds;\n\n   console.log(`${insertManyresult.insertedCount} documents were inserted.`);\n   for (let id of Object.values(ids)) {\n      console.log(`Inserted a document with id ${id}`);\n   }\n} catch(e) {\n   console.log(`A MongoBulkWriteException occurred, but there are successfully processed documents.`);\n   let ids = e.result.result.insertedIds;\n   for (let id of Object.values(ids)) {\n      console.log(`Processed a document with id ${id._id}`);\n   }\n   console.log(`Number of documents inserted: ${e.result.result.nInserted}`);\n}",
+      "tokenEstimate": 227
+    },
+    {
+      "language": "text",
+      "section": "Insert Multiple Documents",
+      "content": "A MongoBulkWriteException occurred, but there are successfully processed documents.\nProcessed a document with id 1\nProcessed a document with id 2\nProcessed a document with id 1\nProcessed a document with id 3\nNumber of documents inserted: 2",
+      "tokenEstimate": 53
+    },
+    {
+      "language": "json",
+      "section": "Insert Multiple Documents",
+      "content": "{ \"_id\": 1, \"color\": \"red\" }\n{ \"_id\": 2, \"color\": \"purple\" }",
+      "tokenEstimate": 28
+    },
+    {
+      "language": "javascript",
+      "section": "Example",
+      "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"pizzaMenu\");\n\nconst docs = [\n   { name: \"Sicilian pizza\", shape: \"square\" },\n   { name: \"New York pizza\", shape: \"round\" },\n   { name: \"Grandma pizza\", shape: \"square\" }\n];\n\nconst insertManyresult = await myColl.insertMany(docs);\nlet ids = insertManyresult.insertedIds;\n\nconsole.log(`${insertManyresult.insertedCount} documents were inserted.`);\n\nfor (let id of Object.values(ids)) {\n   console.log(`Inserted a document with id ${id}`);\n}",
+      "tokenEstimate": 132
+    },
+    {
+      "language": "text",
+      "section": "Example",
+      "content": "3 documents were inserted.\nInserted a document with id 60ca09f4a40cf1d1afcd93a2\nInserted a document with id 60ca09f4a40cf1d1afcd93a3\nInserted a document with id 60ca09f4a40cf1d1afcd93a4",
+      "tokenEstimate": 73
+    },
+    {
+      "language": "none",
+      "section": "insertMany() Example: Full File",
+      "content": "3 documents were inserted",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "javascript",
+      "section": "insertMany() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n\n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create an array of documents to insert\n    const moviesToInsert = [\n      { title: \"Arsenic and Old Lace\", genres: [\"Comedy\", \"Romance\"], year: 1944, cast: [\"Cary Grant\", \"Priscilla Lane\", \"Raymond Massey\"] },\n      { title: \"Ball of Fire\", genres: [\"Comedy\", \"Romance\"], year: 1941, cast: [\"Gary Cooper\", \"Barbara Stanwyck\", \"Oskar Homolka\"] },\n      { title: \"I Married a Witch\", genres: [\"Comedy\", \"Fantasy\", \"Romance\"], year: 1942, cast: [\"Veronica Lake\", \"Fredric March\", \"Susan Hayward\"] },\n    ];\n\n    // Prevent additional documents from being inserted if one fails\n    const options = { ordered: true };\n\n    // Execute insert operation\n    const result = await movies.insertMany(moviesToInsert, options);\n   \n    // Print result\n    console.log(`${result.insertedCount} documents were inserted`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 317
+    },
+    {
+      "language": "typescript",
+      "section": "insertMany() Example: Full File",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\ninterface Movie {\n  title: string;\n  genres: string[];\n  year: number;\n  cast: string[];\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    // Specifying a schema is optional, but it enables type hints on\n    // finds and inserts\n    const movies = database.collection<Movie>(\"movies\");\n\n    const result = await movies.insertMany(\n      { title: \"Arsenic and Old Lace\", genres: [\"Comedy\", \"Romance\"], year: 1944, cast: [\"Cary Grant\", \"Priscilla Lane\", \"Raymond Massey\"] },\n      { title: \"Ball of Fire\", genres: [\"Comedy\", \"Romance\"], year: 1941, cast: [\"Gary Cooper\", \"Barbara Stanwyck\", \"Oskar Homolka\"] },\n      { title: \"I Married a Witch\", genres: [\"Comedy\", \"Fantasy\", \"Romance\"], year: 1942, cast: [\"Veronica Lake\", \"Fredric March\", \"Susan Hayward\"] },\n      { ordered: true }\n    );\n    console.log(`${result.insertedCount} documents were inserted`);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 300
+    }
+  ]
+}

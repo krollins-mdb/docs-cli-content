@@ -1,0 +1,27 @@
+{
+  "heading": "Type Safety and Dot Notation",
+  "headingLevel": 3,
+  "body": "Starting in version 5.0, by default, the Node.js driver does not provide type\nsafety for operations that search on fields expressed in **dot notation**. Dot\nnotation is a syntax you can use to navigate nested JSON objects. When\nyou construct a filter to pass to a query, the driver will not raise a\ntype error even if you specify an incorrectly typed value for a field expressed\nin dot notation.\n\nThe following code snippet defines the `ClassificationPet` interface,\nwhich includes a `classification` field that enables you to specify the\ngenus and color of dogs and cats:\n\n```typescript\ninterface ClassificationPet {\n  name: string;\n  age: number;\n  classification: { genus: \"Canis\" | \"Felis\"; color: string };\n}\n```\n\nThe driver does not raise a type error for the following code sample,\neven though the value of `classification.color` is a boolean\ninstead of a string:\n\n```typescript\nawait myColl.findOneAndDelete({ \"classification.color\": false });\n```\n\nYou can enable type-checking by constructing filters as `StrictFilter` or\n`StrictUpdateFilter` types.\n\n> **Warning:** The `StrictFilter` and `StrictUpdateFilter` types are experimental and\n> might incorrectly show type errors in valid queries.\n\nIn the following code sample, the filter is assigned a\n`StrictFilter` type. Given this filter type, the Node.js driver\nreports a type error because the value of `classification.color` is a\nboolean instead of a string.\n\n```typescript\nconst filterPredicate: StrictFilter<ClassificationPet> = { \"classification.color\": false };\nawait myColl.findOneAndDelete(filterPredicate);\n```\n\nThe following example assigns a `StrictUpdateFilter` type to an update\nfilter. The Node.js driver reports a type error because the value of\n`classification.color` is a boolean instead of a string.\n\n```typescript\nconst updateFilter: StrictUpdateFilter<ClassificationPet> = { $set: { \"classification.color\": false } }\nawait pets.updateOne({}, updateFilter);\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "interface ClassificationPet {\n  name: string;\n  age: number;\n  classification: { genus: \"Canis\" | \"Felis\"; color: string };\n}",
+      "tokenEstimate": 34
+    },
+    {
+      "language": "typescript",
+      "content": "await myColl.findOneAndDelete({ \"classification.color\": false });",
+      "tokenEstimate": 13
+    },
+    {
+      "language": "typescript",
+      "content": "const filterPredicate: StrictFilter<ClassificationPet> = { \"classification.color\": false };\nawait myColl.findOneAndDelete(filterPredicate);",
+      "tokenEstimate": 27
+    },
+    {
+      "language": "typescript",
+      "content": "const updateFilter: StrictUpdateFilter<ClassificationPet> = { $set: { \"classification.color\": false } }\nawait pets.updateOne({}, updateFilter);",
+      "tokenEstimate": 32
+    }
+  ]
+}

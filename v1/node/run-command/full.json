@@ -1,0 +1,95 @@
+{
+  "path": "node/run-command",
+  "product": "node",
+  "title": "Run a Database Command",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "In this guide, you can learn how to run a database command with the\nNode.js driver. You can use database commands to perform a variety of\nadministrative and diagnostic tasks, such as fetching server statistics,\ninitializing a replica set, or running an aggregation pipeline.\n\n> **Important:**&#x20;\n>\n> Prefer Driver Methods to Database Commands\n>\n> The driver provides wrapper methods for many database commands.\n> We recommend using driver methods instead of executing database\n> commands when possible.\n>\n> To perform administrative tasks, use the [MongoDB Shell](mongodb-shell)\n> instead of the Node.js driver. Calling the `db.runCommand()`\n> method inside the shell is the preferred method to issue database\n> commands, as it provides a consistent interface between the shell and\n> drivers.",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Execute a Command",
+      "headingLevel": 2,
+      "body": "To run a database command, you must specify the command and any relevant\nparameters in a document, then pass this document to a\ncommand execution method. The Node.js driver provides the following methods\nto run database commands:\n\n- `command()`, which returns the command response as a\n  `Document` type. You can use this method with any database command.\n\n- `runCursorCommand()`, which returns the command response as an iterable\n  `RunCommandCursor` type. You can use this method only if your database command\n  returns multiple result documents.\n\nThe following code shows how you can use the `command()`\nmethod to run the `hello` command, which returns information about\nthe current member's role in the replica set, on a database:\n\n```javascript\nconst result = await myDB.command({ hello: 1 });\n```\n\nFor a full list of database commands and corresponding parameters, see\nthe [Additional Information section](addl-info-runcommand).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const result = await myDB.command({ hello: 1 });",
+          "tokenEstimate": 13
+        }
+      ]
+    },
+    {
+      "heading": "Command Options",
+      "headingLevel": 2,
+      "body": "You can specify optional command behavior for the `command()`\nand `runCursorCommand()` methods.\n\nThe `command()` method accepts a `RunCommandOptions` object. To learn\nmore about the `RunCommandOptions` type, see the [API documentation](https://mongodb.github.io/node-mongodb-native/7.1/types/RunCommandOptions.html).\n\nThe `runCursorCommand() method` accepts a `RunCursorCommandOptions`\nobject. To learn more about the `RunCursorCommandOptions` type, see\nthe [API documentation](https://mongodb.github.io/node-mongodb-native/7.1/types/RunCursorCommandOptions.html).\n\nStarting in version 6.0 of the Node.js driver, you can pass only the\nfollowing options to the `command()` method:\n\n- `comment`\n\n- `enableUtf8Validation`\n\n- `raw`\n\n- `readPreference`\n\n- `session`\n\nYou can set more options in the document that you pass to the `command()` method. To\nlearn more about a command and the options that it accepts, locate the command and follow\nthe link on the [Database Commands](manual/reference/command) section of the Server\nmanual.\n\nThe following code shows how to specify a `grantRolesToUser` command\nthat executes with a `majority` write concern:\n\n```javascript\nconst commandDoc = {\n    grantRolesToUser: \"user011\",\n    roles: [ \"readWrite\" ],\n    writeConcern: { w: \"majority\" }\n};\nconst result = await myDB.command(commandDoc);\n```\n\n> **Note:**&#x20;\n>\n> Read Preference\n>\n> The `command()` and `runCursorCommand()` methods ignore\n> the read preference setting you may have set on your `Db` object.\n> By default, these methods use the `primary` read preference.\n>\n> The following code shows how to specify a read preference and pass it\n> as an option to the `command()` method:\n>\n> ```javascript\n> const commandOptions = { readPreference: \"nearest\" };\n> const result = await myDB.command(commandDoc, commandOptions);\n> ```\n>\n> For more information on read preference options, see [Read\n> Preference](manual/core/read-preference) in the Server manual.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "const commandDoc = {\n    grantRolesToUser: \"user011\",\n    roles: [ \"readWrite\" ],\n    writeConcern: { w: \"majority\" }\n};\nconst result = await myDB.command(commandDoc);",
+          "tokenEstimate": 47
+        },
+        {
+          "language": "javascript",
+          "content": "const commandOptions = { readPreference: \"nearest\" };\nconst result = await myDB.command(commandDoc, commandOptions);",
+          "tokenEstimate": 25
+        }
+      ]
+    },
+    {
+      "heading": "Response",
+      "headingLevel": 2,
+      "body": "Each method returns a `Document` object or a cursor that contains\nthe response from the database after the command has been executed. Each\ndatabase command performs a different function, so the response content\ncan vary across commands. However, every response contains documents\nwith the following fields:\n\n| Field             | Description                                                                                                                                                                                                                                                                                                                                                                             |\n| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| \\<command result> | Provides fields specific to the database command. For example, count returns the n field and explain returns the queryPlanner field.                                                                                                                                                                                                                                                    |\n| ok                | Indicates whether the command has succeeded (1) or failed (0).                                                                                                                                                                                                                                                                                                                          |\n| operationTime     | Indicates the logical time of the operation. MongoDB uses the logical time to order operations. To learn more about logical time, see our blog post about the Global Logical Clock.                                                                                                                                                                                                     |\n| $clusterTime      | Provides a document that returns the signed cluster time. Cluster time is a logical time used for ordering of operations.The document contains the following fields:clusterTime, which is the timestamp of the highest known cluster time for the member.signature, which is a document that contains the hash of the cluster time and the ID of the key used to sign the cluster time. |",
+      "codeBlocks": []
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 2,
+      "body": "The following code shows how you can use the `runCursorCommand()` method to\nrun the `checkMetadataConsistency` command on the `testDB` database\nand iterate through the results:\n\n```javascript\n// Connect to the \"testDB\" database\nconst db = client.db(\"testDB\");\n\n// Run a cursor command to check metadata consistency within the database\nconst cursor = await db.runCursorCommand({\n    checkMetadataConsistency: 1,\n});\n// Iterate through the cursor's results and print the contents\nfor await (const doc of cursor) {\n  console.log(doc);\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// Connect to the \"testDB\" database\nconst db = client.db(\"testDB\");\n\n// Run a cursor command to check metadata consistency within the database\nconst cursor = await db.runCursorCommand({\n    checkMetadataConsistency: 1,\n});\n// Iterate through the cursor's results and print the contents\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+          "tokenEstimate": 78
+        }
+      ]
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 3,
+      "body": "The output contains the contents of the cursor object. The documents\ndescribe any metadata inconsistencies in the database:\n\n```javascript\n{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    info: ...\n  }\n}\n{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    collectionUUID: ...,\n    maxKeyObj: ...,\n    ...\n  }\n}\n```\n\n> **Note:** If you store the command response in a cursor, you see only the\n> command result documents when you access the contents of the cursor. You won't\n> see the `ok`, `operationTime`, and `$clusterTime` fields.",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    info: ...\n  }\n}\n{\n  type: ...,\n  description: ...,\n  details: {\n    namespace: ...,\n    collectionUUID: ...,\n    maxKeyObj: ...,\n    ...\n  }\n}",
+          "tokenEstimate": 65
+        }
+      ]
+    },
+    {
+      "heading": "Run Command Example: Full File",
+      "headingLevel": 2,
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\n> **Note:**&#x20;\n>\n> No TypeScript Specific Features\n>\n> The following code example uses JavaScript. There are no TypeScript\n> specific features of the driver relevant to this use case.\n\nIn the following sample code, we send the `dbStats` command to request\nstatistics from the `sample_mflix` database:\n\n```javascript\n/* Run a database command */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Get the \"sample_mflix\" database\n    const db = client.db(\"sample_mflix\");\n\n    // Find and print the storage statistics for the \"sample_mflix\" database using the 'dbStats' command\n    const result = await db.command({\n      dbStats: 1,\n    });\n    console.log(result);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```\n\nRunning the preceding command results in the following output:\n\n```javascript\n{\n  db: 'sample_mflix',\n  collections: 6,\n  views: 0,\n  objects: 75620,\n  ..\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "/* Run a database command */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Get the \"sample_mflix\" database\n    const db = client.db(\"sample_mflix\");\n\n    // Find and print the storage statistics for the \"sample_mflix\" database using the 'dbStats' command\n    const result = await db.command({\n      dbStats: 1,\n    });\n    console.log(result);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 147
+        },
+        {
+          "language": "javascript",
+          "content": "{\n  db: 'sample_mflix',\n  collections: 6,\n  views: 0,\n  objects: 75620,\n  ..",
+          "tokenEstimate": 30
+        }
+      ]
+    },
+    {
+      "heading": "Additional Information",
+      "headingLevel": 2,
+      "body": "For more information about the concepts in this guide, see the following documentation:\n\n- [db.runCommand()](manual/reference/method/db.runCommand)\n\n- [Database Commands](manual/reference/command)\n\n- [hello Command](manual/reference/command/hello)\n\n- [find Command](manual/reference/command/find)\n\nTo learn how to retrieve data from a cursor, see the\n[Access Data From a Cursor](node-access-cursor) fundamentals page.",
+      "codeBlocks": []
+    }
+  ]
+}

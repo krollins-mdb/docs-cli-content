@@ -1,0 +1,6 @@
+{
+  "heading": "Avoid Socket Timeouts",
+  "headingLevel": 2,
+  "body": "Having a large connection pool does not always reduce reconnection\nrequests. Consider the following example scenario:\n\n- An application has a connection pool size of 5 sockets and has the\n  `socketTimeoutMS` option set to 5000 milliseconds.\n\n- Operations occur, on average, every 3000 milliseconds, and reconnection\n  requests are frequent.\n\n- Each socket times out after 5000 milliseconds, which means that all sockets\n  must do something during those 5000 milliseconds to avoid closing.\n\nIn this scenario, each socket times out after 5000 milliseconds, requiring\nactivity within this timeout period to avoid closure. However, one message every\n3000 milliseconds isn't enough to keep all sockets active, causing several of\nthem to time out.\n\nTo avoid excessive socket timeouts, reduce the number of connections that the\ndriver can maintain in the connection pool by specifying the `maxPoolSize`\noption. To learn how to set the `maxPoolSize` option, see the\n[maxPoolSize](node-connection-pool-max-pool-size) section.",
+  "codeBlocks": []
+}

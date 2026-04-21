@@ -1,0 +1,174 @@
+{
+  "path": "node/update/modify",
+  "product": "node",
+  "title": "Modify Documents",
+  "sections": [
+    {
+      "heading": "Overview",
+      "headingLevel": 2,
+      "body": "You can modify documents in a MongoDB collection by using **update**\nand **replace** operations. Update operations modify the fields and\nvalues of a document while keeping other fields and values\nunchanged. Replace operations substitute all fields and values\nin an existing document with specified fields and values while keeping\nthe `_id` field value unchanged.\n\nThe Node.js driver provides the following methods to change documents:\n\n- `updateOne()`\n\n- `updateMany()`\n\n- `replaceOne()`\n\nTo learn how to replace documents, see the [Replace Documents](node-replace) guide.\n\n> **Tip:**&#x20;\n>\n> Interactive Lab\n>\n> This page includes a short interactive lab that demonstrates how to\n> modify data by using the `updateMany()` method. You can complete this lab\n> directly in your browser window without installing MongoDB or a code editor.\n>\n> To start the lab, click the **Open Interactive Tutorial** button at the\n> top of the page. To expand the lab to a full-screen format, click the\n> full-screen button (**⛶**) in the top-right corner of the lab pane.",
+      "codeBlocks": [],
+      "slug": "overview",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Update Documents",
+      "headingLevel": 2,
+      "body": "To perform an update to one or more documents, create an **update\ndocument** that specifies the **update operator** (the type of update to\nperform) and the fields and values that describe the change. Update\ndocuments use the following format:\n\n```javascript\n{\n   <update operator>: {\n      <field> : {\n         ...\n      },\n      <field> : {\n      }\n   },\n   <update operator>: {\n      ...\n   }\n}\n```\n\nThe top level of an update document contains one or more of the following\nupdate operators:\n\n- `$set`: replaces the value of a field with a specified one\n\n- `$inc`: increments or decrements field values\n\n- `$rename`: renames fields\n\n- `$unset`: removes fields\n\n- `$mul`: multiplies a field value by a specified number\n\nSee the MongoDB Server manual for a [complete list of update operators\nand their usage](manual/reference/operator/update-field).\n\nThe update operators apply only to the fields associated with them in your\nupdate document.\n\n> **Note:**&#x20;\n>\n> Aggregation Pipelines in Update Operations\n>\n> If you are using MongoDB Version 4.2 or later, you can use aggregation\n> pipelines made up of a subset of aggregation stages in update operations. For\n> more information on the aggregation stages MongoDB supports in\n> aggregation pipelines used in update operations, see our tutorial on building\n> [updates with aggregation pipelines](manual/tutorial/update-documents-with-aggregation-pipeline).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   <update operator>: {\n      <field> : {\n         ...\n      },\n      <field> : {\n      }\n   },\n   <update operator>: {\n      ...\n   }\n}",
+          "tokenEstimate": 38
+        }
+      ],
+      "slug": "update-documents",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Example",
+      "headingLevel": 3,
+      "body": "Consider a document in the `myDB.items` collection with fields\ndescribing an item for sale, its price, and the quantity available:\n\n```javascript\n{\n   _id: 465,\n   item: \"Hand-thrown ceramic plate\",\n   price: 32.50,\n   quantity: 7,\n}\n```\n\nIf you apply the `$set` update operator with a new value for\n`quantity`, you can use the following update document:\n\n```javascript\nconst myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 465 };\n\n// update the value of the 'quantity' field to 5\nconst updateDocument = {\n   $set: {\n      quantity: 5,\n   },\n};\nconst result = await myColl.updateOne(filter, updateDocument);\n```\n\nThe updated document resembles the following, with an updated value in\nthe `quantity` field and all other values unchanged:\n\n```javascript\n{\n   _id: 465,\n   item: \"Hand-thrown ceramic plate\",\n   price: 32.50,\n   quantity: 5,\n}\n```\n\nIf an update operation fails to match any documents in a collection, it does not\nmake any changes. Update operations can be configured to perform an upsert which attempts to perform an update, but if no documents are\nmatched, inserts a new document with the specified fields and values.\n\nYou cannot modify the `_id` field of a document nor change a field to\na value that violates a unique index constraint. See the MongoDB Server manual\nfor more information on [unique indexes](manual/core/index-unique).",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "{\n   _id: 465,\n   item: \"Hand-thrown ceramic plate\",\n   price: 32.50,\n   quantity: 7,\n}",
+          "tokenEstimate": 33
+        },
+        {
+          "language": "javascript",
+          "content": "const myDB = client.db(\"myDB\");\nconst myColl = myDB.collection(\"items\");\n\nconst filter = { _id: 465 };\n\n// update the value of the 'quantity' field to 5\nconst updateDocument = {\n   $set: {\n      quantity: 5,\n   },\n};\nconst result = await myColl.updateOne(filter, updateDocument);",
+          "tokenEstimate": 76
+        },
+        {
+          "language": "javascript",
+          "content": "{\n   _id: 465,\n   item: \"Hand-thrown ceramic plate\",\n   price: 32.50,\n   quantity: 5,\n}",
+          "tokenEstimate": 33
+        }
+      ],
+      "slug": "example",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "updateOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThis example uses the `$set` update operator which specifies\nupdate values for document fields. For more information on update operators,\nsee the [MongoDB update operator reference documentation](manual/reference/operator/update).\n\nThe following code is a complete, standalone file that performs an update one\noperation:\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example results in the following output:\n\n```none\n1 document(s) matched the filter, updated 1 document(s)\n```",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "1 document(s) matched the filter, updated 1 document(s)",
+          "tokenEstimate": 14
+        }
+      ],
+      "slug": "updateone-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "updateOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\n// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a filter for movies with the title \"Random Harvest\"\n    const filter = { title: \"Random Harvest\" };\n\n    /* Set the upsert option to insert a document if no documents match\n    the filter */\n    const options = { upsert: true };\n\n    // Specify the update to set a value for the plot field\n    const updateDoc = {\n      $set: {\n        plot: `A harvest of random numbers, such as: ${Math.random()}`\n      },\n    };\n\n    // Update the first document that matches the filter\n    const result = await movies.updateOne(filter, updateDoc, options);\n    \n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a filter for movies with the title \"Random Harvest\"\n    const filter = { title: \"Random Harvest\" };\n\n    /* Set the upsert option to insert a document if no documents match\n    the filter */\n    const options = { upsert: true };\n\n    // Specify the update to set a value for the plot field\n    const updateDoc = {\n      $set: {\n        plot: `A harvest of random numbers, such as: ${Math.random()}`\n      },\n    };\n\n    // Update the first document that matches the filter\n    const result = await movies.updateOne(filter, updateDoc, options);\n    \n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n",
+          "tokenEstimate": 278
+        }
+      ],
+      "slug": "updateone-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "updateOne() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\n// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Define the Movie interface\ninterface Movie {\n  plot: string;\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    /* Update a document that has the title \"Random Harvest\" to have a\n    plot field with the specified value */\n    const result = await movies.updateOne(\n      { title: \"Random Harvest\" },\n      {\n        $set: {\n          plot: `A harvest of random numbers, such as: ${Math.random()}`,\n        },\n      },\n      /* Set the upsert option to insert a document if no documents\n      match the filter */\n      { upsert: true }\n    );\n\n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Define the Movie interface\ninterface Movie {\n  plot: string;\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    /* Update a document that has the title \"Random Harvest\" to have a\n    plot field with the specified value */\n    const result = await movies.updateOne(\n      { title: \"Random Harvest\" },\n      {\n        $set: {\n          plot: `A harvest of random numbers, such as: ${Math.random()}`,\n        },\n      },\n      /* Set the upsert option to insert a document if no documents\n      match the filter */\n      { upsert: true }\n    );\n\n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n",
+          "tokenEstimate": 269
+        }
+      ],
+      "slug": "updateone-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "updateMany() Example: Full File",
+      "headingLevel": 3,
+      "body": "> **Note:**&#x20;\n>\n> Example Setup\n>\n> This example connects to an instance of MongoDB by using a\n> connection URI. To learn more about connecting to your MongoDB\n> instance, see the [Connect to MongoDB](node-connect) guide. This example\n> also uses the `movies` collection in the `sample_mflix` database\n> included in the [Atlas sample datasets](atlas/sample-data). You\n> can load them into your database on the free tier of MongoDB Atlas by\n> following the [MongoDB Get Started](get-started).\n\nThe following code is a complete, standalone file that performs an update many\noperation:\n\nJavaScript\n\nTypeScript\n\nRunning the preceding example, you see an output like the following:\n\n```none\nUpdated 477 documents\n```\n\n/mongodb-docs/tracks/update-node?token=em\\_FEr9KfMh4WQ0VosU",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "Updated 477 documents",
+          "tokenEstimate": 4
+        }
+      ],
+      "slug": "updatemany-example-full-file",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "updateMany() Example: Full File",
+      "headingLevel": 3,
+      "body": "```javascript\n/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a filter to update all movies with a 'G' rating\n    const filter = { rated: \"G\" };\n\n    // Create an update document specifying the change to make\n    const updateDoc = {\n      $set: {\n        random_review: `After viewing I am ${\n          100 * Math.random()\n        }% more satisfied with life.`,\n      },\n    };\n    // Update the documents that match the specified filter\n    const result = await movies.updateMany(filter, updateDoc);\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "javascript",
+          "content": "/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Create a filter to update all movies with a 'G' rating\n    const filter = { rated: \"G\" };\n\n    // Create an update document specifying the change to make\n    const updateDoc = {\n      $set: {\n        random_review: `After viewing I am ${\n          100 * Math.random()\n        }% more satisfied with life.`,\n      },\n    };\n    // Update the documents that match the specified filter\n    const result = await movies.updateMany(filter, updateDoc);\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 230
+        }
+      ],
+      "slug": "updatemany-example-full-file--javascript",
+      "selections": {
+        "language": "javascript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "updateMany() Example: Full File",
+      "headingLevel": 3,
+      "body": "```typescript\n/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nenum Rating {\n  G = \"G\",\n  PG = \"PG\",\n  PG_13 = \"PG-13\",\n  R = \"R\",\n  NR = \"NOT RATED\",\n}\n\n// Create a Movie interface\ninterface Movie {\n  rated: Rating;\n  random_review?: string;\n}\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    // Update all documents that match the specified filter\n    const result = await movies.updateMany(\n      { rated: Rating.G },\n      {\n        $set: {\n          random_review: `After viewing I am ${\n            100 * Math.random()\n          }% more satisfied with life.`,\n        },\n      }\n    );\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+      "codeBlocks": [
+        {
+          "language": "typescript",
+          "content": "/* Update multiple documents */\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nenum Rating {\n  G = \"G\",\n  PG = \"PG\",\n  PG_13 = \"PG-13\",\n  R = \"R\",\n  NR = \"NOT RATED\",\n}\n\n// Create a Movie interface\ninterface Movie {\n  rated: Rating;\n  random_review?: string;\n}\n\nasync function run() {\n  try {\n    // Get the \"movies\" collection in the \"sample_mflix\" database\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    // Update all documents that match the specified filter\n    const result = await movies.updateMany(\n      { rated: Rating.G },\n      {\n        $set: {\n          random_review: `After viewing I am ${\n            100 * Math.random()\n          }% more satisfied with life.`,\n        },\n      }\n    );\n    console.log(`Updated ${result.modifiedCount} documents`);\n  } finally {\n    // Close the database connection on completion or error\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+          "tokenEstimate": 254
+        }
+      ],
+      "slug": "updatemany-example-full-file--typescript",
+      "selections": {
+        "language": "typescript"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "API Documentation",
+      "headingLevel": 2,
+      "body": "To learn more about any of the types or methods discussed in this guide, see the\nfollowing API documentation:\n\n- [MongoClient](https://mongodb.github.io/node-mongodb-native/7.1/classes/MongoClient.html)\n\n- [Db](https://mongodb.github.io/node-mongodb-native/7.1/classes/Db.html)\n\n- [Collection](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html)\n\n- [updateOne()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#updateOne)\n\n- [updateMany()](https://mongodb.github.io/node-mongodb-native/7.1/classes/Collection.html#updateMany)",
+      "codeBlocks": [],
+      "slug": "api-documentation",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "language",
+      "text": "language",
+      "default": "javascript",
+      "selections": [
+        {
+          "value": "javascript",
+          "text": "javascript"
+        },
+        {
+          "value": "typescript",
+          "text": "typescript"
+        }
+      ]
+    }
+  ]
+}

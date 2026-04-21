@@ -1,0 +1,17 @@
+{
+  "heading": "find() Example: Full File",
+  "headingLevel": 3,
+  "body": "```javascript\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "import { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string.\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    \n    // Get the database and collection on which to run the operation\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection(\"movies\");\n\n    // Query for movies that have a runtime less than 15 minutes\n    const query = { runtime: { $lt: 15 } };\n    const sortFields = { title: 1 };\n    const projectFields = { _id: 0, title: 1, imdb: 1 };\n\n    // Execute query \n    const cursor = movies.find(query).sort(sortFields).project(projectFields);\n\n    // Print a message if no documents were found\n    if ((await movies.countDocuments(query)) === 0) {\n      console.log(\"No documents found!\");\n    }\n\n    // Print returned documents\n    for await (const doc of cursor) {\n      console.dir(doc);\n    }\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 239
+    }
+  ],
+  "slug": "find-example-full-file--javascript",
+  "selections": {
+    "language": "javascript"
+  },
+  "variantAgnostic": false
+}

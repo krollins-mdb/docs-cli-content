@@ -1,0 +1,17 @@
+{
+  "heading": "updateOne() Example: Full File",
+  "headingLevel": 3,
+  "body": "```typescript\n// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Define the Movie interface\ninterface Movie {\n  plot: string;\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    /* Update a document that has the title \"Random Harvest\" to have a\n    plot field with the specified value */\n    const result = await movies.updateOne(\n      { title: \"Random Harvest\" },\n      {\n        $set: {\n          plot: `A harvest of random numbers, such as: ${Math.random()}`,\n        },\n      },\n      /* Set the upsert option to insert a document if no documents\n      match the filter */\n      { upsert: true }\n    );\n\n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "typescript",
+      "content": "// Update a document\n\nimport { MongoClient } from \"mongodb\";\n\n// Replace the uri string with your MongoDB deployment's connection string\nconst uri = \"<connection string uri>\";\n\nconst client = new MongoClient(uri);\n\n// Define the Movie interface\ninterface Movie {\n  plot: string;\n  title: string;\n}\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const movies = database.collection<Movie>(\"movies\");\n\n    /* Update a document that has the title \"Random Harvest\" to have a\n    plot field with the specified value */\n    const result = await movies.updateOne(\n      { title: \"Random Harvest\" },\n      {\n        $set: {\n          plot: `A harvest of random numbers, such as: ${Math.random()}`,\n        },\n      },\n      /* Set the upsert option to insert a document if no documents\n      match the filter */\n      { upsert: true }\n    );\n\n    // Print the number of matching and modified documents\n    console.log(\n      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`\n    );\n  } finally {\n    // Close the connection after the operation completes\n    await client.close();\n  }\n}\n// Run the program and print any thrown errors\nrun().catch(console.dir);\n",
+      "tokenEstimate": 269
+    }
+  ],
+  "slug": "updateone-example-full-file--typescript",
+  "selections": {
+    "language": "typescript"
+  },
+  "variantAgnostic": false
+}

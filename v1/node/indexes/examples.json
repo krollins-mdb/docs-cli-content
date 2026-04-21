@@ -1,0 +1,268 @@
+{
+  "path": "node/indexes",
+  "product": "node",
+  "title": "Indexes for Query Optimization",
+  "summary": {
+    "total": 19,
+    "byLanguage": {
+      "javascript": 7,
+      "js": 10,
+      "json": 1,
+      "none": 1
+    },
+    "bySection": [
+      {
+        "heading": "List Indexes",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 51
+          }
+        ]
+      },
+      {
+        "heading": "Single Field Indexes",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 61
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 85
+          }
+        ]
+      },
+      {
+        "heading": "Compound Indexes",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 91
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 134
+          }
+        ]
+      },
+      {
+        "heading": "Multikey Indexes (Indexes on Array Fields)",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 50
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 75
+          }
+        ]
+      },
+      {
+        "heading": "Clustered Indexes",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 39
+          }
+        ]
+      },
+      {
+        "heading": "Text Indexes",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 98
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 85
+          }
+        ]
+      },
+      {
+        "heading": "Geospatial Indexes",
+        "blocks": [
+          {
+            "language": "json",
+            "tokenEstimate": 133
+          },
+          {
+            "language": "js",
+            "tokenEstimate": 78
+          }
+        ]
+      },
+      {
+        "heading": "Unique Indexes",
+        "blocks": [
+          {
+            "language": "js",
+            "tokenEstimate": 68
+          },
+          {
+            "language": "none",
+            "tokenEstimate": 7
+          }
+        ]
+      },
+      {
+        "heading": "Create a Search Index",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 48
+          },
+          {
+            "language": "javascript",
+            "tokenEstimate": 77
+          }
+        ]
+      },
+      {
+        "heading": "List Search Indexes",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 39
+          }
+        ]
+      },
+      {
+        "heading": "Update a Search Index",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 59
+          }
+        ]
+      },
+      {
+        "heading": "Drop a Search Index",
+        "blocks": [
+          {
+            "language": "javascript",
+            "tokenEstimate": 19
+          }
+        ]
+      }
+    ]
+  },
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "section": "List Indexes",
+      "content": "// List the indexes on the collection and output them as an array\nconst result = await collection.listIndexes().toArray();\n\n// Print the list of indexes\nconsole.log(\"Existing indexes:\\n\");\nfor(const doc in result){\n    console.log(doc);\n}",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "js",
+      "section": "Single Field Indexes",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n// Create an ascending index on the \"title\" field in the\n// \"movies\" collection.\nconst result = await movies.createIndex({ title: 1 });\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 61
+    },
+    {
+      "language": "js",
+      "section": "Single Field Indexes",
+      "content": "// Define the query parameters\nconst query = { title: \"Batman\" }\nconst sort = { title: 1 };\nconst projection = { _id: 0, title: 1 };\n// Execute the query using the defined parameters\nconst cursor = movies\n  .find(query)\n  .sort(sort)\n  .project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "js",
+      "section": "Compound Indexes",
+      "content": "// Connect to the \"sample_mflix\" database\nconst database = client.db(\"sample_mflix\");\n// Access the database's \"movies\" collection\nconst movies = database.collection(\"movies\");\n\n// Create an ascending index on the \"type\" and \"genre\" fields\n// in the \"movies\" collection.\nconst result = await movies.createIndex({ type: 1, genre: 1 });\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 91
+    },
+    {
+      "language": "js",
+      "section": "Compound Indexes",
+      "content": "// Define a query to find movies in the \"Drama\" genre\nconst query = { type: \"movie\", genre: \"Drama\" };\n// Define sorting criteria for the query results\nconst sort = { type: 1, genre: 1 };\n// Include only the type and genre fields in the query results\nconst projection = { _id: 0, type: 1, genre: 1 };\n\n// Execute the query using the defined criteria and projection\nconst cursor = movies\n  .find(query)\n  .sort(sort)\n  .project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 134
+    },
+    {
+      "language": "js",
+      "section": "Multikey Indexes (Indexes on Array Fields)",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n// Create a multikey index on the \"cast\" field in the \"movies\" collection\nconst result = await movies.createIndex({ cast: 1 });",
+      "tokenEstimate": 50
+    },
+    {
+      "language": "js",
+      "section": "Multikey Indexes (Indexes on Array Fields)",
+      "content": "const query = { cast: \"Viola Davis\" };\nconst projection = { _id: 0, cast: 1 , title: 1 };\n\n// Perform a find operation with the preceding filter and projection\nconst cursor = movies\n  .find(query)\n  .project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 75
+    },
+    {
+      "language": "javascript",
+      "section": "Clustered Indexes",
+      "content": "const db = client.db('tea');\nawait db.createCollection('ratings', {\n  clusteredIndex: {\n    key: { _id: 1 },\n    unique: true\n  }\n});",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "js",
+      "section": "Text Indexes",
+      "content": "// Get the database and collection on which to create the index \nconst myDB = client.db(\"testDB\");\nconst myColl = myDB.collection(\"blogPosts\");\n\n// Create a text index on the \"title\" and \"body\" fields\nconst result = await myColl.createIndex(\n  { title: \"text\", body: \"text\" },\n  {\n     default_language: \"english\",\n     weights: { body: 10, title: 3 }\n  }\n);",
+      "tokenEstimate": 98
+    },
+    {
+      "language": "js",
+      "section": "Text Indexes",
+      "content": "// Query for documents where body or title contain \"life ahead\"\nconst query = { $text: { $search: \"life ahead\" } };\n\n// Show only the title field\nconst projection = { _id: 0, title: 1 };\n\n// Execute the find operation\nconst cursor = myColl.find(query).project(projection);\n\nfor await (const doc of cursor) {\n  console.log(doc);\n}",
+      "tokenEstimate": 85
+    },
+    {
+      "language": "json",
+      "section": "Geospatial Indexes",
+      "content": "{\n   \"_id\" : ObjectId(\"59a47286cfa9a3a73e51e75c\"),\n   \"theaterId\" : 104,\n   \"location\" : {\n      \"address\" : {\n         \"street1\" : \"5000 W 147th St\",\n         \"city\" : \"Hawthorne\",\n         \"state\" : \"CA\",\n         \"zipcode\" : \"90250\"\n      },\n      \"geo\" : {\n         \"type\" : \"Point\",\n         \"coordinates\" : [\n            -118.36559,\n            33.897167\n         ]\n      }\n   }\n}",
+      "tokenEstimate": 133
+    },
+    {
+      "language": "js",
+      "section": "Geospatial Indexes",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n/* Create a 2dsphere index on the \"location.geo\" field in the\n\"movies\" collection */\nconst result = await movies.createIndex({ \"location.geo\": \"2dsphere\" });\n\n// Print the result of the index creation\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "js",
+      "section": "Unique Indexes",
+      "content": "const database = client.db(\"sample_mflix\");\nconst movies = database.collection(\"movies\");\n\n// Create a unique index on the \"theaterId\" field in the \"theaters\" collection.\nconst result = await movies.createIndex({ theaterId: 1 }, { unique: true });\nconsole.log(`Index created: ${result}`);",
+      "tokenEstimate": 68
+    },
+    {
+      "language": "none",
+      "section": "Unique Indexes",
+      "content": "E11000 duplicate key error index",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "javascript",
+      "section": "Create a Search Index",
+      "content": "// Creates a MongoDB Search index\nconst index1 = {\n    name: \"search1\",\n    definition: {\n        \"mappings\": {\n            \"dynamic\": true\n        }\n    }\n}\nawait collection.createSearchIndex(index1);",
+      "tokenEstimate": 48
+    },
+    {
+      "language": "javascript",
+      "section": "Create a Search Index",
+      "content": "// Creates a MongoDB Vector Search index\nconst vectorSearchIdx = {\n    name: \"vsidx1\",\n    type: \"vectorSearch\",\n    definition: {\n        fields: [{\n            type: \"vector\",\n            numDimensions: 384,\n            path: \"summary\",\n            similarity: \"dotProduct\"\n        }]\n    }\n}\n\nawait collection.createSearchIndex(vectorSearchIdx);",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "javascript",
+      "section": "List Search Indexes",
+      "content": "// Lists search indexes\nconst result = await collection.listSearchIndexes().toArray();\nconsole.log(\"Existing search indexes:\\n\");\nfor (const doc in result) {\n    console.log(doc);\n}",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "javascript",
+      "section": "Update a Search Index",
+      "content": "// Updates a search index\nconst index2 = {\n    \"mappings\": {\n        \"dynamic\": true,\n        \"fields\": {\n            \"description\": {\n                \"type\": \"string\"\n            }\n        }\n    }\n}\nawait collection.updateSearchIndex(\"search1\", index2);",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "javascript",
+      "section": "Drop a Search Index",
+      "content": "// Drops (deletes) a search index\nawait collection.dropSearchIndex(\"search1\");",
+      "tokenEstimate": 19
+    }
+  ]
+}
