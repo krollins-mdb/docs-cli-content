@@ -7,30 +7,47 @@
       "heading": "numberFacet Type Limitations",
       "headingLevel": 2,
       "body": "The following limitations apply:\n\n- You can't index `decimal128` for faceting.\n\n- You can't index numeric values in arrays or in a document contained in an array\n  for faceting.\n\n- You can't facet over numeric fields indexed as part of an\n  `embeddedDocuments` field.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "numberfacet-type-limitations",
+      "variantAgnostic": true
     },
     {
       "heading": "Define the Index for the dateFacet Type",
       "headingLevel": 2,
-      "body": "To define the index for the dateFacet type, choose your preferred\nconfiguration method in the Atlas UI and then select the\ndatabase and collection.**Vib:**Visual Editor* Click Refine Your Index to configure your index.\n\n* In the Field Mappings section, click Add\n  Field Mapping to open the Add Field Mapping window.\n\n* Click Customized Configuration.\n\n* Select the field to index from the Field Name dropdown.\n\n  > **Note:** You can't index fields that contain the dollar (`$`) sign at the\n  > start of the field name.\n\n* Click the Data Type dropdown and select\n  UUID.\n\n* Configure the field properties for the dateFacet type. To\n  learn more, see Field Properties.\n\n* Click Add.**Jsonib:**JSON EditorThe following is the JSON (Javascript Object Notation) syntax for the dateFacet type.\nReplace the default index definition with the following. To learn more\nabout the fields, see Field Properties.```json\n{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"numberFacet\",\n        \"representation\": \"int64|double\",\n        \"indexIntegers\": true|false,\n        \"indexDoubles\": true|false\n      }\n    }\n  }\n}\n```",
+      "body": "To define the index for the dateFacet type, choose your preferred\nconfiguration method in the Atlas UI and then select the\ndatabase and collection.\n\nVisual Editor\n\n- Click Refine Your Index to configure your index.\n\n- In the Field Mappings section, click Add\n  Field Mapping to open the Add Field Mapping window.\n\n- Click Customized Configuration.\n\n- Select the field to index from the Field Name dropdown.\n\n  > **Note:** You can't index fields that contain the dollar (`$`) sign at the\n  > start of the field name.\n\n- Click the Data Type dropdown and select\n  UUID.\n\n- Configure the field properties for the dateFacet type. To\n  learn more, see Field Properties.\n\n- Click Add.\n\nJSON Editor\n\nThe following is the JSON (Javascript Object Notation) syntax for the dateFacet type.\nReplace the default index definition with the following. To learn more\nabout the fields, see Field Properties.",
+      "codeBlocks": [],
+      "slug": "define-the-index-for-the-datefacet-type",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Define the Index for the dateFacet Type",
+      "headingLevel": 2,
+      "body": "```json\n{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"numberFacet\",\n        \"representation\": \"int64|double\",\n        \"indexIntegers\": true|false,\n        \"indexDoubles\": true|false\n      }\n    }\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
           "content": "{\n  \"mappings\": {\n    \"dynamic\": true|false,\n    \"fields\": {\n      \"<field-name>\": {\n        \"type\": \"numberFacet\",\n        \"representation\": \"int64|double\",\n        \"indexIntegers\": true|false,\n        \"indexDoubles\": true|false\n      }\n    }\n  }\n}",
           "tokenEstimate": 73
         }
-      ]
+      ],
+      "slug": "define-the-index-for-the-datefacet-type--jsonib",
+      "selections": {
+        "tabs": "jsonib"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure dateFacet Field Properties",
       "headingLevel": 2,
       "body": "The MongoDB Search `numberFacet` type takes the following parameters:\n\n| Option         | Type    | Necessity | Description                                                                                                                                                                                                                                                                                                                                                                        | Default |\n| -------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |\n| type           | string  | Required  | The type of field. Value must be numberFacet.                                                                                                                                                                                                                                                                                                                                      |         |\n| representation | string  | Optional  | The data type of the field to index. Values can be one of the following BSON (Binary Javascript Object Notation) types:int64 - for indexing large integers without loss of precision and for rounding double values to integers. You can't use this type to index large double values.double - for indexing large double values without rounding.To learn more, see example below. | double  |\n| indexIntegers  | boolean | Optional  | Indicates whether to index or omit indexing int32 and int64 type values. Value can be true or false. Either this or indexDoubles must be true.                                                                                                                                                                                                                                     | true    |\n| indexDoubles   | boolean | Optional  | Indicates whether to index or omit indexing double type values. Value can be true or false. Either this or indexIntegers must be true.                                                                                                                                                                                                                                             | true    |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-datefacet-field-properties",
+      "variantAgnostic": true
     },
     {
       "heading": "Try an Example for the dateFacet Type",
       "headingLevel": 2,
-      "body": "The following index definition example uses the sample\\_mflix.movies\ncollection. If you have the [Load Sample Data Into Atlas](sample-data) already\nloaded on your cluster, you can use the Visual Editor or JSON (Javascript Object Notation) Editor\nin the Atlas UI to configure the index. After you select your\npreferred configuration method, select the database and collection,\nand refine your index to add field mappings.**Basic:**Basic ExampleThe following example index definition indexes the  `year` field\nas the MongoDB Search `numberFacet` type to supports queries against\nthat field using MongoDB Search [faceted navigation](fts-facet-ref).**Vib:**Visual Editor* In the **Add Field Mapping** window, select\n  **year** from the **Field Name**\n  dropdown.\n\n* Click the **Data Type** dropdown and select\n  **NumberFacet**.\n\n* Accept the default values for the **NumberFacet\n  Properties**.\n\n* Click **Add**.**Jsonib:**JSON EditorReplace the default index definition with the following index\ndefinition.```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": {\n        \"type\": \"numberFacet\"\n      }\n    }\n  }\n}\n```**Multitype:**Multiple Types ExampleThe following example index definition indexes the  `year`\nfield as the `numberFacet` and `number` types to return the\nfollowing types of results for your queries:* Metadata results for queries using MongoDB Search [faceted navigation](fts-facet-ref).\n\n* Search results for queries using MongoDB Search operators like\n  [near](near-ref), [equals](equals-ref), and [range](range-ref).**Vib:**Visual Editor* In the **Add Field Mapping** window, select\n  **year** from the **Field Name**\n  dropdown.\n\n* Click the **Data Type** dropdown and select\n  **NumberFacet**.\n\n* Accept the default values for the **NumberFacet\n  Properties**.\n\n* Click **Add**.\n\n* Repeat step **1** and select **Number** from the\n  **Data Type** dropdown.\n\n* Accept the default values for the **Number\n  Properties**.\n\n* Click **Add**.**Jsonib:**JSON EditorReplace the default index definition with the following index\ndefinition.```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": [\n        {\n          \"type\": \"numberFacet\"\n        },\n        {\n          \"type\": \"number\"\n        }\n      ]\n    }\n  }\n}\n```",
+      "body": "The following index definition example uses the sample\\_mflix.movies\ncollection. If you have the [Load Sample Data Into Atlas](sample-data) already\nloaded on your cluster, you can use the Visual Editor or JSON (Javascript Object Notation) Editor\nin the Atlas UI to configure the index. After you select your\npreferred configuration method, select the database and collection,\nand refine your index to add field mappings.\n\nBasic Example\n\nVisual Editor\n\n- In the **Add Field Mapping** window, select\n  **year** from the **Field Name**\n  dropdown.\n\n- Click the **Data Type** dropdown and select\n  **NumberFacet**.\n\n- Accept the default values for the **NumberFacet\n  Properties**.\n\n- Click **Add**.\n\nJSON Editor\n\nReplace the default index definition with the following index\ndefinition.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": {\n        \"type\": \"numberFacet\"\n      }\n    }\n  }\n}\n```\n\nMultiple Types Example\n\nVisual Editor\n\n- In the **Add Field Mapping** window, select\n  **year** from the **Field Name**\n  dropdown.\n\n- Click the **Data Type** dropdown and select\n  **NumberFacet**.\n\n- Accept the default values for the **NumberFacet\n  Properties**.\n\n- Click **Add**.\n\n- Repeat step **1** and select **Number** from the\n  **Data Type** dropdown.\n\n- Accept the default values for the **Number\n  Properties**.\n\n- Click **Add**.\n\nJSON Editor\n\nReplace the default index definition with the following index\ndefinition.\n\n```json\n{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": [\n        {\n          \"type\": \"numberFacet\"\n        },\n        {\n          \"type\": \"number\"\n        }\n      ]\n    }\n  }\n}\n```",
       "codeBlocks": [
         {
           "language": "json",
@@ -42,13 +59,63 @@
           "content": "{\n  \"mappings\": {\n    \"dynamic\": false,\n    \"fields\": {\n      \"year\": [\n        {\n          \"type\": \"numberFacet\"\n        },\n        {\n          \"type\": \"number\"\n        }\n      ]\n    }\n  }\n}",
           "tokenEstimate": 54
         }
-      ]
+      ],
+      "slug": "try-an-example-for-the-datefacet-type",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Try an Example for the dateFacet Type",
+      "headingLevel": 2,
+      "body": "The following example index definition indexes the  `year` field\nas the MongoDB Search `numberFacet` type to supports queries against\nthat field using MongoDB Search [faceted navigation](fts-facet-ref).",
+      "codeBlocks": [],
+      "slug": "try-an-example-for-the-datefacet-type--basic",
+      "selections": {
+        "tabs": "basic"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Try an Example for the dateFacet Type",
+      "headingLevel": 2,
+      "body": "The following example index definition indexes the  `year`\nfield as the `numberFacet` and `number` types to return the\nfollowing types of results for your queries:\n\n- Metadata results for queries using MongoDB Search [faceted navigation](fts-facet-ref).\n\n- Search results for queries using MongoDB Search operators like\n  [near](near-ref), [equals](equals-ref), and [range](range-ref).",
+      "codeBlocks": [],
+      "slug": "try-an-example-for-the-datefacet-type--multitype",
+      "selections": {
+        "tabs": "multitype"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Learn More",
       "headingLevel": 2,
       "body": "To learn more about the `facet` collector and see example queries, see [Metadata and Search Results Example](fts-facet-egs).\n\nTo learn how to create an index with a facet definition and query that index using the `facet` collector,\nsee the [How to Use Facets with MongoDB Search](facet-tutorial) tutorial.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "learn-more",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "vib",
+          "text": "vib"
+        },
+        {
+          "value": "jsonib",
+          "text": "jsonib"
+        },
+        {
+          "value": "basic",
+          "text": "basic"
+        },
+        {
+          "value": "multitype",
+          "text": "multitype"
+        }
+      ]
     }
   ]
 }

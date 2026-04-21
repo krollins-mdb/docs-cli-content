@@ -1,0 +1,17 @@
+{
+  "heading": "Enable Role-Based Access for Your Encryption Key for a Project",
+  "headingLevel": 3,
+  "body": "To create a new AWS (Amazon Web Services) IAM role for accessing your AWS (Amazon Web Services) KMS keys for\nencryption at rest, follow the [Set Up Unified AWS Access](set-up-unified-aws-access) procedure. If you have an existing\nAWS (Amazon Web Services) IAM role that you want to authorize, follow the [Set Up Unified AWS Access](set-up-unified-aws-access)\nprocedure.\n\n> **Note:** This policy statement allows MongoDB's AWS (Amazon Web Services) Principal to use the\n> customer's KMS key for encryption and decryption operations. The\n> Atlas Principal is not secret and is used across all Atlas\n> customers. This is a highly-restricted, purpose-limited AWS (Amazon Web Services)\n> account, with no resources in it other than the IAM user. The\n> `ExternalId` in the policy statement is unique for each Atlas\n> project, but it is not secret. The `ExternalId` is used to\n> mitigate the possibility of cross-context (confused deputy)\n> vulnerabilities. Atlas's use of a common principal to access all\n> customers' keys is an access pattern recommended by Amazon, as\n> described [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html).\n\nThe access policy for encryption at rest looks similar to the following:\n\n```json\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:Encrypt\",\n        \"kms:DescribeKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:us-east-1:123456789012:key/12x345y6-7z89-0a12-3456-xyz123456789\"\n      ]\n    }\n  ]\n}\n```\n\n- Select the role to assign from the AWS IAM role dropdown\n  list.\n\n- Specify your encryption key in the Customer Master Key ID\n  field.\n\n- Select the AWS (Amazon Web Services) region for your encryption key.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"kms:Decrypt\",\n        \"kms:Encrypt\",\n        \"kms:DescribeKey\"\n      ],\n      \"Resource\": [\n        \"arn:aws:kms:us-east-1:123456789012:key/12x345y6-7z89-0a12-3456-xyz123456789\"\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 109
+    }
+  ],
+  "slug": "enable-role-based-access-for-your-encryption-key-for-a-project--ui",
+  "selections": {
+    "interface": "ui"
+  },
+  "variantAgnostic": false
+}

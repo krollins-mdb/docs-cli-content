@@ -7,18 +7,22 @@
       "heading": "Background",
       "headingLevel": 2,
       "body": "**Parent document retrieval** is a retrieval technique that\ninvolves chunking large documents into smaller sub-documents.\nIn this technique, you query the smaller chunks before returning the full\nparent document to the LLM (Large Language Model). This can improve\nthe responses of your RAG agents and applications by allowing for more\ngranular searches on smaller chunks while giving LLM (Large Language Model)s the full\ncontext of the parent document.\n\nParent document retrieval with MongoDB allows you to store both\nparent and child documents in a single collection, which\nsupports efficient retrieval by only having to compute and index\nthe child documents' embeddings.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "background",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- An environment to run interactive Python notebooks\n  such as [Colab](https://colab.research.google.com).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Up the Environment",
       "headingLevel": 2,
-      "body": "Set up the environment for this tutorial.\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension. This notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.\n\nTo set up your notebook environment:\n\nRun the following command:\n\n```python\npip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai pymongo pypdf\n```\n\nRun the following code, replacing the placeholders with\nthe following values:\n\n- Your Voyage AI and OpenAI API Key.\n\n- Your MongoDB cluster's connection string.\n\n```python\nimport os\n\nos.environ[\"VOYAGE_API_KEY\"] = \"<voyage-api-key>\"\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\n```\n\n> **Note:** Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> <Tab tabid=\"cloud\">\n>   Atlas Cluster\n>\n>   Your connection string should use the following format:\n>\n>   ```\n>   mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n>   ```\n>\n>   To learn more, see [Driver](connect-via-driver).\n> </Tab>\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).",
+      "body": "Set up the environment for this tutorial.\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension. This notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.\n\nTo set up your notebook environment:\n\nRun the following command:\n\n```python\npip install --quiet --upgrade langchain langchain-community langchain-core langchain-mongodb langchain-voyageai langchain-openai pymongo pypdf\n```\n\nRun the following code, replacing the placeholders with\nthe following values:\n\n- Your Voyage AI and OpenAI API Key.\n\n- Your MongoDB cluster's connection string.\n\n```python\nimport os\n\nos.environ[\"VOYAGE_API_KEY\"] = \"<voyage-api-key>\"\nos.environ[\"OPENAI_API_KEY\"] = \"<openai-api-key>\"\nMONGODB_URI = \"<connection-string>\"\n```\n\n> **Note:** Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> Atlas Cluster\n>\n> Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n> ```\n>\n> To learn more, see [Driver](connect-via-driver).\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).",
       "codeBlocks": [
         {
           "language": "python",
@@ -40,7 +44,9 @@
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Prepare the Data",
@@ -57,7 +63,9 @@
           "content": "Document(metadata={'source': 'https://investors.mongodb.com/node/12881/pdf', 'page': 0, 'page_label': '1'}, page_content='MongoDB, Inc. Announces Third Quarter Fiscal 2025 Financial Results\\nDecember 9, 2024\\nThird Quarter Fiscal 2025 Total Revenue of $529.4 million, up 22% Year-over-Year\\nContinued Strong Customer Growth with Over 52,600 Customers as of October 31, 2024\\nMongoDB Atlas Revenue up 26% Year-over-Year; 68% of Total Q3 Revenue\\nNEW YORK , Dec. 9, 2024 /PRNewswire/ -- MongoDB, Inc. (NASDAQ: MDB) today announced its financial results for the third quarter ended October\\n31, 2024.\\n\\xa0\\n  \\xa0\\n\"MongoDB\\'s third quarter results were significantly ahead of expectations on the top and bottom line, driven by better-than-expected EA performance\\nand 26% Atlas revenue growth.\\xa0 We continue to see success winning new business due to the superiority of MongoDB\\'s developer data platform in\\naddressing a wide variety of mission-critical use cases,\" said Dev Ittycheria, President and Chief Executive Officer of MongoDB .\\n\"We continue to invest in our legacy app modernization and AI offerings as our document model and distributed architecture are exceptionally well\\nsuited for customers looking to build highly-performant, modern applications.\\xa0 MongoDB  is in a great position to be a central pillar of the emerging AI\\ntech stack and benefit from the next wave of application development in the years ahead.\"\\nThird Quarter Fiscal 2025 Financial Highlights\\nRevenue: Total revenue was $529.4 million for the third quarter of fiscal 2025, an increase of 22% year-over-year.\\nSubscription revenue was $512.2 million, an increase of 22% year-over-year, and services revenue was $17.2 million, an\\nincrease of 18% year-over-year.\\nGross Profit: Gross profit was $394.0 million for the third quarter of fiscal 2025, representing a 74% gross margin\\ncompared to 75% in the year-ago period. Non-GAAP gross profit was $405.7 million, representing a 77% non-GAAP gross\\nmargin, consistent with a non-GAAP gross margin of 77% in the year-ago period.')",
           "tokenEstimate": 509
         }
-      ]
+      ],
+      "slug": "prepare-the-data",
+      "variantAgnostic": true
     },
     {
       "heading": "Instantiate the Retriever",
@@ -84,24 +92,51 @@
           "content": "{ _id: \"<id>\" }",
           "tokenEstimate": 8
         }
-      ]
+      ],
+      "slug": "instantiate-the-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the MongoDB Vector Search Index",
       "headingLevel": 2,
-      "body": "To enable vector search queries on the `langchain_db.parent_document`\ncollection, you must create a MongoDB Vector Search index. You can\nuse either the LangChain helper method or the\nPyMongo driver method. Run the following code in your notebook for\nyour preferred method:**Langchain:**LangChain```python\n# Get the vector store instance from the retriever\nvector_store = parent_doc_retriever.vectorstore\n\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The number of dimensions to index\n)\n```> **Tip:** [create\\_vector\\_search\\_index API reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)**Pymongo:**PyMongo```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[database_name][collection_name]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)\n```The index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+      "body": "To enable vector search queries on the `langchain_db.parent_document`\ncollection, you must create a MongoDB Vector Search index. You can\nuse either the LangChain helper method or the\nPyMongo driver method. Run the following code in your notebook for\nyour preferred method:\n\nLangChain\n\nPyMongo\n\nThe index should take about one minute to build. While it builds,\nthe index is in an [initial sync process](troubleshoot-initial-sync)\nstate. When it finishes building, you can start querying the data\nin your collection.",
+      "codeBlocks": [],
+      "slug": "create-the-mongodb-vector-search-index",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Create the MongoDB Vector Search Index",
+      "headingLevel": 2,
+      "body": "```python\n# Get the vector store instance from the retriever\nvector_store = parent_doc_retriever.vectorstore\n\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The number of dimensions to index\n)\n```\n\n> **Tip:** [create\\_vector\\_search\\_index API reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/index/langchain_mongodb.index.create_vector_search_index.html)",
       "codeBlocks": [
         {
           "language": "python",
           "content": "# Get the vector store instance from the retriever\nvector_store = parent_doc_retriever.vectorstore\n\n# Use helper method to create the vector search index\nvector_store.create_vector_search_index(\n   dimensions = 1024 # The number of dimensions to index\n)",
           "tokenEstimate": 55
-        },
+        }
+      ],
+      "slug": "create-the-mongodb-vector-search-index--langchain",
+      "selections": {
+        "tabs": "langchain"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Create the MongoDB Vector Search Index",
+      "headingLevel": 2,
+      "body": "```python\nfrom pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[database_name][collection_name]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)\n```",
+      "codeBlocks": [
         {
           "language": "python",
           "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\n# Connect to your cluster\nclient = MongoClient(MONGODB_URI)\ncollection = client[database_name][collection_name]\n\n# Create your vector search index model, then create the index\nvector_index_model = SearchIndexModel(\n   definition={\n      \"fields\": [\n         {\n         \"type\": \"vector\",\n         \"path\": \"embedding\",\n         \"numDimensions\": 1024,\n         \"similarity\": \"dotProduct\"\n         }\n      ]\n   },\n   name=\"vector_index\",\n   type=\"vectorSearch\"\n)\ncollection.create_search_index(model=vector_index_model)",
           "tokenEstimate": 128
         }
-      ]
+      ],
+      "slug": "create-the-mongodb-vector-search-index--pymongo",
+      "selections": {
+        "tabs": "pymongo"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Use the Retriever in Your RAG Pipeline",
@@ -128,13 +163,41 @@
           "content": "1. MongoDB obtained the AWS Modernization Competency designation.\n2. MongoDB launched a MongoDB University course focused on building AI applications with MongoDB and AWS.\n3. MongoDB announced new technology integrations for AI, data analytics, and automating database deployments across various environments.\n4. MongoDB launched the MongoDB AI Applications Program (MAAP) to help companies harness the power of data and future AI technologies.\n5. Capgemini, Confluent, IBM, Unstructured, and QuantumBlack joined the MAAP ecosystem to offer customers additional integration and solution options.",
           "tokenEstimate": 111
         }
-      ]
+      ],
+      "slug": "use-the-retriever-in-your-rag-pipeline",
+      "variantAgnostic": true
     },
     {
       "heading": "Learn by Watching",
       "headingLevel": 2,
-      "body": "Follow along with this video about\nparent document retrieval with LangChain and MongoDB.*Duration: 27 Minutes*[https://www.youtube.com/watch?v=v5V3W-NNSQw](https://www.youtube.com/watch?v=v5V3W-NNSQw)",
-      "codeBlocks": []
+      "body": "Follow along with this video about\nparent document retrieval with LangChain and MongoDB.\n\n*Duration: 27 Minutes*\n\n[https://www.youtube.com/watch?v=v5V3W-NNSQw](https://www.youtube.com/watch?v=v5V3W-NNSQw)",
+      "codeBlocks": [],
+      "slug": "learn-by-watching",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
+        },
+        {
+          "value": "langchain",
+          "text": "langchain"
+        },
+        {
+          "value": "pymongo",
+          "text": "pymongo"
+        }
+      ]
     }
   ]
 }

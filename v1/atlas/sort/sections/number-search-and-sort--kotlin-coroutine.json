@@ -1,0 +1,27 @@
+{
+  "heading": "Number Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `SortByNumbers.kt`\n  and paste the following code:\n\n  ```kotlin\n  import com.mongodb.client.model.Aggregates.limit\n  import com.mongodb.client.model.Aggregates.project\n  import com.mongodb.client.model.Projections.*\n  import com.mongodb.kotlin.client.coroutine.MongoClient\n  import kotlinx.coroutines.runBlocking\n  import org.bson.Document\n\n  fun main() {\n      // establish connection and set namespace\n      val uri = \"<connection-string>\"\n      val mongoClient = MongoClient.create(uri)\n      val database = mongoClient.getDatabase(\"sample_mflix\")\n      val collection = database.getCollection<Document>(\"movies\")\n\n      runBlocking {\n          // define query\n          val agg = Document(\n              \"\\$search\",\n              Document(\"index\", \"default\")\n                  .append(\n                      \"range\",\n                      Document(\"path\", \"awards.wins\")\n                          .append(\"gte\", 10L)\n                  )\n                  .append(\n                      \"sort\",\n                      Document(\"awards.wins\", -1L)\n                  )\n          )\n\n          // run query and print results\n          val resultsFlow = collection.aggregate<Document>(\n              listOf(\n                  agg,\n                  limit(5),\n                  project(fields(\n                      excludeId(),\n                      include(\"title\", \"awards.wins\")\n                  ))\n              )\n          )\n          resultsFlow.collect { println(it) }\n      }\n      mongoClient.close()\n  }\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\nkotlin SortByNumbers.kt\n```\n\n**Output:**\n\n```json\nDocument{{title=12 Years a Slave, awards=Document{{wins=267}}}}\nDocument{{title=Gravity, awards=Document{{wins=231}}}}\nDocument{{title=Gravity, awards=Document{{wins=231}}}}\nDocument{{title=Birdman: Or (The Unexpected Virtue of Ignorance), awards=Document{{wins=210}}}}\nDocument{{title=Boyhood, awards=Document{{wins=185}}}}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    // establish connection and set namespace\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        // define query\n        val agg = Document(\n            \"\\$search\",\n            Document(\"index\", \"default\")\n                .append(\n                    \"range\",\n                    Document(\"path\", \"awards.wins\")\n                        .append(\"gte\", 10L)\n                )\n                .append(\n                    \"sort\",\n                    Document(\"awards.wins\", -1L)\n                )\n        )\n\n        // run query and print results\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(5),\n                project(fields(\n                    excludeId(),\n                    include(\"title\", \"awards.wins\")\n                ))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n",
+      "tokenEstimate": 256
+    },
+    {
+      "language": "bash",
+      "content": "kotlin SortByNumbers.kt",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "json",
+      "content": "Document{{title=12 Years a Slave, awards=Document{{wins=267}}}}\nDocument{{title=Gravity, awards=Document{{wins=231}}}}\nDocument{{title=Gravity, awards=Document{{wins=231}}}}\nDocument{{title=Birdman: Or (The Unexpected Virtue of Ignorance), awards=Document{{wins=210}}}}\nDocument{{title=Boyhood, awards=Document{{wins=185}}}}",
+      "tokenEstimate": 91
+    }
+  ],
+  "slug": "number-search-and-sort--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

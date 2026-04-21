@@ -3,11 +3,11 @@
   "product": "atlas",
   "title": "Try an Example for the dateFacet Type",
   "summary": {
-    "total": 374,
+    "total": 388,
     "byLanguage": {
-      "shell": 160,
-      "json": 46,
-      "bash": 12,
+      "shell": 167,
+      "json": 47,
+      "bash": 18,
       "text": 48,
       "javascript": 26,
       "c": 14,
@@ -22,6 +22,92 @@
       "python": 12
     },
     "bySection": [
+      {
+        "heading": "2,100,000,000 Index Objects Limit",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 15
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 19
+          },
+          {
+            "language": "json",
+            "tokenEstimate": 168
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 29
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 39
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 54
+          },
+          {
+            "language": "shell",
+            "tokenEstimate": 37
+          }
+        ]
+      },
+      {
+        "heading": "Step 2: Make an  call.",
+        "blocks": [
+          {
+            "language": "shell",
+            "tokenEstimate": 300
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 163
+          }
+        ]
+      },
+      {
+        "heading": "Enable Dynamic Indexing",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 174
+          }
+        ]
+      },
+      {
+        "heading": "Configure Dynamic Indexing",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 256
+          },
+          {
+            "language": "bash",
+            "tokenEstimate": 195
+          }
+        ]
+      },
+      {
+        "heading": "Use Relative Path for Stored Source",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 192
+          }
+        ]
+      },
+      {
+        "heading": "Configure Multiple Stored Source",
+        "blocks": [
+          {
+            "language": "bash",
+            "tokenEstimate": 190
+          }
+        ]
+      },
       {
         "heading": "2,100,000,000 Index Objects Limit",
         "blocks": [
@@ -2236,6 +2322,90 @@
     ]
   },
   "codeBlocks": [
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "number of index objects in document = 1 + number of nested embedded documents",
+      "tokenEstimate": 15
+    },
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "total number of index objects = number of index objects in document x total number of documents in collection",
+      "tokenEstimate": 19
+    },
+    {
+      "language": "json",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "{\n  \"_id\": 0,\n  \"name\": \"Springfield High\",\n  \"mascot\": \"Pumas\",\n  \"teachers\": [\n    {\n      \"first\": \"Jane\",\n      \"last\": \"Smith\",\n      \"classes\": [\n        {\n          \"subject\": \"art of science\",\n          \"grade\": \"12th\"\n        },\n        ... // 2 more embedded documents\n      ]\n    },\n    ... // 1 more embedded document\n  ],\n  \"clubs\": {\n    \"stem\": [\n      {\n        \"club_name\": \"chess\",\n        \"description\": \"provides students opportunity to play the board game of chess informally and competitively in tournaments.\"\n      },\n      ... // 1 more embedded document\n    ],\n    ... // 1 more embedded document\n  }\n}",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "Number of ``teachers`` embedded documents = up to 2\nTotal number of index objects per document = 1 + 2 = 3",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 3\nTotal number of index objects for collection = 1000 x 3 = 3000",
+      "tokenEstimate": 39
+    },
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "Number of documents = 1\nNumber of ``teachers`` embedded documents  = up to 2\nNumber of ``classes`` embedded documents = up to 3\nNumber of index objects per document = 1 + ( 2 x 3 ) = 7",
+      "tokenEstimate": 54
+    },
+    {
+      "language": "shell",
+      "section": "2,100,000,000 Index Objects Limit",
+      "content": "Number of documents in the collection = 1000\nNumber of index objects per document = 7\nTotal number of index objects: 1000 x 7 = 7000",
+      "tokenEstimate": 37
+    },
+    {
+      "language": "shell",
+      "section": "Step 2: Make an  call.",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"<collection>\",\n        \"database\": \"<database>\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n          \"mappings\": {\n            \"dynamic\": <true|false> | {\n              \"typeset\" : \"<type-set-name>\"\n            },\n            \"fields\": {\n              \"<field-name>\": {\n                \"type\": \"embeddedDocuments\",\n                \"dynamic\": <true|false> | {\n                  \"typeSet\": \"<type-set-name>\"\n                },\n                \"fields\": {\n                  \"<field-name>\": {\n                    <field-mapping-definition>\n                  }\n                },\n                \"storedSource\": <true|false> | {\n                  \"include\" | \"exclude\": [\n                    \"<field-name>\", \n                    ...\n                  ]\n                }\n              },\n              ...\n            }\n          },\n          \"typeSets\": [\n            {\n              \"name\": \"<type-set-name>\",\n              \"types\": [\n                {\n                  \"type\": \"<field-type>\",\n                  ... \n                },\n                ...\n              ]\n            },\n            ...\n          ]\n        }\n    }'",
+      "tokenEstimate": 300
+    },
+    {
+      "language": "bash",
+      "section": "Step 2: Make an  call.",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": { \n              \"dynamic\": false,\n              \"fields\": { \n                \"products\": { \n                  \"type\": \"embeddedDocuments\",\n                  \"dynamic\": true\n                } \n              }\n            }\n        }\n    }'\n",
+      "tokenEstimate": 163
+    },
+    {
+      "language": "bash",
+      "section": "Enable Dynamic Indexing",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": {\n              \"dynamic\": true,\n              \"fields\": {\n                \"products\": {\n                  \"dynamic\": true,\n                  \"type\": \"embeddedDocuments\"\n                },\n                \"category_code\": {\n                  \"type\": \"token\"\n                }\n              }\n            }\n        }\n    }'\n",
+      "tokenEstimate": 174
+    },
+    {
+      "language": "bash",
+      "section": "Configure Dynamic Indexing",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n          \"mappings\": {\n            \"dynamic\": false,\n            \"fields\": {\n              \"relationships\": {\n                \"type\": \"embeddedDocuments\",\n                \"dynamic\": {\n                  \"typeSet\": \"stringBooleanIndex\"\n                },\n                \"fields\": {\n                  \"person\": {\n                    \"type\": \"document\",\n                    \"dynamic\": {\n                      \"typeSet\": \"stringBooleanIndex\"\n                    }\n                  }\n                }\n              }\n            }\n          },\n          \"typeSets\": [\n            {\n              \"name\": \"stringBooleanIndex\",\n              \"types\": [\n                {\n                  \"type\": \"boolean\"\n                },\n                {\n                  \"type\": \"string\"\n                }\n              ]\n            }\n          ]\n        }'\n",
+      "tokenEstimate": 256
+    },
+    {
+      "language": "bash",
+      "section": "Configure Dynamic Indexing",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": { \n              \"fields\": { \n                \"offices\": { \n                  \"type\": \"embeddedDocuments\",\n                  \"dynamic\": false,\n                  \"fields\": {\n                    \"country_code\": {\n                      \"type\": \"string\"\n                    },\n                    \"state_code\": {\n                      \"type\": \"string\"\n                    }\n                  }\n                } \n              }\n            }\n        }\n    }'\n",
+      "tokenEstimate": 195
+    },
+    {
+      "language": "bash",
+      "section": "Use Relative Path for Stored Source",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n          \"mappings\": { \n            \"dynamic\": false,\n            \"fields\": { \n              \"funding_rounds\": { \n                \"type\": \"embeddedDocuments\",\n                \"dynamic\": true,\n                \"storedSource\": {\n                  \"include\": [\"round_code\", \"raised_currency_code\", \"raised_amount\"] \n                }\n              } \n            }\n          }\n        }\n    }'\n",
+      "tokenEstimate": 192
+    },
+    {
+      "language": "bash",
+      "section": "Configure Multiple Stored Source",
+      "content": "curl --header \"Authorization: Bearer ${ACCESS_TOKEN}\" \\\n    --header \"Accept: application/vnd.atlas.2025-03-12+json\" \\\n    --header \"Content-Type: application/json\" \\\n    -X POST \"https://cloud.mongodb.com/api/atlas/v2/groups/{groupId}/clusters/{clusterName}/search/indexes\" \\\n    -d '{ \"collectionName\": \"companies\",\n        \"database\": \"sample_training\",\n        \"name\": \"default\",\n        \"type\": \"search\",\n        \"definition\": {\n            \"mappings\": { \n              \"dynamic\": false,\n              \"fields\": { \n                \"products\": { \n                  \"type\": \"embeddedDocuments\",\n                  \"dynamic\": true,\n                  \"storedSource\": true\n                } \n              }\n            },\n            \"storedSource\": {\n              \"include\": [ \"_id\", \"name\" ]\n            }\n        }\n    }'\n",
+      "tokenEstimate": 190
+    },
     {
       "language": "shell",
       "section": "2,100,000,000 Index Objects Limit",

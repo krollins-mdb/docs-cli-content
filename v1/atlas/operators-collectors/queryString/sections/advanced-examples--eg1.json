@@ -1,0 +1,22 @@
+{
+  "heading": "Advanced Examples",
+  "headingLevel": 4,
+  "body": "The following query searches for `chess` and either `captain` or\n`kirk` in the `plot` field.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"fullplot\",\n        \"query\": \"plot:(captain OR kirk) AND chess\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"fullplot\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n{\n  \"fullplot\" : \"When the crew of the Enterprise is called back home, they find an unstoppable force of terror from within their own organization has detonated the fleet and everything it stands for, leaving our world in a state of crisis. With a personal score to settle, Captain Kirk leads a manhunt to a war-zone world to capture a one-man weapon of mass destruction. As our heroes are propelled into an epic chess game of life and death, love will be challenged, friendships will be torn apart, and sacrifices must be made for the only family Kirk has left: his crew.\",\n  \"plot\" : \"After the crew of the Enterprise find an unstoppable force of terror from within their own organization, Captain Kirk leads a manhunt to a war-zone world to capture a one-man weapon of mass destruction.\",\n  \"title\" : \"Star Trek Into Darkness\",\n  \"score\" : 7.968792915344238\n}\n```\n\nThe document in the results is a match because the\n`plot` contains the terms `captain` and `kirk`, although\nonly one is needed to meet the criteria for a match, and the\nterm `chess`, although not in the `plot`, appears in the\n`fullplot`, which is the `defaultPath`.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"fullplot\",\n        \"query\": \"plot:(captain OR kirk) AND chess\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"plot\": 1,\n      \"fullplot\": 1,\n      score: { $meta: \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 100
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"fullplot\" : \"When the crew of the Enterprise is called back home, they find an unstoppable force of terror from within their own organization has detonated the fleet and everything it stands for, leaving our world in a state of crisis. With a personal score to settle, Captain Kirk leads a manhunt to a war-zone world to capture a one-man weapon of mass destruction. As our heroes are propelled into an epic chess game of life and death, love will be challenged, friendships will be torn apart, and sacrifices must be made for the only family Kirk has left: his crew.\",\n  \"plot\" : \"After the crew of the Enterprise find an unstoppable force of terror from within their own organization, Captain Kirk leads a manhunt to a war-zone world to capture a one-man weapon of mass destruction.\",\n  \"title\" : \"Star Trek Into Darkness\",\n  \"score\" : 7.968792915344238\n}",
+      "tokenEstimate": 192
+    }
+  ],
+  "slug": "advanced-examples--eg1",
+  "selections": {
+    "tabs": "eg1"
+  },
+  "variantAgnostic": false
+}

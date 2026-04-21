@@ -7,43 +7,98 @@
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To start a failover test, you must have\n[Organization Owner](<Organization Owner>), [Project Owner](<Project Owner>), [Project Cluster Manager](<Project Cluster Manager>)\nor [Project Stream Processing Owner](<Project Stream Processing Owner>) access to the project.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "Before you test the failure of the replica set [primary](manual/reference/glossary), you must\nmeet the following conditions:\n\n- All pending changes to your cluster must be complete.\n\n- All members of the cluster must be in a healthy state with\n  up-to-date monitoring data.\n\n- Each replica set or shard must have a primary node.\n\n- Any member of the cluster must have less than a 10-second\n  replication lag.\n\n- All members of your cluster must have at least 5% of available\n  disk space remaining.\n\n- All primary node oplogs must have enough space for a three-hour\n  operation.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Test Primary Failover Process",
       "headingLevel": 2,
-      "body": "> **Important:** Ensure that your Atlas cluster is healthy before you test primary\n> failover. Otherwise, Atlas might reject your request.When you submit a request to test primary failover, Atlas simulates\na failover event. During this process:* Atlas shuts down the current [primary](manual/reference/glossary).\n\n* The members of the replica set hold an\n  [election](manual/core/replica-set-elections) to choose which\n  of the secondaries will become the new primary.\n\n* Atlas brings the original primary back to the\n  [replica set](manual/reference/glossary) as a [secondary](manual/reference/glossary). When the old primary\n  rejoins the replica set, it will sync with the new primary to\n  catch up any writes that occurred during its downtime.The following statements describe Atlas behavior during rollovers\nand when testing failover in sharded clusters:* If the original primary accepted write operations that had not\n  been successfully replicated to the secondaries when the\n  primary stepped down, the primary rolls back those write\n  operations when it re-joins the replica set and begins\n  synchronizing. To learn more, see\n  [Rollbacks During Replica Set Failover](manual/core/replica-set-rollbacks).\n  Contact MongoDB Support for assistance with resolving rollbacks.\n\n* Only the [mongos](manual/reference/program/mongos) processes that are on the same\n  instances as the primaries of the replica sets in the sharded cluster\n  are restarted.\n\n* The primaries of the replica sets in the sharded cluster are restarted\n  in parallel.**Atlascli:**Atlas CLITo start a failover test for the specified cluster in your project using the\nAtlas CLI, run the following command:```sh\n\natlas clusters failover <clusterName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters failover](atlas/cli/current/command/atlas-clusters-failover).**Api:**Atlas Administration APIYou can use the [Test Failover](api/doc/atlas-admin-api-v2/operation/operation-testfailoverforonecluster) API (Application Programming Interface) endpoint to simulate a\nfailover event. To learn more about the failover process, see\n[Test Failover Process](test-failover-process).**Ui:**Atlas UITo perform a Primary Failover test using the Atlas UI:* In Atlas, go to the Clusters page for your project.\n\n  - If it's not already displayed, select the organization that\n    contains your desired project from the Organizations menu in the\n    navigation bar.\n\n  - If it's not already displayed, select your desired project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Clusters under\n    the Database heading.\n\n    The [Clusters](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters) page displays.\n\n* For the cluster you wish to perform failover testing, click the\n  **...** button.\n\n* Click **Test Resilience**.\n\n* On the **Test Resilience** modal, click the\n  **Primary Failover** tab. Atlas displays the steps\n  that it takes to simulate a failover event. To learn more, see\n  [Test Failover Process](test-failover-process).\n\n* Click **Restart Primary** to begin the test. Atlas\n  displays the results of your simulated failover process in the\n  **Test Resilience** modal.",
+      "body": "> **Important:** Ensure that your Atlas cluster is healthy before you test primary\n> failover. Otherwise, Atlas might reject your request.\n\nWhen you submit a request to test primary failover, Atlas simulates\na failover event. During this process:\n\n- Atlas shuts down the current [primary](manual/reference/glossary).\n\n- The members of the replica set hold an\n  [election](manual/core/replica-set-elections) to choose which\n  of the secondaries will become the new primary.\n\n- Atlas brings the original primary back to the\n  [replica set](manual/reference/glossary) as a [secondary](manual/reference/glossary). When the old primary\n  rejoins the replica set, it will sync with the new primary to\n  catch up any writes that occurred during its downtime.\n\nThe following statements describe Atlas behavior during rollovers\nand when testing failover in sharded clusters:\n\n- If the original primary accepted write operations that had not\n  been successfully replicated to the secondaries when the\n  primary stepped down, the primary rolls back those write\n  operations when it re-joins the replica set and begins\n  synchronizing. To learn more, see\n  [Rollbacks During Replica Set Failover](manual/core/replica-set-rollbacks).\n  Contact MongoDB Support for assistance with resolving rollbacks.\n\n- Only the [mongos](manual/reference/program/mongos) processes that are on the same\n  instances as the primaries of the replica sets in the sharded cluster\n  are restarted.\n\n- The primaries of the replica sets in the sharded cluster are restarted\n  in parallel.\n\nAtlas CLI\n\nTo start a failover test for the specified cluster in your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters failover <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters failover](atlas/cli/current/command/atlas-clusters-failover).\n\nAtlas Administration API\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas clusters failover <clusterName> [options]\n",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "test-primary-failover-process",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Test Primary Failover Process",
+      "headingLevel": 2,
+      "body": "You can use the [Test Failover](api/doc/atlas-admin-api-v2/operation/operation-testfailoverforonecluster) API (Application Programming Interface) endpoint to simulate a\nfailover event. To learn more about the failover process, see\n[Test Failover Process](test-failover-process).",
+      "codeBlocks": [],
+      "slug": "test-primary-failover-process--api",
+      "selections": {
+        "interface": "api"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Test Primary Failover Process",
+      "headingLevel": 2,
+      "body": "To perform a Primary Failover test using the Atlas UI:\n\n- In Atlas, go to the Clusters page for your project.\n\n  - If it's not already displayed, select the organization that\n    contains your desired project from the Organizations menu in the\n    navigation bar.\n\n  - If it's not already displayed, select your desired project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Clusters under\n    the Database heading.\n\n    The [Clusters](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fclusters) page displays.\n\n- For the cluster you wish to perform failover testing, click the\n  **...** button.\n\n- Click **Test Resilience**.\n\n- On the **Test Resilience** modal, click the\n  **Primary Failover** tab. Atlas displays the steps\n  that it takes to simulate a failover event. To learn more, see\n  [Test Failover Process](test-failover-process).\n\n- Click **Restart Primary** to begin the test. Atlas\n  displays the results of your simulated failover process in the\n  **Test Resilience** modal.",
+      "codeBlocks": [],
+      "slug": "test-primary-failover-process--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Verify the Failover",
       "headingLevel": 2,
       "body": "To verify that the failover is successful:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "verify-the-failover",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Observe the nodes.",
       "headingLevel": 3,
       "body": "- Click the name of the cluster for which you performed the\n  failover test.\n\n- Observe the following changes in the list of nodes in\n  the **Overview** tab:\n\n  - The original `PRIMARY` node is now a `SECONDARY` node.\n\n  - A former `SECONDARY` node is now the `PRIMARY` node.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-observe-the-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Troubleshoot Failover Issues",
       "headingLevel": 2,
       "body": "If your application doesn't handle the failover gracefully, ensure the\nfollowing:\n\n- You are using the [SRV Connection Format](manual/reference/connection-string-formats).\n\n- You are using the latest version of the driver.\n\n- You have implemented appropriate retry logic in your application.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "troubleshoot-failover-issues",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "api",
+          "text": "api"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

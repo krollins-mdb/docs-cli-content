@@ -1,32 +1,8 @@
 {
   "heading": "List Available Stream Processors",
   "headingLevel": 2,
-  "body": "To list all available stream processors:**Admin-api:**Atlas Administration APIThe Atlas Administration API provides an endpoint for\nlisting all available stream processors.[List Stream Processors](api/doc/atlas-admin-api-v2/operation/operation-getgroupstreamprocessors)**Atlas UI:**Atlas UITo view the list of stream processors defined for your stream processing workspace in\nthe Atlas UI, go to the **Stream Processing** page\nfor your Atlas project and click **Manage** in\nthe pane for your stream processing workspace.The list of stream processors and their statuses displays.**mongosh:**`mongosh`To list all available stream processors on the current stream processing workspace\nwith [mongosh](mongodb-shell), use the [sp.listStreamProcessors()](manual/reference/method/sp.listStreamProcessors)\nmethod. This returns a list of documents containing the name,\nstart time, current state, and pipeline associated with each\nstream processor. It has the following syntax:```sh\nsp.listStreamProcessors(<filter>)\n````<filter>` is a document specifying which field(s) to filter the list\nby.> **Example:** The following example shows a return value for an unfiltered\n> request:\n>\n> **Input:**\n>\n> ```sh\n> sp.listStreamProcessors()\n> ```\n>\n> **Output:**\n>\n> ```json\n> {\n>   id: '0135',\n>   name: \"proc01\",\n>   last_modified: ISODate(\"2023-03-20T20:15:54.601Z\"),\n>   state: \"RUNNING\",\n>   error_msg: '',\n>   pipeline: [\n>     {\n>       $source: {\n>         connectionName: \"myKafka\",\n>         topic: \"stuff\"\n>       }\n>     },\n>     {\n>       $match: {\n>         temperature: 46\n>       }\n>     },\n>     {\n>       $emit: {\n>         connectionName: \"mySink\",\n>         topic: \"output\",\n>       }\n>     }\n>   ],\n>   lastStateChange: ISODate(\"2023-03-20T20:15:59.442Z\")\n> },\n> {\n>   id: '0218',\n>   name: \"proc02\",\n>   last_modified: ISODate(\"2023-03-21T20:17:33.601Z\"),\n>   state: \"STOPPED\",\n>   error_msg: '',\n>   pipeline: [\n>     {\n>       $source: {\n>         connectionName: \"myKafka\",\n>         topic: \"things\"\n>       }\n>     },\n>     {\n>       $match: {\n>         temperature: 41\n>       }\n>     },\n>     {\n>       $emit: {\n>         connectionName: \"mySink\",\n>         topic: \"results\",\n>       }\n>     }\n>   ],\n>   lastStateChange: ISODate(\"2023-03-21T20:18:26.139Z\")\n> }\n> ```\n>\n> If you run the command again on the same stream processing workspace, filtering for a\n> `\"state\"` of `\"running\"`, you see the following output:\n>\n> **Input:**\n>\n> ```sh\n> sp.listStreamProcessors({\"state\": \"running\"})\n> ```\n>\n> **Output:**\n>\n> ```json\n> {\n>   id: '0135',\n>   name: \"proc01\",\n>   last_modified: ISODate(\"2023-03-20T20:15:54.601Z\"),\n>   state: \"RUNNING\",\n>   error_msg: '',\n>   pipeline: [\n>     {\n>       $source: {\n>         connectionName: \"myKafka\",\n>         topic: \"stuff\"\n>       }\n>     },\n>     {\n>       $match: {\n>         temperature: 46\n>       }\n>     },\n>     {\n>       $emit: {\n>         connectionName: \"mySink\",\n>         topic: \"output\",\n>       }\n>     }\n>   ],\n>   lastStateChange: ISODate(\"2023-03-20T20:15:59.442Z\")\n> }\n> ```",
-  "codeBlocks": [
-    {
-      "language": "sh",
-      "content": "sp.listStreamProcessors(<filter>)",
-      "tokenEstimate": 8
-    },
-    {
-      "language": "sh",
-      "content": "sp.listStreamProcessors()",
-      "tokenEstimate": 6
-    },
-    {
-      "language": "json",
-      "content": "{\n  id: '0135',\n  name: \"proc01\",\n  last_modified: ISODate(\"2023-03-20T20:15:54.601Z\"),\n  state: \"RUNNING\",\n  error_msg: '',\n  pipeline: [\n    {\n      $source: {\n        connectionName: \"myKafka\",\n        topic: \"stuff\"\n      }\n    },\n    {\n      $match: {\n        temperature: 46\n      }\n    },\n    {\n      $emit: {\n        connectionName: \"mySink\",\n        topic: \"output\",\n      }\n    }\n  ],\n  lastStateChange: ISODate(\"2023-03-20T20:15:59.442Z\")\n},\n{\n  id: '0218',\n  name: \"proc02\",\n  last_modified: ISODate(\"2023-03-21T20:17:33.601Z\"),\n  state: \"STOPPED\",\n  error_msg: '',\n  pipeline: [\n    {\n      $source: {\n        connectionName: \"myKafka\",\n        topic: \"things\"\n      }\n    },\n    {\n      $match: {\n        temperature: 41\n      }\n    },\n    {\n      $emit: {\n        connectionName: \"mySink\",\n        topic: \"results\",\n      }\n    }\n  ],\n  lastStateChange: ISODate(\"2023-03-21T20:18:26.139Z\")\n}",
-      "tokenEstimate": 298
-    },
-    {
-      "language": "sh",
-      "content": "sp.listStreamProcessors({\"state\": \"running\"})",
-      "tokenEstimate": 11
-    },
-    {
-      "language": "json",
-      "content": "{\n  id: '0135',\n  name: \"proc01\",\n  last_modified: ISODate(\"2023-03-20T20:15:54.601Z\"),\n  state: \"RUNNING\",\n  error_msg: '',\n  pipeline: [\n    {\n      $source: {\n        connectionName: \"myKafka\",\n        topic: \"stuff\"\n      }\n    },\n    {\n      $match: {\n        temperature: 46\n      }\n    },\n    {\n      $emit: {\n        connectionName: \"mySink\",\n        topic: \"output\",\n      }\n    }\n  ],\n  lastStateChange: ISODate(\"2023-03-20T20:15:59.442Z\")\n}",
-      "tokenEstimate": 149
-    }
-  ]
+  "body": "To list all available stream processors:\n\nAtlas Administration API\n\nAtlas UI\n\n`mongosh`",
+  "codeBlocks": [],
+  "slug": "list-available-stream-processors",
+  "variantAgnostic": true
 }

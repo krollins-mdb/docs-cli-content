@@ -7,103 +7,205 @@
       "heading": "Prohibited Actions",
       "headingLevel": 2,
       "body": "If you enable a Backup Compliance Policy, no user, regardless of role, can do the\nfollowing actions:\n\n- Disable the Backup Compliance Policy without MongoDB support. To disable a Backup Compliance Policy,\n  the security or legal representative specified for the Backup Compliance Policy must\n  [MongoDB Support](request-support) and complete an extensive\n  verification process.\n\n  > **Note:** The only exception applies to empty projects that contain no\n  > active or paused clusters and no retained snapshots from\n  > previously terminated clusters. If a project is empty, users\n  > with the [Organization Owner](<Organization Owner>) role or the\n  > [Project Owner](<Project Owner>) role can disable the Backup Compliance Policy.\n\n- Modify the [cluster-level backup policy](configure-backup-policy) for an\n  individual cluster below the minimum requirements set in the\n  Backup Compliance Policy.\n\n- [Delete a backup snapshot](delete-snapshot).\n\n- Decrease the [cluster-level backup policy](configure-backup-policy) for a\n  snapshot after it's taken.\n\n- Disable [Configure Backup Options for the Cluster](create-cluster-backups).\n\n- Disable [Configure Backup Options for the Cluster](create-cluster-backups) if the\n  Backup Compliance Policy has the\n  **Require Point in Time Restore to all clusters** option set\n  to **On** without MongoDB Support. To disable\n  Continuous Cloud Backup, the security or legal representative specified for\n  the Backup Compliance Policy must [MongoDB Support](request-support) and\n  complete an extensive verification process.\n\n- Reduce the [Continuous Cloud Backup Restore Window](create-pit-policy)\n  without MongoDB Support. To reduce the Continuous Cloud Backup\n  **Restore Window**, the security or legal representative\n  specified for the Backup Compliance Policy must [MongoDB Support](request-support) and complete an extensive verification process.\n\n- Delete [Hourly Snapshot Retention Time](creating-backup-policy) specified in the\n  Backup Compliance Policy without MongoDB Support. To delete policy items specified in\n  the Backup Compliance Policy, the security or legal representative specified for the\n  Backup Compliance Policy must [MongoDB Support](request-support) and complete an\n  extensive verification process.\n\n- [Delete a Project](delete-project) if any snapshots exist.\n  If you can't remove all projects, you can't [delete the organization](delete-organization).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prohibited-actions",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "After you enable a Backup Compliance Policy, the following behaviors apply:\n\n- A Backup Compliance Policy limits your ability to reduce backup storage costs. You\n  can't adjust the retention or delete a backup to reduce the\n  backup storage costs. To learn more,\n  see [Billing Cost Explorer](atlas-billing).\n\n- All new and existing clusters have Cloud Backup automatically\n  enabled and use the project-level Backup Compliance Policy. Atlas augments any\n  preexisting [cluster-level backup policy](configure-backup-policy) to meet the minimum requirements of the\n  Backup Compliance Policy. All new clusters use the Backup Compliance Policy unless the minimum\n  requirements of the [cluster-level backup policy](configure-backup-policy) expand beyond the minimum requirements of\n  the Backup Compliance Policy.\n\n- You can modify the [cluster-level backup policy](configure-backup-policy) at any time. If you reduce the frequency\n  of a cluster-level backup policy, the change applies only to\n  future backups. Any existing [oplog](manual/reference/glossary) remains for the original\n  window. The minimum requirements of the Backup Compliance Policy apply.\n\n- If the Backup Compliance Policy has the\n  **Keep all snapshots when removing additional snapshot regions**\n  option set to **On** and you enable, modify, or\n  delete [snapshot copy distribution](snapshot-distribution), any\n  snapshots already taken remain.\n\n- When you [resume](resume-cluster), Atlas\n  automatically enables Cloud Backup. If the Backup Compliance Policy has\n  the **Require Point in Time Restore to all clusters** option\n  set to **On**, Atlas automatically enables\n  Continuous Cloud Backup and adjusts the restore window according to the\n  Backup Compliance Policy. Atlas automatically modifies the backup to meet the\n  minimum requirements of the Backup Compliance Policy.\n\n- If you [Terminate active clusters](terminate-cluster), Atlas\n  maintains all existing snapshots after the termination according to\n  your backup policy. Atlas retains the [oplog](manual/reference/glossary) for\n  [restoring a point in time with continuous cloud backup](recover-pit-continuous-cloud-backup) in a static state until\n  Atlas can no longer use them for continuous cloud backup.\n\n- If you [Terminate active clusters](terminate-cluster), you can't create another\n  cluster with the same name because Atlas uses the name to\n  identify snapshots.\n\n- Whenever a user enables, modifies, or disables a Backup Compliance Policy, Atlas\n  reflects the event in the [Project Activity Feed](view-activity-feed).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 2,
       "body": "To configure a Backup Compliance Policy, you must have [Project Owner](<Project Owner>) access to the project.\nUsers with [Organization Owner](<Organization Owner>) access must add themselves as a `Project Owner`\nto the project before configuring a Backup Compliance Policy.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "- Only MongoDB Support can do the following actions:\n\n  - Approve requests to disable a Backup Compliance Policy.\n\n  - Disable [Configure Backup Options for the Cluster](create-cluster-backups) if the\n    Backup Compliance Policy has the\n    **Require Point in Time Restore to all clusters** option\n    set to **On**.\n\n  - Reduce the [Continuous Cloud Backup Restore Window](create-pit-policy).\n\n  - Delete [Hourly Snapshot Retention Time](creating-backup-policy) specified in\n    the Backup Compliance Policy.\n\n- Only the specified security or legal representative can\n  [MongoDB Support](request-support).\n\n- You can apply a Backup Compliance Policy to `M10+` dedicated clusters only.\n\n  > **Note:** You can't convert a dedicated cluster to a Free cluster (formerly known as `M0`)\n  > or a Flex cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 2,
-      "body": "**Atlascli:**Atlas CLITo enable the backup compliance policy for your project using the\nAtlas CLI, run the following command:```sh\n\natlas backups compliancePolicy enable [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups compliancePolicy enable](atlas/cli/current/command/atlas-backups-compliancePolicy-enable).**Api:**Atlas Administration APIThe Atlas Administration API provides the\n[endpoint](api/doc/atlas-admin-api-v2/operation/operation-updategroupbackupcompliancepolicy) in the\n[Cloud Backups](api/doc/atlas-admin-api-v2/group/endpoint-cloud-backups) resource to update or\nenable the Backup Compliance Policy settings for the project.**Ui:**Atlas UI",
+      "body": "Atlas CLI\n\nTo enable the backup compliance policy for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas backups compliancePolicy enable [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups compliancePolicy enable](atlas/cli/current/command/atlas-backups-compliancePolicy-enable).\n\nAtlas Administration API\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas backups compliancePolicy enable [options]\n",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "procedure",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Enable the Backup Compliance Policy.",
       "headingLevel": 3,
       "body": "> **Important:**&#x20;\n>\n> MongoDB Support must approve requests to disable a Backup Compliance Policy\n>\n> After you enable a Backup Compliance Policy, only MongoDB support can approve requests to\n> disable the Backup Compliance Policy from the security or legal representative specified for the Backup Compliance Policy.\n> After MongoDB Support approves the request, Project Owners can disable the Backup Compliance Policy.\n>\n> To disable a Backup Compliance Policy, the security or legal representative\n> specified for the Backup Compliance Policy must open a case to [MongoDB Support](request-support) and complete an extensive verification process.\n>\n> Before you enable a Backup Compliance Policy, carefully review the\n> [prohibited actions](bcp-prohibited-actions) and\n> [considerations](bcp-considerations). You can re-enable a\n> Backup Compliance Policy at any time.\n\nToggle **Backup Compliance Policy** to **On**.\n\nThe **Edit Backup Compliance Policy** dialog box\nopens.\n\n> **Note:** This Backup Compliance Policy applies as the minimum backup policy to all\n> clusters in the project. The Backup Compliance Policy protects all\n> existing snapshots. The Backup Compliance Policy prevents any user,\n> regardless of role, from modifying or deleting existing\n> snapshots prior to their expiration. Changes made to\n> this Backup Compliance Policy apply only to future snapshots. If you\n> enable a Backup Compliance Policy, the Backup Compliance Policy limits your ability to\n> reduce backup storage costs. You can't adjust the\n> retention or delete a backup to reduce the backup\n> storage costs.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-enable-the-backup-compliance-policy--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Configure your backup policy.",
       "headingLevel": 3,
       "body": "Each row in the **Backup Policy Frequency and Retention**\ntable represents a backup policy item.\n\n> **Important:** After you save the Backup Compliance Policy, you can't delete\n> [Hourly Snapshot Retention Time](creating-backup-policy)\n> specified in the Backup Compliance Policy without MongoDB Support. To delete\n> policy items specified in the Backup Compliance Policy, the security or legal\n> representative specified for the Backup Compliance Policy must\n> [MongoDB Support](request-support) and complete an\n> extensive verification process. Ensure that you have the\n> correct policy items before you save the Backup Compliance Policy.\n>\n> - Do one of the following steps:\n>\n>   - Select the frequency unit from **Frequency Unit**\n>     for a policy item.\n>\n>   - Click **Add Frequency Unit** to add a new policy\n>     item to your backup policy.\n>\n> - Select the frequency for the frequency unit from the\n>   **Every** column.\n>\n> - Specify the retention time for the policy item in\n>   the **Retention Time** column and the units for the\n>   retention time in the column to the right.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-configure-your-backup-policy--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: (Optional) Configure the restore window.",
       "headingLevel": 3,
       "body": "- Toggle\n  **Require Point in Time Restore to all clusters** to **On**.\n\n- Specify a **Restore Window**.\n\n  > **Important:** You can't configure a restore window that is longer\n  > than the [Hourly Snapshot Retention Time](creating-backup-policy). After you save this\n  > Backup Compliance Policy, you can't change this setting without\n  > MongoDB support. To change this setting, the security\n  > or legal representative specified for the Backup Compliance Policy\n  > must [MongoDB Support](request-support) and\n  > complete an extensive verification process.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-optional-configure-the-restore-window--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: (Optional) Require Encryption at Rest using Customer Key Management for all clusters.",
       "headingLevel": 3,
       "body": "Toggle **Require Encryption at Rest using Customer Key Management for all clusters** to **On**.\n\n> **Note:** To enable this option, you must\n> [Encryption at Rest using Customer Key Management](security-kms-encryption) for\n> all current clusters. You can't enable this option\n> on [paused clusters](paused-cluster-considerations) that don't have\n> Encryption at Rest enabled.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-optional-require-encryption-at-rest-using-customer-key-management-for-all-clusters--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: (Optional) Keep all snapshots when removing additional snapshot regions.",
       "headingLevel": 3,
       "body": "You can prevent cluster users from deleting backups\ncopied to other regions even if you change the\n**Copy to other regions** option to\n**Off**. To learn more, see\n[snapshot copy distribution](snapshot-distribution).\n\nToggle **Keep all snapshots when removing additional snapshot regions** to **On**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-optional-keep-all-snapshots-when-removing-additional-snapshot-regions--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 6: Confirm and save the Backup Compliance Policy.",
       "headingLevel": 3,
       "body": "- Click **Next**.\n\n  > **Important:**&#x20;\n  >\n  > MongoDB Support must approve requests to disable a Backup Compliance Policy\n  >\n  > After you enable a Backup Compliance Policy, only MongoDB support can approve requests to\n  > disable the Backup Compliance Policy from the security or legal representative specified for the Backup Compliance Policy.\n  > After MongoDB Support approves the request, Project Owners can disable the Backup Compliance Policy.\n  >\n  > To disable a Backup Compliance Policy, the security or legal representative\n  > specified for the Backup Compliance Policy must open a case to [MongoDB Support](request-support) and complete an extensive verification process.\n  >\n  > Before you enable a Backup Compliance Policy, carefully review the\n  > [prohibited actions](bcp-prohibited-actions) and\n  > [considerations](bcp-considerations). You can re-enable a\n  > Backup Compliance Policy at any time.\n\n- Specify the **First Name** and\n  **Last Name** of a security or legal\n  representative.\n\n- Specify the **Email address of a representative**.\n\n  > **Important:** An invalid or incorrect email address prevents you\n  > from modifying or enabling this Backup Compliance Policy until you\n  > correct it with MongoDB Support. Specify the email\n  > address that the representative uses to sign into the\n  > Support portal.\n\n- If you are *sure* that you want to save the Backup Compliance Policy,\n  specify the project name to continue.\n\n- Click the checkbox to confirm that you understand that\n  when you enable a Backup Compliance Policy, no user, regardless of role,\n  can modify or delete backup snapshots. If you enable a\n  Backup Compliance Policy, the Backup Compliance Policy limits your ability to reduce\n  backup storage costs and you can *not* adjust the\n  retention or delete a backup to reduce backup storage\n  costs. Only MongoDB Support can disable\n  a Backup Compliance Policy. Only the specified security or legal\n  representative can [MongoDB Support](request-support) to disable a Backup Compliance Policy.\n\n- Click **Confirm and Save**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-6-confirm-and-save-the-backup-compliance-policy--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Procedure",
+      "headingLevel": 2,
+      "body": "The Atlas Administration API provides the\n[endpoint](api/doc/atlas-admin-api-v2/operation/operation-updategroupbackupcompliancepolicy) in the\n[Cloud Backups](api/doc/atlas-admin-api-v2/group/endpoint-cloud-backups) resource to update or\nenable the Backup Compliance Policy settings for the project.",
+      "codeBlocks": [],
+      "slug": "procedure--api",
+      "selections": {
+        "interface": "api"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "View Projects that have a Backup Compliance Policy Enabled",
       "headingLevel": 2,
-      "body": "**Atlascli:**Atlas CLITo return the backup compliance policy for your project using the\nAtlas CLI, run the following command:```sh\n\natlas backups compliancePolicy describe [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups compliancePolicy describe](atlas/cli/current/command/atlas-backups-compliancePolicy-describe).**Api:**Atlas Administration APIThe Atlas Administration API provides the\n[endpoint](api/doc/atlas-admin-api-v2/operation/operation-getgroupbackupcompliancepolicy) in the\n[Cloud Backups](api/doc/atlas-admin-api-v2/group/endpoint-cloud-backups) resource to retrieve the\nBackup Compliance Policy settings for the project.**Ui:**Atlas UIA Backup Compliance Policy icon appears next to each project name that has a\nBackup Compliance Policy enabled.",
+      "body": "Atlas CLI\n\nTo return the backup compliance policy for your project using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas backups compliancePolicy describe [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas backups compliancePolicy describe](atlas/cli/current/command/atlas-backups-compliancePolicy-describe).\n\nAtlas Administration API\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas backups compliancePolicy describe [options]\n",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "view-projects-that-have-a-backup-compliance-policy-enabled",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View Projects that have a Backup Compliance Policy Enabled",
+      "headingLevel": 2,
+      "body": "The Atlas Administration API provides the\n[endpoint](api/doc/atlas-admin-api-v2/operation/operation-getgroupbackupcompliancepolicy) in the\n[Cloud Backups](api/doc/atlas-admin-api-v2/group/endpoint-cloud-backups) resource to retrieve the\nBackup Compliance Policy settings for the project.",
+      "codeBlocks": [],
+      "slug": "view-projects-that-have-a-backup-compliance-policy-enabled--api",
+      "selections": {
+        "interface": "api"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "View Projects that have a Backup Compliance Policy Enabled",
+      "headingLevel": 2,
+      "body": "A Backup Compliance Policy icon appears next to each project name that has a\nBackup Compliance Policy enabled.",
+      "codeBlocks": [],
+      "slug": "view-projects-that-have-a-backup-compliance-policy-enabled--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "View Backup Details for Dedicated Clusters",
       "headingLevel": 2,
       "body": "You can view backup details for all `M10+` dedicated clusters\nincluding deleted clusters with retained snapshots.\n\nTo view backup details:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "view-backup-details-for-dedicated-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: View the backup details.",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-view-the-backup-details",
+      "variantAgnostic": true
     },
     {
       "heading": "Extra Snapshot Retention",
       "headingLevel": 2,
       "body": "When a Backup Compliance Policy is enabled for your project, you can also configure\nextra snapshot retention to retain snapshots beyond the Backup Compliance Policy\nprotection period. Your snapshots remain fully protected and users\ncan't delete them during the Backup Compliance Policy period. During the extra snapshot\nretention period, snapshots are unprotected again and any user with the\nappropriate role can delete them. When the extra snapshot retention\nperiod ends, Atlas deletes the snapshots automatically. Any changes\napply to all existing and future snapshots for that frequency unit. The\nextra snapshot retention time remains the same even if the Backup Compliance Policy\nchanges.\n\nTo learn more, see [configure extra snapshot retention](config-extra-snapshot-retention).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "extra-snapshot-retention",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "api",
+          "text": "api"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "heading": "String Data Type",
+  "headingLevel": 3,
+  "body": "Atlas Data Federation interprets empty strings (`\"\"`) as `null` values when\nparsing filenames. If you want Atlas Data Federation to generate parseable\nfilenames, wrap the field references that could have `null`\nvalues using $convert with an empty string `onNull` value.\n\n> **Example:** This example shows how to handle null values in the `year`\n> field when creating a filename from the field value.\n>\n> ```json\n> {\n>   \"$out\": {\n>     \"gcs\": {\n>       \"bucket\": \"my-gcs-bucket\",\n>       \"region\": \"us-central1\",\n>       \"filename\": {\n>         \"$concat\": [\n>           \"big-box-store/\",\n>           {\n>             \"$convert\": {\n>               \"input\": \"$year\",\n>               \"to\": \"string\",\n>               \"onNull\": \"\"\n>             }\n>           }, \"/\"\n>         ]\n>       },\n>       \"format\": {\n>         \"name\": \"json.gz\",\n>         \"maxFileSize\": \"200MiB\"\n>       }\n>     }\n>   }\n> }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"$out\": {\n    \"gcs\": {\n      \"bucket\": \"my-gcs-bucket\",\n      \"region\": \"us-central1\",\n      \"filename\": {\n        \"$concat\": [\n          \"big-box-store/\",\n          {\n            \"$convert\": {\n              \"input\": \"$year\",\n              \"to\": \"string\",\n              \"onNull\": \"\"\n            }\n          }, \"/\"\n        ]\n      },\n      \"format\": {\n        \"name\": \"json.gz\",\n        \"maxFileSize\": \"200MiB\"\n      }\n    }\n  }\n}",
+      "tokenEstimate": 114
+    }
+  ],
+  "slug": "string-data-type--gcp",
+  "selections": {
+    "cloud-provider": "gcp"
+  },
+  "variantAgnostic": false
+}

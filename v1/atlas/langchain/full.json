@@ -13,29 +13,65 @@
           "content": "pip install langchain-mongodb",
           "tokenEstimate": 6
         }
-      ]
+      ],
+      "slug": "installation-and-setup",
+      "variantAgnostic": true
     },
     {
       "heading": "Vector Store",
       "headingLevel": 2,
       "body": "`MongoDBAtlasVectorSearch` is a [vector store](https://python.langchain.com/docs/how_to/#vector-stores)\nthat allows you to store and retrieve vector embeddings from a\ncollection in MongoDB. You can use this component to store\nembeddings from your data and retrieve them using MongoDB Vector Search.\n\nThis component requires an [index definition](avs-types-vector-search).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
       "headingLevel": 3,
-      "body": "Atlas supports two embedding modes:* **Manual embedding**: Generate embedding vectors on the client's\n  side with an embedding model you specify.\n\n* **Automated embedding**: MongoDB embeds text on the server's side\n  without needing to generate them manually.\n  To learn more, see [Automated Embedding](https://dochub.mongodb.org/core/auto-embedding-in-community).\n\n  > **Important:** Automated embedding is available as a Preview feature only for\n  > MongoDB Community Edition v8.2 and later.\n  > The feature and the corresponding documentation might change at\n  > any time during the Preview period.\n  > To learn more, see [Preview Features](preview-features).**Uri:**Manual EmbeddingThe quickest way to instantiate your vector store is to\nuse the connection string for your MongoDB cluster\nor local deployment:```python\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Instantiate the vector store using your MongoDB connection string\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",        # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n  embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n  index_name = \"vector_index\",                      # Name of the vector search index\n  # Other optional parameters...\n)\n```**Auto-embed:**Automated EmbeddingTo use automated embedding, pass an `AutoEmbeddings` instance\nto the `embedding` parameter. This enables MongoDB to generate\nand manage embedding vectors automatically.With automated embedding:* No client-side embedding computation is required\n\n* Raw text is sent directly to MongoDB\n\n* Embedding vectors are generated server-side\n\n* The `embedding_key` field is not stored in documents```python\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_mongodb import AutoEmbeddings\n\n# Instantiate the vector store with Automated Embedding\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",              # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",        # Database and collection name\n  embedding = AutoEmbeddings(model_name=\"voyage-4\"),      # Enable Automated Embedding\n  index_name = \"vector_index\",                            # Name of the vector search index\n  # Other optional parameters...\n)\n\n# Add documents - text is embedded server-side\nvector_store.add_documents(documents=docs)\n\n# Search - queries are embedded server-side\nresults = vector_store.similarity_search(\"search query\")\n```**Other:**Other MethodsThe integration also supports other methods of instantiating the vector store:* Using the MongoDB client:\n\n  ```python\n  from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n  from langchain_voyageai import VoyageAIEmbeddings\n  from pymongo import MongoClient\n\n  # Connect to your MongoDB cluster\n  client = MongoClient(\"<connection-string>\")\n  collection = client[\"<database-name>\"][\"<collection-name>\"]\n\n  # Instantiate the vector store\n  vector_store = MongoDBAtlasVectorSearch(\n    collection = collection,          # Collection to store embeddings\n    embedding = VoyageAIEmbeddings(), # Embedding model to use\n    index_name = \"vector_index\"      # Name of the vector search index\n    # Other optional parameters...\n  )\n  ```\n\n* From documents that you've created:\n\n  ```python\n  from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n  from langchain_voyageai import VoyageAIEmbeddings\n  from langchain_core.documents import Document\n  from pymongo import MongoClient\n\n  # Some documents to embed\n  document_1 = Document(page_content=\"foo\", metadata={\"baz\": \"bar\"})\n  document_2 = Document(page_content=\"thud\", metadata={\"bar\": \"baz\"})\n  docs = [ document_1, document_2 ]\n\n  # Connect to your MongoDB cluster\n  client = MongoClient(\"<connection-string>\")\n  collection = client[\"<database-name>\"][\"<collection-name>\"]\n\n  # Create the vector store from documents\n  vector_store = MongoDBAtlasVectorSearch.from_documents(\n    documents = docs,                  # List of documents to embed\n    embedding = VoyageAIEmbeddings(),  # Embedding model to use\n    collection = collection,           # Collection to store embeddings\n    index_name = \"vector_index\"        # Name of the vector search index\n    # Other optional parameters...\n  )\n  ```| Parameter              | Necessity | Description                                                                                                                                           |\n| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |\n| connection\\_string     | Required  | Specify the connection string for your MongoDB cluster. To learn more, see Connect to a Cluster via Client Libraries or Connection Strings.           |\n| namespace              | Required  | Specify the MongoDB namespace for which to store vector embeddings.For example, langchain\\_db.test.                                                   |\n| embedding              | Required  | The embedding model to use. You can use any embedding model supported in LangChain or an AutoEmbeddings instance for server-side Automated Embedding. |\n| index\\_name            | Optional  | Name of the MongoDB Vector Search index. Defaults to vector\\_index.                                                                                   |\n| text\\_key              | Optional  | Field name that contains the document text content. Defaults to text.                                                                                 |\n| embedding\\_key         | Optional  | Field name that stores the embedding vector. Defaults to embedding.                                                                                   |\n| relevance\\_score\\_fn   | Optional  | Similarity function to use. Accepted values are cosine, euclidean, or dotProduct. Defaults to cosine.                                                 |\n| dimensions             | Optional  | Number of vector dimensions. If you set this value and you don't have a vector search index on the collection, MongoDB creates the index for you.     |\n| auto\\_create\\_index    | Optional  | Flag that determines whether to automatically create the vector index if it doesn't exist. Defaults to False.                                         |\n| auto\\_index\\_timeout   | Optional  | Timeout in seconds to wait for an auto-created vector search index to be ready.                                                                       |\n| vector\\_index\\_options | Optional  | A dictionary of additional options for configuring the vector search index.                                                                           |\n| \\*\\*kwargs             | Optional  | Additional parameters to pass to the vector store such as LangChain-specific parameters.                                                              |> **Note:**&#x20;\n>\n> - [Tutorial](langchain-get-started)\n>\n> - [Video](https://www.youtube.com/watch?v=ZvwUzcMvKiI)\n>\n> - [API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/vectorstores/langchain_mongodb.vectorstores.MongoDBAtlasVectorSearch.html)\n>\n> - [LangChain Documentation](https://python.langchain.com/docs/integrations/vectorstores/mongodb_atlas)",
+      "body": "Atlas supports two embedding modes:\n\n- **Manual embedding**: Generate embedding vectors on the client's\n  side with an embedding model you specify.\n\n- **Automated embedding**: MongoDB embeds text on the server's side\n  without needing to generate them manually.\n  To learn more, see [Automated Embedding](https://dochub.mongodb.org/core/auto-embedding-in-community).\n\n  > **Important:** Automated embedding is available as a Preview feature only for\n  > MongoDB Community Edition v8.2 and later.\n  > The feature and the corresponding documentation might change at\n  > any time during the Preview period.\n  > To learn more, see [Preview Features](preview-features).\n\nManual Embedding\n\nAutomated Embedding\n\nOther Methods\n\n| Parameter              | Necessity | Description                                                                                                                                           |\n| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |\n| connection\\_string     | Required  | Specify the connection string for your MongoDB cluster. To learn more, see Connect to a Cluster via Client Libraries or Connection Strings.           |\n| namespace              | Required  | Specify the MongoDB namespace for which to store vector embeddings.For example, langchain\\_db.test.                                                   |\n| embedding              | Required  | The embedding model to use. You can use any embedding model supported in LangChain or an AutoEmbeddings instance for server-side Automated Embedding. |\n| index\\_name            | Optional  | Name of the MongoDB Vector Search index. Defaults to vector\\_index.                                                                                   |\n| text\\_key              | Optional  | Field name that contains the document text content. Defaults to text.                                                                                 |\n| embedding\\_key         | Optional  | Field name that stores the embedding vector. Defaults to embedding.                                                                                   |\n| relevance\\_score\\_fn   | Optional  | Similarity function to use. Accepted values are cosine, euclidean, or dotProduct. Defaults to cosine.                                                 |\n| dimensions             | Optional  | Number of vector dimensions. If you set this value and you don't have a vector search index on the collection, MongoDB creates the index for you.     |\n| auto\\_create\\_index    | Optional  | Flag that determines whether to automatically create the vector index if it doesn't exist. Defaults to False.                                         |\n| auto\\_index\\_timeout   | Optional  | Timeout in seconds to wait for an auto-created vector search index to be ready.                                                                       |\n| vector\\_index\\_options | Optional  | A dictionary of additional options for configuring the vector search index.                                                                           |\n| \\*\\*kwargs             | Optional  | Additional parameters to pass to the vector store such as LangChain-specific parameters.                                                              |\n\n> **Note:**&#x20;\n>\n> - [Tutorial](langchain-get-started)\n>\n> - [Video](https://www.youtube.com/watch?v=ZvwUzcMvKiI)\n>\n> - [API Reference](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/vectorstores/langchain_mongodb.vectorstores.MongoDBAtlasVectorSearch.html)\n>\n> - [LangChain Documentation](https://python.langchain.com/docs/integrations/vectorstores/mongodb_atlas)",
+      "codeBlocks": [],
+      "slug": "usage",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 3,
+      "body": "The quickest way to instantiate your vector store is to\nuse the connection string for your MongoDB cluster\nor local deployment:\n\n```python\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Instantiate the vector store using your MongoDB connection string\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",        # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n  embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n  index_name = \"vector_index\",                      # Name of the vector search index\n  # Other optional parameters...\n)\n```",
       "codeBlocks": [
         {
           "language": "python",
           "content": "from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\n\n# Instantiate the vector store using your MongoDB connection string\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",        # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",  # Database and collection name\n  embedding = VoyageAIEmbeddings(),                 # Embedding model to use\n  index_name = \"vector_index\",                      # Name of the vector search index\n  # Other optional parameters...\n)",
           "tokenEstimate": 120
-        },
+        }
+      ],
+      "slug": "usage--uri",
+      "selections": {
+        "tabs": "uri"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 3,
+      "body": "To use automated embedding, pass an `AutoEmbeddings` instance\nto the `embedding` parameter. This enables MongoDB to generate\nand manage embedding vectors automatically.\n\nWith automated embedding:\n\n- No client-side embedding computation is required\n\n- Raw text is sent directly to MongoDB\n\n- Embedding vectors are generated server-side\n\n- The `embedding_key` field is not stored in documents\n\n```python\nfrom langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_mongodb import AutoEmbeddings\n\n# Instantiate the vector store with Automated Embedding\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",              # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",        # Database and collection name\n  embedding = AutoEmbeddings(model_name=\"voyage-4\"),      # Enable Automated Embedding\n  index_name = \"vector_index\",                            # Name of the vector search index\n  # Other optional parameters...\n)\n\n# Add documents - text is embedded server-side\nvector_store.add_documents(documents=docs)\n\n# Search - queries are embedded server-side\nresults = vector_store.similarity_search(\"search query\")\n```",
+      "codeBlocks": [
         {
           "language": "python",
           "content": "from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_mongodb import AutoEmbeddings\n\n# Instantiate the vector store with Automated Embedding\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n  connection_string = \"<connection-string>\",              # MongoDB cluster URI\n  namespace = \"<database-name>.<collection-name>\",        # Database and collection name\n  embedding = AutoEmbeddings(model_name=\"voyage-4\"),      # Enable Automated Embedding\n  index_name = \"vector_index\",                            # Name of the vector search index\n  # Other optional parameters...\n)\n\n# Add documents - text is embedded server-side\nvector_store.add_documents(documents=docs)\n\n# Search - queries are embedded server-side\nresults = vector_store.similarity_search(\"search query\")",
           "tokenEstimate": 160
-        },
+        }
+      ],
+      "slug": "usage--auto-embed",
+      "selections": {
+        "tabs": "auto-embed"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Usage",
+      "headingLevel": 3,
+      "body": "The integration also supports other methods of instantiating the vector store:\n\n- Using the MongoDB client:\n\n  ```python\n  from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n  from langchain_voyageai import VoyageAIEmbeddings\n  from pymongo import MongoClient\n\n  # Connect to your MongoDB cluster\n  client = MongoClient(\"<connection-string>\")\n  collection = client[\"<database-name>\"][\"<collection-name>\"]\n\n  # Instantiate the vector store\n  vector_store = MongoDBAtlasVectorSearch(\n    collection = collection,          # Collection to store embeddings\n    embedding = VoyageAIEmbeddings(), # Embedding model to use\n    index_name = \"vector_index\"      # Name of the vector search index\n    # Other optional parameters...\n  )\n  ```\n\n- From documents that you've created:\n\n  ```python\n  from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n  from langchain_voyageai import VoyageAIEmbeddings\n  from langchain_core.documents import Document\n  from pymongo import MongoClient\n\n  # Some documents to embed\n  document_1 = Document(page_content=\"foo\", metadata={\"baz\": \"bar\"})\n  document_2 = Document(page_content=\"thud\", metadata={\"bar\": \"baz\"})\n  docs = [ document_1, document_2 ]\n\n  # Connect to your MongoDB cluster\n  client = MongoClient(\"<connection-string>\")\n  collection = client[\"<database-name>\"][\"<collection-name>\"]\n\n  # Create the vector store from documents\n  vector_store = MongoDBAtlasVectorSearch.from_documents(\n    documents = docs,                  # List of documents to embed\n    embedding = VoyageAIEmbeddings(),  # Embedding model to use\n    collection = collection,           # Collection to store embeddings\n    index_name = \"vector_index\"        # Name of the vector search index\n    # Other optional parameters...\n  )\n  ```",
+      "codeBlocks": [
         {
           "language": "python",
           "content": "from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\nfrom pymongo import MongoClient\n\n# Connect to your MongoDB cluster\nclient = MongoClient(\"<connection-string>\")\ncollection = client[\"<database-name>\"][\"<collection-name>\"]\n\n# Instantiate the vector store\nvector_store = MongoDBAtlasVectorSearch(\n  collection = collection,          # Collection to store embeddings\n  embedding = VoyageAIEmbeddings(), # Embedding model to use\n  index_name = \"vector_index\"      # Name of the vector search index\n  # Other optional parameters...\n)",
@@ -46,19 +82,28 @@
           "content": "from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\nfrom langchain_voyageai import VoyageAIEmbeddings\nfrom langchain_core.documents import Document\nfrom pymongo import MongoClient\n\n# Some documents to embed\ndocument_1 = Document(page_content=\"foo\", metadata={\"baz\": \"bar\"})\ndocument_2 = Document(page_content=\"thud\", metadata={\"bar\": \"baz\"})\ndocs = [ document_1, document_2 ]\n\n# Connect to your MongoDB cluster\nclient = MongoClient(\"<connection-string>\")\ncollection = client[\"<database-name>\"][\"<collection-name>\"]\n\n# Create the vector store from documents\nvector_store = MongoDBAtlasVectorSearch.from_documents(\n  documents = docs,                  # List of documents to embed\n  embedding = VoyageAIEmbeddings(),  # Embedding model to use\n  collection = collection,           # Collection to store embeddings\n  index_name = \"vector_index\"        # Name of the vector search index\n  # Other optional parameters...\n)",
           "tokenEstimate": 202
         }
-      ]
+      ],
+      "slug": "usage--other",
+      "selections": {
+        "tabs": "other"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Retrievers",
       "headingLevel": 2,
       "body": "LangChain [retrievers](https://python.langchain.com/docs/concepts/#retrievers)\nare components that you use to get relevant documents from your\nvector stores. You can use LangChain's built-in retrievers or the following MongoDB\nretrievers to query and retrieve data from MongoDB.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "retrievers",
+      "variantAgnostic": true
     },
     {
       "heading": "Vector Search Retriever",
       "headingLevel": 3,
       "body": "After instantiating MongoDB as a [vector store](langchain-vector-store),\nyou can use the vector store instance as a retriever to query your data\nusing [MongoDB Vector Search](avs-overview).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "vector-search-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -70,13 +115,17 @@
           "content": "from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch\n\n# Instantiate the vector store\nvector_store = MongoDBAtlasVectorSearch.from_connection_string(\n   # Vector store arguments...\n)\n\n# Use the vector store as a retriever\nretriever = vector_store.as_retriever()\n\n# Define your query\nquery = \"some search query\"\n\n# Print results\ndocuments = retriever.invoke(query)\nfor doc in documents:\n   print(doc)",
           "tokenEstimate": 90
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Full-Text Retriever",
       "headingLevel": 3,
       "body": "`MongoDBAtlasFullTextSearchRetriever` is a retriever that\nperforms full-text search by using [MongoDB Search Overview](fts-top-ref).\nSpecifically, it uses Lucene's standard [BM25 algorithm](https://en.wikipedia.org/wiki/Okapi_BM25).\n\nThis retriever requires an [create a MongoDB Search index](ref-create-index).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "full-text-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -88,13 +137,17 @@
           "content": "from langchain_mongodb.retrievers.full_text_search import MongoDBAtlasFullTextSearchRetriever\n\n# Connect to your MongoDB cluster\nclient = MongoClient(\"<connection-string>\")\ncollection = client[\"<database-name>\"][\"<collection-name>\"]\n\n# Initialize the retriever\nretriever = MongoDBAtlasFullTextSearchRetriever(\n   collection = collection,           # MongoDB Collection in Atlas\n   search_field = \"<field-name>\",     # Name of the field to search\n   search_index_name = \"<index-name>\" # Name of the search index\n)\n\n# Define your query\nquery = \"some search query\"\n\n# Print results\ndocuments = retriever.invoke(query)\nfor doc in documents:\n   print(doc)",
           "tokenEstimate": 146
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Hybrid Search Retriever",
       "headingLevel": 3,
       "body": "`MongoDBAtlasHybridSearchRetriever` is a retriever\nthat combines vector search and full-text search results by using the\nReciprocal Rank Fusion (RRF) algorithm. To learn more, see [How to Perform Hybrid Search](as_hybrid-search).\n\nThis retriever requires an existing [vector store](langchain-vector-store), [index definition](avs-types-vector-search),\nand [create a MongoDB Search index](ref-create-index).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "hybrid-search-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -106,13 +159,17 @@
           "content": "from langchain_mongodb.retrievers.hybrid_search import MongoDBAtlasHybridSearchRetriever\n\n# Initialize the retriever\nretriever = MongoDBAtlasHybridSearchRetriever(\n   vectorstore = <vector-store>,        # Vector store instance\n   search_index_name = \"<index-name>\",  # Name of the MongoDB Search index\n   top_k = 5,                           # Number of documents to return\n   fulltext_penalty = 60.0,             # Penalty for full-text search\n   vector_penalty = 60.0                # Penalty for vector search\n)\n\n# Define your query\nquery = \"some search query\"\n\n# Print results\ndocuments = retriever.invoke(query)\nfor doc in documents:\n   print(doc)",
           "tokenEstimate": 153
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Parent Document Retriever",
       "headingLevel": 3,
       "body": "`MongoDBAtlasParentDocumentRetriever` is a retriever that\nqueries smaller chunks first and then returns the\nlarger parent document to the LLM (Large Language Model). This type of retrieval\nis called **parent document retrieval**. Parent document\nretrieval can improve the responses of your RAG agents\nand applications by allowing for more granular searches on smaller chunks\nwhile giving LLM (Large Language Model)s the full context of the parent document.\n\nThis retriever stores both the parent and child documents\nin a single MongoDB collection, which supports efficient retrieval\nby only having to compute and index the child documents' embeddings.\n\nUnder the hood, this retriever creates the following:\n\n- An instance of [vector store](langchain-vector-store) to\n  handle vector search queries to the child documents.\n\n- An instance of [MongoDBDocStore](langchain-document-store) to handle\n  storing and retrieving the parent documents.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "parent-document-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -124,13 +181,17 @@
           "content": "from langchain_mongodb.retrievers.parent_document import ParentDocumentRetriever\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nfrom langchain_voyageai import VoyageAIEmbeddings\n\nretriever = MongoDBAtlasParentDocumentRetriever.from_connection_string(\n   connection_string = <connection-string>,           # MongoDB cluster URI\n   embedding_model = VoyageAIEmbeddings(),            # Embedding model to use\n   child_splitter = RecursiveCharacterTextSplitter(), # Text splitter to use\n   database_name = <database-name>,                   # Database to store the collection\n   collection_name = <collection-name>,               # Collection to store the collection\n\n   # Additional vector store or parent class arguments...\n)\n\n# Define your query\nquery = \"some search query\"\n\n# Print results\ndocuments = retriever.invoke(query)\nfor doc in documents:\n   print(doc)",
           "tokenEstimate": 182
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Self-Querying Retriever",
       "headingLevel": 3,
       "body": "`MongoDBAtlasSelfQueryRetriever` is a retriever that queries itself.\nThe retriever uses an LLM to process your search query to identify possible metadata\nfilters, forms a structured vector search query with the filters,\nand then runs the query to retrieve the most relevant documents.\n\nFor example, with a query like \"What are thriller movies from after 2010 with\nratings above 8?\", the retriever can identify filters on the `genre`,\n`year`, and `rating` fields, and use those filters to retrieve documents\nthat match the query.\n\nThis retriever requires an existing [vector store](langchain-vector-store) and [index definition](avs-types-vector-search).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "self-querying-retriever",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -142,13 +203,17 @@
           "content": "from langchain_mongodb.retrievers import MongoDBAtlasSelfQueryRetriever\nfrom langchain_mongodb import MongoDBAtlasVectorSearch\n\n# Given an existing vector store with movies data, define metadata describing the data\nmetadata_field_info = [\n    AttributeInfo(\n        name=\"genre\",\n        description=\"The genre of the movie. One of ['science fiction', 'comedy', 'drama', 'thriller', 'romance', 'animated']\",\n        type=\"string\",\n    ),\n    AttributeInfo(\n        name=\"year\",\n        description=\"The year the movie was released\",\n        type=\"integer\",\n    ),\n    AttributeInfo(\n        name=\"rating\", description=\"A 1-10 rating for the movie\", type=\"float\"\n    ),\n]\n\n# Create the retriever from the VectorStore, an LLM and info about the documents\nretriever = MongoDBAtlasSelfQueryRetriever.from_llm(\n    llm=llm,\n    vectorstore=vector_store,\n    metadata_field_info=metadata_field_info,\n    document_contents=\"Descriptions of movies\",\n    enable_limit=True\n)\n\n# This example results in the following composite filter sent to $vectorSearch:\n# {'filter': {'$and': [{'year': {'$lt': 1960}}, {'rating': {'$gt': 8}}]}}\nprint(retriever.invoke(\"Movies made before 1960 that are rated higher than 8\"))",
           "tokenEstimate": 291
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "GraphRAG",
       "headingLevel": 2,
       "body": "[GraphRAG](https://microsoft.github.io/graphrag/)\nis an alternative approach to traditional [Retrieval-Augmented Generation (RAG) with MongoDB](avs-rag)\nthat structures data as a knowledge graph of entities and their\nrelationships instead of as vector embeddings. While vector-based RAG\nfinds documents that are semantically similar to the query, GraphRAG\nfinds connected entities to the query and traverses the relationships\nin the graph to retrieve relevant information.\n\nThis approach is particularly useful for answering relationship-based\nquestions like \"What is the connection between Company A and Company B?\"\nor \"Who is Person X's manager?\".\n\n`MongoDBGraphStore` is a component in the LangChain MongoDB integration\nthat allows you to implement GraphRAG by storing entities (nodes)\nand their relationships (edges) in a MongoDB collection. This component\nstores each entity as a document with relationship fields that\nreference other documents in your collection. It executes queries using\nthe [$graphLookup](manual/reference/operator/aggregation/graphLookup) aggregation stage.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "graphrag",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -160,19 +225,25 @@
           "content": "from langchain_mongodb import MongoDBGraphStore\nfrom langchain_openai import ChatOpenAI\n\n# Initialize the graph store\ngraph_store = MongoDBGraphStore(\n connection_string = \"<connection-string>\",      # MongoDB cluster URI\n database_name = \"<database-name>\",              # Database to store the graph\n collection_name = \"<collection-name>\",          # Collection to store the graph\n entity_extraction_model = ChatOpenAI(),         # LLM to extract entities from documents (e.g. OpenAI model)\n # Other optional parameters...\n)\n\n# Add documents to the graph\ndocs = [...]  # Your documents\ngraph_store.add_documents(docs)\n\n# Query the graph\nquery = \"Who is the CEO of MongoDB?\"\nanswer = graph_store.chat_response(query)\nprint(answer.content)",
           "tokenEstimate": 155
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "LLM Caches",
       "headingLevel": 2,
       "body": "[Caches](https://python.langchain.com/docs/how_to/caching_embeddings/) are\nused to optimize LLM performance by storing repetitive responses\nfor similar or repetitive queries to avoid recomputing them.\nMongoDB provides the following caches for your LangChain applications.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "llm-caches",
+      "variantAgnostic": true
     },
     {
       "heading": "MongoDB Cache",
       "headingLevel": 3,
       "body": "`MongoDBCache` allows you to store a basic cache in a MongoDB collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "mongodb-cache",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -184,13 +255,17 @@
           "content": "from langchain_mongodb import MongoDBCache\nfrom langchain_core.globals import set_llm_cache\n\nset_llm_cache(MongoDBCache(\n   connection_string = \"<connection-string>\", # MongoDB cluster URI\n   database_name = \"<database-name>\",         # Database to store the cache\n   collection_name = \"<collection-name>\"      # Collection to store the cache\n))",
           "tokenEstimate": 76
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Semantic Cache",
       "headingLevel": 3,
       "body": "Semantic caching is a more advanced form of caching that\nretrieves cached prompts based on the semantic similarity\nbetween the user input and cached results.\n\n`MongoDBAtlasSemanticCache` is a semantic cache that uses MongoDB Vector Search\nto retrieve the cached prompts. This component requires an\n[index definition](avs-types-vector-search).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "semantic-cache",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -202,19 +277,25 @@
           "content": "from langchain_mongodb import MongoDBAtlasSemanticCache\nfrom langchain_core.globals import set_llm_cache\nfrom langchain_voyageai import VoyageAIEmbeddings\n\nset_llm_cache(MongoDBAtlasSemanticCache(\n   embedding = VoyageAIEmbeddings(),          # Embedding model to use\n   connection_string = \"<connection-string>\", # MongoDB cluster URI\n   database_name = \"<database-name>\",         # Database to store the cache\n   collection_name = \"<collection-name>\"      # Collection to store the cache\n))",
           "tokenEstimate": 109
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "MongoDB Agent Toolkit",
       "headingLevel": 2,
       "body": "The [MongoDB Agent Toolkit](https://langchain-mongodb.readthedocs.io/en/latest/langchain_mongodb/agent_toolkit/langchain_mongodb.agent_toolkit.toolkit.MongoDBDatabaseToolkit.html#langchain_mongodb.agent_toolkit.toolkit.MongoDBDatabaseToolkit)\nis a collection of tools that you can pass to a [LangGraph ReAct Agent](https://python.langchain.com/api_reference/langchain/agents/langchain.agents.react.agent.create_react_agent.html) so that it can interact with your MongoDB resources.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "mongodb-agent-toolkit",
+      "variantAgnostic": true
     },
     {
       "heading": "Available Tools",
       "headingLevel": 3,
       "body": "| Name                    | Description                                                       |\n| ----------------------- | ----------------------------------------------------------------- |\n| MongoDBDatabaseToolkit  | A tool for querying a MongoDB database.                           |\n| InfoMongoDBDatabaseTool | A tool for getting metadata about a MongoDB database.             |\n| ListMongoDBDatabaseTool | A tool for getting a MongoDB database's collection names.         |\n| QueryMongoDBCheckerTool | A tool that calls an LLM to check if a database query is correct. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "available-tools",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -226,13 +307,17 @@
           "content": "from langchain_openai import ChatOpenAI\nfrom langgraph.prebuilt import create_react_agent\nfrom langchain_mongodb.agent_toolkit import (\n    MONGODB_AGENT_SYSTEM_PROMPT,\n    MongoDBDatabase,\n    MongoDBDatabaseToolkit,\n)\n\ndb_wrapper = MongoDBDatabase.from_connection_string(\nCONNECTION_STRING, database=DB_NAME\n)\nllm = ChatOpenAI(model=\"gpt-4o-mini\", timeout=60)\ntoolkit = MongoDBDatabaseToolkit(db=db_wrapper, llm=llm)\n\nsystem_message = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)\n\ntest_query = \"Which country's customers spent the most?\"\nagent = create_react_agent(llm, toolkit.get_tools(), state_modifier=system_message)\nagent.step_timeout = 60\nevents = agent.stream(\n   {\"messages\": [(\"user\", test_query)]},\n    stream_mode=\"values\",\n)\nmessages = []",
           "tokenEstimate": 181
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Document Loader",
       "headingLevel": 2,
       "body": "[Document loaders](https://python.langchain.com/docs/how_to/#document-loaders)\nare tools that help you to load data for your LangChain applications.\n\n`MongoDBLoader` is a document loader that returns a list of\ndocuments from a MongoDB database.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "document-loader",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -244,13 +329,17 @@
           "content": "from langchain_mongodb.loaders import MongoDBLoader\n\nloader = MongoDBLoader.from_connection_string(\n connection_string = \"<connection-string>\",   # MongoDB cluster URI\n db_name = \"<database-name>\",                 # Database that contains the collection\n collection_name = \"<collection-name>\",       # Collection to load documents from\n filter_criteria = { \"field\": \"value\" },      # Optional document to specify a filter\n field_names = [\"<field-name>\", \"...\" ],      # Optional list of fields to include in document content\n metadata_names = [\"<metadata-field>\", \"...\"] # Optional metadata fields to extract\n)\n\ndocs = loader.load()",
           "tokenEstimate": 128
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Chat History",
       "headingLevel": 2,
       "body": "`MongoDBChatMessageHistory` is a component that allows you to store and manage\nchat message histories in a MongoDB database. It can\nsave both user and AI-generated messages associated with a unique session identifier.\nThis is useful for applications that require tracking\nof interactions over time, such as chatbots.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "chat-history",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -272,19 +361,25 @@
           "content": "[HumanMessage(content='Hello'), AIMessage(content='Hi')]",
           "tokenEstimate": 13
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Storage",
       "headingLevel": 2,
       "body": "You can use the following custom data stores to manage and store data\nin MongoDB.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "storage",
+      "variantAgnostic": true
     },
     {
       "heading": "Document Store",
       "headingLevel": 3,
       "body": "`MongoDBDocStore` is a custom key-value store that uses MongoDB to store\nand manage documents. You can perform CRUD operations as you would on\nany other MongoDB collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "document-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -296,13 +391,17 @@
           "content": "from pymongo import MongoClient\nfrom langchain_mongodb.docstores import MongoDBDocStore\n\n# Replace with your MongoDB connection string and namespace\nconnection_string = \"<connection-string>\"\nnamespace = \"<database-name>.<collection-name>\"\n\n# Initialize the MongoDBDocStore\ndocstore = MongoDBDocStore.from_connection_string(connection_string, namespace)",
           "tokenEstimate": 66
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Binary Storage",
       "headingLevel": 3,
       "body": "`MongoDBByteStore` is a custom datastore that uses MongoDB to store\nand manage binary data, specifically data represented in bytes.\nYou can perform CRUD operations with key-value pairs where\nthe keys are strings and the values are byte sequences.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "binary-storage",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -314,13 +413,37 @@
           "content": "from langchain.storage import MongoDBByteStore\n\n# Instantiate the MongoDBByteStore\nmongodb_store = MongoDBByteStore(\n   connection_string = \"<connection-string>\",  # MongoDB cluster URI\n   db_name = \"<database-name>\",                # Name of the database\n   collection_name = \"<collection-name>\"       # Name of the collection\n)\n\n# Set values for keys\nmongodb_store.mset([(\"key1\", b\"hello\"), (\"key2\", b\"world\")])\n\n# Get values for keys\nvalues = mongodb_store.mget([\"key1\", \"key2\"])\nprint(values)  # Output: [b'hello', b'world']\n\n# Iterate over keys\nfor key in mongodb_store.yield_keys():\n   print(key)  # Output: key1, key2\n\n# Delete keys\nmongodb_store.mdelete([\"key1\", \"key2\"])",
           "tokenEstimate": 176
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Additional Resources",
       "headingLevel": 2,
       "body": "To learn how to integrate MongoDB with LangGraph, see [LangGraph](langgraph).\n\nFor interactive Python notebooks,\nsee [Docs Notebooks Repository](https://github.com//mongodb/docs-notebooks/blob/main/ai-integrations) and\n[Generative AI Use Cases Repository](https://github.com//mongodb-developer/GenAI-Showcase/tree/main).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "additional-resources",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "uri",
+          "text": "uri"
+        },
+        {
+          "value": "auto-embed",
+          "text": "auto-embed"
+        },
+        {
+          "value": "other",
+          "text": "other"
+        }
+      ]
     }
   ]
 }

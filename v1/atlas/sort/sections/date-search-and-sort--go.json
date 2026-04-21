@@ -1,0 +1,27 @@
+{
+  "heading": "Date Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-date.go`\n  and paste the following code:\n\n  ```go\n  package main\n\n  import (\n  \t\"context\"\n  \t\"fmt\"\n  \t\"time\"\n\n  \t\"go.mongodb.org/mongo-driver/v2/bson\"\n  \t\"go.mongodb.org/mongo-driver/v2/mongo\"\n  \t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n  )\n\n  func main() {\n  \t// connect to your Atlas cluster\n  \tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string\"))\n  \tif err != nil {\n  \t\tpanic(err)\n  \t}\n  \tdefer client.Disconnect(context.TODO())\n\n  \t// set namespace\n  \tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n  \t// define pipeline stages\n  \tsearchStage := bson.D{{Key: \"$search\", Value: bson.M{\n  \t\t\"index\": \"default\",\n  \t\t\"compound\": bson.M{\n  \t\t\t\"filter\": bson.A{\n  \t\t\t\tbson.M{\n  \t\t\t\t\t\"wildcard\": bson.D{\n  \t\t\t\t\t\t{Key: \"path\", Value: \"title\"},\n  \t\t\t\t\t\t{Key: \"query\", Value: \"Summer*\"},\n  \t\t\t\t\t}},\n  \t\t\t},\n  \t\t\t\"must\": bson.A{\n  \t\t\t\tbson.M{\n  \t\t\t\t\t\"near\": bson.M{\n  \t\t\t\t\t\t\"path\":   \"released\",\n  \t\t\t\t\t\t\"origin\": time.Date(2014, time.April, 18, 0, 0, 0, 0, time.UTC),\n  \t\t\t\t\t\t\"pivot\":  13149000000}},\n  \t\t\t},\n  \t\t},\n  \t\t\"sort\": bson.D{{Key: \"released\", Value: -1}},\n  \t}}}\n\n  \tlimitStage := bson.D{{Key: \"$limit\", Value: 5}}\n  \tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"_id\", Value: 0}, {Key: \"title\", Value: 1}, {Key: \"released\", Value: 1}, {Key: \"score\", Value: bson.D{{Key: \"$meta\", Value: \"searchScore\"}}}}}}\n\n  \t// run pipeline\n  \tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n  \tif err != nil {\n  \t\tpanic(err)\n  \t}\n\n  \t// print results\n  \tvar results []bson.D\n  \tif err = cursor.All(context.TODO(), &results); err != nil {\n  \t\tpanic(err)\n  \t}\n  \tfor _, result := range results {\n  \t\tfmt.Println(result)\n  \t}\n  }\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\ngo run sort-by-date.go\n```\n\n**Output:**\n\n```json\n[{title Summer Nights} {released 1422403200000} {score 0.348105788230896}]\n[{title Summertime} {released 1406851200000} {score 0.5917375683784485}]\n[{title Summer of Blood} {released 1397692800000} {score 0.9934720396995544}]\n[{title Summer Games} {released 1328659200000} {score 0.15982933342456818}]\n[{title Summer of Goliath} {released 1310083200000} {score 0.13038821518421173}]\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"time\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.M{\n\t\t\"index\": \"default\",\n\t\t\"compound\": bson.M{\n\t\t\t\"filter\": bson.A{\n\t\t\t\tbson.M{\n\t\t\t\t\t\"wildcard\": bson.D{\n\t\t\t\t\t\t{Key: \"path\", Value: \"title\"},\n\t\t\t\t\t\t{Key: \"query\", Value: \"Summer*\"},\n\t\t\t\t\t}},\n\t\t\t},\n\t\t\t\"must\": bson.A{\n\t\t\t\tbson.M{\n\t\t\t\t\t\"near\": bson.M{\n\t\t\t\t\t\t\"path\":   \"released\",\n\t\t\t\t\t\t\"origin\": time.Date(2014, time.April, 18, 0, 0, 0, 0, time.UTC),\n\t\t\t\t\t\t\"pivot\":  13149000000}},\n\t\t\t},\n\t\t},\n\t\t\"sort\": bson.D{{Key: \"released\", Value: -1}},\n\t}}}\n\n\tlimitStage := bson.D{{Key: \"$limit\", Value: 5}}\n\tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"_id\", Value: 0}, {Key: \"title\", Value: 1}, {Key: \"released\", Value: 1}, {Key: \"score\", Value: bson.D{{Key: \"$meta\", Value: \"searchScore\"}}}}}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 486
+    },
+    {
+      "language": "bash",
+      "content": "go run sort-by-date.go",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "json",
+      "content": "[{title Summer Nights} {released 1422403200000} {score 0.348105788230896}]\n[{title Summertime} {released 1406851200000} {score 0.5917375683784485}]\n[{title Summer of Blood} {released 1397692800000} {score 0.9934720396995544}]\n[{title Summer Games} {released 1328659200000} {score 0.15982933342456818}]\n[{title Summer of Goliath} {released 1310083200000} {score 0.13038821518421173}]",
+      "tokenEstimate": 134
+    }
+  ],
+  "slug": "date-search-and-sort--go",
+  "selections": {
+    "drivers": "go"
+  },
+  "variantAgnostic": false
+}

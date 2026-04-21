@@ -13,19 +13,25 @@
           "content": "pip install langchain-mongodb langchain-openai langgraph",
           "tokenEstimate": 12
         }
-      ]
+      ],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Conceptual Overview",
       "headingLevel": 2,
       "body": "This agent leverages a predefined set of tools with which it executes a\nstep-by-step plan defined by a LLM. When a user submits a prompt to the agent,\nthe agent sends a request to the LLM that details its available tools and the\nuser's desired outcome. With that information, the LLM generates a specific\nseries of steps that leverage the agent's available toolset to achieve the\nuser's desired outcome.\n\nThe agent then executes the steps and confirms success, or executes updated\nsteps as needed, by sending intermediate results back to the LLM for analysis.\nAnd finally, the system's results are returned to the user.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "conceptual-overview",
+      "variantAgnostic": true
     },
     {
       "heading": "Build the Agent",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "build-the-agent",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Set the required environment variable.",
@@ -37,7 +43,9 @@
           "content": "export OPENAI_API_KEY=<your-openai-api-key>",
           "tokenEstimate": 12
         }
-      ]
+      ],
+      "slug": "step-1-set-the-required-environment-variable",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Save the example as a local Python file.",
@@ -49,24 +57,51 @@
           "content": "import os\nfrom langchain_openai import ChatOpenAI\nfrom langgraph.prebuilt import create_react_agent\nfrom langchain_mongodb.agent_toolkit import (\n    MONGODB_AGENT_SYSTEM_PROMPT,\n    MongoDBDatabase,\n    MongoDBDatabaseToolkit,\n)\n\nMONGODB_URI = '<connection-string>'\nDB_NAME = 'sample_restaurants'\nNATURAL_LANGUAGE_QUERY = 'Find all restaurants that serve hamburgers.'\n\nclass NaturalLanguageToMQL:\n    def __init__(self):\n        self.llm = ChatOpenAI(model=\"gpt-4o-mini\", timeout=60)\n        self.system_message = MONGODB_AGENT_SYSTEM_PROMPT.format(top_k=5)\n        self.db_wrapper = MongoDBDatabase.from_connection_string(\n                            MONGODB_URI, \n                            database=DB_NAME)\n        self.toolkit = MongoDBDatabaseToolkit(db=self.db_wrapper, llm=self.llm)\n        self.agent = create_react_agent(\n                        self.llm, \n                        self.toolkit.get_tools(), \n                        state_modifier=self.system_message)\n        self.messages = []\n\n    def convert_to_mql_and_execute_query(self, query):\n        # Start the agent with the agent.stream() method\n        events = self.agent.stream(\n            {\"messages\": [(\"user\", query)]},\n            stream_mode=\"values\",\n        )\n        # Add output (events) from the agent to the self.messages list\n        for event in events:\n            self.messages.extend(event[\"messages\"])\n    \n    def print_results(self):\n        # Print the the end-user's expected output from \n        # the final message produced by the agent.\n        print(self.messages[-1].content)\n\ndef main():\n    converter = NaturalLanguageToMQL()\n    converter.convert_to_mql_and_execute_query(NATURAL_LANGUAGE_QUERY)\n    converter.print_results()\n\nif __name__ == '__main__':\n    main()\n",
           "tokenEstimate": 372
         }
-      ]
+      ],
+      "slug": "step-2-save-the-example-as-a-local-python-file",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Add your MongoDB connection string.",
       "headingLevel": 3,
-      "body": "Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.<Tab tabid=\"cloud\">\n  Atlas Cluster\n\n  Your connection string should use the following format:\n\n  ```\n  mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n  ```\n\n  To learn more, see [Driver](connect-via-driver).\n</Tab>Local or Self-ManagedYour connection string should use the\nfollowing format:```\nmongodb://localhost:<port-number>/?directConnection=true\n```To learn more, see [Connection Strings](manual/reference/connection-string).",
+      "body": "Replace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nLocal or Self-Managed",
+      "codeBlocks": [],
+      "slug": "step-3-add-your-mongodb-connection-string",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Step 3: Add your MongoDB connection string.",
+      "headingLevel": 3,
+      "body": "Your connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).",
       "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
           "tokenEstimate": 21
-        },
+        }
+      ],
+      "slug": "step-3-add-your-mongodb-connection-string--cloud",
+      "selections": {
+        "tabs": "cloud"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 3: Add your MongoDB connection string.",
+      "headingLevel": 3,
+      "body": "Your connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).",
+      "codeBlocks": [
         {
           "language": "text",
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-3-add-your-mongodb-connection-string--local",
+      "selections": {
+        "tabs": "local"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Run a Test Query",
@@ -82,6 +117,24 @@
           "language": "text",
           "content": "Here are some restaurants that serve hamburgers:\n\n1. **Wendy's**\n   - Address: 469 Flatbush Avenue, Brooklyn, NY 11225\n   - Borough: Brooklyn\n\n2. **White Castle**\n   - Address: 531 Myrtle Avenue, Brooklyn, NY 11205\n   - Borough: Brooklyn\n\n3. **McDonald's**\n   - Address: 75-50 101 Avenue, Queens, NY 11416\n   - Borough: Queens\n\n4. **McDonald's**\n   - Address: 943 Flatbush Avenue, Brooklyn, NY 11226\n   - Borough: Brooklyn\n\n5. **McDonald's**\n   - Address: 395 Flatbush Avenue Extension, Brooklyn, NY 11201\n   - Borough: Brooklyn\n\nLet me know if you'd like more details or additional results!",
           "tokenEstimate": 178
+        }
+      ],
+      "slug": "run-a-test-query",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
         }
       ]
     }

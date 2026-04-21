@@ -1,0 +1,17 @@
+{
+  "heading": "Partial Match Example",
+  "headingLevel": 4,
+  "body": "The code example performs the following tasks:\n\n- Imports `mongodb`, MongoDB's Node.js driver.\n\n- Creates an instance of the `MongoClient` class to establish a\n  connection to your cluster.\n\n- Runs a query that uses:\n\n  - [$search](pipe.$search) stage to look for a term\n\n  - [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results\n\n  - [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`\n    and `plot`\n\n- Iterates over the cursor to print the documents that match the\n  query.\n\n```javascript\nconst MongoClient = require(\"mongodb\").MongoClient;\nconst assert = require(\"assert\");\n\nconst agg = [\n  {\n    '$search': {\n      'index': 'default',\n      'autocomplete': {\n        'path': 'plot',\n        'query': 'new purchase',\n        'tokenOrder': 'any',\n        'fuzzy': {\n          'maxEdits': 2,\n          'prefixLength': 1,\n          'maxExpansions': 256\n        }\n      },\n      'highlight': {\n        'path': 'plot'\n      }\n    }\n  }, {\n    '$limit': 5\n  }, {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'plot': 1,\n      'highlights': {\n        '$meta': 'searchHighlights'\n      }\n    }\n  }\n];\n\nMongoClient.connect(\n  \"<connection-string>\",\n  async function (connectErr, client) {\n    assert.equal(null, connectErr);\n    const coll = client.db(\"sample_mflix\").collection(\"movies\");\n    let cursor = await coll.aggregate(agg);\n    await cursor.forEach((doc) => console.log(doc));\n    client.close();\n  }\n);\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const MongoClient = require(\"mongodb\").MongoClient;\nconst assert = require(\"assert\");\n\nconst agg = [\n  {\n    '$search': {\n      'index': 'default',\n      'autocomplete': {\n        'path': 'plot',\n        'query': 'new purchase',\n        'tokenOrder': 'any',\n        'fuzzy': {\n          'maxEdits': 2,\n          'prefixLength': 1,\n          'maxExpansions': 256\n        }\n      },\n      'highlight': {\n        'path': 'plot'\n      }\n    }\n  }, {\n    '$limit': 5\n  }, {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'plot': 1,\n      'highlights': {\n        '$meta': 'searchHighlights'\n      }\n    }\n  }\n];\n\nMongoClient.connect(\n  \"<connection-string>\",\n  async function (connectErr, client) {\n    assert.equal(null, connectErr);\n    const coll = client.db(\"sample_mflix\").collection(\"movies\");\n    let cursor = await coll.aggregate(agg);\n    await cursor.forEach((doc) => console.log(doc));\n    client.close();\n  }\n);",
+      "tokenEstimate": 247
+    }
+  ],
+  "slug": "partial-match-example--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

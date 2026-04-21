@@ -1,0 +1,27 @@
+{
+  "heading": "Bucket Results through Facet Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to return\nunique values of movies that contain the term `Gravity` in the\n`title` field of the `movies` collection. The index definition of\nthis query limits the results returned from a\n[token](bson-data-types-token) index, where both the\n[autocomplete](autocomplete-ref) and [token](bson-data-types-token) types are on the `title` field.\n\n```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$searchMeta\", Document(\n                \"facet\",\n                Document(\n                    \"operator\",\n                    Document(\n                        \"autocomplete\",\n                        Document(\"path\", \"title\")\n                            .append(\"query\", \"Gravity\")\n                    )\n                )\n                    .append(\n                        \"facets\",\n                        Document(\n                            \"titleFacet\",\n                            Document(\"type\", \"string\").append(\"path\", \"title\")\n                        )\n                    )\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(listOf(agg))\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```\n\n```none\nDocument{{count=Document{{lowerBound=5}},\nfacet=Document{{titleFacet=Document{{buckets=[Document{{_id=Gravity,\ncount=3}}, Document{{_id=Defying Gravity, count=1}}, Document{{_id=Laws\nof Gravity, count=1}}]}}}}}}\n```\n\nMongoDB Search returns documents that contain the term `Gravity` in the\n`title` field. The `count` field in the results indicate the number\nof documents in the collection with the same title. In the results,\nMongoDB Search found three documents in the collection with `Gravity` as its\ntitle, but MongoDB Search omitted the duplicate titles and returned only one\nmatching document.\n\nIf you want to see the duplicate titles as shown in the results below,\nrun the preceding [autocomplete](autocomplete-ref) operator query\nwithout [faceted navigation](fts-facet-ref) and use\nthe [$search](pipe.$search) stage instead. You must also use the\n[$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```none\nDocument{{title=Gravity}}\nDocument{{title=Gravity}}\nDocument{{title=Gravity}}\nDocument{{title=Defying Gravity}}\nDocument{{title=Laws of Gravity}}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Filters.eq\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$searchMeta\", Document(\n                \"facet\",\n                Document(\n                    \"operator\",\n                    Document(\n                        \"autocomplete\",\n                        Document(\"path\", \"title\")\n                            .append(\"query\", \"Gravity\")\n                    )\n                )\n                    .append(\n                        \"facets\",\n                        Document(\n                            \"titleFacet\",\n                            Document(\"type\", \"string\").append(\"path\", \"title\")\n                        )\n                    )\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(listOf(agg))\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 232
+    },
+    {
+      "language": "none",
+      "content": "Document{{count=Document{{lowerBound=5}},\nfacet=Document{{titleFacet=Document{{buckets=[Document{{_id=Gravity,\ncount=3}}, Document{{_id=Defying Gravity, count=1}}, Document{{_id=Laws\nof Gravity, count=1}}]}}}}}}",
+      "tokenEstimate": 65
+    },
+    {
+      "language": "none",
+      "content": "Document{{title=Gravity}}\nDocument{{title=Gravity}}\nDocument{{title=Gravity}}\nDocument{{title=Defying Gravity}}\nDocument{{title=Laws of Gravity}}",
+      "tokenEstimate": 34
+    }
+  ],
+  "slug": "bucket-results-through-facet-queries--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

@@ -13,7 +13,9 @@
           "content": "{\n  \"ok\" : <return>,\n  \"version\" : \"<version-number>\",\n  \"versionArray\" : [\n    <number>,\n    <number>,\n    <number>,\n    <number>\n  ],\n  \"dataLake\" : {\n    \"version\" : \"<version-number>\",\n    \"gitVersion\" : \"<version-number>\",\n    \"date\" : \"<timestamp>\",\n    \"mongoSQLVersion\" : \"<version-number>\"\n  }\n}",
           "tokenEstimate": 91
         }
-      ]
+      ],
+      "slug": "buildinfo",
+      "variantAgnostic": true
     },
     {
       "heading": "collStats",
@@ -30,13 +32,17 @@
           "content": "db.runCommand( {collStats: \"<string>\", sync: true|false} )",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "collstats",
+      "variantAgnostic": true
     },
     {
       "heading": "connectionStatus",
       "headingLevel": 2,
       "body": "For [connectionStatus](manual/reference/command/connectionStatus)\ncommand, Atlas Data Federation returns information about the current connection,\nspecifically the state of authenticated users and their available\n[roles](atlas/reference/user-roles).\n\n> **Note:** Only one user can authenticate on a connection to a federated database instance at any\n> given time. If a user authenticates and then runs the `db.auth()`\n> command, Data Federation replaces the previous user's permissions with the new\n> user's permissions.\n>\n> The [connectionStatus](manual/reference/command/connectionStatus)\n> command shows only the newly authenticated user in the\n> `authenticatedUsers` output field.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "connectionstatus",
+      "variantAgnostic": true
     },
     {
       "heading": "dbStats",
@@ -48,13 +54,17 @@
           "content": "db.runCommand( {dbStats: 1, sync: true|false} )",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "dbstats",
+      "variantAgnostic": true
     },
     {
       "heading": "explain",
       "headingLevel": 2,
       "body": "The [explain](manual/reference/command/explain) command returns\ninformation that describes the Data Federation query plan. The `explain` output\ndiffers from MongoDB in that it provides information about the data\npartitions used to satisfy the query.\n\nThe following commands can be explained in Data Federation:\n\n- `aggregate()`\n\n- `count()`\n\n- `find()`",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "explain",
+      "variantAgnostic": true
     },
     {
       "heading": "Usage",
@@ -71,41 +81,84 @@
           "content": "db.users.explain(\"executionStats\").find({\"type\": \"admin\"})",
           "tokenEstimate": 15
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Output",
       "headingLevel": 3,
-      "body": "When you run `explain`, Atlas Data Federation returns the following additional\nfields for other partitions:| Output Field Name        | Description                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| stats                    | Document that describes the number and total size of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                        |\n| stats.size               | Total size of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                                                               |\n| stats.numberOfPartitions | Number of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                                                                   |\n| truncated                | Boolean that indicates whether the explain output is truncated. The explain total output document size is limited to 16 MiB.                                                                                                                                                                                                                                                                                                |\n| plan                     | Document that contains the query execution plan for the query. The document contains nested execution plan nodes, each of which is a document describing the plan node. The nested plan node documents contain internal description of Atlas Data Federation's query execution, and include various node kinds that are subject to change. Contact MongoDB support if you need more help with understanding the query plan. |**Query-planner:**queryPlanner (default)In the `queryPlanner` mode, the results returned by `explain`\nprovide detailed information on the partitions in the federated database instance.```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          optimizationPlan: { kind: 'everything' }\n        }\n      ]\n    }\n  }\n}\n```The `explain` command returns the following additional fields\nfor Atlas partitions:| Output     | Description                                               |\n| ---------- | --------------------------------------------------------- |\n| database   | Database that that Atlas Data Federation queried.         |\n| collection | Collection that that Atlas Data Federation queried.       |\n| pipeline   | Aggregation pipeline that Atlas Data Federation executed. |The `explain` command returns the following additional field\nfor Online Archive partitions:| Output Field Name | Description                                                                                                                                                        |\n| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| optimizationPlan  | Details on Online Archive optimizations. Queries will likely be optimized when they contain fields that match the configured partition keys for an Online Archive. |**Query-planner-extended:**queryPlannerExtendedIn the `queryPlannerExtended` mode, the results returned by\n`explain` provide extended query planning information for\npartition types.```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source:'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          scannedDataSetPartitionsCount: 1,\n          percentOfTotalPartitions: 100,\n          optimizationPlan: { kind: 'everything' }\n        },\n      ]\n    }\n  }\n}\n```The `explain` command returns all the information from\n`queryPlanner` and the following additional fields for\nOnline Archive partitions:| Output Field Name             | Description                                                           |\n| ----------------------------- | --------------------------------------------------------------------- |\n| scannedDataSetPartitionsCount | Number of partitions scanned to complete the query.                   |\n| percentOfTotalPartitions      | Percentage of partitions scanned over the total number of partitions. |**Execution-stats:**executionStatsIn the `executionStats` mode, the results returned by\n`explain` provide information on query execution statistics and\nperformance for only Atlas partitions. These are obtained by\nexecuting an `executionStats` explain command on the Atlas\npartition's underlying Atlas collection. For non-Atlas\npartitions, `explain` returns the `queryPlanner` information.\nThe `partitions` field in the results include an additional\n`explainResults` field, which is a document that might contain\nthe following fields:| Output Field Name | Description                                                                                                                              |\n| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |\n| executionStats    | Provides information about the execution of the Atlas cluster's winning query plan, including the number of documents and keys examined. |\n| queryPlanner      | Contains information about Atlas cluster's query plan selection, including index selection.                                              |\n| stages            | Includes breakdown of pipeline stages and statistics on a per stage basis.                                                               |> **Note:** To learn more about these fields, see [executionStats](manual/reference/explain-results).```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc',\n          explainResults: {\n            queryPlanner: {\n              ...\n              winningPlan: {\n                ...\n              },\n              rejectedPlans: []\n            },\n            executionStats: {\n              ...\n            },\n            stages: {\n                ...\n            }\n          }\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc'\n        },\n      ]\n    }\n  }\n}\n```",
+      "body": "When you run `explain`, Atlas Data Federation returns the following additional\nfields for other partitions:\n\n| Output Field Name        | Description                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| stats                    | Document that describes the number and total size of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                        |\n| stats.size               | Total size of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                                                               |\n| stats.numberOfPartitions | Number of partitions that Atlas Data Federation might open for the query.                                                                                                                                                                                                                                                                                                                                                   |\n| truncated                | Boolean that indicates whether the explain output is truncated. The explain total output document size is limited to 16 MiB.                                                                                                                                                                                                                                                                                                |\n| plan                     | Document that contains the query execution plan for the query. The document contains nested execution plan nodes, each of which is a document describing the plan node. The nested plan node documents contain internal description of Atlas Data Federation's query execution, and include various node kinds that are subject to change. Contact MongoDB support if you need more help with understanding the query plan. |\n\nqueryPlanner (default)\n\nqueryPlannerExtended\n\nexecutionStats",
+      "codeBlocks": [],
+      "slug": "output",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 3,
+      "body": "In the `queryPlanner` mode, the results returned by `explain`\nprovide detailed information on the partitions in the federated database instance.\n\n```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          optimizationPlan: { kind: 'everything' }\n        }\n      ]\n    }\n  }\n}\n```\n\nThe `explain` command returns the following additional fields\nfor Atlas partitions:\n\n| Output     | Description                                               |\n| ---------- | --------------------------------------------------------- |\n| database   | Database that that Atlas Data Federation queried.         |\n| collection | Collection that that Atlas Data Federation queried.       |\n| pipeline   | Aggregation pipeline that Atlas Data Federation executed. |\n\nThe `explain` command returns the following additional field\nfor Online Archive partitions:\n\n| Output Field Name | Description                                                                                                                                                        |\n| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| optimizationPlan  | Details on Online Archive optimizations. Queries will likely be optimized when they contain fields that match the configured partition keys for an Online Archive. |",
       "codeBlocks": [
         {
           "language": "js",
           "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          optimizationPlan: { kind: 'everything' }\n        }\n      ]\n    }\n  }\n}",
           "tokenEstimate": 207
-        },
+        }
+      ],
+      "slug": "output--query-planner",
+      "selections": {
+        "tabs": "query-planner"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 3,
+      "body": "In the `queryPlannerExtended` mode, the results returned by\n`explain` provide extended query planning information for\npartition types.\n\n```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source:'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          scannedDataSetPartitionsCount: 1,\n          percentOfTotalPartitions: 100,\n          optimizationPlan: { kind: 'everything' }\n        },\n      ]\n    }\n  }\n}\n```\n\nThe `explain` command returns all the information from\n`queryPlanner` and the following additional fields for\nOnline Archive partitions:\n\n| Output Field Name             | Description                                                           |\n| ----------------------------- | --------------------------------------------------------------------- |\n| scannedDataSetPartitionsCount | Number of partitions scanned to complete the query.                   |\n| percentOfTotalPartitions      | Percentage of partitions scanned over the total number of partitions. |",
+      "codeBlocks": [
         {
           "language": "js",
           "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source:'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc'\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc',\n          scannedDataSetPartitionsCount: 1,\n          percentOfTotalPartitions: 100,\n          optimizationPlan: { kind: 'everything' }\n        },\n      ]\n    }\n  }\n}",
           "tokenEstimate": 226
-        },
+        }
+      ],
+      "slug": "output--query-planner-extended",
+      "selections": {
+        "tabs": "query-planner-extended"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Output",
+      "headingLevel": 3,
+      "body": "In the `executionStats` mode, the results returned by\n`explain` provide information on query execution statistics and\nperformance for only Atlas partitions. These are obtained by\nexecuting an `executionStats` explain command on the Atlas\npartition's underlying Atlas collection. For non-Atlas\npartitions, `explain` returns the `queryPlanner` information.\nThe `partitions` field in the results include an additional\n`explainResults` field, which is a document that might contain\nthe following fields:\n\n| Output Field Name | Description                                                                                                                              |\n| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |\n| executionStats    | Provides information about the execution of the Atlas cluster's winning query plan, including the number of documents and keys examined. |\n| queryPlanner      | Contains information about Atlas cluster's query plan selection, including index selection.                                              |\n| stages            | Includes breakdown of pipeline stages and statistics on a per stage basis.                                                               |\n\n> **Note:** To learn more about these fields, see [executionStats](manual/reference/explain-results).\n\n```js\n{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc',\n          explainResults: {\n            queryPlanner: {\n              ...\n              winningPlan: {\n                ...\n              },\n              rejectedPlans: []\n            },\n            executionStats: {\n              ...\n            },\n            stages: {\n                ...\n            }\n          }\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc'\n        },\n      ]\n    }\n  }\n}\n```",
+      "codeBlocks": [
         {
           "language": "js",
           "content": "{\n  ok: 1,\n  stats: { size: '66 B', numberOfPartitions: 2 },\n  truncated: false,\n  plan: {\n    kind: 'region',\n    region: 'aws/us-east-1',\n    node: {\n      kind: 'data',\n      size: '66 B',\n      numberOfPartitions: 2,\n      partitionsTruncated: false,\n      partitions: [\n        {\n          source: 'projectID:cluster',\n          provider: 'atlas',\n          size: '4 B',\n          database: 'locations',\n          collection: 'nyc',\n          explainResults: {\n            queryPlanner: {\n              ...\n              winningPlan: {\n                ...\n              },\n              rejectedPlans: []\n            },\n            executionStats: {\n              ...\n            },\n            stages: {\n                ...\n            }\n          }\n        },\n        {\n          source: 'dls:projectID',\n          provider: 'dls:aws',\n          size: '62 B',\n          metadataLocation: { provider: 'aws', region: 'us-east-1' },\n          dataSetName: 'v1$atlas$archive$etc'\n        },\n      ]\n    }\n  }\n}",
           "tokenEstimate": 244
         }
-      ]
+      ],
+      "slug": "output--execution-stats",
+      "selections": {
+        "tabs": "execution-stats"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "getLog",
       "headingLevel": 2,
       "body": "For [getLog](manual/reference/command/getlog) command, Atlas Data Federation\nreturns a successful response, but doesn't includes log data.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "getlog",
+      "variantAgnostic": true
     },
     {
       "heading": "getMore",
       "headingLevel": 2,
       "body": "For [getMore](manual/reference/command/getMore) command, Atlas Data Federation\nreturns subsequent batches of documents currently pointed to by a cursor,\nwhen used in conjunction with commands that return a cursor, e.g.\n[find](manual/reference/command/find) and\n[aggregate](manual/reference/command/aggregate).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "getmore",
+      "variantAgnostic": true
     },
     {
       "heading": "hostInfo",
@@ -117,19 +170,45 @@
           "content": "{\n  \"ok\" : <return>,\n  \"system\" : {\n    \"currentTime\" : ISODate(\"<timestamp>\"),\n    \"hostname\" : \"<hostname>\",\n    \"cpuAddrSize\" : <number>,\n    \"memSizeMB\" : <number>,\n    \"numCores\" : <number>,\n    \"cpuArch\" : \"<identifier>\",\n  },\n  \"os\" : {\n    \"type\" : \"<string>\",\n    \"name\" : \"<string>\",\n  },\n  \"extra\" : { }\n}",
           "tokenEstimate": 107
         }
-      ]
+      ],
+      "slug": "hostinfo",
+      "variantAgnostic": true
     },
     {
       "heading": "ping",
       "headingLevel": 2,
       "body": "For [ping](manual/reference/command/ping) command, Atlas Data Federation tests\nwhether a server is responding to commands.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "ping",
+      "variantAgnostic": true
     },
     {
       "heading": "whatsmyuri",
       "headingLevel": 2,
       "body": "For [whatsmyuri](manual/reference/command/whatsmyuri) command,\nAtlas Data Federation returns the client IP address.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "whatsmyuri",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "query-planner",
+          "text": "query-planner"
+        },
+        {
+          "value": "query-planner-extended",
+          "text": "query-planner-extended"
+        },
+        {
+          "value": "execution-stats",
+          "text": "execution-stats"
+        }
+      ]
     }
   ]
 }

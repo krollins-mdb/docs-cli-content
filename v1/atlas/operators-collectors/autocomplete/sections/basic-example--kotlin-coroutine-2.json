@@ -1,0 +1,17 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 4,
+  "body": "```kotlin\nimport com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\",\n            Document(\"autocomplete\", Document(\"query\", \"pre\")\n                .append(\"path\", \"title\")\n                .append(\"fuzzy\", Document(\"maxEdits\", 1)\n                    .append(\"prefixLength\", 1)\n                    .append(\"maxExpansions\", 256))\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(10),\n                project(fields(excludeId(), include(\"title\")))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}\n```",
+  "codeBlocks": [
+    {
+      "language": "kotlin",
+      "content": "import com.mongodb.client.model.Aggregates.limit\nimport com.mongodb.client.model.Aggregates.project\nimport com.mongodb.client.model.Projections.*\nimport com.mongodb.kotlin.client.coroutine.MongoClient\nimport kotlinx.coroutines.runBlocking\nimport org.bson.Document\n\nfun main() {\n    val uri = \"<connection-string>\"\n    val mongoClient = MongoClient.create(uri)\n    val database = mongoClient.getDatabase(\"sample_mflix\")\n    val collection = database.getCollection<Document>(\"movies\")\n\n    runBlocking {\n        val agg = Document(\n            \"\\$search\",\n            Document(\"autocomplete\", Document(\"query\", \"pre\")\n                .append(\"path\", \"title\")\n                .append(\"fuzzy\", Document(\"maxEdits\", 1)\n                    .append(\"prefixLength\", 1)\n                    .append(\"maxExpansions\", 256))\n            )\n        )\n\n        val resultsFlow = collection.aggregate<Document>(\n            listOf(\n                agg,\n                limit(10),\n                project(fields(excludeId(), include(\"title\")))\n            )\n        )\n        resultsFlow.collect { println(it) }\n    }\n    mongoClient.close()\n}",
+      "tokenEstimate": 225
+    }
+  ],
+  "slug": "basic-example--kotlin-coroutine",
+  "selections": {
+    "drivers": "kotlin-coroutine"
+  },
+  "variantAgnostic": false
+}

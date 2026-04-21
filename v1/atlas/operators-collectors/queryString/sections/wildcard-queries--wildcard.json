@@ -1,0 +1,22 @@
+{
+  "heading": "Wildcard Queries",
+  "headingLevel": 3,
+  "body": "The following query uses wildcard expression to search the\n`title` field for movie titles that contain characters\n`cou*t?*`, where `*` indicates any additional number of\ncharacters and `?` indicates any single character.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"cou*t?*\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'A Day in the Country' },\n  { title: 'Diary of a Country Priest' },\n  { title: 'Cry, the Beloved Country' },\n  { title: 'The Country Girl' },\n  { title: 'Raintree County' }\n]\n```\n\nThe documents in the results match because the `title`\nfield contains the term `Country` or `County`, which matches\nthe query criteria for characters starting with `cou` followed\nby any number of characters (`n` in the results) and then `t`\nfollowed by at least one or many characters (`r` as in\n`country` or `y` as in `county` in the results).",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"cou*t?*\"\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 77
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: 'A Day in the Country' },\n  { title: 'Diary of a Country Priest' },\n  { title: 'Cry, the Beloved Country' },\n  { title: 'The Country Girl' },\n  { title: 'Raintree County' }\n]",
+      "tokenEstimate": 62
+    }
+  ],
+  "slug": "wildcard-queries--wildcard",
+  "selections": {
+    "tabs": "wildcard"
+  },
+  "variantAgnostic": false
+}

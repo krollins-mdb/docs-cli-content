@@ -6,7 +6,7 @@
     {
       "heading": "Usage",
       "headingLevel": 2,
-      "body": "To include the score of each document in your search results,\nuse the [$project](manual/reference/operator/aggregation/project) stage in your aggregation pipeline.\n\n- For the [$search](pipe.$search) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `searchScore` value. You can also specify the\n  `searchScoreDetails` value for the\n  `scoreDetails` field [$meta](manual/reference/operator/aggregation/meta)\n  expression for a detailed breakdown of the score.\n\n- For the [$vectorSearch](pipe.$vectorSearch) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `vectorSearchScore` value to return the score of\n  each document in your vector search results.\n\n> **Note:** You can use:\n>\n> - `searchScore` only in [$search](pipe.$search) queries\n>\n> - `vectorSearchScore` only in [$vectorSearch](pipe.$vectorSearch) queries\n>\n> If you use `searchScore` and `vectorSearchScore` in any other\n> query, MongoDB logs a warning starting in MongoDB v8.2.\n\n> **Example:** The following query uses a [$project](manual/reference/operator/aggregation/project) stage to add a\n> field named `score` to the returned documents:\n>\n> **Searchscore:**\n>\n> Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       }\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"searchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> **Scoredetails:**\n>\n> Search Score Details\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       },\n>       \"scoreDetails\": true\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [score details](fts-score-details) the search\n> score details.\n>\n> **Vectorsearchscore:**\n>\n> Vector Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$vectorSearch\": {\n>       <query-syntax>\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"vectorSearchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [vector search score](vectorSearch-agg-pipeline-score).",
+      "body": "To include the score of each document in your search results,\nuse the [$project](manual/reference/operator/aggregation/project) stage in your aggregation pipeline.\n\n- For the [$search](pipe.$search) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `searchScore` value. You can also specify the\n  `searchScoreDetails` value for the\n  `scoreDetails` field [$meta](manual/reference/operator/aggregation/meta)\n  expression for a detailed breakdown of the score.\n\n- For the [$vectorSearch](pipe.$vectorSearch) stage, the `score` field\n  takes the [$meta](manual/reference/operator/aggregation/meta) expression,\n  which requires the `vectorSearchScore` value to return the score of\n  each document in your vector search results.\n\n> **Note:** You can use:\n>\n> - `searchScore` only in [$search](pipe.$search) queries\n>\n> - `vectorSearchScore` only in [$vectorSearch](pipe.$vectorSearch) queries\n>\n> If you use `searchScore` and `vectorSearchScore` in any other\n> query, MongoDB logs a warning starting in MongoDB v8.2.\n\n> **Example:** The following query uses a [$project](manual/reference/operator/aggregation/project) stage to add a\n> field named `score` to the returned documents:\n>\n> Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       }\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"searchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> Search Score Details\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$search\": {\n>       \"text\": {\n>         <operator-specification>\n>       },\n>       \"scoreDetails\": true\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"scoreDetails\": { \"$meta\": \"searchScoreDetails\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [score details](fts-score-details) the search\n> score details.\n>\n> Vector Search Score\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$vectorSearch\": {\n>       <query-syntax>\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"<field-to-include>\": 1,\n>       \"<field-to-exclude>\": 0,\n>       \"score\": { \"$meta\": \"vectorSearchScore\" }\n>     }\n>   }\n> ])\n> ```\n>\n> To learn more, see [vector search score](vectorSearch-agg-pipeline-score).",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -23,31 +23,61 @@
           "content": "db.movies.aggregate([\n  {\n    \"$vectorSearch\": {\n      <query-syntax>\n    }\n  },\n  {\n    \"$project\": {\n      \"<field-to-include>\": 1,\n      \"<field-to-exclude>\": 0,\n      \"score\": { \"$meta\": \"vectorSearchScore\" }\n    }\n  }\n])",
           "tokenEstimate": 69
         }
-      ]
+      ],
+      "slug": "usage",
+      "variantAgnostic": true
     },
     {
       "heading": "Behavior",
       "headingLevel": 2,
       "body": "The score assigned to a returned document is part of the document's\nmetadata. You can use a [$project](manual/reference/operator/aggregation/project) stage in your aggregation\npipeline to include each returned document's score along with the\nresult set. Documents return from highest score to lowest.\nMany factors can influence a document's score, including\nthe following:\n\n- Position of the search term in the document.\n\n- Frequency of occurrence of the search term in the document.\n\n- Type of [operators](fts-operators) or [Process Data with Analyzers](analyzers-ref)\n  a MongoDB Search query uses.\n\nTo learn more about the Lucene scoring algorithm, see\n[Lucene documentation](https://lucene.apache.org/core/3_5_0/scoring.html).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "behavior",
+      "variantAgnostic": true
     },
     {
       "heading": "Additional Options",
       "headingLevel": 3,
       "body": "In addition to the default scoring behavior, MongoDB Search\nsupports the following options:\n\n- [Modifying](scoring-options) the score assigned to\n  certain documents.\n\n- Returning a detailed breakdown of the score by using the\n  [score details](fts-score-details) option.\n\n- [Normalizing](fts-normalize-score) the search score.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "additional-options",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "If multiple documents in the results have identical scores,\nthe ordering of the documents in the results is non-deterministic.\nIf you want your MongoDB Search results to have a determined order,\ninclude the [sorting](sort-ref) option in your\n[$search](pipe.$search) stage to sort the results by a unique field.\nYou can use the [sorting](sort-ref) option to also return an\nascending sort of the results by score. To learn more,\nsee [sorting](sort-ref) and [Sort by Score Examples](sort-by-score-egs).\n\nOn [Search Nodes](configure-search-nodes),\neach node assigns documents different internal Lucene IDs\nused for sorting when scores are identical.\nWhen sorting and [How to Paginate the Results](fts-paginate-results) results,\nthe `mongot` process on the node that is processing the query\nmight include documents from other nodes if their internal IDs have\ngreater pagination order than the token.\nTo prevent this, use [$match](manual/reference/operator/aggregation/match) after [$search](pipe.$search)\nto exclude documents by their `_id`.\n\nWhen querying array values, MongoDB Search assigns higher scores if more values\nin the array match the query.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Tutorials",
       "headingLevel": 2,
       "body": "| For examples on how to use additional score options in your MongoDB Search queries, see the following pages: | Modify the ScoreReturn the Score DetailsExample Queries              |\n| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |\n| For examples on how to use the score field in some common MongoDB Search queries, see the following pages:   | Compound Query ExamplesEmbedded Document ExamplesString Sort Example |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "tutorials",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "searchscore",
+          "text": "searchscore"
+        },
+        {
+          "value": "scoredetails",
+          "text": "scoredetails"
+        },
+        {
+          "value": "vectorsearchscore",
+          "text": "vectorsearchscore"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,42 @@
+{
+  "heading": "Step 4: Create a persistent stream processor.",
+  "headingLevel": 3,
+  "body": "Run the following commands in [mongosh](mongodb-shell) to create a persistent stream\nprocessor named `solarDemo`:\n\n- Connect to your stream processing workspace.\n\n  Use the connection string associated with your stream processing workspace\n  to connect using [mongosh](mongodb-shell).\n\n  - In the pane for your stream processing workspace, click Connect.\n\n  - In the Connect to your workspace dialog,\n    select the Shell tab.\n\n  - Copy the connection string displayed in the dialog. It has\n    the following format, where\n    `<atlas-stream-processing-url>` is the URL of your stream processing workspace\n    and `<username>` is the username of a database user with\n    the [atlasAdmin](manual/reference/built-in-roles) role:\n\n    ```sh\n    mongosh \"mongodb://<atlas-stream-processing-url>/\"\n    --tls --authenticationDatabase admin --username <username>\n    --password <password>\n    ```\n\n  - Paste the connection string into your terminal and replace\n    the `<password>` placeholder with the credentials for the\n    user.\n\n    Press Enter to run it and connect to your stream processing workspace.\n\n- Configure a [$source](pipe.$source) stage.\n\n  Define a variable for a `$source` stage that ingests data from the\n  `sample_stream_solar` source.\n\n  ```sh\n  let s = {\n    $source: {\n      connectionName: \"sample_stream_solar\"\n    }\n  }\n  ```\n\n- Configure a [$group](manual/reference/operator/aggregation/group) stage.\n\n  Define a variable for a `$group` stage that derives the maximum\n  temperature and the average, maximum, and minimum wattages\n  of each solar device according to its `group_id`.\n\n  ```sh\n  let g = {\n    $group: {\n      _id: \"$group_id\",\n      max_temp: {\n        $max: \"$obs.temp\"\n      },\n      avg_watts: {\n         $avg: \"$obs.watts\"\n      },\n      max_watts: {\n        $max: \"$obs.watts\"\n      },\n      min_watts: {\n        $min: \"$obs.watts\"\n      }\n    }\n  }\n  ```\n\n- Configure a [$tumblingWindow](pipe.$tumblingWindow) stage.\n\n  In order to perform accumulations such as `$group` on streaming\n  data, Atlas Stream Processing uses [Stream Processor Windows](atlas-sp-windows) to bound\n  the data set. Define a variable for a `$tumblingWindow` stage that\n  separates the stream into consecutive 10-second intervals.\n\n  This means, for example, that when the `$group` stage\n  computes a value for `max_watts`, it extracts the maximum\n  value from the `obs.watts` values for all documents with a\n  given `group_id` ingested in the previous 10 seconds.\n\n  ```sh&#xA;&#x20;:copyable:&#x20;true\n   let t = {\n     $tumblingWindow: {\n       interval: {\n         size: NumberInt(10),\n         unit: \"second\"\n       },\n       pipeline: [g]\n    }\n  }\n  ```\n\n- Configure a [$merge](atlas-sp-agg-merge) stage.\n\n  Define a variable for a `$merge` stage that writes the processed\n  streaming data to a collection named `solarColl` in the `solarDb`\n  database of your connected Atlas cluster.\n\n  ```sh\n  let m = {\n    $merge: {\n      into: {\n        connectionName: \"mongodb1\",\n        db: \"solarDb\",\n        coll: \"solarColl\"\n      }\n    }\n  }\n  ```\n\n- Create the stream processor.\n\n  Use the [sp.createStreamProcessor()](manual/reference/method/sp.createStreamProcessor) method to assign a name\n  to your new stream processor and declare its aggregation pipeline.\n  The `$group` stage belongs to the nested pipeline of the\n  `$tumblingWindow`, and you must not include it in the processor\n  pipeline definition.\n\n  ```sh\n  sp.createStreamProcessor(\"solarDemo\", [s, t, m])\n  ```\n\n  This creates a stream processor named `solarDemo` that\n  applies the previously defined query and writes the\n  processed data to the `solarColl` collection of the\n  `solarDb` database on the cluster you connected to.\n  It returns various measurements derived from 10-second intervals\n  of observations from your solar devices.\n\n  To learn more about how Atlas Stream Processing writes to at-rest\n  databases, see [$merge](atlas-sp-agg-merge).",
+  "codeBlocks": [
+    {
+      "language": "sh",
+      "content": "mongosh \"mongodb://<atlas-stream-processing-url>/\"\n--tls --authenticationDatabase admin --username <username>\n--password <password>",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "sh",
+      "content": "let s = {\n  $source: {\n    connectionName: \"sample_stream_solar\"\n  }\n}",
+      "tokenEstimate": 22
+    },
+    {
+      "language": "sh",
+      "content": "let g = {\n  $group: {\n    _id: \"$group_id\",\n    max_temp: {\n      $max: \"$obs.temp\"\n    },\n    avg_watts: {\n       $avg: \"$obs.watts\"\n    },\n    max_watts: {\n      $max: \"$obs.watts\"\n    },\n    min_watts: {\n      $min: \"$obs.watts\"\n    }\n  }\n}",
+      "tokenEstimate": 86
+    },
+    {
+      "language": "sh\n :copyable: true",
+      "content": " let t = {\n   $tumblingWindow: {\n     interval: {\n       size: NumberInt(10),\n       unit: \"second\"\n     },\n     pipeline: [g]\n  }\n}",
+      "tokenEstimate": 40
+    },
+    {
+      "language": "sh",
+      "content": "let m = {\n  $merge: {\n    into: {\n      connectionName: \"mongodb1\",\n      db: \"solarDb\",\n      coll: \"solarColl\"\n    }\n  }\n}",
+      "tokenEstimate": 42
+    },
+    {
+      "language": "sh",
+      "content": "sp.createStreamProcessor(\"solarDemo\", [s, t, m])",
+      "tokenEstimate": 16
+    }
+  ],
+  "slug": "step-4-create-a-persistent-stream-processor--mongosh",
+  "selections": {
+    "interface": "mongosh"
+  },
+  "variantAgnostic": false
+}

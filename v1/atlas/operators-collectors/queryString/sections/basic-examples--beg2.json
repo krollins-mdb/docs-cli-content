@@ -1,0 +1,22 @@
+{
+  "heading": "Basic Examples",
+  "headingLevel": 4,
+  "body": "The following example uses the `queryString` operator to\nquery for movies with the title `Rocky` and not any form of\nthe numbers `2`, `3`, `4`, or `5` at path `title` in\nthe `movies` collection. In the following query, a field is\nspecified in the `defaultPath`, but no fields are specified in\nthe `query`. The query includes a [$project](manual/reference/operator/aggregation/project) stage\nto exclude all fields except `title`.\n\n**Input:**\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"Rocky AND NOT ((II OR 2 OR Two) OR (III OR 3 OR Three) OR (IV OR 4 OR Four) OR (V OR 5 OR Five))\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { title: 'Rocky' },\n  { title: 'Rocky Marciano' },\n  { title: 'Rocky Balboa' },\n  { title: 'The Rocky Horror Picture Show' },\n  { title: 'The Adventures of Rocky & Bullwinkle' }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"queryString\": {\n        \"defaultPath\": \"title\",\n        \"query\": \"Rocky AND NOT ((II OR 2 OR Two) OR (III OR 3 OR Three) OR (IV OR 4 OR Four) OR (V OR 5 OR Five))\"\n      }\n    }\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 100
+    },
+    {
+      "language": "json",
+      "content": "[\n  { title: 'Rocky' },\n  { title: 'Rocky Marciano' },\n  { title: 'Rocky Balboa' },\n  { title: 'The Rocky Horror Picture Show' },\n  { title: 'The Adventures of Rocky & Bullwinkle' }\n]",
+      "tokenEstimate": 60
+    }
+  ],
+  "slug": "basic-examples--beg2",
+  "selections": {
+    "tabs": "beg2"
+  },
+  "variantAgnostic": false
+}

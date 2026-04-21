@@ -1,0 +1,17 @@
+{
+  "heading": "Highlighting Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to:\n\n  - return the document's score.\n\n  - exclude all fields except `title`.\n\n  - add a new field called `highlights`, which contains highlighting\n    information.\n\n```javascript\ndb.movies.aggregate([\n  {\n    $search: {\n      \"autocomplete\": {\n        \"path\": \"title\",\n        \"query\": [\"ger\"]\n      },\n      \"highlight\": { \n        \"path\": \"title\"\n      }\n    }\n  },\n  {\n    $limit: 5\n  }, \n  { \n    $project: {\n        \n      \"score\": { $meta: \"searchScore\" },\n      \"title\": 1,\n      \"_id\": 0,\n      \"highlights\": { \"$meta\": \"searchHighlights\" }\n    }\n  }\n])\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.movies.aggregate([\n  {\n    $search: {\n      \"autocomplete\": {\n        \"path\": \"title\",\n        \"query\": [\"ger\"]\n      },\n      \"highlight\": { \n        \"path\": \"title\"\n      }\n    }\n  },\n  {\n    $limit: 5\n  }, \n  { \n    $project: {\n        \n      \"score\": { $meta: \"searchScore\" },\n      \"title\": 1,\n      \"_id\": 0,\n      \"highlights\": { \"$meta\": \"searchHighlights\" }\n    }\n  }\n])\n",
+      "tokenEstimate": 118
+    }
+  ],
+  "slug": "highlighting-example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Run Vector Search Queries",
+  "headingLevel": 2,
+  "body": "You can pre-filter your data by using an\nMQL (MongoDB Query Language) match expression\nthat compares the indexed field with another value in\nyour collection. You must index any metadata fields that you want to\nfilter by as the `filter` type. To learn more, see\n[index definition](avs-types-vector-search).\n\n> **Note:** You specified the `page_label` field as a filter\n> when you [created the index](langchain-create-index)\n> for this tutorial.\n\nThe following query uses the `similarity_search_with_score` method\nto perform a semantic search for\nthe string `MongoDB acquisition`. It also specifies the following:\n\n- The `k` parameter to limit the number of documents to return\n  to `3`.\n\n- A pre-filter on the `page_label` field that uses the [$eq](manual/reference/operator/query/eq) operator\n  to match documents appearing on page 2 only.\n\nIt returns the three most relevant documents from page 2\nand a [relevance scoring](scoring-ref) between\n`0` and `1`.\n\n**Input:**\n\n```python\nquery = \"MongoDB acquisition\"\n\nresults = vector_store.similarity_search_with_score(\n   query = query,\n   k = 3,\n   pre_filter = { \"page_label\": { \"$eq\": 2 } }\n)\n\npprint.pprint(results)\n```\n\n**Output:**\n\n```JSON\n[(Document(id='67f0259b8bb2babc06924355', metadata={ ... 'page_label': '2'}, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n  0.7788857221603394),\n (Document(id='67f0259b8bb2babc06924351', metadata={ ... 'page_label': '2'}, page_content='Measures.\"\\nFourth Quarter Fiscal 2025 and Recent Business Highlights\\nMongoDB  acquired Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation'),\n  0.7606035470962524),\n (Document(id='67f0259b8bb2babc06924354', metadata={ ... 'page_label': '2'}, page_content='data.\\nMongoDB  completed the redemption of 2026 Convertible Notes, eliminating all debt from the balance sheet. Additionally, in'),\n  0.7583936452865601)]\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "query = \"MongoDB acquisition\"\n\nresults = vector_store.similarity_search_with_score(\n   query = query,\n   k = 3,\n   pre_filter = { \"page_label\": { \"$eq\": 2 } }\n)\n\npprint.pprint(results)",
+      "tokenEstimate": 52
+    },
+    {
+      "language": "JSON",
+      "content": "[(Document(id='67f0259b8bb2babc06924355', metadata={ ... 'page_label': '2'}, page_content='conjunction with the acquisition of Voyage, MongoDB  is announcing a stock buyback program of $200 million, to offset the\\ndilutive impact of the acquisition consideration.'),\n  0.7788857221603394),\n (Document(id='67f0259b8bb2babc06924351', metadata={ ... 'page_label': '2'}, page_content='Measures.\"\\nFourth Quarter Fiscal 2025 and Recent Business Highlights\\nMongoDB  acquired Voyage AI, a pioneer in state-of-the-art embedding and reranking models that power next-generation'),\n  0.7606035470962524),\n (Document(id='67f0259b8bb2babc06924354', metadata={ ... 'page_label': '2'}, page_content='data.\\nMongoDB  completed the redemption of 2026 Convertible Notes, eliminating all debt from the balance sheet. Additionally, in'),\n  0.7583936452865601)]",
+      "tokenEstimate": 229
+    }
+  ],
+  "slug": "run-vector-search-queries--semantic-search-filter",
+  "selections": {
+    "tabs": "semantic-search-filter"
+  },
+  "variantAgnostic": false
+}

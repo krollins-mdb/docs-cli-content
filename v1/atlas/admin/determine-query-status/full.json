@@ -13,29 +13,23 @@
           "content": "db.aggregate([{$currentOp: {} }])",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Output",
       "headingLevel": 2,
       "body": "[$currentOp](manual/reference/operator/aggregation/currentOp) returns\ndocuments with the following fields:\n\n| Field                        | Type     | Description                                                                                                                                                                                                                      |\n| ---------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| $currentOp.type              | string   | Type of operation. Value is always op.                                                                                                                                                                                           |\n| $currentOp.opid              | ObjectId | Unique identifier of the operation in ObjectId format. The field value is the same as the correlationID that you can see in errors and logs.                                                                                     |\n| $currentOp.client            | string   | IP address (or hostname) and the ephemeral port of the client connection where the operation originates.                                                                                                                         |\n| $currentOp.clientMetadata    | Document | Additional client information such as the client:Application nameDriver name and versionOperating system name, type, architecture, and version                                                                                   |\n| $currentOp.active            | boolean  | Specifies whether the operation has started. Value is true if the operation has started or completed and false if the operation is idle.                                                                                         |\n| $currentOp.currentOpTime     | ISODate  | Start time of the operation.                                                                                                                                                                                                     |\n| $currentOp.ns                | string   | Namespace that the operation targets. A namespace consists of the database name and the collection name concatenated with a dot (.); that is, \"\\<database>.\\<collection>\".                                                       |\n| $currentOp.command           | Document | A document containing the command object associated with this operation.                                                                                                                                                         |\n| $currentOp.msg               | string   | A message that describes the status and progress of the operation.                                                                                                                                                               |\n| $currentOp.progress          | Document | A document that contains the amount of work done for the operation.                                                                                                                                                              |\n| $currentOp.progress.workDone | integer  | A number that increases as documents move through the pipeline, indicating that progress has been made toward the completion of the query. This number is not a percentage and cannot be used to estimate how much work remains. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "output",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
-      "body": "For the example below, suppose one of the following queries is running\non the `airbnb` collection in the `sample` database described in\nthe Get Started tutorial.**Find:**find Command```json\ndb.airbnb.find( { \"address.market\" : \"Porto\", \"review_scores.review_scores_rating\": {$gt: 79}}).comment(\"Find properties in Porto\")\n```**Aggregate:**aggregate Command```json\ndb.airbnb.aggregate(\n  [\n    {\n      $match: {\n        \"address.market\": \"Porto\",\n        \"review_scores.review_scores_rating\": {$gt: 79}\n      }\n    }\n  ], { comment: \"Find properties in Porto\" })\n```The following example returns information on the previous query running\non the `airbnb` collection in the `sample` database:```json\ndb.aggregate([{$currentOp: {} }])\n```[$currentOp](manual/reference/operator/aggregation/currentOp)\nreturns the following documents. The `workDone` field shows that 770\ndocuments had been processed at the time that `$currentOp` was run.```json\n{\n        \"type\" : \"op\",\n        \"opid\" : ObjectId(\"1635fa35bf73f4320c6f99d0\"),\n        \"client\" : \"73.231.201.205:62351\",\n        \"clientMetadata\" : {\n               \"application\" : {\n                       \"name\" : \"MongoDB Shell\"\n               },\n               \"driver\" : {\n                       \"name\" : \"MongoDB Internal Client\",\n                       \"version\" : \"4.2.0\"\n               },\n               \"os\" : {\n                       \"type\" : \"Darwin\",\n                       \"name\" : \"Mac OS X\",\n                       \"architecture\" : \"x86_64\",\n                       \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:43.291Z\"),\n        \"ns\" : \"sample.airbnb\",\n        \"command\" : {\n                \"find\" : \"airbnb\",\n                \"filter\" : {\n                      \"address.market\" : \"Porto\",\n                        \"review_scores.review_scores_rating\" : {\n                                \"$gt\" : 79\n                        }\n                },\n              \"comment\" : \"Find properties in Porto\",\n                \"lsid\" : {\n                        \"id\" : UUID(\"2211f8ac-56b2-4ba4-bb0c-2e5dd5b7cc21\")\n                },\n                \"$db\" : \"sample\"\n        },\n        \"msg\" : \"work done: 770\",\n        \"progress\" : {\n          \"workDone\" : 770\n        }\n}\n{\n        \"type\" : \"op\",\n        \"client\" : \"73.231.201.205:62353\",\n        \"clientMetadata\" : {\n                \"application\" : {\n                        \"name\" : \"MongoDB Shell\"\n                },\n                \"driver\" : {\n                        \"name\" : \"MongoDB Internal Client\",\n                  \"version\" : \"4.2.0\"\n              },\n                \"os\" : {\n                        \"type\" : \"Darwin\",\n                        \"name\" : \"Mac OS X\",\n                        \"architecture\" : \"x86_64\",\n                        \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:47.380Z\"),\n        \"ns\" : \"admin.$cmd.aggregate\",\n        \"command\" : {\n                \"aggregate\" : 1,\n                \"pipeline\" : [\n                        {\n                              \"$currentOp\" : {\n\n                                }\n                        }\n                ],\n                \"cursor\" : {\n\n                },\n                \"lsid\" : {\n                        \"id\" : UUID(\"045ea383-65d7-4e88-a989-37b7a8da23bc\")\n                },\n                \"$db\" : \"admin\"\n        },\n        \"msg\" : \"work done: 0\",\n        \"progress\" : {\n                \"workDone\" : 0\n        }\n}\n```",
+      "body": "For the example below, suppose one of the following queries is running\non the `airbnb` collection in the `sample` database described in\nthe Get Started tutorial.\n\nfind Command\n\naggregate Command\n\nThe following example returns information on the previous query running\non the `airbnb` collection in the `sample` database:\n\n```json\ndb.aggregate([{$currentOp: {} }])\n```\n\n[$currentOp](manual/reference/operator/aggregation/currentOp)\nreturns the following documents. The `workDone` field shows that 770\ndocuments had been processed at the time that `$currentOp` was run.\n\n```json\n{\n        \"type\" : \"op\",\n        \"opid\" : ObjectId(\"1635fa35bf73f4320c6f99d0\"),\n        \"client\" : \"73.231.201.205:62351\",\n        \"clientMetadata\" : {\n               \"application\" : {\n                       \"name\" : \"MongoDB Shell\"\n               },\n               \"driver\" : {\n                       \"name\" : \"MongoDB Internal Client\",\n                       \"version\" : \"4.2.0\"\n               },\n               \"os\" : {\n                       \"type\" : \"Darwin\",\n                       \"name\" : \"Mac OS X\",\n                       \"architecture\" : \"x86_64\",\n                       \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:43.291Z\"),\n        \"ns\" : \"sample.airbnb\",\n        \"command\" : {\n                \"find\" : \"airbnb\",\n                \"filter\" : {\n                      \"address.market\" : \"Porto\",\n                        \"review_scores.review_scores_rating\" : {\n                                \"$gt\" : 79\n                        }\n                },\n              \"comment\" : \"Find properties in Porto\",\n                \"lsid\" : {\n                        \"id\" : UUID(\"2211f8ac-56b2-4ba4-bb0c-2e5dd5b7cc21\")\n                },\n                \"$db\" : \"sample\"\n        },\n        \"msg\" : \"work done: 770\",\n        \"progress\" : {\n          \"workDone\" : 770\n        }\n}\n{\n        \"type\" : \"op\",\n        \"client\" : \"73.231.201.205:62353\",\n        \"clientMetadata\" : {\n                \"application\" : {\n                        \"name\" : \"MongoDB Shell\"\n                },\n                \"driver\" : {\n                        \"name\" : \"MongoDB Internal Client\",\n                  \"version\" : \"4.2.0\"\n              },\n                \"os\" : {\n                        \"type\" : \"Darwin\",\n                        \"name\" : \"Mac OS X\",\n                        \"architecture\" : \"x86_64\",\n                        \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:47.380Z\"),\n        \"ns\" : \"admin.$cmd.aggregate\",\n        \"command\" : {\n                \"aggregate\" : 1,\n                \"pipeline\" : [\n                        {\n                              \"$currentOp\" : {\n\n                                }\n                        }\n                ],\n                \"cursor\" : {\n\n                },\n                \"lsid\" : {\n                        \"id\" : UUID(\"045ea383-65d7-4e88-a989-37b7a8da23bc\")\n                },\n                \"$db\" : \"admin\"\n        },\n        \"msg\" : \"work done: 0\",\n        \"progress\" : {\n                \"workDone\" : 0\n        }\n}\n```",
       "codeBlocks": [
-        {
-          "language": "json",
-          "content": "db.airbnb.find( { \"address.market\" : \"Porto\", \"review_scores.review_scores_rating\": {$gt: 79}}).comment(\"Find properties in Porto\")",
-          "tokenEstimate": 36
-        },
-        {
-          "language": "json",
-          "content": "db.airbnb.aggregate(\n  [\n    {\n      $match: {\n        \"address.market\": \"Porto\",\n        \"review_scores.review_scores_rating\": {$gt: 79}\n      }\n    }\n  ], { comment: \"Find properties in Porto\" })",
-          "tokenEstimate": 53
-        },
         {
           "language": "json",
           "content": "db.aggregate([{$currentOp: {} }])",
@@ -45,6 +39,58 @@
           "language": "json",
           "content": "{\n        \"type\" : \"op\",\n        \"opid\" : ObjectId(\"1635fa35bf73f4320c6f99d0\"),\n        \"client\" : \"73.231.201.205:62351\",\n        \"clientMetadata\" : {\n               \"application\" : {\n                       \"name\" : \"MongoDB Shell\"\n               },\n               \"driver\" : {\n                       \"name\" : \"MongoDB Internal Client\",\n                       \"version\" : \"4.2.0\"\n               },\n               \"os\" : {\n                       \"type\" : \"Darwin\",\n                       \"name\" : \"Mac OS X\",\n                       \"architecture\" : \"x86_64\",\n                       \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:43.291Z\"),\n        \"ns\" : \"sample.airbnb\",\n        \"command\" : {\n                \"find\" : \"airbnb\",\n                \"filter\" : {\n                      \"address.market\" : \"Porto\",\n                        \"review_scores.review_scores_rating\" : {\n                                \"$gt\" : 79\n                        }\n                },\n              \"comment\" : \"Find properties in Porto\",\n                \"lsid\" : {\n                        \"id\" : UUID(\"2211f8ac-56b2-4ba4-bb0c-2e5dd5b7cc21\")\n                },\n                \"$db\" : \"sample\"\n        },\n        \"msg\" : \"work done: 770\",\n        \"progress\" : {\n          \"workDone\" : 770\n        }\n}\n{\n        \"type\" : \"op\",\n        \"client\" : \"73.231.201.205:62353\",\n        \"clientMetadata\" : {\n                \"application\" : {\n                        \"name\" : \"MongoDB Shell\"\n                },\n                \"driver\" : {\n                        \"name\" : \"MongoDB Internal Client\",\n                  \"version\" : \"4.2.0\"\n              },\n                \"os\" : {\n                        \"type\" : \"Darwin\",\n                        \"name\" : \"Mac OS X\",\n                        \"architecture\" : \"x86_64\",\n                        \"version\" : \"18.7.0\"\n                }\n        },\n        \"active\" : true,\n        \"currentOpTime\" : ISODate(\"2020-03-26T12:51:47.380Z\"),\n        \"ns\" : \"admin.$cmd.aggregate\",\n        \"command\" : {\n                \"aggregate\" : 1,\n                \"pipeline\" : [\n                        {\n                              \"$currentOp\" : {\n\n                                }\n                        }\n                ],\n                \"cursor\" : {\n\n                },\n                \"lsid\" : {\n                        \"id\" : UUID(\"045ea383-65d7-4e88-a989-37b7a8da23bc\")\n                },\n                \"$db\" : \"admin\"\n        },\n        \"msg\" : \"work done: 0\",\n        \"progress\" : {\n                \"workDone\" : 0\n        }\n}",
           "tokenEstimate": 649
+        }
+      ],
+      "slug": "examples",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "```json\ndb.airbnb.find( { \"address.market\" : \"Porto\", \"review_scores.review_scores_rating\": {$gt: 79}}).comment(\"Find properties in Porto\")\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.airbnb.find( { \"address.market\" : \"Porto\", \"review_scores.review_scores_rating\": {$gt: 79}}).comment(\"Find properties in Porto\")",
+          "tokenEstimate": 36
+        }
+      ],
+      "slug": "examples--find",
+      "selections": {
+        "tabs": "find"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Examples",
+      "headingLevel": 2,
+      "body": "```json\ndb.airbnb.aggregate(\n  [\n    {\n      $match: {\n        \"address.market\": \"Porto\",\n        \"review_scores.review_scores_rating\": {$gt: 79}\n      }\n    }\n  ], { comment: \"Find properties in Porto\" })\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "db.airbnb.aggregate(\n  [\n    {\n      $match: {\n        \"address.market\": \"Porto\",\n        \"review_scores.review_scores_rating\": {$gt: 79}\n      }\n    }\n  ], { comment: \"Find properties in Porto\" })",
+          "tokenEstimate": 53
+        }
+      ],
+      "slug": "examples--aggregate",
+      "selections": {
+        "tabs": "aggregate"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "find",
+          "text": "find"
+        },
+        {
+          "value": "aggregate",
+          "text": "aggregate"
         }
       ]
     }

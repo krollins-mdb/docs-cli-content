@@ -6,8 +6,197 @@
     {
       "heading": "Dedicated Clusters",
       "headingLevel": 2,
-      "body": "**AWS PrivateLink:**AWS PrivateLinkTo view the status of each private endpoint:* In Atlas, go to the Database & Network Access page for your project.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Database & Network Access under\n    the Security heading.\n\n    The [Database & Network Access](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fnetwork%2FaccessList)\n    page displays.\n\n* Click the Private Endpoint tab.\n\n* Review the statuses.\n\n  The Atlas Endpoint Service Status and\n  Endpoint Status fields show the status of each\n  private endpoint.Refer to the following statuses to help you determine the state of\nyour private endpoint connections:Atlas Endpoint Service Status| Status                | Description                                                                                                                            |\n| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the network load balancer and VPC (Virtual Private Cloud) resources.                                                 |\n| Failed                | A system failure has occurred.                                                                                                         |\n| Available             | The Atlas network load balancer and VPC (Virtual Private Cloud) endpoint service are created and ready to receive connection requests. |\n| Deleting              | Atlas is deleting the private endpoint service.                                                                                        |Endpoint Status| Status             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |\n| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Not configured     | Atlas created the network load balancer and VPC (Virtual Private Cloud) endpoint service, but AWS (Amazon Web Services) hasn't yet created the interface endpoint. Click Edit and complete the wizard to create the interface endpoint.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |\n| Pending acceptance | AWS (Amazon Web Services) has received the connection request from your interface endpoint to the Atlas VPC (Virtual Private Cloud) endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| Pending            | AWS (Amazon Web Services) is establishing the connection between your interface endpoint and the Atlas VPC (Virtual Private Cloud) endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| Failed             | AWS (Amazon Web Services) failed to establish a connection between Atlas VPC (Virtual Private Cloud) resources and the interface endpoint in your VPC (Virtual Private Cloud). Click Edit, verify that the information you provided is correct, and then create the private endpoint again.IMPORTANT: If your Interface Endpoint fails, you might see the following message:No dns entries found for endpoint vpce-\\<guid>, your endpoint must be provisioned in at least one subnet. Click \"Edit\" to fix the problem.This message indicates that you didn't specify a subnet when you created the AWS PrivateLink connection. To resolve this error:Click Edit.Click Back.Specify at least one subnet.Follow the remaining instructions to create the AWS PrivateLink connection. |\n| Available          | Atlas VPC (Virtual Private Cloud) resources are connected to the interface endpoint in your VPC (Virtual Private Cloud). You can connect to Atlas clusters in this region using AWS PrivateLink.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Deleting           | Atlas is removing the interface endpoint from the private endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |* For each resource that needs to connect to your Atlas clusters\n  using AWS PrivateLink, the resource's security group must allow\n  outbound traffic to the [interface endpoint](manual/reference/glossary) private IP addresses on all ports (1024-65535).\n\n  See [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html#adding-security-group-rule)\n  for more information.\n\n* Your [interface endpoint](manual/reference/glossary) security group must allow inbound\n  traffic on all ports from each resource that needs to connect to\n  your Atlas clusters using AWS PrivateLink.\n\n  [Access List instance IP addresses or security groups](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html#adding-security-group-rule)\n  to allow traffic from them to reach the\n  [interface endpoint](manual/reference/glossary) security group.",
-      "codeBlocks": []
+      "body": "AWS PrivateLink",
+      "codeBlocks": [],
+      "slug": "dedicated-clusters",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Obtain Private IPs with DNS Lookup",
+      "headingLevel": 3,
+      "body": "When a client in your VNet connects to an Atlas cluster using\none of these private endpoint-aware connection strings, the\nclient attempts to establish a connection to the Private Link\nService in the Atlas VNet through the private endpoint's\nnetwork interface. The Private Link service sends traffic through\nan Azure (Microsoft Azure) Standard Load Balancer to the Atlas cluster nodes\nthat you deployed in that region. Your client's DNS (Domain Name System) resolution\nmechanism handles resolving the hostname to the network\ninterface's private IP address. The driver is only aware of the\nhostname in the connection string, listening on one port for each\nnode in the cluster's replica set.\n\n**SRV Record for DNS Seedlist Private Endpoint-Aware Connection Strings**\n\nThe following example shows the SRV record for an\nAzure Private Link-enabled single-region cluster, showing three unique\nports defined for `pl-0-eastus2.uzgh6.mongodb.net`:\n\n```sh\n$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.\n```\n\nIn the preceding example:\n\n- `_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net` is\n  the SRV record that the connection string references.\n\n- `pl-0-eastus2.uzgh6.mongodb.net` is the hostname for\n  each node in one Atlas cluster in one region for which\n  you have configured Azure Private Link.\n\n- `1024`, `1025`, and `1026` are unique ports that\n  Atlas assigns on the load balancer for each Atlas\n  replica set node in the region for which you enabled\n  Azure Private Link. All nodes in an Atlas replica set are\n  accessible via the same hostname, with the load balancer\n  resolving individual nodes by their unique port.\n\n**Hostname DNS Resolution in Private Endpoint-Aware Connection Strings and SRV Records**\n\nThe hostname in the SRV record and the standard connection string\nis a DNS (Domain Name System) `A` record that resolves to the private IP address\nof the private endpoint's network interface.\n\nThe following example shows the DNS (Domain Name System) lookup for the hostname in\nthe SRV record and in the standard connection string:\n\n```sh\n$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4\n```",
+      "codeBlocks": [
+        {
+          "language": "sh",
+          "content": "$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.",
+          "tokenEstimate": 166
+        },
+        {
+          "language": "sh",
+          "content": "$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4",
+          "tokenEstimate": 73
+        }
+      ],
+      "slug": "obtain-private-ips-with-dns-lookup--Azure Private Link",
+      "selections": {
+        "tabs": "Azure Private Link"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Multi-Region Private Endpoints",
+      "headingLevel": 3,
+      "body": "Private endpoints are only available in multi-region clusters if there is a\nnode within each region that the cluster spans that has a private endpoint\nconfigured. To learn more about configuring multi-region private endpoints, see\n[Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl).\n\n**Connection String Indexing for Multi-Region Clusters**\n\nAfter you configure a private endpoint for a new region and deploy cluster\nnodes to that region, you might see the following error when you use\nyour private endpoint to connect to the cluster:\n\n```none\nDNSHostNotFound: Failed to look up service \"<MongoDB service name>\"\n```\n\nThis error occurs when your connection string's index automatically changes\nand your client subsequently restarts, which causes an SRV DNS lookup.\nThe private endpoint connection string for a multi-region cluster uses\nan index of `0`. If your connection string uses a different index, MongoDB\nautomatically updates the connection string to use the `0` index.\n\nFor example, you might configure two private endpoints for a region. If you\nremove the first private endpoint, your connection string uses an index of `1`\nand resembles the following:\n\n```none\nmongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net\n```\n\nThen, suppose you configure a private endpoint for a new region in your\ncluster and subsequently add cluster nodes to that region. Your cluster\nnow includes multiple regions, and your connection string updates to use an\nindex of `0`:\n\n```none\nmongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net\n```\n\nTo avoid potential connectivity issues after your client's next restart,\nconfirm that you are using the zero-indexed private endpoint connection string\nto connect to your cluster. You can access the updated private endpoint connection\nstring from the Atlas UI or API after your cluster changes complete.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "none",
+          "content": "mongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "none",
+          "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
+          "tokenEstimate": 18
+        }
+      ],
+      "slug": "multi-region-private-endpoints--Azure Private Link",
+      "selections": {
+        "tabs": "Azure Private Link"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Test Connectivity from Your Deployed Application",
+      "headingLevel": 3,
+      "body": "You can use the tools `nslookup` and `telnet` to test the connectivity\nfrom your application to your Private Endpoint in Atlas.",
+      "codeBlocks": [],
+      "slug": "test-connectivity-from-your-deployed-application--Azure Private Link",
+      "selections": {
+        "tabs": "Azure Private Link"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Get the connection details for your  cluster.",
+      "headingLevel": 4,
+      "body": "Run `nslookup` with the `-type=SRV` flag to get the port numbers\nassociated with each of the nodes in your cluster.\n\n**Input:**\n\n```bash\n nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net\n```\n\n**Output:**\n\n```bash\n Server: 127.0.0.53\n Address: 127.0.0.53#53\n Non-authoritative answer:\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1026 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1024 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1025 pl-0-us-east-1.k45tj.mongodb.net.\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": " nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net",
+          "tokenEstimate": 22
+        },
+        {
+          "language": "bash",
+          "content": " Server: 127.0.0.53\n Address: 127.0.0.53#53\n Non-authoritative answer:\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1026 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1024 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1025 pl-0-us-east-1.k45tj.mongodb.net.",
+          "tokenEstimate": 143
+        }
+      ],
+      "slug": "step-1-get-the-connection-details-for-your-cluster--Azure Private Link",
+      "selections": {
+        "tabs": "Azure Private Link"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Test the connectivity.",
+      "headingLevel": 4,
+      "body": "From your application environment, with one of the listed ports (for example,\n`1026`, `1024` or `1025` in the example output above), run the\nfollowing `telnet` command to test connectivity:\n\n```bash\ntelnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026\n```\n\nGCP Private Service Connect\n\nTo view the status of each private endpoint:\n\nThe Atlas Endpoint Service Status and\nEndpoint Status fields show the status of each\nprivate endpoint.\n\nRefer to the following statuses to help you determine the state of\nyour private endpoint connections:\n\nAtlas Endpoint Service Status\n\n| Status                | Description                                                                                                                                                     |\n| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the network load balancer and VPC (Virtual Private Cloud) resources.                                                                          |\n| Failed                | A system failure has occurred.                                                                                                                                  |\n| Available             | Atlas created the network load balancer and VPC (Virtual Private Cloud) endpoint service. The private endpoint service is ready to receive connection requests. |\n| Deleting              | Atlas is deleting the private endpoint service.                                                                                                                 |\n\nEndpoint Status\n\n| Status           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Initiating       | Atlas is not yet connected to your private endpoint and has not yet accepted the endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n| Waiting for User | VPC (Virtual Private Cloud) resources on Atlas are ready for use. You must set up the endpoints within your VPC (Virtual Private Cloud) by running the shell script.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| Verified         | Atlas verified the endpoints within your VPC (Virtual Private Cloud) but has not yet accepted the private endpoint in your Google Cloud VPC (Virtual Private Cloud). It might take several minutes for the Endpoint Status to become Available.                                                                                                                                                                                                                                                                                                                                                                                      |\n| Available        | The Atlas VPC (Virtual Private Cloud) resources are connected to the private endpoint in your Google Cloud VPC (Virtual Private Cloud). Atlas has accepted the endpoints. You can connect to Atlas clusters in this region using GCP Private Service Connect.                                                                                                                                                                                                                                                                                                                                                                        |\n| Active           | Atlas is ready to use VPC (Virtual Private Cloud) resources. Atlas has accepted the endpoints. A VM is assigned to the private service connection.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Failed           | Google Cloud failed to establish a connection between Atlas VPC (Virtual Private Cloud) resources and the private endpoint in your Google Cloud VPC (Virtual Private Cloud). Click Edit, verify that the information you provided is correct, and then create the private endpoint again.Note: If you see the error message \"The endpoint could not be found in GCP. Please verify the endpoint name is correct and is created in the correct GCP project and try again,\" you might have mistyped your private endpoint name, or you may still need to create it. To resolve this, click Edit and make sure the fields are accurate. |\n| Deleted          | You manually deleted the private endpoint from a region in Atlas. You must also delete the private endpoint in Google Cloud to delete resources. Pending deletion of the region group.                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n\nFor each resource that needs to connect to your Atlas clusters using\nGCP Private Service Connect, you must allow outbound traffic to the\nforwarding rule's private IP addresses on all ports (1024-65535).\nSee [Managing Consumer Security For PSC](https://docs.cloud.google.com/vpc/docs/manage-security-private-service-connect-consumers#firewall-rules) for more information.",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "telnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026",
+          "tokenEstimate": 44
+        }
+      ],
+      "slug": "step-2-test-the-connectivity--Azure Private Link",
+      "selections": {
+        "tabs": "Azure Private Link"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Multi-Region Private Endpoints",
+      "headingLevel": 3,
+      "body": "Private endpoints are only available in multi-region clusters if there is a\nnode within each region that the cluster spans that has a private endpoint\nconfigured. To learn more about configuring multi-region private endpoints, see\n[Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl).\n\n**Connection String Indexing for Multi-Region Clusters**\n\nAfter you configure a private endpoint for a new region and deploy cluster\nnodes to that region, you might see the following error when you use\nyour private endpoint to connect to the cluster:\n\n```none\nDNSHostNotFound: Failed to look up service \"<MongoDB service name>\"\n```\n\nThis error occurs when your connection string's index automatically changes\nand your client subsequently restarts, which causes an SRV DNS lookup.\nThe private endpoint connection string for a multi-region cluster uses\nan index of `0`. If your connection string uses a different index, MongoDB\nautomatically updates the connection string to use the `0` index.\n\nFor example, you might configure two private endpoints for a region. If you\nremove the first private endpoint, your connection string uses an index of `1`\nand resembles the following:\n\n```none\nmongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net\n```\n\nThen, suppose you configure a private endpoint for a new region in your\ncluster and subsequently add cluster nodes to that region. Your cluster\nnow includes multiple regions, and your connection string updates to use an\nindex of `0`:\n\n```none\nmongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net\n```\n\nTo avoid potential connectivity issues after your client's next restart,\nconfirm that you are using the zero-indexed private endpoint connection string\nto connect to your cluster. You can access the updated private endpoint connection\nstring from the Atlas UI or API after your cluster changes complete.",
+      "codeBlocks": [
+        {
+          "language": "none",
+          "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
+          "tokenEstimate": 15
+        },
+        {
+          "language": "none",
+          "content": "mongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net",
+          "tokenEstimate": 18
+        },
+        {
+          "language": "none",
+          "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
+          "tokenEstimate": 18
+        }
+      ],
+      "slug": "multi-region-private-endpoints--GCP Private Service Connect",
+      "selections": {
+        "tabs": "GCP Private Service Connect"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Test Connectivity from Your Deployed Application",
+      "headingLevel": 3,
+      "body": "You can use the tools `nslookup` and `telnet` to test the connectivity\nfrom your application to your Private Endpoint in Atlas.",
+      "codeBlocks": [],
+      "slug": "test-connectivity-from-your-deployed-application--GCP Private Service Connect",
+      "selections": {
+        "tabs": "GCP Private Service Connect"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 1: Get the connection details for your  cluster.",
+      "headingLevel": 4,
+      "body": "Run `nslookup` with the `-type=SRV` flag to get the port numbers\nassociated with each of the nodes in your cluster.\n\n**Input:**\n\n```bash\n nslookup -debug -type=SRV _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n```\n\n**Output:**\n\n```bash\nServer:               127.0.2.2\nAddress:      127.0.2.2#53\n\n------------\n   QUESTIONS:\n   _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net, type = SRV, class = IN\n   ANSWERS:\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   AUTHORITY RECORDS:\n   ADDITIONAL RECORDS:\n------------\nNon-authoritative answer:\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n\nAuthoritative answers can be found from:\ntelnet pl-0-us-central1-gcp.j735c.mongodb.net 1024\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": " nslookup -debug -type=SRV _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net",
+          "tokenEstimate": 24
+        },
+        {
+          "language": "bash",
+          "content": "Server:               127.0.2.2\nAddress:      127.0.2.2#53\n\n------------\n   QUESTIONS:\n   _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net, type = SRV, class = IN\n   ANSWERS:\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   AUTHORITY RECORDS:\n   ADDITIONAL RECORDS:\n------------\nNon-authoritative answer:\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n\nAuthoritative answers can be found from:\ntelnet pl-0-us-central1-gcp.j735c.mongodb.net 1024",
+          "tokenEstimate": 369
+        }
+      ],
+      "slug": "step-1-get-the-connection-details-for-your-cluster--GCP Private Service Connect",
+      "selections": {
+        "tabs": "GCP Private Service Connect"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Step 2: Test the connectivity.",
+      "headingLevel": 4,
+      "body": "From your application environment, with one of the listed ports (for example,\n`27017` in the example output above), run the\nfollowing `telnet` command to test connectivity:\n\n```bash\ntelnet pl-0-<xyz>.mongodb.net 27017\n```",
+      "codeBlocks": [
+        {
+          "language": "bash",
+          "content": "telnet pl-0-<xyz>.mongodb.net 27017",
+          "tokenEstimate": 14
+        }
+      ],
+      "slug": "step-2-test-the-connectivity--GCP Private Service Connect",
+      "selections": {
+        "tabs": "GCP Private Service Connect"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Dedicated Clusters",
+      "headingLevel": 2,
+      "body": "To view the status of each private endpoint:\n\n- In Atlas, go to the Database & Network Access page for your project.\n\n  - If it's not already displayed, select the\n    organization that contains your project from the\n    Organizations menu in the navigation bar.\n\n  - If it's not already displayed, select your project\n    from the Projects menu in the navigation bar.\n\n  - In the sidebar, click Database & Network Access under\n    the Security heading.\n\n    The [Database & Network Access](https://cloud.mongodb.com/go?l=https%3A%2F%2Fcloud.mongodb.com%2Fv2%2F%3Cproject%3E%23%2Fsecurity%2Fnetwork%2FaccessList)\n    page displays.\n\n- Click the Private Endpoint tab.\n\n- Review the statuses.\n\n  The Atlas Endpoint Service Status and\n  Endpoint Status fields show the status of each\n  private endpoint.\n\nRefer to the following statuses to help you determine the state of\nyour private endpoint connections:\n\nAtlas Endpoint Service Status\n\n| Status                | Description                                                                                                                            |\n| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the network load balancer and VPC (Virtual Private Cloud) resources.                                                 |\n| Failed                | A system failure has occurred.                                                                                                         |\n| Available             | The Atlas network load balancer and VPC (Virtual Private Cloud) endpoint service are created and ready to receive connection requests. |\n| Deleting              | Atlas is deleting the private endpoint service.                                                                                        |\n\nEndpoint Status\n\n| Status             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |\n| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Not configured     | Atlas created the network load balancer and VPC (Virtual Private Cloud) endpoint service, but AWS (Amazon Web Services) hasn't yet created the interface endpoint. Click Edit and complete the wizard to create the interface endpoint.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |\n| Pending acceptance | AWS (Amazon Web Services) has received the connection request from your interface endpoint to the Atlas VPC (Virtual Private Cloud) endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |\n| Pending            | AWS (Amazon Web Services) is establishing the connection between your interface endpoint and the Atlas VPC (Virtual Private Cloud) endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |\n| Failed             | AWS (Amazon Web Services) failed to establish a connection between Atlas VPC (Virtual Private Cloud) resources and the interface endpoint in your VPC (Virtual Private Cloud). Click Edit, verify that the information you provided is correct, and then create the private endpoint again.IMPORTANT: If your Interface Endpoint fails, you might see the following message:No dns entries found for endpoint vpce-\\<guid>, your endpoint must be provisioned in at least one subnet. Click \"Edit\" to fix the problem.This message indicates that you didn't specify a subnet when you created the AWS PrivateLink connection. To resolve this error:Click Edit.Click Back.Specify at least one subnet.Follow the remaining instructions to create the AWS PrivateLink connection. |\n| Available          | Atlas VPC (Virtual Private Cloud) resources are connected to the interface endpoint in your VPC (Virtual Private Cloud). You can connect to Atlas clusters in this region using AWS PrivateLink.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Deleting           | Atlas is removing the interface endpoint from the private endpoint service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |\n\n- For each resource that needs to connect to your Atlas clusters\n  using AWS PrivateLink, the resource's security group must allow\n  outbound traffic to the [interface endpoint](manual/reference/glossary) private IP addresses on all ports (1024-65535).\n\n  See [Adding Rules to a Security Group](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html#adding-security-group-rule)\n  for more information.\n\n- Your [interface endpoint](manual/reference/glossary) security group must allow inbound\n  traffic on all ports from each resource that needs to connect to\n  your Atlas clusters using AWS PrivateLink.\n\n  [Access List instance IP addresses or security groups](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html#adding-security-group-rule)\n  to allow traffic from them to reach the\n  [interface endpoint](manual/reference/glossary) security group.",
+      "codeBlocks": [],
+      "slug": "dedicated-clusters--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Obtain Private IPs with DNS Lookup",
@@ -24,7 +213,12 @@
           "content": "$ nslookup pl-0-us-east-1.k45tj.mongodb.net\nServer: 127.0.0.53\nAddress: 127.0.0.53#53\n\nNon-authoritative answer:\npl-0-us-east-1.k45tj.mongodb.net\ncanonical name = vpce-024f5b57108c8d3ed-ypwbxwll.vpce-svc-02863655456245e5c.us-east-1.vpce.amazonaws.com.\n\nName: vpce-024f5b57108c8d3ed-ypwbxwll.vpce-svc-02863655456245e5c.us-east-1.vpce.amazonaws.com\nAddress: 10.0.30.194\nName: vpce-024f5b57108c8d3ed-ypwbxwll.vpce-svc-02863655456245e5c.us-east-1.vpce.amazonaws.com\nAddress: 10.0.20.54",
           "tokenEstimate": 220
         }
-      ]
+      ],
+      "slug": "obtain-private-ips-with-dns-lookup--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Connection Refused Because There are Too Many Open Connections",
@@ -41,7 +235,12 @@
           "content": "{\"t\":{\"$date\":\"2025-08-04T19:48:17.649+00:00\"},\"s\":\"I\", \"c\":\"NETWORK\",\n\"id\":22942, \"ctx\":\"listener\",\"msg\":\"Connection refused because there are\ntoo many open connections\",\"attr\":{\"remote\":\"54.172.143.8:33205\",\n\"isLoadBalanced\":false,\"uuid\":{\"uuid\":{\"$uuid\":\"e52e9c14-7648-430a-bc2e-95292347b7e0\"}},\n\"connectionId\":380,\"connectionCount\":58}}",
           "tokenEstimate": 122
         }
-      ]
+      ],
+      "slug": "connection-refused-because-there-are-too-many-open-connections--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Viewing the Client Source IP",
@@ -53,13 +252,23 @@
           "content": "{\"t\":{\"$date\":\"2025-07-21T12:15:42.123+00:00\"},\"s\":\"I\",\"c\":\"NETWORK\",\n\"id\":22943,\"ctx\":\"listener\",\"msg\":\"Connection accepted\",\"attr\":{\"remote\":\"192.168.100.55:31245\",\n\"isLoadBalanced\":true,\"sourceClient\":\"10.50.4.23:50123\",\"uuid\":{\"uuid\":{\"$uuid\":\"12345678-abcd-4321-abcd-87654321abcd\"}},\n\"connectionId\":345,\"connectionCount\":19}}",
           "tokenEstimate": 117
         }
-      ]
+      ],
+      "slug": "viewing-the-client-source-ip--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Gather More Information on the Client Making the Most Connections",
       "headingLevel": 3,
       "body": "Gathering these details requires using the\n[jq tool](manual/reference/log-messages),\nwhich can be downloaded from the [jq website](https://jqlang.github.io/jq/).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "gather-more-information-on-the-client-making-the-most-connections--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Connections created from the client metadata",
@@ -76,7 +285,12 @@
           "content": "1 \"172.31.36.2:32958\"\n1 \"172.31.36.2:52904\"\n1 \"172.31.36.2:52908\"\n1 \"172.31.36.2:52910\"\n1 \"172.31.36.2:52918\"",
           "tokenEstimate": 65
         }
-      ]
+      ],
+      "slug": "connections-created-from-the-client-metadata--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Drivers used by the applications to connect to the cluster",
@@ -103,7 +317,12 @@
           "content": "Driver: ('mongo-go-driver', 'v1.12.0-cloud')\nConnection Opened: 14368\nConnection Closed: 14362\n\nDriver: ('mongo-go-driver', 'v1.12.1')\nConnection Opened: 42056\nConnection Closed: 41958\n\nDriver: ('mongo-java-driver|sync', '4.11.1')\nConnection Opened: 18012\nConnection Closed: 17987\n\nDriver: ('mongo-java-driver|sync', '4.8.2')\nConnection Opened: 3621\nConnection Closed: 3610\n\nDriver: ('nodejs|Mongoose', '4.17.1|6.12.0')\nConnection Opened: 3\nConnection Closed: 1\n\nDriver: ('mongo-go-driver', 'v1.13.0')\nConnection Opened: 23\nConnection Closed: 20\n\nDriver: ('mongo-java-driver|sync|Airbyte', '4.11.0')\nConnection Opened: 75\nConnection Closed: 75\n\nDriver: ('nodejs|Mongoose', '4.17.2|6.13.0')\nConnection Opened: 1\nConnection Closed: 0",
           "tokenEstimate": 250
         }
-      ]
+      ],
+      "slug": "drivers-used-by-the-applications-to-connect-to-the-cluster--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Application names used by client applications to connect to the cluster",
@@ -120,7 +339,12 @@
           "content": "10809   niyo-*******-api\n8616    MongoDB CPS Module v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n7203    niyo-ns*****\n5752    MongoDB Automation Agent v13.17.2.8878 (git: 70c0b932f47f4f0b3e82a75e223f39ed9635b47f)\n3601    *****-auth-service",
           "tokenEstimate": 119
         }
-      ]
+      ],
+      "slug": "application-names-used-by-client-applications-to-connect-to-the-cluster--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Multi-Region Private Endpoints",
@@ -142,13 +366,23 @@
           "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "multi-region-private-endpoints--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Test Connectivity from Your Deployed Application",
       "headingLevel": 3,
       "body": "You can use the tools `nslookup` and `telnet` to test the connectivity\nfrom your application to your Private Endpoint in Atlas.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "test-connectivity-from-your-deployed-application--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Get the connection details for your  cluster.",
@@ -165,148 +399,47 @@
           "content": " Server: 127.0.0.53\n Address: 127.0.0.53#53\n Non-authoritative answer:\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1026 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1024 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1025 pl-0-us-east-1.k45tj.mongodb.net.",
           "tokenEstimate": 143
         }
-      ]
+      ],
+      "slug": "step-1-get-the-connection-details-for-your-cluster--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Test the connectivity.",
       "headingLevel": 4,
-      "body": "From your application environment, with one of the listed ports (for example,\n`1026`, `1024` or `1025` in the example output above), run the\nfollowing `telnet` command to test connectivity:```bash\ntelnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026\n```**Azure Private Link:**Azure Private LinkTo view the status of each private endpoint:The Atlas Endpoint Service Status and\nEndpoint Status fields show the status of each\nprivate endpoint.Refer to the following statuses to help you determine the state of\nyour private endpoint connections:**Atlas Endpoint Service Status**| Status                | Description                                                                                                                             |\n| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the load balancer and VNet resources.                                                                                 |\n| Failed                | A system failure has occurred.                                                                                                          |\n| Available             | Atlas created the load balancer and Azure Private Link Service. The Azure Private Link Service is ready to receive connection requests. |\n| Deleting              | Atlas is deleting the Azure Private Link Service.                                                                                       |**Endpoint Status**| Status         | Description                                                                                                                                                                                                                               |\n| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Not configured | Atlas created the load balancer and Azure Private Link Service, but you haven't created a private endpoint yet. Click Edit and complete the wizard to create the private endpoint.                                                        |\n| Initiating     | Atlas has not yet accepted the connection to your private endpoint.                                                                                                                                                                       |\n| Failed         | Azure (Microsoft Azure) failed to establish a connection between Atlas VNet resources and the private endpoint in your VNet. Click Edit, verify that the information you provided is correct, and then create the private endpoint again. |\n| Available      | Atlas VNet resources are connected to the private endpoint in your VNet. You can connect to Atlas clusters in this region using Azure Private Link.                                                                                       |\n| Deleting       | Atlas is removing the private endpoint connection from the Azure Private Link Service.                                                                                                                                                    |",
+      "body": "From your application environment, with one of the listed ports (for example,\n`1026`, `1024` or `1025` in the example output above), run the\nfollowing `telnet` command to test connectivity:\n\n```bash\ntelnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026\n```\n\nAzure Private Link\n\nTo view the status of each private endpoint:\n\nThe Atlas Endpoint Service Status and\nEndpoint Status fields show the status of each\nprivate endpoint.\n\nRefer to the following statuses to help you determine the state of\nyour private endpoint connections:\n\n**Atlas Endpoint Service Status**\n\n| Status                | Description                                                                                                                             |\n| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the load balancer and VNet resources.                                                                                 |\n| Failed                | A system failure has occurred.                                                                                                          |\n| Available             | Atlas created the load balancer and Azure Private Link Service. The Azure Private Link Service is ready to receive connection requests. |\n| Deleting              | Atlas is deleting the Azure Private Link Service.                                                                                       |\n\n**Endpoint Status**\n\n| Status         | Description                                                                                                                                                                                                                               |\n| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Not configured | Atlas created the load balancer and Azure Private Link Service, but you haven't created a private endpoint yet. Click Edit and complete the wizard to create the private endpoint.                                                        |\n| Initiating     | Atlas has not yet accepted the connection to your private endpoint.                                                                                                                                                                       |\n| Failed         | Azure (Microsoft Azure) failed to establish a connection between Atlas VNet resources and the private endpoint in your VNet. Click Edit, verify that the information you provided is correct, and then create the private endpoint again. |\n| Available      | Atlas VNet resources are connected to the private endpoint in your VNet. You can connect to Atlas clusters in this region using Azure Private Link.                                                                                       |\n| Deleting       | Atlas is removing the private endpoint connection from the Azure Private Link Service.                                                                                                                                                    |",
       "codeBlocks": [
         {
           "language": "bash",
           "content": "telnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026",
           "tokenEstimate": 44
         }
-      ]
-    },
+      ],
+      "slug": "step-2-test-the-connectivity--AWS PrivateLink",
+      "selections": {
+        "tabs": "AWS PrivateLink"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
     {
-      "heading": "Obtain Private IPs with DNS Lookup",
-      "headingLevel": 3,
-      "body": "When a client in your VNet connects to an Atlas cluster using\none of these private endpoint-aware connection strings, the\nclient attempts to establish a connection to the Private Link\nService in the Atlas VNet through the private endpoint's\nnetwork interface. The Private Link service sends traffic through\nan Azure (Microsoft Azure) Standard Load Balancer to the Atlas cluster nodes\nthat you deployed in that region. Your client's DNS (Domain Name System) resolution\nmechanism handles resolving the hostname to the network\ninterface's private IP address. The driver is only aware of the\nhostname in the connection string, listening on one port for each\nnode in the cluster's replica set.\n\n**SRV Record for DNS Seedlist Private Endpoint-Aware Connection Strings**\n\nThe following example shows the SRV record for an\nAzure Private Link-enabled single-region cluster, showing three unique\nports defined for `pl-0-eastus2.uzgh6.mongodb.net`:\n\n```sh\n$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.\n```\n\nIn the preceding example:\n\n- `_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net` is\n  the SRV record that the connection string references.\n\n- `pl-0-eastus2.uzgh6.mongodb.net` is the hostname for\n  each node in one Atlas cluster in one region for which\n  you have configured Azure Private Link.\n\n- `1024`, `1025`, and `1026` are unique ports that\n  Atlas assigns on the load balancer for each Atlas\n  replica set node in the region for which you enabled\n  Azure Private Link. All nodes in an Atlas replica set are\n  accessible via the same hostname, with the load balancer\n  resolving individual nodes by their unique port.\n\n**Hostname DNS Resolution in Private Endpoint-Aware Connection Strings and SRV Records**\n\nThe hostname in the SRV record and the standard connection string\nis a DNS (Domain Name System) `A` record that resolves to the private IP address\nof the private endpoint's network interface.\n\nThe following example shows the DNS (Domain Name System) lookup for the hostname in\nthe SRV record and in the standard connection string:\n\n```sh\n$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4\n```",
-      "codeBlocks": [
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
         {
-          "language": "sh",
-          "content": "$ nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net\n\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1024 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1025 pl-0-eastus2.uzgh6.mongodb.net.\n_mongodb._tcp.cluster0-pl-0.uzgh6.mongodb.net service = 0 0 1026 pl-0-eastus2.uzgh6.mongodb.net.",
-          "tokenEstimate": 166
+          "value": "AWS PrivateLink",
+          "text": "AWS PrivateLink"
         },
         {
-          "language": "sh",
-          "content": "$ nslookup pl-0-eastus2.uzgh6.mongodb.net\nServer:  127.0.0.53\nAddress:  127.0.0.53#53\n\nNon-authoritative answer:\nName:  pl-0-eastus2.uzgh6.mongodb.net\nAddress: 10.0.0.4",
-          "tokenEstimate": 73
-        }
-      ]
-    },
-    {
-      "heading": "Multi-Region Private Endpoints",
-      "headingLevel": 3,
-      "body": "Private endpoints are only available in multi-region clusters if there is a\nnode within each region that the cluster spans that has a private endpoint\nconfigured. To learn more about configuring multi-region private endpoints, see\n[Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl).\n\n**Connection String Indexing for Multi-Region Clusters**\n\nAfter you configure a private endpoint for a new region and deploy cluster\nnodes to that region, you might see the following error when you use\nyour private endpoint to connect to the cluster:\n\n```none\nDNSHostNotFound: Failed to look up service \"<MongoDB service name>\"\n```\n\nThis error occurs when your connection string's index automatically changes\nand your client subsequently restarts, which causes an SRV DNS lookup.\nThe private endpoint connection string for a multi-region cluster uses\nan index of `0`. If your connection string uses a different index, MongoDB\nautomatically updates the connection string to use the `0` index.\n\nFor example, you might configure two private endpoints for a region. If you\nremove the first private endpoint, your connection string uses an index of `1`\nand resembles the following:\n\n```none\nmongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net\n```\n\nThen, suppose you configure a private endpoint for a new region in your\ncluster and subsequently add cluster nodes to that region. Your cluster\nnow includes multiple regions, and your connection string updates to use an\nindex of `0`:\n\n```none\nmongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net\n```\n\nTo avoid potential connectivity issues after your client's next restart,\nconfirm that you are using the zero-indexed private endpoint connection string\nto connect to your cluster. You can access the updated private endpoint connection\nstring from the Atlas UI or API after your cluster changes complete.",
-      "codeBlocks": [
-        {
-          "language": "none",
-          "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
-          "tokenEstimate": 15
+          "value": "Azure Private Link",
+          "text": "Azure Private Link"
         },
         {
-          "language": "none",
-          "content": "mongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net",
-          "tokenEstimate": 18
-        },
-        {
-          "language": "none",
-          "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
-          "tokenEstimate": 18
-        }
-      ]
-    },
-    {
-      "heading": "Test Connectivity from Your Deployed Application",
-      "headingLevel": 3,
-      "body": "You can use the tools `nslookup` and `telnet` to test the connectivity\nfrom your application to your Private Endpoint in Atlas.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 1: Get the connection details for your  cluster.",
-      "headingLevel": 4,
-      "body": "Run `nslookup` with the `-type=SRV` flag to get the port numbers\nassociated with each of the nodes in your cluster.\n\n**Input:**\n\n```bash\n nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net\n```\n\n**Output:**\n\n```bash\n Server: 127.0.0.53\n Address: 127.0.0.53#53\n Non-authoritative answer:\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1026 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1024 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1025 pl-0-us-east-1.k45tj.mongodb.net.\n```",
-      "codeBlocks": [
-        {
-          "language": "bash",
-          "content": " nslookup -type=SRV _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net",
-          "tokenEstimate": 22
-        },
-        {
-          "language": "bash",
-          "content": " Server: 127.0.0.53\n Address: 127.0.0.53#53\n Non-authoritative answer:\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1026 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1024 pl-0-us-east-1.k45tj.mongodb.net.\n _mongodb._tcp.cluster0-pl-0.k45tj.mongodb.net service = 0 0 1025 pl-0-us-east-1.k45tj.mongodb.net.",
-          "tokenEstimate": 143
-        }
-      ]
-    },
-    {
-      "heading": "Step 2: Test the connectivity.",
-      "headingLevel": 4,
-      "body": "From your application environment, with one of the listed ports (for example,\n`1026`, `1024` or `1025` in the example output above), run the\nfollowing `telnet` command to test connectivity:```bash\ntelnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026\n```**GCP Private Service Connect:**GCP Private Service ConnectTo view the status of each private endpoint:The Atlas Endpoint Service Status and\nEndpoint Status fields show the status of each\nprivate endpoint.Refer to the following statuses to help you determine the state of\nyour private endpoint connections:Atlas Endpoint Service Status| Status                | Description                                                                                                                                                     |\n| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Creating private link | Atlas is creating the network load balancer and VPC (Virtual Private Cloud) resources.                                                                          |\n| Failed                | A system failure has occurred.                                                                                                                                  |\n| Available             | Atlas created the network load balancer and VPC (Virtual Private Cloud) endpoint service. The private endpoint service is ready to receive connection requests. |\n| Deleting              | Atlas is deleting the private endpoint service.                                                                                                                 |Endpoint Status| Status           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Initiating       | Atlas is not yet connected to your private endpoint and has not yet accepted the endpoints.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |\n| Waiting for User | VPC (Virtual Private Cloud) resources on Atlas are ready for use. You must set up the endpoints within your VPC (Virtual Private Cloud) by running the shell script.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |\n| Verified         | Atlas verified the endpoints within your VPC (Virtual Private Cloud) but has not yet accepted the private endpoint in your Google Cloud VPC (Virtual Private Cloud). It might take several minutes for the Endpoint Status to become Available.                                                                                                                                                                                                                                                                                                                                                                                      |\n| Available        | The Atlas VPC (Virtual Private Cloud) resources are connected to the private endpoint in your Google Cloud VPC (Virtual Private Cloud). Atlas has accepted the endpoints. You can connect to Atlas clusters in this region using GCP Private Service Connect.                                                                                                                                                                                                                                                                                                                                                                        |\n| Active           | Atlas is ready to use VPC (Virtual Private Cloud) resources. Atlas has accepted the endpoints. A VM is assigned to the private service connection.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |\n| Failed           | Google Cloud failed to establish a connection between Atlas VPC (Virtual Private Cloud) resources and the private endpoint in your Google Cloud VPC (Virtual Private Cloud). Click Edit, verify that the information you provided is correct, and then create the private endpoint again.Note: If you see the error message \"The endpoint could not be found in GCP. Please verify the endpoint name is correct and is created in the correct GCP project and try again,\" you might have mistyped your private endpoint name, or you may still need to create it. To resolve this, click Edit and make sure the fields are accurate. |\n| Deleted          | You manually deleted the private endpoint from a region in Atlas. You must also delete the private endpoint in Google Cloud to delete resources. Pending deletion of the region group.                                                                                                                                                                                                                                                                                                                                                                                                                                               |For each resource that needs to connect to your Atlas clusters using\nGCP Private Service Connect, you must allow outbound traffic to the\nforwarding rule's private IP addresses on all ports (1024-65535).\nSee [Managing Consumer Security For PSC](https://docs.cloud.google.com/vpc/docs/manage-security-private-service-connect-consumers#firewall-rules) for more information.",
-      "codeBlocks": [
-        {
-          "language": "bash",
-          "content": "telnet pl-0-<xyz>.mongodb.net 1024\ntelnet pl-0-<xyz>.mongodb.net 1025\ntelnet pl-0-<xyz>.mongodb.net 1026",
-          "tokenEstimate": 44
-        }
-      ]
-    },
-    {
-      "heading": "Multi-Region Private Endpoints",
-      "headingLevel": 3,
-      "body": "Private endpoints are only available in multi-region clusters if there is a\nnode within each region that the cluster spans that has a private endpoint\nconfigured. To learn more about configuring multi-region private endpoints, see\n[Regionalized Private Endpoints for Multi-Region Sharded Clusters](atlas_regionalized-pl).\n\n**Connection String Indexing for Multi-Region Clusters**\n\nAfter you configure a private endpoint for a new region and deploy cluster\nnodes to that region, you might see the following error when you use\nyour private endpoint to connect to the cluster:\n\n```none\nDNSHostNotFound: Failed to look up service \"<MongoDB service name>\"\n```\n\nThis error occurs when your connection string's index automatically changes\nand your client subsequently restarts, which causes an SRV DNS lookup.\nThe private endpoint connection string for a multi-region cluster uses\nan index of `0`. If your connection string uses a different index, MongoDB\nautomatically updates the connection string to use the `0` index.\n\nFor example, you might configure two private endpoints for a region. If you\nremove the first private endpoint, your connection string uses an index of `1`\nand resembles the following:\n\n```none\nmongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net\n```\n\nThen, suppose you configure a private endpoint for a new region in your\ncluster and subsequently add cluster nodes to that region. Your cluster\nnow includes multiple regions, and your connection string updates to use an\nindex of `0`:\n\n```none\nmongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net\n```\n\nTo avoid potential connectivity issues after your client's next restart,\nconfirm that you are using the zero-indexed private endpoint connection string\nto connect to your cluster. You can access the updated private endpoint connection\nstring from the Atlas UI or API after your cluster changes complete.",
-      "codeBlocks": [
-        {
-          "language": "none",
-          "content": "DNSHostNotFound: Failed to look up service \"<MongoDB service name>\"",
-          "tokenEstimate": 15
-        },
-        {
-          "language": "none",
-          "content": "mongodb+srv://cluster1-psc-0.4uyx2d.mongodb.net",
-          "tokenEstimate": 18
-        },
-        {
-          "language": "none",
-          "content": "mongodb+srv://cluster1-psc-1.4uyx2d.mongodb.net",
-          "tokenEstimate": 18
-        }
-      ]
-    },
-    {
-      "heading": "Test Connectivity from Your Deployed Application",
-      "headingLevel": 3,
-      "body": "You can use the tools `nslookup` and `telnet` to test the connectivity\nfrom your application to your Private Endpoint in Atlas.",
-      "codeBlocks": []
-    },
-    {
-      "heading": "Step 1: Get the connection details for your  cluster.",
-      "headingLevel": 4,
-      "body": "Run `nslookup` with the `-type=SRV` flag to get the port numbers\nassociated with each of the nodes in your cluster.\n\n**Input:**\n\n```bash\n nslookup -debug -type=SRV _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n```\n\n**Output:**\n\n```bash\nServer:               127.0.2.2\nAddress:      127.0.2.2#53\n\n------------\n   QUESTIONS:\n   _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net, type = SRV, class = IN\n   ANSWERS:\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   AUTHORITY RECORDS:\n   ADDITIONAL RECORDS:\n------------\nNon-authoritative answer:\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n\nAuthoritative answers can be found from:\ntelnet pl-0-us-central1-gcp.j735c.mongodb.net 1024\n```",
-      "codeBlocks": [
-        {
-          "language": "bash",
-          "content": " nslookup -debug -type=SRV _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net",
-          "tokenEstimate": 24
-        },
-        {
-          "language": "bash",
-          "content": "Server:               127.0.2.2\nAddress:      127.0.2.2#53\n\n------------\n   QUESTIONS:\n   _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net, type = SRV, class = IN\n   ANSWERS:\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   ->  _mongodb._tcp.cluster1-psc-0.j735c.mongodb.net\n   service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n   ttl = 60\n   AUTHORITY RECORDS:\n   ADDITIONAL RECORDS:\n------------\nNon-authoritative answer:\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1024 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1025 pl-0-us-central1-gcp.j735c.mongodb.net.\n_mongodb._tcp.cluster1-psc-0.j735c.mongodb.net        service = 0 0 1026 pl-0-us-central1-gcp.j735c.mongodb.net.\n\nAuthoritative answers can be found from:\ntelnet pl-0-us-central1-gcp.j735c.mongodb.net 1024",
-          "tokenEstimate": 369
-        }
-      ]
-    },
-    {
-      "heading": "Step 2: Test the connectivity.",
-      "headingLevel": 4,
-      "body": "From your application environment, with one of the listed ports (for example,\n`27017` in the example output above), run the\nfollowing `telnet` command to test connectivity:\n\n```bash\ntelnet pl-0-<xyz>.mongodb.net 27017\n```",
-      "codeBlocks": [
-        {
-          "language": "bash",
-          "content": "telnet pl-0-<xyz>.mongodb.net 27017",
-          "tokenEstimate": 14
+          "value": "GCP Private Service Connect",
+          "text": "GCP Private Service Connect"
         }
       ]
     }

@@ -7,259 +7,371 @@
       "heading": "Select the MongoDB Version of the Cluster",
       "headingLevel": 2,
       "body": "The following table lists the versions of MongoDB that are available\nfor each cluster type.\n\n| MongoDB Version                   | Available on M10+ | Available on M0 and Flex Clusters |\n| --------------------------------- | ----------------- | --------------------------------- |\n| MongoDB 7.0                       |                   |                                   |\n| MongoDB 8.0                       |                   |                                   |\n| Latest Version With Auto Upgrades |                   |                                   |\n\nTo select the MongoDB version for your cluster, use the\ndropdown in the Additional Settings section\nof the cluster form.\n\nTo use the [latest](manual/reference/versioning)\nMongoDB version, select Latest Version With Auto Upgrades. You\ncan't select a specific minor release or patch release.\n\n> **Important:** Do not choose Latest Version With Auto Upgrades.\n> This option auto upgrades your cluster to the latest minor release.\n> Some minor releases, such as MongoDB version 8.2, may not support Live\n> Migration or Mongosync. When [upgrading](major-version-upgrade-procedure),\n> choose a major version to ensure compatibility with Live Migration and Mongosync.\n\nAs new patch releases become available, Atlas upgrades to\nthese releases via a rolling process to maintain cluster\navailability. During the upgrade to the next minor release version,\nthe cluster card in the Atlas UI Database\nDeployments page might show the FCV of your cluster\ninstead of the MongoDB version to reflect the features that are\ncurrently available on your cluster.\n\nTo learn more about how Atlas handles end of life of major\nMongoDB versions, see [What happens to Atlas clusters using a MongoDB version nearing end of life?](atlas-eol-upgrade)\n\nYou can upgrade an existing Atlas cluster to a newer major\nMongoDB version, if available, when you\n[modifying the cluster](scale-cluster-version). However, you\ncan't downgrade a cluster from one major version to a previous\nmajor version.\n\n> **Important:** Before you upgrade your cluster, refer to the current\n> recommended best practices for major version upgrades.\n\n> **Important:** If your project contains a [custom roles](mongodb-roles)\n> that uses actions introduced in a specific MongoDB version, you\n> can't create a cluster with a MongoDB version less than that\n> version unless you delete the custom role.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "select-the-mongodb-version-of-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Choosing a Release Cadence",
       "headingLevel": 3,
       "body": "Starting with MongoDB 8.2, two release cadence options are available for\nAtlas Dedicated clusters:\n\n- Major Versions: You can choose to stay on a specific major version\n  such as MongoDB 8.0. Clusters on major versions receive bug fixes\n  and security patches. You must manually upgrade clusters before\n  their End of Life (EOL). Otherwise, Atlas automatically upgrades\n  clusters to the latest supported major version after EOL.\n\n- Latest Version with Auto-Upgrade: If you set your cluster to this\n  release option, it receives automatic upgrades to the latest available\n  MongoDB major or minor version and enables new features.\n\n  To learn more about manually upgrading your Atlas cluster,\n  see [upgrade your cluster to MongoDB 8.0](upgrade-major-MongoDB-version).\n\n> **Note:** You cannot choose a release option for clusters on the Free and Flex\n> tiers as these clusters are automatically upgraded.\n\nYou can revert a cluster that follows the minor version cadence to\nthe major version cadence by selecting the most recent major version\nfrom the **Select a Version** dropdown menu. However, you can\nonly do this before the first minor version release of the major version\nis available. After a cluster updates from a major version to a minor\nversion, you cannot revert the cluster until the next major version\nrelease.\n\nTo learn more about MongoDB versions, see [MongoDB Versioning](manual/reference/versioning).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "choosing-a-release-cadence",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Backup Options for the Cluster",
       "headingLevel": 2,
       "body": "This section describes the backup configuration options for your\nAtlas cluster. To learn about Atlas backups in more\ndetail, see [Cloud Backup](backup-cloud-provider).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-backup-options-for-the-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Backup Options for Flex clusters",
       "headingLevel": 3,
       "body": "Atlas automatically enables backups for Flex clusters\nand you can't disable them. To learn more, see\n[Flex Cluster Backups](flex-snapshots).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "backup-options-for-flex-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "M10+ Tier Backup Options",
       "headingLevel": 3,
       "body": "To enable Cloud Backup for an `M10+` Atlas cluster, set\nthe Turn on Cloud Backup toggle to On. When\nenabled, Atlas takes snapshots of your databases at regular\nintervals and retains them according to your project's [base snapshot schedule](cloud-provider-retention-policy).\n\nTo disable Cloud Backup for an `M10+` Atlas cluster, set the\nTurn on Cloud Backup toggle to Off. This\nalso disables Continuous Cloud Backup for the cluster. To retain any existing\nsnapshots after Cloud Backup is disabled, set the Keep\nexisting snapshots after backups disabled? toggle to On\nbefore you apply your changes to the cluster. This option instructs\nAtlas to retain the existing snapshots and [oplog](manual/reference/glossary) for the\ncluster according to your cluster's [cluster-level backup policy](configure-backup-policy).\n\n> **Note:** If you have a [Backup Compliance Policy enabled](backup-compliance-policy) enabled, you\n> can't disable Cloud Backup. If the Backup Compliance Policy has the\n> **Require Point in Time Restore to all clusters** option set\n> to **On**, then you also can't disable Continuous Cloud Backup\n> without assistance from MongoDB Support. To disable Continuous Cloud Backup,\n> the security or legal representative specified for the Backup Compliance Policy must\n> [MongoDB Support](request-support) and complete a verification\n> process.\n\nAtlas provides the following backup options for `M10+`\nclusters:\n\n| Backup Option           | Description                                                                                                                                                                                                                  |\n| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| Cloud Backup            | Atlas takes incremental snapshots of the data in your cluster and lets you restore the data from those snapshots. Atlas stores snapshots in the same cloud provider region as the replica set member targeted for snapshots. |\n| Continuous Cloud Backup | After Atlas restores a snapshot, Atlas replays the oplog to restore a cluster from a particular point in time within a window specified in the backup policy.                                                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "m10-tier-backup-options",
+      "variantAgnostic": true
     },
     {
       "heading": "Termination Protection",
       "headingLevel": 2,
       "body": "To enable **Termination Protection** for a cluster, toggle\n**Termination Protection** to **Yes**.\n\nIf enabled, Atlas prevents users from deleting the\ncluster. To delete a cluster that has termination protection\nenabled, you must first disable termination protection. By default,\nAtlas disables termination protection for\nall clusters.\n\nTo learn more about terminating your cluster, see [Terminate active clusters](terminate-cluster).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "termination-protection",
+      "variantAgnostic": true
     },
     {
       "heading": "Deploy a Sharded Cluster",
       "headingLevel": 2,
       "body": "> **Tip:**&#x20;\n>\n> You can configure [Online Archives](online-archive-overview) to\n> move infrequently accessed data from your Atlas cluster to a\n> MongoDB-managed read-only federated database instance instead of sharding your collection\n> or upgrading your cluster tier. To learn more about Online Archive, see\n> [Manage Online Archives](manage-online-archive).\n\nTo deploy your cluster as a [sharded cluster](manual/reference/glossary),\ntoggle **Shard your cluster (M30 and up)** to `Yes`.\n\n[sharded cluster](manual/reference/glossary) support horizontal scaling\nand consist of [shards](manual/core/sharded-cluster-shards),\n[config servers](manual/core/sharded-cluster-config-servers) and\n[mongos](manual/reference/glossary) routers.  To learn more, see\n[About Config Servers Deployment](nodes-for-config-server). Config servers must remain readable for sharded read operations to continue to function.\n\nIf you enable Atlas-managed config servers, Atlas may colocate config server\ndata with application data instead of using a dedicated config server.\nTo learn more, see [Atlas-Managed Config Servers for Sharded Clusters](config-server-management).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "deploy-a-sharded-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "About Shard Deployment",
       "headingLevel": 3,
       "body": "Atlas deploys each [shard](manual/core/sharded-cluster-shards)\nas a three-node replica set, where each node deploys using the\nconfigured **Cloud Provider & Region**,\n**Cluster Tier**, and **Additional Settings**.\nAtlas deploys one [mongod](manual/reference/program/mongod) per shard node.\n\nFor cross-region clusters, the number of nodes per shard\nis equal to the total number of electable and read-only nodes across\nall configured regions. Atlas distributes the shard nodes across\nthe selected regions.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-shard-deployment",
+      "variantAgnostic": true
     },
     {
       "heading": "About Config Servers Deployment",
       "headingLevel": 3,
       "body": "For dedicated config servers, Atlas deploys the [config servers](manual/core/sharded-cluster-config-servers)\nas a three-node replica set. The config servers run on M30 cluster\ntiers. In multi-region clusters, config servers are distributed\nacross regions.\n\nFor cross-region clusters, Atlas distributes the config server\nreplica set nodes to ensure optimal availability. For example,\nAtlas might deploy the config servers across three distinct\navailability zones and three distinct regions if supported by\nthe selected cloud service provider and region configuration. Config\nservers must remain readable for sharded read operations to continue to\nfunction. To learn more, see [Config Server Availability](manual/core/sharded-cluster-config-servers).\n\nIf you enable Atlas-managed config servers, Atlas may colocate config server\ndata with application data instead of using a dedicated config server.\nTo learn more, see [Atlas-Managed Config Servers for Sharded Clusters](config-server-management).\n\nA regional outage or regional outage simulation that affects the\nhighest priority regions in a sharded cluster could cause the\ncluster to become inoperable for read operations. To restore the config\nservers, do the following:\n\n- Configure a [read preference](manual/core/read-preference) that is\n  suitable for querying secondary nodes for reads.\n\n- [Reconfigure a Replica Set During a Regional Outage](reconfigure-rs-during-regional-outage) the\n  cluster for regaining electable nodes.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-config-servers-deployment",
+      "variantAgnostic": true
     },
     {
       "heading": "About mongos Deployment",
       "headingLevel": 3,
       "body": "Atlas deploys one [mongos](manual/reference/program/mongos) router for each\nnode in each shard. For cross-region clusters, this allows clients\nusing a MongoDB driver to connect to the geographically \"nearest\"\n[mongos](manual/reference/program/mongos).\n\nTo calculate the number of [mongos](manual/reference/program/mongos)\nrouters in a cluster, multiply the number of shards by the number of\nreplica set nodes per shard.\n\nYou cannot convert a sharded cluster deployment to a replica set\ndeployment.\n\nTo learn more about how the number of server instances affect cost, see\n[Number of Nodes](server-number-costs).\n\nTo learn more about sharded clusters, see\n[Sharding](manual/sharding) in the MongoDB manual.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-mongos-deployment",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure the Number of Shards",
       "headingLevel": 3,
       "body": "This field is visible only if the deployment is a sharded cluster.\n\nYour cluster can have between 1 and 70 shards, inclusive.\n\nTo scale up a replica set to a multi-sharded cluster,\nyou must scale up to a **single** shard cluster first,\nrestart your application and **reconnect to the cluster**, and then add\nadditional shards.\n\nIf you don't reconnect the application clients, your application may suffer\nfrom data outages.\n\nAfter you scale up a replica set cluster to a single-shard cluster,\nyou can set the number of shards to deploy with the sharded cluster.\n\nIf you are reducing the number of shards in your sharded cluster,\nAtlas removes shards in descending order based on the number in the\n`\"_id\"` field (see [Sharded Cluster Configuration](manual/tutorial/view-sharded-cluster-configuration)).\nFor example, consider a sharded cluster with the following three shards:\n\n- `\"shard0\"`\n\n- `\"shard1\"`\n\n- `\"shard2\"`\n\nIf you set the number of shards to two, Atlas\nremoves `\"shard2\"` from the cluster.\n\nIMPORTANT: When you remove a shard in 8.0, Atlas uses the\n[moveCollection](manual/reference/command/moveCollection) command to move any unsharded collections in\nthat shard to a remaining shard. All unsharded collections remain online\nduring this process.\n\n- All sharded collections remain online and available during the shard removal\n  process. You must turn on the balancer to drain the sharded collections from\n  the removed shard.\n\n- Atlas moves any unsharded collections that can't be drained by `moveCollection` command\n  by using the [movePrimary](manual/reference/command/movePrimary) command. To learn more about\n  the limitations of `moveCollection`, see [Restrictions](manual/reference/command/moveCollection).\n  `movePrimary` is an offline operation.\n\n- For more information about shard removal, see\n  [Remove Shards from a Sharded Cluster](manual/tutorial/remove-shards-from-cluster).\n\nDon't create a sharded cluster with a single shard for production\nenvironments. Single-shard sharded clusters don't provide the same\nbenefits as multi-shard configurations. After you create a single-shard\ncluster, restart your application, reconnect to the cluster,\nand then add more shards to your cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-the-number-of-shards",
+      "variantAgnostic": true
     },
     {
       "heading": "Consideration for Upgrading a Replica Set to a Sharded Cluster",
       "headingLevel": 3,
       "body": "If your cluster tier is `M30` or higher, you can upgrade\nyour replica set deployment to a sharded cluster deployment.\n\nTo scale up a replica set to a multi-sharded cluster,\nyou must scale up to a **single** shard cluster first,\nrestart your application and **reconnect to the cluster**, and then add\nadditional shards.\n\nIf you don't restart the application clients, your data might be inconsistent\nonce Atlas begins distributing data across shards.\n\nIf you don't reconnect the application clients, your application may suffer\nfrom data outages.\n\n- If you are using a\n  [DNS Seed List](manual/reference/connection-string)\n  connection string, your application automatically connects to the\n  [mongos](manual/reference/program/mongos) for your sharded cluster.\n\n- If you are using a\n  [standard connection string](manual/reference/connection-string),\n  you must update your connection string to reflect your new cluster\n  topology.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "consideration-for-upgrading-a-replica-set-to-a-sharded-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable BI Connector for Atlas",
       "headingLevel": 2,
       "body": "> **Important:** The MongoDB Connector for Business Intelligence for Atlas and on-premises reaches end-of-life (EOL) and will no longer be supported after September 2026.\n> For all new projects, we recommend using the new MongoDB SQL Interface to\n> connect to Atlas or Enterprise Advanced deployments.\n> The SQL Interface offers improved performance, a simplified setup, and enhanced\n> features. To learn more, see [Connect With SQL](sql-interface).\n\nTo enable [BI Connector for Atlas](bi-connector/master) for this\ncluster, toggle **Enable Business Intelligence Connector\n(M10 and up)** to **Yes**.\n\n> **Note:**&#x20;\n>\n> The MongoDB Connector for Business Intelligence for Atlas (BI Connector) is only available for `M10` and\n> larger clusters.\n>\n> The BI Connector is a powerful tool which provides users\n> SQL-based access to their MongoDB databases. As a result, the\n> BI Connector performs operations which may be CPU and memory\n> intensive. Given the limited hardware resources on `M10` and\n> `M20` cluster tiers, you may experience performance degradation of\n> the cluster when enabling the BI Connector. If this occurs,\n> scale up to an `M30` or larger cluster or disable the\n> BI Connector.\n\nIf enabled, select the node type from which BI Connector for Atlas\nshould read.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-bi-connector-for-atlas",
+      "variantAgnostic": true
     },
     {
       "heading": "Read Preferences",
       "headingLevel": 3,
       "body": "The following table describes the available read preferences for\nBI Connector and their corresponding\n[readPreference](manual/reference/read-preference) and\n[readPreferenceTag](manual/core/read-preference-tags)\nconnection string options.\n\n| BI Connector Read Preference | Description                 | readPreference | readPreferenceTags                                      |\n| ---------------------------- | --------------------------- | -------------- | ------------------------------------------------------- |\n| Primary                      | Read from the primary node. | primary        | None                                                    |\n| Secondary                    | Read from secondary nodes.  | secondary      | \\{ nodeType : ELECTABLE } or \\{ nodeType : READ\\_ONLY } |\n| Analytics                    | Read from analytics nodes.  | secondary      | \\{ nodeType : ANALYTICS }                               |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "read-preferences",
+      "variantAgnostic": true
     },
     {
       "heading": "Node Types",
       "headingLevel": 4,
       "body": "The `nodeType` read preference tag dictates the type of node BI Connector for Atlas\nconnects to. You can specify the following values for this option:\n\n- `ELECTABLE` restricts BI Connector to the [primary](manual/reference/glossary) and\n  electable [secondary](manual/reference/glossary) nodes.\n\n- `READ_ONLY` restricts BI Connector to connecting to\n  non-electable [secondary](manual/reference/glossary) nodes.\n\n- `ANALYTICS` restricts BI Connector to connecting to\n  [analytics nodes](analytics-nodes-overview).\n\n  > **Tip:** When you use the **Analytics** read preference, Atlas\n  > places BI Connector for Atlas on the same hardware as the analytics nodes that\n  > BI Connector for Atlas reads from.\n  >\n  > By isolating electable data-bearing nodes from the BI Connector for Atlas, electable\n  > nodes don't compete for resources with BI Connector for Atlas, thus improving\n  > cluster reliability and performance.\n\nFor high traffic production environments, connecting to the\n**Secondary Node(s)** or **Analytics Node(s)** may\nbe preferable to connecting to the **Primary Node**.\n\nFor clusters with one or more\n[analytics nodes](analytics-nodes-overview), select\n**Analytics Node** to isolate BI Connector for Atlas queries from\nyour operational workload and read from dedicated, read-only\nanalytics nodes. With this option, electable nodes don't compete\nfor resources with BI Connector for Atlas, thus improving cluster reliability and\nperformance.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "node-types",
+      "variantAgnostic": true
     },
     {
       "heading": "Sampling Settings",
       "headingLevel": 3,
       "body": "To generate a relational schema, the BI Connector requires\n[sampling data](bi-connector/schema/cached-sampling) from MongoDB.\n\nYou can't use a `.drdl` file, or use the [mongodrdl](bi-connector/reference/mongodrdl)\ncommand to replace the sampling stage in the Atlas BI Connector.\n\nYou can configure the following sampling settings:\n\n| BI Connector Option     | Type    | Description                                                                                                                                                              |\n| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |\n| Schema Sample Size      | integer | Optional. The number of documents that the BI Connector samples for each database when it gathers schema information. To learn more, see the BI Connector documentation. |\n| Sample Refresh Interval | integer | Optional. The frequency, in seconds, at which the BI Connector re-samples data to recreate the schema.To learn more, see the BI Connector documentation.                 |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "sampling-settings",
+      "variantAgnostic": true
     },
     {
       "heading": "Manage Your Own Encryption Keys",
       "headingLevel": 2,
       "body": "> **Note:** This feature is not available for Free clusters and\n> Flex clusters. To learn more about which features are\n> unavailable, see [M0 Cluster Limits](atlas-free-tier).\n\nAtlas encrypts all cluster storage and snapshot volumes,\nensuring the security of all cluster data at rest\n(Encryption at Rest). Atlas\n[Project Owner](<Project Owner>) can configure\nan added layer of encryption on their data at rest using the\nMongoDB [Encrypted Storage Engine](manual/core/security-encryption-at-rest)\nand their Atlas-compatible Encryption at Rest provider.\n\nAtlas supports the following Encryption at Rest providers:\n\n- [Amazon Web Services Key Management Service](security-aws-kms)\n\n- [Manage Customer Keys with Azure Key Vault](security-azure-kms)\n\n- [Google Cloud Platform Key Management Service](security-gcp-kms)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "manage-your-own-encryption-keys",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 3,
       "body": "- You must configure the Atlas project for Encryption at Rest\n  using your Key Management before you enable the feature for your\n  Atlas clusters. To learn more,\n  see [Encryption at Rest using Customer Key Management](security-kms-encryption).\n\n- To switch from one Encryption at Rest provider on your\n  cluster to another, you must first disable Encryption at Rest for\n  your cluster, then re-enable it with your desired Encryption at\n  Rest provider. To learn more, see Encryption at Rest using Customer Key Management.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Procedure",
       "headingLevel": 3,
       "body": "To start managing your own encryption keys for this cluster,\ntoggle **Encryption using your Key Management (M10 and up)**\nto **Yes**.\n\nAtlas Encryption at Rest using your Key Management is available for\n`M10+` replica set clusters. Atlas Encryption\nat Rest supports encrypting [Cloud Backup](backup-cloud-provider) **only**.\n\nManaging your own encryption keys incurs an increase to the hourly run\ncosts of your clusters. To learn more about Atlas billing for\nadvanced security features, see [Advanced Security](advanced-security).\n\n> **Important:** If Atlas can't access the Atlas project key management\n> provider or the encryption key used to encrypt a cluster,\n> that cluster becomes inaccessible and unrecoverable. Exercise\n> extreme caution before you modify, delete, or disable an\n> encryption key or the key management provider credentials that\n> Atlas uses.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "procedure",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Additional Options",
       "headingLevel": 2,
       "body": "You can configure the following mongod runtime options on `M10+`\npaid tier clusters.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-additional-options",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "Atlas dynamically modifies the **Oplog Size** for replica\nsets and sharded clusters. However, for the **Minimum TLS\nProtocol Version** and **Allow Server-Side JavaScript**\nsettings, it performs a rolling restart of the shard members\nand the config server replica set. To learn more about how Atlas\nsupports high availability during maintenance operations, see\n[Atlas High Availability](high-availability).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "View and Edit Additional Settings",
       "headingLevel": 3,
-      "body": "To view and edit these settings:**Atlascli:**Atlas CLITo update the advanced configuration settings for one cluster using the\nAtlas CLI, run the following command:```sh\n\natlas clusters advancedSettings update <clusterName> [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters advancedSettings update](atlas/cli/current/command/atlas-clusters-advancedSettings-update).**Ui:**Atlas UITo view and edit these settings with the Atlas UI, open the\n**More Configuration Options** under\n**Additional Settings** in the cluster form.",
+      "body": "To view and edit these settings:\n\nAtlas CLI\n\nTo update the advanced configuration settings for one cluster using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters advancedSettings update <clusterName> [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters advancedSettings update](atlas/cli/current/command/atlas-clusters-advancedSettings-update).\n\nAtlas UI",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas clusters advancedSettings update <clusterName> [options]\n",
           "tokenEstimate": 14
         }
-      ]
+      ],
+      "slug": "view-and-edit-additional-settings",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View and Edit Additional Settings",
+      "headingLevel": 3,
+      "body": "To view and edit these settings with the Atlas UI, open the\n**More Configuration Options** under\n**Additional Settings** in the cluster form.",
+      "codeBlocks": [],
+      "slug": "view-and-edit-additional-settings--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Enable Faster Cross-Region Initial Sync for AWS Clusters",
       "headingLevel": 3,
       "body": "To add or replace a node in an Atlas cluster, Atlas performs\na [cloud-based initial sync](cloud-based-initial-sync), which leverages your\ncloud provider's native capabilities to create a snapshot of a source\nnode's data and restore it to the new node.\n\nWhen you enable this setting, Atlas uses [AWS time-based snapshot\ncopies](https://docs.aws.amazon.com/ebs/latest/userguide/time-based-copies.html)\nto perform Cloud-based initial syncs for destination AWS (Amazon Web Services) nodes that are in a different\nAWS (Amazon Web Services) region than the source node. Atlas prioritizes restoring\nfrom a primary node over secondary nodes to maximize data freshness.\nTime-based snapshot copy operations can achieve a maximum copy operation\nthroughput of 500 MiB/s. Atlas will always maximize the throughput\nby adjusting the copy operation completion time based on the size of the\nsnapshot.\n\nCross-region Cloud-based initial sync is available for AWS (Amazon Web Services) clusters only. For\nMicrosoft Azure and Google Cloud clusters, Cloud-based initial sync is only available when adding or\nreplacing nodes in the same region as the source node. You can add or\nreplace nodes in your cluster when you [edit the cluster configuration](edit-cluster-atlas).\n\nThis setting can be enabled only for clusters that contain at least\none AWS (Amazon Web Services) node. All clusters are opted out by default. If you remain\nopted out, Atlas will use AWS (Amazon Web Services)'s native [non-time-based\nsnapshot copy method](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-copy-snapshot.html)\nto perform cross-region Cloud-based initial syncs for AWS (Amazon Web Services) nodes.\nNon-time-based snapshot copies are likely to be much slower than\ntime-based snapshot copies.\n\nEnabling faster time-based cross-region initial syncs incurs additional\ncosts from AWS (Amazon Web Services). To learn more about AWS (Amazon Web Services) snapshot pricing, see the\n[Amazon EBS pricing page](https://docs.aws.amazon.com/ebs/latest/userguide/time-based-copies.html#time-based-copies-pricing).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-faster-cross-region-initial-sync-for-aws-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Minimum Oplog Window",
       "headingLevel": 3,
       "body": "Modify the retention duration for oplog entries in the\n[oplog](manual/reference/glossary) of the cluster. By default, Atlas retains entries\nfor 24 hours before the mongod removes them from the oplog.\n\nThis option corresponds to modifying the\n[storage.oplogMinRetentionHours](manual/reference/configuration-options) configuration file option\nfor each mongod in the cluster.\n\nTo set the minimum oplog window:\n\n- Verify that storage auto-scaling is enabled and that you didn't opt\n  out of it. Atlas enables auto-scaling by default.\n\n- Set the minimum oplog window to the desired value. If you don't set\n  this value, Atlas retains oplog entries for 24 hours before the\n  mongod removes them from the oplog.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-minimum-oplog-window",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Oplog Size",
       "headingLevel": 3,
       "body": "You can set a fixed oplog size, which helps during live migration or\nduring an intensive data load.\n\nYou can set the **Set Oplog Size** configuration setting only\nif you opt out of the cluster's storage auto-scaling. You can't use\nthe MongoDB command [replSetResizeOplog](paid-tier-command-limitations)\nto resize the oplog on a cluster in Atlas.\n\nFor clusters that have storage auto-scaling enabled, you can set the\n**Minimum Oplog Window** instead. See [minimum retention window for Oplog entries](set-oplog-min-window).\nAtlas enables storage auto-scaling by default.\n\nThe minimum oplog size you can set is 990 megabytes.\nAtlas returns an error if the oplog size you choose leaves your\ncluster's disk with less than 25 percent of its capacity free.\n\nTo check the current oplog size and replication lag time:\n\n- Connect to your cluster via [mongosh](mongodb-shell).\n\n- Authenticate as a user with the [Atlas admin](manual/reference/built-in-roles) role.\n\n- Run the\n  [rs.printReplicationInfo()](manual/reference/method/rs.printReplicationInfo) method.\n\nAtlas displays the current oplog size and replication lag time.\n\nTo set a fixed oplog size:\n\n- Opt out of [opt out](opt-out-autoscaling).\n\n- Set the [minimum retention window for Oplog entries](set-oplog-min-window) to `0`.\n\n- Determine the size of the oplog that you need:\n\n  - Monitor the lag time during the migration process in the Atlas UI.\n\n  - If the lag time shown in the Atlas UI during migration approaches\n    the replication lag time that you obtained using\n    the [rs.printReplicationInfo()](manual/reference/method/rs.printReplicationInfo) method,\n    increase the oplog size.\n\n- Specify your desired **Oplog Size** in megabytes in the\n  input box. This setting configures the uncompressed size of the oplog,\n  not the size on disk.\n\n  For sharded cluster deployments, this option modifies the oplog\n  size of each shard in the cluster.\n\n  This option corresponds to modifying the\n  [replication.oplogSizeMB](manual/reference/configuration-options) configuration file option for each\n  mongod in the cluster.\n\n  > **Warning:** Reducing the size of the oplog requires removing data from the\n  > oplog. Atlas can't access or restore any oplog entries removed\n  > as a result of oplog reduction. Consider the ramifications of this\n  > data loss before you reduce the oplog.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-oplog-size",
+      "variantAgnostic": true
     },
     {
       "heading": "Disk Space Considerations",
       "headingLevel": 4,
       "body": "*Don't* reduce the size of the oplog to increase the available disk\nspace. Only the oplog collection (`local.oplog.rs`)\ncan reclaim the space that reducing the oplog size saves. Other\ncollections don't benefit from reducing oplog storage.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "disk-space-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Allow Server-Side JavaScript",
       "headingLevel": 3,
       "body": "Enable or disable execution of operations that perform server-side\nexecution of JavaScript.\n\n- If your cluster runs a MongoDB version less than 5.0, this option\n  corresponds to modifying the [security.javascriptEnabled](manual/reference/configuration-options)\n  configuration file option for each [mongod](manual/reference/program/mongod) in the cluster.\n\n- If your cluster runs MongoDB version 5.0 or greater, this option\n  corresponds to  modifying the [security.javascriptEnabled](manual/reference/configuration-options)\n  configuration file option for each [mongod](manual/reference/program/mongod) and\n  [mongos](manual/reference/program/mongos) in the cluster.\n\n- If your cluster runs MongoDB version 8.0, Allow Server-Side JavaScript\n  is disabled by default to improve security and performance. This option\n  corresponds to the [security.javascriptEnabled](manual/reference/configuration-options)\n  configuration file option for each [mongod](manual/reference/program/mongod) and\n  [mongos](manual/reference/program/mongos) in the cluster.\n\n> **Note:** In MongoDB version 7.0 and later,\n> [security.javascriptEnabled](manual/reference/configuration-options) applies to\n> [mongos](manual/reference/program/mongos)' as well.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "allow-server-side-javascript",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Logging of Redacted and Anonymized Query Data",
       "headingLevel": 3,
       "body": "Include redacted and anonymized `$queryStats` output in MongoDB logs.\n`$queryStats` output does not contain literals or field values.\nEnabling this setting might impact the performance of your cluster.\n\n> **Note:** You can enable logging of query data only for Atlas clusters\n> that run MongoDB 7.1 or later.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-logging-of-redacted-and-anonymized-query-data",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Minimum TLS Protocol Version",
       "headingLevel": 3,
       "body": "Set the minimum TLS version that the cluster accepts for incoming\nconnections. This option corresponds to configuring the\n[net.tls.disabledProtocols](manual/reference/configuration-options) configuration file option\nfor each mongod in the cluster.\n\n> **Important:** Beginning July 31st, 2025, Atlas will no longer support TLS (Transport Layer Security)\n> 1.0 or 1.1 under any circumstance. Atlas will upgrade all\n> clusters to reject attempts to connect with TLS (Transport Layer Security) 1.0 or 1.1.\n>\n> Any client connections configured for TLS (Transport Layer Security) 1.0 or 1.1 will undergo a service\n> outage during this upgrade. To avoid this, set the minimum TLS (Transport Layer Security)\n> version of your clusters to 1.2 at your earliest opportunity.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-minimum-tls-protocol-version",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Custom Cipher Suite Configuration",
       "headingLevel": 3,
       "body": "From a list of cipher suites, select which will be used for your\ncluster's node-to-node and client-to-Atlas communications.\nThe list of available ciphers depends on the cluster's\n[minimum TLS version](set-minimum-tls-protocol-version).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-custom-cipher-suite-configuration",
+      "variantAgnostic": true
     },
     {
       "heading": "Require Indexes for All Queries",
       "headingLevel": 3,
       "body": "Enable or disable the execution of queries that require a collection\nscan to return results. This option corresponds to modifying the\n[notablescan](manual/reference/parameters) parameter via the\n[setParameter](manual/reference/command/setParameter) command for each mongod in\nthe cluster.\n\n> **Important:** If you're creating MongoDB Search indexes, you might need to\n> disable this parameter. To learn more, see [Manage MongoDB Search Indexes](ref-index-limitations).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "require-indexes-for-all-queries",
+      "variantAgnostic": true
     },
     {
       "heading": "Default Write Concern",
       "headingLevel": 3,
       "body": "Set the\n[default level of acknowledgment requested from MongoDB for write operations](manual/reference/write-concern) for this cluster.\n\nThe default write concern for clusters is\n[majority](manual/reference/write-concern).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "default-write-concern",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Transaction Lifetime",
       "headingLevel": 3,
       "body": "Set the maximum lifetime of [multi-document transactions](manual/core/transactions). This option corresponds to modifying the\n[transactionLifetimeLimitSeconds](manual/reference/parameters) parameter via the\n[setParameter](manual/reference/command/setParameter) command for each mongod in the cluster.\n\n> **Important:** You can't set the transaction lifetime to less than one second.\n\nThe default transaction lifetime for clusters is 60 seconds.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-transaction-lifetime",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable or Disable Fast Disk Pre-Warming",
       "headingLevel": 3,
       "body": "To enable fast [disk pre-warming](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-initialize.html)\nfor a cluster, toggle **Allow Fast Disk Pre-Warming** to **Yes**.\n\nTo disable fast disk pre-warming for a cluster, toggle\n**Allow Fast Disk Pre-Warming** to **No**.\n\nDue to the design of the underlying cloud provider infrastructure, disk\npre-warming occurs whenever Atlas needs to provision a new node in a\ncluster, such as when you add a new node to an existing region. Disk\npre-warming temporarily uses a [hidden secondary node](manual/core/replica-set-hidden-member).\n\nFast disk pre-warming is quicker than background disk warming. By\ndefault, Atlas enables fast disk pre-warming for your deployment. When\ndisk pre-warming is enabled, Atlas hides the node and this prevents\nthis node from running read operations.\n\nConsider the following recommendations:\n\n- If you have workloads that seek consistent query latency, enable\n  this setting.\n\n- If you have workloads that seek maximum availability guarantees over\n  consistent query performance, and you require that the newly added or\n  replaced node is immediately active and visible, disable this setting,\n  and [Reduce Secondary Disk Warming Impact](reduce-secondary-disk-warming-example) for\n  the node that undergoes pre-warming, until the pre-warming process completes.\n  Using this connection string prevents reads on the node while most of\n  its IOPS (Input/Output Operations per Second) are utilized by the pre-warming process.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-or-disable-fast-disk-pre-warming",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Default Timeout for Read Operations",
       "headingLevel": 3,
       "body": "For clusters running MongoDB version 8.0+, you can specify the default maximum\ntimeout in milliseconds of all read operations for these clusters. This protects your\ndatabase against unintentional long-running queries. This option corresponds to the\ncluster parameter [defaultMaxTimeMS](upcoming/reference/cluster-parameters/defaultMaxTimeMS).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-default-timeout-for-read-operations",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure Replica Set Scaling Mode",
       "headingLevel": 3,
       "body": "Modify the [replica set](manual/reference/glossary) scaling mode for your\ncluster. Atlas uses the scaling mode **In Parallel By Workload Type**\nby default. Atlas can also scale a replica set with the **In Parallel\nBy Node Type** and **Sequential** modes.\n\nThe following list describes the available scaling modes:\n\n- **In Parallel By Workload Type** mode applies only to clusters\n  with read-only [operational node](manual/reference/glossary) and [analytics node](manual/reference/glossary).\n  Atlas uses this scaling mode by default, unless you specify another\n  scaling mode. In this mode, Atlas scales your analytics nodes in\n  parallel with your operational nodes.\n\n  > **Note:** If your cluster has only [electable](manual/reference/glossary)\n  > nodes, the scaling mode **In Parallel By Workload Type**\n  > doesn't affect cluster behavior.\n\n- **In Parallel By Node Type** mode is for large, dynamic\n  workloads requiring frequent and timely cluster tier scaling. In\n  this mode, Atlas scales your [electable](manual/reference/glossary)\n  nodes in parallel with your [read-only nodes](manual/reference/glossary) and\n  [analytics node](manual/reference/glossary) nodes. This is the fastest scaling\n  strategy, but it might impact latency of workloads when performing\n  extensive secondary reads.\n\n- **Sequential** mode is for steady-state workloads and applications\n  performing latency-sensitive secondary reads. In this mode, Atlas\n  scales all nodes sequentially.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-replica-set-scaling-mode",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Log Redaction",
       "headingLevel": 3,
       "body": "Toggle this on to prevent logging of potentially sensitive information in field values.\nFor more information, see [Log Redaction](manual/administration/monitoring).\n\nA rolling restart is required for enabling and disabling log redaction.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-log-redaction",
+      "variantAgnostic": true
     },
     {
       "heading": "Atlas-Managed Config Servers for Sharded Clusters",
       "headingLevel": 3,
       "body": "Enable or disable Atlas management of the [config servers](manual/core/sharded-cluster-config-servers) type for a new sharded cluster.\nAn Atlas-managed config server automatically switches the\n[dedicated config server](config-server-types) based on [criteria](config-server-change-criteria) for optimal performance and\ncost savings. If you don't enable an Atlas-managed config server for\na sharded cluster, Atlas always uses a dedicated config server\nfor the cluster.\n\nFor all 8.0 Atlas sharded clusters, Atlas-managed config servers are\n**On** by default. To disable Atlas-managed config servers, set the\ntoggle to **Off**. If the cluster has less than four shards and\nembedded config servers, turning off Atlas-managed config servers immediately\ntransitions the cluster to dedicated config servers.\n\n> **Note:** Embedded config servers or config shards are not supported on\n> Global Clusters.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "atlas-managed-config-servers-for-sharded-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Config Server Types",
       "headingLevel": 4,
       "body": "For each new sharded cluster with Atlas-managed config servers enabled,\nAtlas deploys an embedded config server for clusters with less than\nfour shards and a dedicated config server for clusters with more than\nthree shards.\n\nEmbedded config servers colocate your application data with config data\non a config shard. Embedded config server clusters cost less because\nthey use fewer resources.\n\nDedicated config servers use a separate, dedicated config server\nreplica set for config data. Your application data is not colocated\nwith config data for dedicated config servers. Dedicated config server\nclusters cost more because they use an additional replica set.\n\nTo learn more about considerations for config server types, see\n[Config Server Considerations](config-server-considerations).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "config-server-types",
+      "variantAgnostic": true
     },
     {
       "heading": "Config Server Change Criteria",
       "headingLevel": 4,
       "body": "If you enable Atlas-managed config servers, Atlas determines the initial\ncluster config server type as follows:\n\n- If the cluster shard count is greater than three,\n  Atlas uses a dedicated config server.\n\n- If the cluster shard count is three or less, Atlas\n  uses an embedded config server.\n\nWhen you add or remove shards with Atlas-managed config servers enabled,\nAtlas automatically re-selects your sharded cluster's config server\ntype using the same criteria.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "config-server-change-criteria",
+      "variantAgnostic": true
     },
     {
       "heading": "Config Server Considerations",
       "headingLevel": 4,
       "body": "All clusters with a version lower than MongoDB 8.0 use a dedicated\nconfig server.\n\nAtlas will not change your config server type if you use any of the\nfollowing features:\n\n- [Time series data](manual/core/timeseries-collections)\n\n- [Queryable encryption](manual/core/queryable-encryption)\n\n- [MongoDB Search indexes](fts-manage-indexes)\n\nIf you have a cluster with more than three shards that is unable to\ntransition to a dedicated config server due to the use of these\nfeatures, contact [MongoDB Support](request-support) to change\nyour configuration server type.\n\nIf you enable Atlas-managed config servers, the following considerations apply:\n\n- For clusters running MongoDB 8.0 or later, replica set IDs\n  **don't** reflect the type of data stored on the replica set.\n\n  - Replica sets that contain the\n    term `shard` in their replica set ID might store application\n    data, config data, or both (for example: `atlas-abc123-shard-0`).\n\n  - Replica sets that contain the\n    term `config` in their replica set ID might store application\n    data (for example: `atlas-abc123-config-0`).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "config-server-considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Backup Snapshot Considerations",
       "headingLevel": 5,
       "body": "- You can restore snapshots from a cluster with a\n  dedicated config server only to a cluster that also uses a\n  dedicated config server.\n\n- You can restore snapshots from a cluster with an\n  embedded config server only to a cluster that also uses an\n  embedded config server.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "backup-snapshot-considerations",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "ui",
+          "text": "ui"
+        }
+      ]
     }
   ]
 }

@@ -1,32 +1,8 @@
 {
   "heading": "Range Queries",
   "headingLevel": 3,
-  "body": "**To:**TOThe following example uses the `queryString` operator to query the\nmovie titles a range of textual values from the characters\n`count` to any character (defined using the wildcard character\n`*`) in ascending alphabetical order.**Input:**```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n          \"defaultPath\": \"plot\",\n          \"query\": \"title:[count TO *]\"\n      }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  { title: 'Blacksmith Scene' },\n  { title: 'The Great Train Robbery' },\n  { title: 'The Land Beyond the Sunset' },\n  { title: 'A Corner in Wheat' },\n  { title: 'Winsor McCay, the Famous Cartoonist of the N.Y. Herald and His Moving Comics' },\n  { title: 'Traffic in Souls' },\n  { title: 'Gertie the Dinosaur' },\n  { title: 'In the Land of the Head Hunters' },\n  { title: 'The Perils of Pauline' },\n  { title: 'The Birth of a Nation' }\n]\n```MongoDB Search results include movies with titles `Blacksmith Scene`\nand `A Corner in Wheat` although the range in the query\nstarts from characters `count`. When you index with\nthe default analyzer, `lucene.standard`, MongoDB Search creates\nseparate tokens for the terms in the `title` field and\nmatches the query term to the individual tokens. Specifically,\nMongoDB Search creates the following tokens, at least one of which\n(indicated by √) matches the query criteria:| Title             | Standard Analyzer Tokens |\n| ----------------- | ------------------------ |\n| Blacksmith Scene  | blacksmith, scene √      |\n| A Corner in Wheat | a, corner, in, wheat √   |If you index using the `lucene.keyword` analyzer, MongoDB Search\nwould create a single token for the whole string in the\n`title` field, resulting in results similar to the following\nfor the same query:```json\n[\n  { title: 'è Nous la Libertè' },\n  { title: 'tom thumb' },\n  { title: 'è nos amours' },\n  { title: 'èke och hans vèrld' },\n  { title: 'èdipussi' },\n  { title: 's/y Glèdjen' },\n  { title: 'èAy, Carmela!' },\n  { title: 'èlisa' },\n  { title: 'èxtasis' },\n  { title: 'eXistenZ' }\n]\n```**To-and:**TO ANDThe following example uses the `queryString` operator to query the\nmovie genres for `drama` and the titles for a range of textual\nvalues between `man` and `men`, including both, in ascending\nalphabetical order.**Input:**```json\ndb.movies.aggregate([\n  {\n      \"$search\": {\n        \"queryString\": {\n        \"defaultPath\": \"plot\",\n        \"query\": \"title:[man TO men] AND genres: Drama\"\n      }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"genres\": 1\n    }\n  }\n])\n```**Output:**```json\n[\n  { genres: [ 'Drama' ], title: 'The Wedding March' },\n  { genres: [ 'Drama' ], title: 'Maria Chapdelaine' },\n  { genres: [ 'Drama' ], title: 'Of Mice and Men' },\n  { genres: [ 'Drama' ], title: 'All the King's Men' },\n  { genres: [ 'Drama' ], title: 'Wuya yu maque' },\n  { genres: [ 'Drama' ], title: 'The Men' },\n  { genres: [ 'Drama' ], title: 'The Member of the Wedding' },\n  { genres: [ 'Drama' ], title: 'The Great Man' },\n  { genres: [ 'Drama' ], title: 'A Matter of Dignity' },\n  { genres: [ 'Drama' ], title: 'The Last Angry Man' }\n]\n```The documents in the results match because the `genres` field\ncontains the term `drama` and the movie `title` field\ncontains terms between `Man` and `Men` in alphabetical order\n(`Man`, `Maque`, `March`, `Maria`, `Matter`,\n`Member`, and `Men` in the results).",
-  "codeBlocks": [
-    {
-      "language": "json",
-      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"queryString\": {\n          \"defaultPath\": \"plot\",\n          \"query\": \"title:[count TO *]\"\n      }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1\n    }\n  }\n])",
-      "tokenEstimate": 78
-    },
-    {
-      "language": "json",
-      "content": "[\n  { title: 'Blacksmith Scene' },\n  { title: 'The Great Train Robbery' },\n  { title: 'The Land Beyond the Sunset' },\n  { title: 'A Corner in Wheat' },\n  { title: 'Winsor McCay, the Famous Cartoonist of the N.Y. Herald and His Moving Comics' },\n  { title: 'Traffic in Souls' },\n  { title: 'Gertie the Dinosaur' },\n  { title: 'In the Land of the Head Hunters' },\n  { title: 'The Perils of Pauline' },\n  { title: 'The Birth of a Nation' }\n]",
-      "tokenEstimate": 135
-    },
-    {
-      "language": "json",
-      "content": "[\n  { title: 'è Nous la Libertè' },\n  { title: 'tom thumb' },\n  { title: 'è nos amours' },\n  { title: 'èke och hans vèrld' },\n  { title: 'èdipussi' },\n  { title: 's/y Glèdjen' },\n  { title: 'èAy, Carmela!' },\n  { title: 'èlisa' },\n  { title: 'èxtasis' },\n  { title: 'eXistenZ' }\n]",
-      "tokenEstimate": 117
-    },
-    {
-      "language": "json",
-      "content": "db.movies.aggregate([\n  {\n      \"$search\": {\n        \"queryString\": {\n        \"defaultPath\": \"plot\",\n        \"query\": \"title:[man TO men] AND genres: Drama\"\n      }\n    }\n  },\n  {\n    \"$limit\": 10\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"genres\": 1\n    }\n  }\n])",
-      "tokenEstimate": 90
-    },
-    {
-      "language": "json",
-      "content": "[\n  { genres: [ 'Drama' ], title: 'The Wedding March' },\n  { genres: [ 'Drama' ], title: 'Maria Chapdelaine' },\n  { genres: [ 'Drama' ], title: 'Of Mice and Men' },\n  { genres: [ 'Drama' ], title: 'All the King's Men' },\n  { genres: [ 'Drama' ], title: 'Wuya yu maque' },\n  { genres: [ 'Drama' ], title: 'The Men' },\n  { genres: [ 'Drama' ], title: 'The Member of the Wedding' },\n  { genres: [ 'Drama' ], title: 'The Great Man' },\n  { genres: [ 'Drama' ], title: 'A Matter of Dignity' },\n  { genres: [ 'Drama' ], title: 'The Last Angry Man' }\n]",
-      "tokenEstimate": 195
-    }
-  ]
+  "body": "TO\n\nTO AND",
+  "codeBlocks": [],
+  "slug": "range-queries",
+  "variantAgnostic": true
 }

@@ -1,0 +1,22 @@
+{
+  "heading": "Normalize the Score",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```json\ndb.movies.aggregate([{\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"shop\",\n        \"score\": {\n          \"function\":{\n            \"gauss\": {\n              \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 4.6\n              },\n              \"origin\": 9.5,\n              \"scale\": 5,\n              \"offset\": 0,\n              \"decay\": 0.5\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$addFields\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    }\n  },\n  {\n    \"$setWindowFields\": {\n      \"output\": {\n        \"maxScore\": {\n          \"$max\": \"$score\"\n        }\n      }\n    }\n  },\n  {\n    \"$addFields\": {\n      \"normalizedScore\": {\n        \"$divide\": [\n          \"$score\", \"$maxScore\"\n        ]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": 1,\n      \"maxScore\": 1,\n      \"normalizedScore\": 1\n    }\n}])\n```\n\n**Output:**\n\n```javascript\n[\n    {\n      title: 'The Shop Around the Corner',\n      score: 0.9471074342727661,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 1\n    },\n    {\n      title: 'Exit Through the Gift Shop',\n      score: 0.9471074342727661,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 1\n    },\n    {\n      title: 'The Shop on Main Street',\n      score: 0.9395227432250977,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.9919917310611205\n    },\n    {\n      title: 'Chop Shop',\n      score: 0.8849083781242371,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.9343273488331464\n    },\n    {\n      title: 'Little Shop of Horrors',\n      score: 0.8290896415710449,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.8753913353110349\n    }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([{\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"shop\",\n        \"score\": {\n          \"function\":{\n            \"gauss\": {\n              \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 4.6\n              },\n              \"origin\": 9.5,\n              \"scale\": 5,\n              \"offset\": 0,\n              \"decay\": 0.5\n            }\n          }\n        }\n      }\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$addFields\": {\n      \"score\": {\n        \"$meta\": \"searchScore\"\n      }\n    }\n  },\n  {\n    \"$setWindowFields\": {\n      \"output\": {\n        \"maxScore\": {\n          \"$max\": \"$score\"\n        }\n      }\n    }\n  },\n  {\n    \"$addFields\": {\n      \"normalizedScore\": {\n        \"$divide\": [\n          \"$score\", \"$maxScore\"\n        ]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": 1,\n      \"maxScore\": 1,\n      \"normalizedScore\": 1\n    }\n}])",
+      "tokenEstimate": 269
+    },
+    {
+      "language": "javascript",
+      "content": "[\n    {\n      title: 'The Shop Around the Corner',\n      score: 0.9471074342727661,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 1\n    },\n    {\n      title: 'Exit Through the Gift Shop',\n      score: 0.9471074342727661,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 1\n    },\n    {\n      title: 'The Shop on Main Street',\n      score: 0.9395227432250977,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.9919917310611205\n    },\n    {\n      title: 'Chop Shop',\n      score: 0.8849083781242371,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.9343273488331464\n    },\n    {\n      title: 'Little Shop of Horrors',\n      score: 0.8290896415710449,\n      maxScore: 0.9471074342727661,\n      normalizedScore: 0.8753913353110349\n    }\n]",
+      "tokenEstimate": 261
+    }
+  ],
+  "slug": "normalize-the-score--gauss",
+  "selections": {
+    "tabs": "gauss"
+  },
+  "variantAgnostic": false
+}

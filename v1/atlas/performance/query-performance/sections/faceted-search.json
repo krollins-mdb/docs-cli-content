@@ -1,0 +1,12 @@
+{
+  "heading": "Faceted Search",
+  "headingLevel": 2,
+  "body": "You can use the MongoDB Search [faceted navigation](fts-facet-ref) collector to extract\nmetadata and avoid running multiple queries for search results and\nmetadata. You can use `$search.facet` to retrieve both documents\nand metadata in a single query. If you only need metadata,\nuse `$searchMeta.facet` to avoid document lookup. For an example,\nsee the [Metadata and Search Results Example](fts-facet-egs).\n\nUsing a [$limit](manual/reference/operator/aggregation/limit) aggregation pipeline stage after a\n[$facet](manual/reference/operator/aggregation/facet) aggregation pipeline stage might negatively impact query performance. To avoid\nperformance bottlenecks, use [$limit](manual/reference/operator/aggregation/limit) before\n[$facet](manual/reference/operator/aggregation/facet).\n\n> **Example:**&#x20;\n>\n> ```json\n> {\n>   {\n>     \"$search\": {...}\n>   },\n>   { \"$limit\": 20 },\n>   {\n>     \"$facet\": {\n>       \"results\": [],\n>       \"totalCount\": $$SEARCH_META\n>     }\n>   }\n> }\n> ```\n\nFor a demonstration, see the following examples:\n\n- [Metadata and Search Results Example](fts-facet-egs)\n\n- [Facet Example](fts-count-aggregation-variable)",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  {\n    \"$search\": {...}\n  },\n  { \"$limit\": 20 },\n  {\n    \"$facet\": {\n      \"results\": [],\n      \"totalCount\": $$SEARCH_META\n    }\n  }\n}",
+      "tokenEstimate": 44
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "heading": "Run Vector Search Queries",
+  "headingLevel": 3,
+  "body": "This section demonstrates various queries that you can run on your vectorized\ndata. Now that you've created the index, you can run vector search queries.\n\nSelect the **Basic Semantic Search** or **Semantic Search with Filtering**\ntab to see the corresponding code.\n\nBasic Semantic Search\n\nSemantic search retrieves information that is meaningfully related\nto a query. The following code uses the `SimilaritySearch()`\nmethod to perform a semantic search for the string `\"Prevent\nweeds\"` and limits the results to the first document.\n\n```go\n// Performs basic semantic search\ndocs, err := store.SimilaritySearch(context.Background(), \"Prevent weeds\", 1)\nif err != nil {\n   fmt.Println(\"Error performing search:\", err)\n}\nfmt.Println(\"Semantic Search Results:\", docs)\n```\n\n**Input:**\n\n```sh\ngo run main.go\n```\n\n**Output:**\n\n```json\nSemantic Search Results: [{For a natural lawn, selection of\nthe right grass type suitable for your climate is crucial.\nBalanced watering, generally 1 to 1.5 inches per week, is\nimportant; overwatering invites disease. Opt for organic\nfertilizers over synthetic versions to provide necessary\nnutrients and improve soil structure. Regular lawn aeration\nhelps root growth and prevents soil compaction. Practice\nnatural pest control and consider overseeding to maintain a\ndense sward, which naturally combats weeds and pest.\nmap[author:C type:post] 0.69752026}]\n```\n\nSemantic Search with Filtering\n\nYou can pre-filter your data by using an\nMQL (MongoDB Query Language) match expression\nthat compares the indexed field with another value in\nyour collection. You must index any metadata fields that you want to\nfilter by as the `filter` type. To learn more, see\n[index definition](avs-types-vector-search).\n\nAdd the following dependencies to your `main.go` file:\n\n```go\nimport (\n  // Other imports...\n  \"github.com/tmc/langchaingo/vectorstores\"\n)\n```\n\nThe following code uses the `SimilaritySearch()` method to perform\na semantic search for the string `\"Tulip care\"`. It specifies the\nfollowing parameters:\n\n- The number of documents to return as `1`.\n\n- A score threshold of `0.60`.\n\nIt returns the document that matches the filter `metadata.type:\npost` and includes the score threshold.\n\n```go\n// Performs semantic search with metadata filter\nfilter := map[string]interface{}{\n   \"metadata.type\": \"post\",\n}\n\ndocs, err := store.SimilaritySearch(context.Background(), \"Tulip care\", 1,\n   vectorstores.WithScoreThreshold(0.60),\n   vectorstores.WithFilters(filter))\nif err != nil {\n   fmt.Println(\"Error performing search:\", err)\n}\n\nfmt.Println(\"Filter Search Results:\", docs)\n```\n\n**Input:**\n\n```sh\ngo run main.go\n```\n\n**Output:**\n\n```json\nFilter Search Results: [{Proper tuber planting involves site\nselection, proper timing, and exceptional care. Choose spots\nwith well-drained soil and adequate sun exposure. Tubers are\ngenerally planted in spring, but depending on the plant,\ntiming varies. Always plant with the eyes facing upward at a\ndepth two to three times the tuber's height. Ensure 4 inch\nspacing between small tubers, expand to 12 inches for large\nones. Adequate moisture is needed, yet do not overwater.\nMulching can help preserve moisture and prevent weed growth.\nmap[author:A type:post] 0.64432365}]\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "// Performs basic semantic search\ndocs, err := store.SimilaritySearch(context.Background(), \"Prevent weeds\", 1)\nif err != nil {\n   fmt.Println(\"Error performing search:\", err)\n}\nfmt.Println(\"Semantic Search Results:\", docs)",
+      "tokenEstimate": 51
+    },
+    {
+      "language": "sh",
+      "content": "go run main.go",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "json",
+      "content": "Semantic Search Results: [{For a natural lawn, selection of\nthe right grass type suitable for your climate is crucial.\nBalanced watering, generally 1 to 1.5 inches per week, is\nimportant; overwatering invites disease. Opt for organic\nfertilizers over synthetic versions to provide necessary\nnutrients and improve soil structure. Regular lawn aeration\nhelps root growth and prevents soil compaction. Practice\nnatural pest control and consider overseeding to maintain a\ndense sward, which naturally combats weeds and pest.\nmap[author:C type:post] 0.69752026}]",
+      "tokenEstimate": 126
+    },
+    {
+      "language": "go",
+      "content": "import (\n  // Other imports...\n  \"github.com/tmc/langchaingo/vectorstores\"\n)",
+      "tokenEstimate": 20
+    },
+    {
+      "language": "go",
+      "content": "// Performs semantic search with metadata filter\nfilter := map[string]interface{}{\n   \"metadata.type\": \"post\",\n}\n\ndocs, err := store.SimilaritySearch(context.Background(), \"Tulip care\", 1,\n   vectorstores.WithScoreThreshold(0.60),\n   vectorstores.WithFilters(filter))\nif err != nil {\n   fmt.Println(\"Error performing search:\", err)\n}\n\nfmt.Println(\"Filter Search Results:\", docs)",
+      "tokenEstimate": 87
+    },
+    {
+      "language": "sh",
+      "content": "go run main.go",
+      "tokenEstimate": 4
+    },
+    {
+      "language": "json",
+      "content": "Filter Search Results: [{Proper tuber planting involves site\nselection, proper timing, and exceptional care. Choose spots\nwith well-drained soil and adequate sun exposure. Tubers are\ngenerally planted in spring, but depending on the plant,\ntiming varies. Always plant with the eyes facing upward at a\ndepth two to three times the tuber's height. Ensure 4 inch\nspacing between small tubers, expand to 12 inches for large\nones. Adequate moisture is needed, yet do not overwater.\nMulching can help preserve moisture and prevent weed growth.\nmap[author:A type:post] 0.64432365}]",
+      "tokenEstimate": 134
+    }
+  ],
+  "slug": "run-vector-search-queries--OpenAI",
+  "selections": {
+    "tabs": "OpenAI"
+  },
+  "variantAgnostic": false
+}

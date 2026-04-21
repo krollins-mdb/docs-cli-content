@@ -1,0 +1,32 @@
+{
+  "heading": "Create a {+fts} Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nPaste the following code into the `Program.cs` file:\n\n```csharp\nusing MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_supplies\");\nvar collection = db.GetCollection<BsonDocument>(\"monthlyPhoneTransactions\");\n\n// Create the MongoDB Search index definition\nvar index =  new CreateSearchIndexModel(\n  \"monthlySalesIndex\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true}\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\n**Input:**\n\n```shell\ndotnet run Program.cs\n```\n\n**Output:**\n\n```\nNew index name: monthlySalesIndex\n```",
+  "codeBlocks": [
+    {
+      "language": "csharp",
+      "content": "using MongoDB.Bson;\nusing MongoDB.Driver;\n\n// Replace the connection string with your MongoDB deployment's connection string\nvar uri = \"<connection-string>\";\n\nvar client = new MongoClient(uri);\n\nvar db = client.GetDatabase(\"sample_supplies\");\nvar collection = db.GetCollection<BsonDocument>(\"monthlyPhoneTransactions\");\n\n// Create the MongoDB Search index definition\nvar index =  new CreateSearchIndexModel(\n  \"monthlySalesIndex\", new BsonDocument\n  {\n    { \"mappings\", new BsonDocument\n      {\n        { \"dynamic\", true}\n      }\n    }\n  });\n\nvar result = collection.SearchIndexes.CreateOne(index);\nConsole.WriteLine($\"New index name: {result}\");\n",
+      "tokenEstimate": 138
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "dotnet run Program.cs",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "text",
+      "content": "New index name: monthlySalesIndex",
+      "tokenEstimate": 7
+    }
+  ]
+}

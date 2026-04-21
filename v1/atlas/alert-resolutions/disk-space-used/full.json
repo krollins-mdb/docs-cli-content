@@ -7,37 +7,110 @@
       "heading": "Alert Conditions Configured by Default",
       "headingLevel": 2,
       "body": "Atlas configures the following alert conditions by default to help you\nensure dedicated cluster availability and prevent the cluster from going down due\nto disk exhaustion on the primary node and to maintain read availability.\n\n- [Writes have been blocked on your cluster due to critically low disk space](<Writes have been blocked on your cluster due to critically low disk space>)\n  occurs when the percentage of used disk has exceeded [write-blocking-thresholds](write-blocking-thresholds),\n  and Atlas has [write-blocking behavior](cluster-blocking-writes) to maintain read availability.\n\n  You can view disk metrics through [Real-Time Performance Panel](real-time-metrics-status-tab)\n  and review [MongoDB process metrics](review-mongodb-process-metrics).\n\n- [Writes have been unblocked on your cluster](<Writes have been unblocked on your cluster>)\n  occurs when the percentage of used disk on the primary node has fallen below the\n  [write-blocking-thresholds](write-blocking-thresholds), and Atlas\n  automatically unblocks writes to the cluster. See also [Unblocking Writes](unblocking-writes).\n\n  This is an information-only alert that doesn't require any action on your part.\n  To prevent future write-blocking events, we recommend that you monitor your\n  cluster's disk usage. To learn more, see [Preventing Write-Blocking](write-blocking-prevention).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "alert-conditions-configured-by-default",
+      "variantAgnostic": true
     },
     {
       "heading": "Alert Conditions You Can Configure",
       "headingLevel": 2,
       "body": "You can configure the following alert condition in the project-level\n[Configure Alert Settings](configure-alerts) page to trigger alerts.\n\n[Disk space % used on Data Partition](<Disk space % used on Data Partition is>) occurs when the\npercentage of disk space used on any partition that contains the\nMongoDB collection data meets or exceeds a certain threshold.\n[default alert](default-alert-settings), the threshold is 90\npercent of the cluster's [modify all configuration options](scale-cluster).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "alert-conditions-you-can-configure",
+      "variantAgnostic": true
     },
     {
       "heading": "Common Triggers",
       "headingLevel": 2,
       "body": "The following common events can trigger `Disk Space % Used` alerts:\n\n- The percentage of used disk has exceeded [write-blocking-thresholds](write-blocking-thresholds),\n  and Atlas has [write-blocking behavior](cluster-blocking-writes)\n  to maintain read availability.\n\n- The disk is full and [Modify a Cluster](scale-cluster-storage) is not enabled.\n\n- Auto-Expand Storage is enabled, but the disk filled too quickly\n  for Atlas to expand the cluster's storage space. This\n  can happen during data migration.\n\n- Auto-Expand Storage is enabled, but Atlas cannot expand the\n  cluster's storage space because it has reached the maximum storage\n  capacity for this cluster. For more information on cluster tier\n  limits, see the [cluster configuration options](amazon-aws-configuration-options),\n  [cluster configuration options](google-gcp-configuration-options), and\n  [cluster configuration options](microsoft-azure-configuration-options)\n  instance configuration options.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "common-triggers",
+      "variantAgnostic": true
     },
     {
       "heading": "Fix the Immediate Problem",
       "headingLevel": 2,
-      "body": "Consider the following actions to help resolve `Disk Space % Used`\nalerts through the Atlas UI or API.**Atlas UI:**Atlas UI* [Modify a Cluster](scale-cluster-storage).\n\n  > **Note:** If the disk fills too quickly, Atlas might not be\n  > able to expand the cluster's storage space in time,\n  > even if Auto-Expand Storage is enabled.\n\n* Manually increase the **Storage** of this cluster\n  in the **Cluster Tier** section of the\n  [Modify a Cluster](scale-cluster-storage).**Atlas-api:**Atlas Administration API* [Enable Auto-Expand Storage](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n  `autoScaling.diskGBEnabled` parameter.\n\n  > **Note:** If the disk fills too quickly, Atlas might not be\n  > able to expand the cluster's storage space in time,\n  > even if Auto-Expand Storage is enabled.\n\n* [Increase the storage of this cluster](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n  `diskSizeGB` parameter.\n\n  > **Note:** For **Low CPU** and **General** clusters, the\n  > UI displays **GB**, but the `diskSizeGB` parameter\n  > value is in gibibytes (GiB).",
-      "codeBlocks": []
+      "body": "Consider the following actions to help resolve `Disk Space % Used`\nalerts through the Atlas UI or API.\n\nAtlas UI\n\nAtlas Administration API",
+      "codeBlocks": [],
+      "slug": "fix-the-immediate-problem",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Fix the Immediate Problem",
+      "headingLevel": 2,
+      "body": "- [Modify a Cluster](scale-cluster-storage).\n\n  > **Note:** If the disk fills too quickly, Atlas might not be\n  > able to expand the cluster's storage space in time,\n  > even if Auto-Expand Storage is enabled.\n\n- Manually increase the **Storage** of this cluster\n  in the **Cluster Tier** section of the\n  [Modify a Cluster](scale-cluster-storage).",
+      "codeBlocks": [],
+      "slug": "fix-the-immediate-problem--atlas-ui",
+      "selections": {
+        "interface": "atlas-ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Fix the Immediate Problem",
+      "headingLevel": 2,
+      "body": "- [Enable Auto-Expand Storage](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n  `autoScaling.diskGBEnabled` parameter.\n\n  > **Note:** If the disk fills too quickly, Atlas might not be\n  > able to expand the cluster's storage space in time,\n  > even if Auto-Expand Storage is enabled.\n\n- [Increase the storage of this cluster](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n  `diskSizeGB` parameter.\n\n  > **Note:** For **Low CPU** and **General** clusters, the\n  > UI displays **GB**, but the `diskSizeGB` parameter\n  > value is in gibibytes (GiB).",
+      "codeBlocks": [],
+      "slug": "fix-the-immediate-problem--atlas-api",
+      "selections": {
+        "interface": "atlas-api"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Implement a Long-Term Solution",
       "headingLevel": 2,
-      "body": "Consider the following long-term solutions to help resolve\n`Disk Space % Used` alerts through the Atlas UI or API.**Atlas UI:**Atlas UIIf you have reached the maximum storage capacity for this\ncluster, scale to a larger cluster tier in the\n**Cluster Tier** section of the\n[Modify the Cluster Tier](scale-cluster-instance).**Atlas-api:**Atlas Administration APIIf you have reached the maximum storage capacity for this\ncluster, [specify a larger cluster tier](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n`replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize`\nparameter.",
-      "codeBlocks": []
+      "body": "Consider the following long-term solutions to help resolve\n`Disk Space % Used` alerts through the Atlas UI or API.\n\nAtlas UI\n\nAtlas Administration API",
+      "codeBlocks": [],
+      "slug": "implement-a-long-term-solution",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Implement a Long-Term Solution",
+      "headingLevel": 2,
+      "body": "If you have reached the maximum storage capacity for this\ncluster, scale to a larger cluster tier in the\n**Cluster Tier** section of the\n[Modify the Cluster Tier](scale-cluster-instance).",
+      "codeBlocks": [],
+      "slug": "implement-a-long-term-solution--atlas-ui",
+      "selections": {
+        "interface": "atlas-ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Implement a Long-Term Solution",
+      "headingLevel": 2,
+      "body": "If you have reached the maximum storage capacity for this\ncluster, [specify a larger cluster tier](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) using the\n`replicationSpecs[n].regionConfigs[m].electableSpecs.instanceSize`\nparameter.",
+      "codeBlocks": [],
+      "slug": "implement-a-long-term-solution--atlas-api",
+      "selections": {
+        "interface": "atlas-api"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Monitor Your Progress",
       "headingLevel": 2,
       "body": "You can observe a high percentage of used disk space in the following\nways:\n\n- In the cluster [performance metrics](monitor-cluster-metrics), the\n  **Disk Usage** graph displays the used disk space in\n  yellow. This indicates that the used disk space is approximately\n  70 percent of the Atlas cluster's [Modify the Cluster Tier](scale-cluster-instance).\n\n- Atlas nodes are unhealthy, because the\n  used disk space reached the cluster's\n  [Modify the Cluster Tier](scale-cluster-instance).\n\n- The cluster [write-blocking behavior](cluster-blocking-writes) and connections from the client.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "monitor-your-progress",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "atlas-ui",
+      "selections": [
+        {
+          "value": "atlas-ui",
+          "text": "atlas-ui"
+        },
+        {
+          "value": "atlas-api",
+          "text": "atlas-api"
+        }
+      ]
     }
   ]
 }

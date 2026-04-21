@@ -1,0 +1,22 @@
+{
+  "heading": "Examples",
+  "headingLevel": 3,
+  "body": "> **Example:** In this example, the [text](text-ref) operator uses `score`\n> with the `function` option to multiply the following:\n>\n> - Numeric value of the path expression, which is the value of\n>   the `imdb.rating` field in the documents or `2`, if the\n>   `imdb.rating` field is not in the document\n>\n> - Relevance score, or the current score of the document\n>\n> ```json\n> db.movies.aggregate([{\n>   \"$search\": {\n>     \"text\": {\n>       \"path\": \"title\",\n>       \"query\": \"men\",\n>       \"score\": {\n>         \"function\":{\n>           \"multiply\":[\n>             {\n>               \"path\": {\n>                 \"value\": \"imdb.rating\",\n>                 \"undefined\": 2\n>               }\n>             },\n>             {\n>               \"score\": \"relevance\"\n>             }\n>           ]\n>         }\n>       }\n>     }\n>   }\n> },\n> {\n>   $limit: 5\n> },\n> {\n>   $project: {\n>     \"_id\": 0,\n>     \"title\": 1,\n>     \"score\": { \"$meta\": \"searchScore\" }\n>   }\n> }])\n> ```\n>\n> This query returns the following results, in which\n> the score is replaced with the specified `function` value:\n>\n> ```json\n> { \"title\" : \"Men...\", \"score\" : 23.431293487548828 }\n> { \"title\" : \"12 Angry Men\", \"score\" : 22.080968856811523 }\n> { \"title\" : \"X-Men\", \"score\" : 21.34803581237793 }\n> { \"title\" : \"X-Men\", \"score\" : 21.34803581237793 }\n> { \"title\" : \"Matchstick Men\", \"score\" : 21.05954933166504 }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([{\n  \"$search\": {\n    \"text\": {\n      \"path\": \"title\",\n      \"query\": \"men\",\n      \"score\": {\n        \"function\":{\n          \"multiply\":[\n            {\n              \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 2\n              }\n            },\n            {\n              \"score\": \"relevance\"\n            }\n          ]\n        }\n      }\n    }\n  }\n},\n{\n  $limit: 5\n},\n{\n  $project: {\n    \"_id\": 0,\n    \"title\": 1,\n    \"score\": { \"$meta\": \"searchScore\" }\n  }\n}])",
+      "tokenEstimate": 139
+    },
+    {
+      "language": "json",
+      "content": "{ \"title\" : \"Men...\", \"score\" : 23.431293487548828 }\n{ \"title\" : \"12 Angry Men\", \"score\" : 22.080968856811523 }\n{ \"title\" : \"X-Men\", \"score\" : 21.34803581237793 }\n{ \"title\" : \"X-Men\", \"score\" : 21.34803581237793 }\n{ \"title\" : \"Matchstick Men\", \"score\" : 21.05954933166504 }",
+      "tokenEstimate": 111
+    }
+  ],
+  "slug": "examples--arithmetic",
+  "selections": {
+    "tabs": "arithmetic"
+  },
+  "variantAgnostic": false
+}

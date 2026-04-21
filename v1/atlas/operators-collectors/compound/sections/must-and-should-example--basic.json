@@ -1,0 +1,22 @@
+{
+  "heading": "must and should Example",
+  "headingLevel": 4,
+  "body": "For this query, the `$project` pipeline stage excludes all\ndocument fields except `_id` and adds a `score` field, which\ndisplays the document's relevance score.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{ \"_id\" : 1, \"score\" : 0.6425117254257202 }\n{ \"_id\" : 3, \"score\" : 0.21649497747421265 }\n```\n\nThe document with `_id: 1` has a higher score because its\n`description` field contains the word `Fuji`, satisfying the\n`should` clause.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6613fe1753a026086724780b).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
+      "tokenEstimate": 106
+    },
+    {
+      "language": "javascript",
+      "content": "{ \"_id\" : 1, \"score\" : 0.6425117254257202 }\n{ \"_id\" : 3, \"score\" : 0.21649497747421265 }",
+      "tokenEstimate": 44
+    }
+  ],
+  "slug": "must-and-should-example--basic",
+  "selections": {
+    "tabs": "basic"
+  },
+  "variantAgnostic": false
+}

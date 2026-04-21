@@ -1,0 +1,32 @@
+{
+  "heading": "Files Atlas Uploads",
+  "headingLevel": 3,
+  "body": "Atlas uploads the `metadata.json` file for each collection\nin the following path on your object store:\n\n```shell\n/exported_snapshots/<orgUUID>/<projectUUID>/<clusterName>/<initiationDateOfSnapshot>/<timestamp>/<dbName>/<collectionName>/metadata.json\n```\n\n> **Note:** By default, Atlas uses organization and project UUIDs in\n> the path for the metadata files. To use organization and\n> project names instead of UUIDs, set the\n> `useOrgAndGroupNamesInExportPrefix` flag via the\n> [API](api/doc/atlas-admin-api-v2/operation/operation-updategroupclusterbackupschedule) to true.\n> Atlas replaces any spaces with underscores (`_`) and\n> removes any [characters that might require special\n> handling](http://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html) and\n> [characters to avoid](http://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html) from the\n> organization and project names in the path.\n\nThe metadata file is in JSON (Javascript Object Notation) format and contains the following\nfields:\n\n| Field          | Description                                                                                                                                                                                                                 |\n| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| collectionName | Human-readable label that identifies the collection.                                                                                                                                                                        |\n| indexes        | List of all the indexes on the collection in the format returned by db.collection.getIndexes command.                                                                                                                       |\n| options        | Configuration options defined on the collection. To learn more about the options, see db.createCollection() command.                                                                                                        |\n| type           | (Optional) Type of collection. This field is only supported for time series collections, with a value of timeseries. Leave this field unset for standard collections.Atlas doesn't support export of view type collections. |\n| uuid           | Collection's UUID. To learn more about UUID, see UUID.                                                                                                                                                                      |\n\n> **Example:**&#x20;\n>\n> ```json\n> {\n>   \"options\":{\n>     \"viewOn\":\"othercol\",\n>     \"pipeline\":[{\"$project\":{\"namez\":\"$name\"}}]\n>   },\n>   \"indexes\":[],\n>   \"collectionName\":\"viewcol\",\n>   \"type\":\"view\"\n> }\n> ```\n>\n> ```json\n> {\n>   \"options\":{\n>     \"timeseries\":{\n>       \"timeField\":\"timestamp\",\n>       \"granularity\":\"seconds\",\n>       \"bucketMaxSpanSeconds\":{\"$numberInt\":\"3600\"}\n>     }\n>   },\n>   \"indexes\":[],\n>   \"collectionName\":\"timeseriescol\",\n>   \"type\":\"timeseries\"\n> }\n> ```\n>\n> ```json\n> {\n>   \"indexes\": [\n>     {\n>       \"v\":{\"$numberInt\":\"2\"},\n>       \"key\":{\n>         \"_id\":{\"$numberInt\":\"1\"}\n>       },\n>       \"name\":\"_id_\"\n>     }\n>   ],\n>   \"uuid\":\"342c40a937c34c478bab03de8ce44f3e\",\n>   \"collectionName\":\"somecol\"\n> }\n> ```",
+  "codeBlocks": [
+    {
+      "language": "shell",
+      "content": "/exported_snapshots/<orgUUID>/<projectUUID>/<clusterName>/<initiationDateOfSnapshot>/<timestamp>/<dbName>/<collectionName>/metadata.json",
+      "tokenEstimate": 29
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"options\":{\n    \"viewOn\":\"othercol\",\n    \"pipeline\":[{\"$project\":{\"namez\":\"$name\"}}]\n  },\n  \"indexes\":[],\n  \"collectionName\":\"viewcol\",\n  \"type\":\"view\"\n}",
+      "tokenEstimate": 49
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"options\":{\n    \"timeseries\":{\n      \"timeField\":\"timestamp\",\n      \"granularity\":\"seconds\",\n      \"bucketMaxSpanSeconds\":{\"$numberInt\":\"3600\"}\n    }\n  },\n  \"indexes\":[],\n  \"collectionName\":\"timeseriescol\",\n  \"type\":\"timeseries\"\n}",
+      "tokenEstimate": 64
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"indexes\": [\n    {\n      \"v\":{\"$numberInt\":\"2\"},\n      \"key\":{\n        \"_id\":{\"$numberInt\":\"1\"}\n      },\n      \"name\":\"_id_\"\n    }\n  ],\n  \"uuid\":\"342c40a937c34c478bab03de8ce44f3e\",\n  \"collectionName\":\"somecol\"\n}",
+      "tokenEstimate": 78
+    }
+  ],
+  "slug": "files-atlas-uploads--metadata",
+  "selections": {
+    "tabs": "metadata"
+  },
+  "variantAgnostic": false
+}

@@ -7,25 +7,33 @@
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "> **Important:** You can use MongoDB Vector Search Automated Embedding on any `M10` or higher\n> cluster on any cloud provider. However, the service that handles the\n> inference process for generating vector embeddings runs on Google Cloud. This\n> means that your data is sent to Google Cloud for embedding generation and\n> retrieval, regardless of your cluster's cloud provider. We provide\n> enterprise grade security and therefore, your data is only stored\n> in your cluster.\n\nThe embedding models run on a shared, multi-tenant inference platform.\nTherefore, during the preview period, you must use datasets with less\nthan 100k document and run queries only for the evaluation of the\nfeature and not for load testing. Contact your account team if you have\na use case with higher limits.\n\nAlthough there are no hard rate-limits for your workload, there are\nglobal limits. If your queries return a rate limit error (error 409),\nperform a backoff and retry in your application code. This allows your\napplication to gracefully handle rate limits and ensures continued\nfunctionality.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
-      "body": "To enable vector search using Automated Embedding, you must have the\nfollowing:\n\n- `M10` or higher cluster\n\n- A collection with a text field that you want to index for automated\n  embeddings.\n\n- One of the following clients:\n\n  - Atlas UI for creating indexes\n\n  - [mongosh](mongodb-shell) for creating indexes and running queries\n\n  - [Node Driver](node) 6.6.0 or higher for creating indexes and running queries\n\n  - [Python Driver](python-drivers) 4.7 or higher for creating indexes and running queries\n\n  Use the following drop-down menu to set the client for the procedures on this page.\n\n  drivers\n\n  **Atlas UI:**\n\n  Atlas UI\n\n  **Shell:**\n\n  MongoDB Shell\n\n  **Nodejs:**\n\n  Node.js\n\n  **Python:**\n\n  Python",
-      "codeBlocks": []
+      "body": "To enable vector search using Automated Embedding, you must have the\nfollowing:\n\n- `M10` or higher cluster\n\n- A collection with a text field that you want to index for automated\n  embeddings.\n\n- One of the following clients:\n\n  - Atlas UI for creating indexes\n\n  - [mongosh](mongodb-shell) for creating indexes and running queries\n\n  - [Node Driver](node) 6.6.0 or higher for creating indexes and running queries\n\n  - [Python Driver](python-drivers) 4.7 or higher for creating indexes and running queries\n\n  Use the following drop-down menu to set the client for the procedures on this page.\n\n  drivers\n\n  Atlas UI\n\n  MongoDB Shell\n\n  Node.js\n\n  Python",
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "MongoDB Vector Search Index for Automated Embedding",
       "headingLevel": 2,
       "body": "The following sections describe the MongoDB Vector Search index syntax and fields for\nenabling automatic generation of embeddings for text fields and walk you\nthrough the steps for configuring your index for Automated Embedding.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "mongodb-vector-search-index-for-automated-embedding",
+      "variantAgnostic": true
     },
     {
       "heading": "Required Access",
       "headingLevel": 3,
       "body": "You need the [Project Data Access Admin](<Project Data Access Admin>) or higher role to create\nand manage MongoDB Vector Search indexes.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "required-access",
+      "variantAgnostic": true
     },
     {
       "heading": "Index Syntax",
@@ -37,31 +45,44 @@
           "content": "{\n  \"fields\": [\n    {\n      \"type\": \"text\",\n      \"path\": \"<field-name>\",\n      \"model\": \"voyage-3-large | voyage-3.5 | voyage-3.5-lite\"\n    }\n  ]\n}",
           "tokenEstimate": 52
         }
-      ]
+      ],
+      "slug": "index-syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Index Fields",
       "headingLevel": 3,
       "body": "The following fields are required in the index definition:\n\n| Field | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |\n| ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| type  | string | The type of the field. For Automated Embedding, this must be text.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |\n| path  | string | The name of the field in the collection that you want to index for Automated Embedding.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |\n| model | string | The Voyage AI embedding model to use for generating the embeddings for the index. You can specify one of the following models:voyage-3-large - Highest-quality retrieval across languages and domains.voyage-3.5 - Balanced model for multilingual use and general-purpose retrieval accuracy.voyage-3.5-lite - Lightweight, faster model optimized for latency and lower cost.After creating the index, if you change the embedding model subsequently, MongoDB Vector Search generates new embeddings for the dataset. While MongoDB Vector Search generates the embeddings, you can continue to query by using the old embeddings. When the old embeddings are replaced with embeddings from the new embedding model, MongoDB Vector Search removes the old embeddings. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "index-fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "The index fields for Automated Embedding are mutually exclusive with the\nfollowing `vector` type index fields:\n\n- `numDimensions`\n\n- `similarity`\n\n- `quantization`\n\nIf your collection already has embeddings, you must use the `vector`\ntype fields to index the embeddings. To learn more about indexing fields\nwith embeddings, see [index definition](avs-types-vector-search).\n\nYou can create an index with both the `text` and `vector` types if\nyou want to index a text field for automatically generating embeddings\nand also index a field with your own embeddings. MongoDB Vector Search will\nautomatically generate embeddings for queries against only the field\nindexed as the `text` type. You must specify embeddings in the query\nfor searching the field indexed as the `vector` type.\n\nYou can also index fields to pre-filter your data by using the MongoDB Vector Search\n`filter` type. Pre-filtering reduces the number of documents against\nwhich to run similarity comparisons, which can decrease query latency\nand increase the accuracy of search results. To learn more about\npre-filtering your data, see [pre-filtering](avs-types-filter).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Create an Index for Automated Embedding",
       "headingLevel": 3,
-      "body": "The following procedure walks through the steps for enabling automated\nembeddings in your MongoDB Vector Search index. If you loaded the\n`sample_mflix.movies` dataset, the example in the procedure\ndemonstrates how to enable Automated Embedding for the `fullplot`\nfield in the collection.**Atlas UI:**Atlas UI",
-      "codeBlocks": []
+      "body": "The following procedure walks through the steps for enabling automated\nembeddings in your MongoDB Vector Search index. If you loaded the\n`sample_mflix.movies` dataset, the example in the procedure\ndemonstrates how to enable Automated Embedding for the `fullplot`\nfield in the collection.\n\nAtlas UI",
+      "codeBlocks": [],
+      "slug": "create-an-index-for-automated-embedding",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Start your index configuration.",
       "headingLevel": 4,
       "body": "Make the following selections on the page and then click\n**Next**.\n\n| Search Type                | Select the Vector Search index type.                                                                                  |\n| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |\n| Index Name and Data Source | Specify the following information:Index Name: \\<INDEX-NAME>Database and Collection:\\<DATABASE-NAME>\\<COLLECTION-NAME> |\n| Configuration Method       | Select JSON Editor.                                                                                                   |\n\n> **Example:** For example, enter movies\\_automated\\_embeddings for the index name and\n> select sample\\_mflix and movies from\n> the **Database and Collection** dropdown.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-start-your-index-configuration--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Define your index.",
@@ -78,19 +99,34 @@
           "content": "{\n  \"fields\": [\n    {\n      \"type\": \"text\",\n      \"path\": \"fullplot\",\n      \"model\": \"voyage-3-large\"\n    }\n  ]\n}",
           "tokenEstimate": 39
         }
-      ]
+      ],
+      "slug": "step-2-define-your-index--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Create your index.",
       "headingLevel": 4,
-      "body": "- Click **Next**.\n\n- Review your index configuration and click\n  **Create Vector Search Index**.> **Note:** The index creation can take some time to complete.\n> When the index is being created, the **Status**\n> column in the Atlas UI displays **Pending**.\n> When the index creation completes, the **Status**\n> column in the Atlas UI displays **Ready**.**Shell:**MongoDB Shell",
-      "codeBlocks": []
+      "body": "- Click **Next**.\n\n- Review your index configuration and click\n  **Create Vector Search Index**.\n\n> **Note:** The index creation can take some time to complete.\n> When the index is being created, the **Status**\n> column in the Atlas UI displays **Pending**.\n> When the index creation completes, the **Status**\n> column in the Atlas UI displays **Ready**.\n\nMongoDB Shell",
+      "codeBlocks": [],
+      "slug": "step-3-create-your-index--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Connect to the Atlas cluster using .",
       "headingLevel": 4,
       "body": "To learn more, see [MongoDB Shell](connect-mongo-shell).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-connect-to-the-atlas-cluster-using--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Switch to the database that contains the collection for which you want to create the index.",
@@ -107,12 +143,17 @@
           "content": "use sample_mflix",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-2-switch-to-the-database-that-contains-the-collection-for-which-you-want-to-create-the-index--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Run the  method.",
       "headingLevel": 4,
-      "body": "The [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method has\nthe following syntax:```json\ndb.<COLLECTION-NAME>.createSearchIndex(\n  \"<INDEX-NAME>\",\n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"text\",\n        \"path\": \"<FIELD-NAME>\",\n        \"model\": \"voyage-3-large | voyage-3.5 | voyage-3.5-lite\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<FIELD-NAME>\"\n      },\n      ...\n    ]\n  }\n);\n```> **Example:** For example, to create an index that enables automated\n> embeddings by using the `voyage-3-large` model for the\n> `fullplot` field in the collection, run the following\n> command in your terminal:\n>\n> ```json\n> db.movies.createSearchIndex(\n>   \"movies_automated_embeddings\",\n>   \"vectorSearch\",\n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"text\",\n>         \"path\": \"fullplot\",\n>         \"model\": \"voyage-3-large\"\n>       }\n>     ]\n>   }\n> );\n> ```**Nodejs:**Node.js",
+      "body": "The [db.collection.createSearchIndex()](manual/reference/method/db.collection.createSearchIndex) method has\nthe following syntax:\n\n```json\ndb.<COLLECTION-NAME>.createSearchIndex(\n  \"<INDEX-NAME>\",\n  \"vectorSearch\", \n  {\n    \"fields\": [\n      {\n        \"type\": \"text\",\n        \"path\": \"<FIELD-NAME>\",\n        \"model\": \"voyage-3-large | voyage-3.5 | voyage-3.5-lite\"\n      },\n      {\n        \"type\": \"filter\",\n        \"path\": \"<FIELD-NAME>\"\n      },\n      ...\n    ]\n  }\n);\n```\n\n> **Example:** For example, to create an index that enables automated\n> embeddings by using the `voyage-3-large` model for the\n> `fullplot` field in the collection, run the following\n> command in your terminal:\n>\n> ```json\n> db.movies.createSearchIndex(\n>   \"movies_automated_embeddings\",\n>   \"vectorSearch\",\n>   {\n>     \"fields\": [\n>       {\n>         \"type\": \"text\",\n>         \"path\": \"fullplot\",\n>         \"model\": \"voyage-3-large\"\n>       }\n>     ]\n>   }\n> );\n> ```\n\nNode.js",
       "codeBlocks": [
         {
           "language": "json",
@@ -124,7 +165,12 @@
           "content": "db.movies.createSearchIndex(\n  \"movies_automated_embeddings\",\n  \"vectorSearch\",\n  {\n    \"fields\": [\n      {\n        \"type\": \"text\",\n        \"path\": \"fullplot\",\n        \"model\": \"voyage-3-large\"\n      }\n    ]\n  }\n);",
           "tokenEstimate": 61
         }
-      ]
+      ],
+      "slug": "step-3-run-the-method--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Initialize your Node.js project.",
@@ -136,7 +182,12 @@
           "content": "mkdir auto-embeddings-project\ncd auto-embeddings-project\nnpm init -y",
           "tokenEstimate": 18
         }
-      ]
+      ],
+      "slug": "step-1-initialize-your-nodejs-project--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Create the  file.",
@@ -153,7 +204,12 @@
           "content": "touch create_index.js",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-2-create-the-file--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Define the index in the  file.",
@@ -170,18 +226,28 @@
           "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas deployment\nconst uri =  \"<CONNECTION-STRING>\";\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    const database = client.db(\"sample_mflix\");\n    const collection = database.collection(\"movies\");\n\n    // define your MongoDB Vector Search index\n    const index = {\n      \"name\": \"movies_automated_embeddings\",\n      \"type\": \"vectorSearch\",\n      \"definition\": {\n      \"fields\": [\n        {\n          \"type\": \"text\",\n          \"path\": \"fullplot\",\n          \"model\": \"voyage-3-large\"\n        }\n      ]\n    }\n  }\n  // run the helper method\n  await collection.createSearchIndex(index);\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);",
           "tokenEstimate": 173
         }
-      ]
+      ],
+      "slug": "step-3-define-the-index-in-the-file--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Replace the following values and save the file.",
       "headingLevel": 4,
       "body": "| \\<CONNECTION-STRING> | The connection string for your Atlas cluster.                                                 |\n| -------------------- | --------------------------------------------------------------------------------------------- |\n| \\<DATABASE-NAME>     | The name of the database that contains the collection for which you want to create the index. |\n| \\<COLLECTION-NAME>   | The name of the collection for which you want to create the index.                            |\n| \\<FIELD-NAME>        | The name of the field in the collection that you want to index for Automated Embedding.       |\n| \\<INDEX-NAME>        | The name of the index that you want to create.                                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-4-replace-the-following-values-and-save-the-file--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 5: Run the following command to create the index.",
       "headingLevel": 4,
-      "body": "```javascript\nnode <file-name>.js\n```> **Example:** For example, to create the index defined in the\n> `create_index.js` file, run the following command in\n> your terminal:\n>\n> ```javascript\n> node create_index.js\n> ```**Python:**Python",
+      "body": "```javascript\nnode <file-name>.js\n```\n\n> **Example:** For example, to create the index defined in the\n> `create_index.js` file, run the following command in\n> your terminal:\n>\n> ```javascript\n> node create_index.js\n> ```\n\nPython",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -193,7 +259,12 @@
           "content": "node create_index.js",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-5-run-the-following-command-to-create-the-index--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a  file.",
@@ -210,7 +281,12 @@
           "content": "touch create_index.py",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-1-create-a-file--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Define the index in the  file.",
@@ -227,13 +303,23 @@
           "content": "from pymongo import MongoClient\nfrom pymongo.operations import SearchIndexModel\n\nclient = MongoClient(\"<CONNECTION-STRING>\")\ndb = client[\"sample_mflix\"]\ncollection = db[\"movies\"]\n\nsearch_index_model = SearchIndexModel(\n  definition={\n    \"fields\": [\n      {\n        \"type\": \"text\",\n        \"path\": \"fullplot\",\n        \"model\": \"voyage-3-large\"\n      }\n    ]\n  },\n    name=\"movies_automated_embeddings\",\n    type=\"vectorSearch\",\n)\nresult = collection.create_search_index(model=search_index_model)\nprint(result)",
           "tokenEstimate": 116
         }
-      ]
+      ],
+      "slug": "step-2-define-the-index-in-the-file--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Replace the following values and save the file.",
       "headingLevel": 4,
       "body": "| \\<CONNECTION-STRING> | The connection string for your Atlas cluster.                                                 |\n| -------------------- | --------------------------------------------------------------------------------------------- |\n| \\<database-name>     | The name of the database that contains the collection for which you want to create the index. |\n| \\<collection-name>   | The name of the collection for which you want to create the index.                            |\n| \\<field-name>        | The name of the field in the collection that you want to index for Automated Embedding.       |\n| \\<index-name>        | The name of the index that you want to create.                                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-replace-the-following-values-and-save-the-file--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Run the following command to create the index.",
@@ -250,13 +336,20 @@
           "content": "python create_index.py",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-4-run-the-following-command-to-create-the-index--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "MongoDB Vector Search Query with Automated Embedding",
       "headingLevel": 2,
       "body": "After you create an index with Automated Embedding, you can run text\nqueries against the indexed field. MongoDB Vector Search automatically generates\nembeddings for the text string in your query using the same embedding\nmodel specified in the index. It uses the embeddings to search the index\nfor documents that are semantically similar to the specified query text.\n\nThe following sections describe the [$vectorSearch](pipe.$vectorSearch) pipeline\nsyntax and fields for automatically generating embeddings for your query\ntext against the field indexed for Automated Embedding and demonstrate\nhow to run semantic search queries against the fields indexed for\nAutomated Embedding.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "mongodb-vector-search-query-with-automated-embedding",
+      "variantAgnostic": true
     },
     {
       "heading": "Query Syntax",
@@ -268,31 +361,44 @@
           "content": "{\n  \"$vectorSearch\": {\n    \"index\": \"<index-name>\",\n    \"limit\": <number-of-results>,\n    \"numCandidates\": <number-of-candidates>,\n    \"path\": \"<field-to-search>\",\n    \"query\": \"<query-string>\"\n  }\n}",
           "tokenEstimate": 55
         }
-      ]
+      ],
+      "slug": "query-syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Query Fields",
       "headingLevel": 3,
       "body": "The following fields are required for a MongoDB Vector Search query using automated\nembeddings:\n\n| Field         | Type    | Necessity   | Description                                                                                                                                                                                                                                                                                                                                                                       |\n| ------------- | ------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |\n| exact         | boolean | Conditional | This field is required if numCandidates is omitted. Mutually exclusive with numCandidates.Flag that specifies whether to run ENN (Exact Nearest Neighbor) or ANN (Approximate Nearest Neighbor) search. Value can be one of the following:false - to run ANN (Approximate Nearest Neighbor) searchtrue - to run ENN (Exact Nearest Neighbor) searchIf omitted, defaults to false. |\n| index         | string  | Required    | Name of the MongoDB Vector Search index to use.MongoDB Vector Search doesn't return results if you misspell the index name or if the specified index doesn't already exist on the cluster.                                                                                                                                                                                        |\n| limit         | number  | Required    | Number (of type int only) of documents to return in the results. This value can't exceed the value of numCandidates if you specify numCandidates.                                                                                                                                                                                                                                 |\n| numCandidates | number  | Conditional | This field is required if exact is false or omitted. Mutually exclusive with exact.Number of nearest neighbors to use during the search. Value must be less than or equal to (\\<=) 10000. You can't specify a number less than the number of documents to return (limit).                                                                                                         |\n| path          | string  | Required    | Indexed vector type field to search.                                                                                                                                                                                                                                                                                                                                              |\n| query         | string  | Required    | Text for which to automatically generate embeddings and perform the semantic search.                                                                                                                                                                                                                                                                                              |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "query-fields",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "You can run an ANN (Approximate Nearest Neighbor) or ENN (Exact Nearest Neighbor) query against the indexed field. To learn\nmore, see [Approximate Nearest Neighbor (ANN)](vectorSearch-ann) and [Exact Nearest Neighbor (ENN)](vectorSearch-enn).\n\nYou can't specify vector embeddings in your query against fields indexed\nfor Automated Embedding. Instead, you must run a natural language query\nagainst the field. When you run a natural language query against the\nfield indexed for Automated Embedding, MongoDB Vector Search automatically generates\nthe embeddings for the query text using the same embedding model as the\nindexed field. It then uses the generated embeddings to perform a\nsemantic search against the indexed field.\n\nYou can optionally specify `filter` fields in your query to pre-filter\nthe documents against which MongoDB Vector Search performs the semantic search. To learn\nmore, see [lexical prefilters](vectorSearch-agg-pipeline-filter).\n\nYou can also optionally retrieve the score of the documents in the\nresults. To learn more, see [vector search score](vectorSearch-agg-pipeline-score).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Run a Query Using Automated Embedding",
       "headingLevel": 3,
-      "body": "**Atlas UI:**Atlas UIYou can't run MongoDB Vector Search queries in the Atlas UI. Use the\n[mongosh](mongodb-shell) or a supported driver to run queries.**Shell:**MongoDB Shell",
-      "codeBlocks": []
+      "body": "Atlas UI\n\nMongoDB Shell",
+      "codeBlocks": [],
+      "slug": "run-a-query-using-automated-embedding",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Connect to the Atlas cluster using .",
       "headingLevel": 4,
       "body": "To learn more, see [MongoDB Shell](connect-mongo-shell).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-connect-to-the-atlas-cluster-using--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Switch to the database that contains the collection for which you want to run the query.",
@@ -309,12 +415,17 @@
           "content": "use sample_mflix",
           "tokenEstimate": 4
         }
-      ]
+      ],
+      "slug": "step-2-switch-to-the-database-that-contains-the-collection-for-which-you-want-to-run-the-query--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Run the  method with the  stage.",
       "headingLevel": 4,
-      "body": "The [db.collection.aggregate()](manual/reference/method/db.collection.aggregate) method has the\nfollowing syntax:```javascript\ndb.<COLLECTION-NAME>.aggregate([\n  {\n    \"$vectorSearch\": {\n      \"index\": \"<INDEX-NAME>\", \n      \"path\": \"<FIELD-NAME>\", \n      \"query\": \"<QUERY-TEXT>\", \n      \"numCandidates\": <NUMBER-OF-CANDIDATES-TO-CONSIDER>, \n      \"limit\": <NUMBER-OF-DOCUMENTS-TO-RETURN>\n    }\n  }\n])\n```> **Example:** For example, to run a query against the `fullplot`\n> field in the `movies` collection for a semantic search\n> for movies semantically similar to `young heroes caught\n> in epic struggles between light and darkness`, copy,\n> paste, and run the following query.\n>\n> **Input:**\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$vectorSearch\": {\n>       \"index\": \"movies_automated_embeddings\", \n>       \"path\": \"fullplot\", \n>       \"query\": \"young heroes caught in epic struggles between light and darkness\", \n>       \"numCandidates\": 1000, \n>       \"limit\": 10\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"_id\": 0, \n>       \"title\": 1, \n>       \"fullplot\": 1, \n>       \"score\": {\"$meta\": \"vectorSearchScore\"}\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> [\n>    {\n>        title: 'Day Watch',\n>        fullplot: 'Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.',\n>        score: 0.5449697971343994\n>    },\n>    {\n>        title: 'Dungeons & Dragons',\n>        fullplot: \"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\n>        score: 0.5414832830429077\n>    },\n>    {\n>        title: 'Brave Story',\n>        fullplot: 'A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.',\n>        score: 0.5404887795448303\n>    },\n>    {\n>        title: 'Justin and the Knights of Valour',\n>        fullplot: 'Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.',\n>        score: 0.5374966859817505\n>    },\n>    {\n>        title: 'Forest Warrior',\n>        fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n>        score: 0.5331881642341614\n>    },\n>    {\n>        title: 'Forest Warrior',\n>        fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n>        score: 0.5331881642341614\n>    },\n>    {\n>        title: 'Catatan (Harian) si Boy',\n>        fullplot: \"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\n>        score: 0.5322973728179932\n>    },\n>    {\n>        title: 'Bionicle: Mask of Light',\n>        fullplot: \"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\n>        score: 0.5315042734146118\n>    },\n>    {\n>        title: 'Fear No Evil',\n>        fullplot: 'High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.',\n>        score: 0.5295513868331909\n>    },\n>    {\n>        title: 'Tales of Vesperia: The First Strike',\n>        fullplot: 'In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.',\n>        score: 0.5276793241500854\n>    }\n> ]\n> ```**Nodejs:**Node.js",
+      "body": "The [db.collection.aggregate()](manual/reference/method/db.collection.aggregate) method has the\nfollowing syntax:\n\n```javascript\ndb.<COLLECTION-NAME>.aggregate([\n  {\n    \"$vectorSearch\": {\n      \"index\": \"<INDEX-NAME>\", \n      \"path\": \"<FIELD-NAME>\", \n      \"query\": \"<QUERY-TEXT>\", \n      \"numCandidates\": <NUMBER-OF-CANDIDATES-TO-CONSIDER>, \n      \"limit\": <NUMBER-OF-DOCUMENTS-TO-RETURN>\n    }\n  }\n])\n```\n\n> **Example:** For example, to run a query against the `fullplot`\n> field in the `movies` collection for a semantic search\n> for movies semantically similar to `young heroes caught\n> in epic struggles between light and darkness`, copy,\n> paste, and run the following query.\n>\n> **Input:**\n>\n> ```javascript\n> db.movies.aggregate([\n>   {\n>     \"$vectorSearch\": {\n>       \"index\": \"movies_automated_embeddings\", \n>       \"path\": \"fullplot\", \n>       \"query\": \"young heroes caught in epic struggles between light and darkness\", \n>       \"numCandidates\": 1000, \n>       \"limit\": 10\n>     }\n>   },\n>   {\n>     \"$project\": {\n>       \"_id\": 0, \n>       \"title\": 1, \n>       \"fullplot\": 1, \n>       \"score\": {\"$meta\": \"vectorSearchScore\"}\n>     }\n>   }\n> ])\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> [\n>    {\n>        title: 'Day Watch',\n>        fullplot: 'Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.',\n>        score: 0.5449697971343994\n>    },\n>    {\n>        title: 'Dungeons & Dragons',\n>        fullplot: \"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\n>        score: 0.5414832830429077\n>    },\n>    {\n>        title: 'Brave Story',\n>        fullplot: 'A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.',\n>        score: 0.5404887795448303\n>    },\n>    {\n>        title: 'Justin and the Knights of Valour',\n>        fullplot: 'Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.',\n>        score: 0.5374966859817505\n>    },\n>    {\n>        title: 'Forest Warrior',\n>        fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n>        score: 0.5331881642341614\n>    },\n>    {\n>        title: 'Forest Warrior',\n>        fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n>        score: 0.5331881642341614\n>    },\n>    {\n>        title: 'Catatan (Harian) si Boy',\n>        fullplot: \"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\n>        score: 0.5322973728179932\n>    },\n>    {\n>        title: 'Bionicle: Mask of Light',\n>        fullplot: \"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\n>        score: 0.5315042734146118\n>    },\n>    {\n>        title: 'Fear No Evil',\n>        fullplot: 'High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.',\n>        score: 0.5295513868331909\n>    },\n>    {\n>        title: 'Tales of Vesperia: The First Strike',\n>        fullplot: 'In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.',\n>        score: 0.5276793241500854\n>    }\n> ]\n> ```\n\nNode.js",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -331,7 +442,12 @@
           "content": "[\n   {\n       title: 'Day Watch',\n       fullplot: 'Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.',\n       score: 0.5449697971343994\n   },\n   {\n       title: 'Dungeons & Dragons',\n       fullplot: \"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\n       score: 0.5414832830429077\n   },\n   {\n       title: 'Brave Story',\n       fullplot: 'A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.',\n       score: 0.5404887795448303\n   },\n   {\n       title: 'Justin and the Knights of Valour',\n       fullplot: 'Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.',\n       score: 0.5374966859817505\n   },\n   {\n       title: 'Forest Warrior',\n       fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n       score: 0.5331881642341614\n   },\n   {\n       title: 'Forest Warrior',\n       fullplot: 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.',\n       score: 0.5331881642341614\n   },\n   {\n       title: 'Catatan (Harian) si Boy',\n       fullplot: \"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\n       score: 0.5322973728179932\n   },\n   {\n       title: 'Bionicle: Mask of Light',\n       fullplot: \"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\n       score: 0.5315042734146118\n   },\n   {\n       title: 'Fear No Evil',\n       fullplot: 'High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.',\n       score: 0.5295513868331909\n   },\n   {\n       title: 'Tales of Vesperia: The First Strike',\n       fullplot: 'In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.',\n       score: 0.5276793241500854\n   }\n]",
           "tokenEstimate": 1517
         }
-      ]
+      ],
+      "slug": "step-3-run-the-method-with-the-stage--shell",
+      "selections": {
+        "drivers": "shell"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a  file.",
@@ -343,7 +459,12 @@
           "content": "touch automated-embeddings-query.js",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "step-1-create-a-file--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Define the query in the file.",
@@ -360,18 +481,28 @@
           "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri = \"<CONNECTION-STRING>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"sample_mflix\");\n        const coll = database.collection(\"movies\");\n\n        // define pipeline\n        const agg = [\n            {\n              '$vectorSearch': {\n                'index': 'movies_automated_embeddings',\n                'path': 'fullplot',\n                'query': \"young heroes caught in epic struggles between light and darkness\",\n                'numCandidates': 100,\n                'limit': 10\n              }\n            }, {\n              '$project': {\n                '_id': 0,\n                'fullplot': 1,\n                'title': 1,\n                'score': {\n                  '$meta': 'vectorSearchScore'\n                }\n              }\n            }\n          ];\n        // run pipeline\n        const result = coll.aggregate(agg);\n\n        // print results\n        await result.forEach((doc) => console.dir(JSON.stringify(doc)));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n",
           "tokenEstimate": 243
         }
-      ]
+      ],
+      "slug": "step-2-define-the-query-in-the-file--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Replace the following in the query.",
       "headingLevel": 4,
       "body": "| \\<CONNECTION-STRING>                | Cluster connection string.                                                   |\n| ----------------------------------- | ---------------------------------------------------------------------------- |\n| \\<DATABASE-NAME>                    | Name of the database that contains the collection.                           |\n| \\<COLLECTION-NAME>                  | Name of the collection that contains the indexed field.                      |\n| \\<INDEX-NAME>                       | Name of the index.                                                           |\n| \\<FIELD-NAME>                       | Name of the indexed field.                                                   |\n| \\<QUERY-TEXT>                       | Text string for which to generate embeddings and use in the semantic search. |\n| \\<NUMBER-OF-CANDIDATES-TO-CONSIDER> | Number of nearest neighbors to consider.                                     |\n| \\<NUMBER-OF-DOCUMENTS-TO-RETURN>    | Number of documents to return in the results.                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-replace-the-following-in-the-query--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Run the query.",
       "headingLevel": 4,
-      "body": "```\nnode <FILE-NAME>.js\n```Here `<FILE-NAME>` is the name of the `.js` file you created.> **Example:** For example, to run the example query in the\n> `automated-embeddings-query.js` file, run the following\n> command:\n>\n> **Input:**\n>\n> ```javascript\n> node automated-embeddings-query.js\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> '{\"title\":\"Day Watch\",\"fullplot\":\"Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.\",\"score\":0.5449697971343994}'\n> `{\"title\":\"Dungeons & Dragons\",\"fullplot\":\"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\"score\":0.5414832830429077}`\n> '{\"title\":\"Brave Story\",\"fullplot\":\"A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.\",\"score\":0.5404887795448303}'\n> '{\"title\":\"Justin and the Knights of Valour\",\"fullplot\":\"Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.\",\"score\":0.5374966859817505}'\n> '{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n> '{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n> `{\"title\":\"Catatan (Harian) si Boy\",\"fullplot\":\"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\"score\":0.5322973728179932}`\n> `{\"title\":\"Bionicle: Mask of Light\",\"fullplot\":\"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\"score\":0.5315042734146118}`\n> '{\"title\":\"Fear No Evil\",\"fullplot\":\"High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.\",\"score\":0.5295513868331909}'\n> '{\"title\":\"Tales of Vesperia: The First Strike\",\"fullplot\":\"In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.\",\"score\":0.5276793241500854}'\n> ```**Python:**Python",
+      "body": "```\nnode <FILE-NAME>.js\n```\n\nHere `<FILE-NAME>` is the name of the `.js` file you created.\n\n> **Example:** For example, to run the example query in the\n> `automated-embeddings-query.js` file, run the following\n> command:\n>\n> **Input:**\n>\n> ```javascript\n> node automated-embeddings-query.js\n> ```\n>\n> **Output:**\n>\n> ```javascript\n> '{\"title\":\"Day Watch\",\"fullplot\":\"Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.\",\"score\":0.5449697971343994}'\n> `{\"title\":\"Dungeons & Dragons\",\"fullplot\":\"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\"score\":0.5414832830429077}`\n> '{\"title\":\"Brave Story\",\"fullplot\":\"A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.\",\"score\":0.5404887795448303}'\n> '{\"title\":\"Justin and the Knights of Valour\",\"fullplot\":\"Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.\",\"score\":0.5374966859817505}'\n> '{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n> '{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n> `{\"title\":\"Catatan (Harian) si Boy\",\"fullplot\":\"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\"score\":0.5322973728179932}`\n> `{\"title\":\"Bionicle: Mask of Light\",\"fullplot\":\"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\"score\":0.5315042734146118}`\n> '{\"title\":\"Fear No Evil\",\"fullplot\":\"High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.\",\"score\":0.5295513868331909}'\n> '{\"title\":\"Tales of Vesperia: The First Strike\",\"fullplot\":\"In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.\",\"score\":0.5276793241500854}'\n> ```\n\nPython",
       "codeBlocks": [
         {
           "language": "text",
@@ -388,7 +519,12 @@
           "content": "'{\"title\":\"Day Watch\",\"fullplot\":\"Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.\",\"score\":0.5449697971343994}'\n`{\"title\":\"Dungeons & Dragons\",\"fullplot\":\"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\",\"score\":0.5414832830429077}`\n'{\"title\":\"Brave Story\",\"fullplot\":\"A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.\",\"score\":0.5404887795448303}'\n'{\"title\":\"Justin and the Knights of Valour\",\"fullplot\":\"Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.\",\"score\":0.5374966859817505}'\n'{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n'{\"title\":\"Forest Warrior\",\"fullplot\":\"John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.\",\"score\":0.5331881642341614}'\n`{\"title\":\"Catatan (Harian) si Boy\",\"fullplot\":\"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\",\"score\":0.5322973728179932}`\n`{\"title\":\"Bionicle: Mask of Light\",\"fullplot\":\"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\",\"score\":0.5315042734146118}`\n'{\"title\":\"Fear No Evil\",\"fullplot\":\"High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.\",\"score\":0.5295513868331909}'\n'{\"title\":\"Tales of Vesperia: The First Strike\",\"fullplot\":\"In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.\",\"score\":0.5276793241500854}'",
           "tokenEstimate": 1435
         }
-      ]
+      ],
+      "slug": "step-4-run-the-query--nodejs",
+      "selections": {
+        "drivers": "nodejs"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Create a  file.",
@@ -400,7 +536,12 @@
           "content": "touch automated-embeddings-query.py",
           "tokenEstimate": 7
         }
-      ]
+      ],
+      "slug": "step-1-create-a-file--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Define the query in the file.",
@@ -417,13 +558,23 @@
           "content": "import pymongo\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<CONNECTION-STRING>\")\n\n# define pipeline\npipeline = [\n  {\n    '$vectorSearch': {\n      'index': 'movies_automated_embeddings',\n      'path': 'fullplot',\n      'query': \"young heroes caught in epic struggles between light and darkness\",\n      'numCandidates': 100,\n      'limit': 10\n    },\n  },\n  {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'fullplot': 1,\n      'score': {'$meta': 'vectorSearchScore'}\n    }\n  }\n]\n\n# run pipeline\nresult = client[\"sample_mflix\"][\"movies\"].aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n ",
           "tokenEstimate": 170
         }
-      ]
+      ],
+      "slug": "step-2-define-the-query-in-the-file--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 3: Replace the following in the query.",
       "headingLevel": 4,
       "body": "| \\<CONNECTION-STRING>                | Cluster connection string.                                                   |\n| ----------------------------------- | ---------------------------------------------------------------------------- |\n| \\<DATABASE-NAME>                    | Name of the database that contains the collection.                           |\n| \\<COLLECTION-NAME>                  | Name of the collection that contains the indexed field.                      |\n| \\<INDEX-NAME>                       | Name of the index.                                                           |\n| \\<FIELD-NAME>                       | Name of the indexed field.                                                   |\n| \\<QUERY-TEXT>                       | Text string for which to generate embeddings and use in the semantic search. |\n| \\<NUMBER-OF-CANDIDATES-TO-CONSIDER> | Number of nearest neighbors to consider.                                     |\n| \\<NUMBER-OF-DOCUMENTS-TO-RETURN>    | Number of documents to return in the results.                                |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-replace-the-following-in-the-query--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 4: Run the query.",
@@ -444,6 +595,46 @@
           "language": "javascript",
           "content": "{'title': 'Day Watch', 'fullplot': 'Anton belongs to the Forces of the Light as well as his powerful girlfriend and apprentice, but his son is a powerful teenager from the Darkness and Anton protects him. When the balance between Light and Darkness is affected by the death of some evil vampires, Anton is framed and accused of the murders, and he chases an ancient chalk that has the power of changing the destiny of its owner.', 'score': 0.5449697971343994}\n{'title': 'Dungeons & Dragons', 'fullplot': \"The Empire of Izmer has long been a divided land. The Mages - an elite group of magic-users - rule whilst the lowly commoners are powerless. Izmer's young Empress, Savina, wants equality and prosperity for all, but the evil Mage Profion is plotting to depose her and establish his own rule. The Empress possesses a scepter which controls Izmer's Golden Dragons. To challenge her rule, Profion must have the scepter, and tricks the Council of Mages into believing Savina is unfit to hold it. Knowing that Profion will bring death and destruction to Izmer, Savina must find the legendary Rod of Savrille, a mythical rod that has the power to control Red Dragons, a species even mightier than the Gold. Enter two thieves, Ridley and Snails, who unwittingly become instrumental in Savina's search for the Rod. Joined by a feisty Dwarf named Elwood, and helped by the Empress's expert tracker, the Elf Norda, the young heroes go in search of the Rod of Savrille. From the deadly maze of the Thieves Guild at Antius to an Elven Village, secret grotto and abandoned castles, Ridley and his band must outwit Profion's chief henchman Damodar at every turn while, back in Izmer, Profion prepares to do battle with the Empress. All depends on the Rod, but the outcome of the race to reach it first is far from certain, and Izmar's very survival hangs in the balance.\", 'score': 0.5414832830429077}\n{'title': 'Brave Story', 'fullplot': 'A young boy attempts to change his destiny by entering a magic gateway to another world; but on his quest to find the Tower of Fortune and be granted any wish, he must conjure up all his bravery to battle demons, his friends, and ultimately himself.', 'score': 0.5404887795448303}\n{'title': 'Justin and the Knights of Valour', 'fullplot': 'Justin lives in a kingdom where bureaucrats rule and knights have been ousted. His dream is to be become one of the Knights of Valour, like his grandfather was, but his father Reginald, the chief counsel to the Queen, wants his son to follow in his footsteps and become a lawyer. After an inspiring visit to his beloved Grandmother and bidding farewell to his supposed lady-love Lara, Justin leaves home and embarks on a quest to become a knight. Along the way he meets the beautiful, feisty Talia, a quirky wizard called Melquiades, and the handsome Sir Clorex and is mentored by three monks; Blucher, Legantir and Braulio, who teach and test him in the ancient ways of the Knights of Valour. Whilst an unlikely candidate for knighthood, Justin must rise to the challenge quickly when banished former knight Sir Heraclio and his army, lead by Sota, return and threaten to destroy the Kingdom.', 'score': 0.5374966859817505}\n{'title': 'Forest Warrior', 'fullplot': 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.', 'score': 0.5331881642341614}\n{'title': 'Forest Warrior', 'fullplot': 'John McKenna is a spiritual being who is able to transform into bear, wolf or eagle. He lives in the forests of Tanglewood and has dedicated his life to protect them. One day a gang of evil lumberjacks led by Travis Thorne arrive Tanglewood to chop the forest down. McKenna cannot let this happen, and together with his new friends - Lords of the Tanglewood, a band of children who love to play in the forest - he battles against Thorne and his evil gang.', 'score': 0.5331881642341614}\n{'title': 'Catatan (Harian) si Boy', 'fullplot': \"A circle of friends risking their Friendship, Trust, Love and Hope in search of a legend. A young and privileged teenager with a golden heart, beset with challenges and tribulations we face today with the goal to open many young people's mind with inspirations and hopes that drive them in achieving their dreams. To get out of their comfort zone and finish what they started.\", 'score': 0.5322973728179932}\n{'title': 'Bionicle: Mask of Light', 'fullplot': \"In a land of living machines, two young ones are chosen to seek the legendary Mask of Light to reveal the savior of all the lands from the dark forces of the Makuta. During the course of their adventure, they will call on the heroes of their people, the great Toa. These Toa, masters of nature's forces such as Fire, Wind, Earth & Water, try to protect the chosen ones as they seek their destiny.\", 'score': 0.5315042734146118}\n{'title': 'Fear No Evil', 'fullplot': 'High school student turns out to be personification of Lucifer. Two arch angels in human form (as women) take him on.', 'score': 0.5295513868331909}\n{'title': 'Tales of Vesperia: The First Strike', 'fullplot': 'In a mythical kingdom, the mighty Imperial Knights harness a magical substance known as Aer to power their weapons and protect humanity from the monsters of the forest. But something strange is afoot. The Aer is somehow changing, causing the wilderness to waste away and stirring the woodland beasts to attack with greater frequency. As danger creeps steadily closer to civilization, two young recruits - Flynn, the rigid son of a fallen hero, and the rebellious and brash Yuri - must ride with their fellow Imperial Knights to distant ruins in hopes of uncovering the truth behind the transforming Aer. Some will not survive the thrilling journey. Some will be betrayed. If Flynn and Yuri cannot overcome their differences and learn to fight together, all will be lost for the people of the realm.', 'score': 0.5276793241500854}",
           "tokenEstimate": 1475
+        }
+      ],
+      "slug": "step-4-run-the-query--python",
+      "selections": {
+        "drivers": "python"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Run a Query Using Automated Embedding",
+      "headingLevel": 3,
+      "body": "You can't run MongoDB Vector Search queries in the Atlas UI. Use the\n[mongosh](mongodb-shell) or a supported driver to run queries.",
+      "codeBlocks": [],
+      "slug": "run-a-query-using-automated-embedding--atlas-ui",
+      "selections": {
+        "drivers": "atlas-ui"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "drivers",
+      "text": "drivers",
+      "selections": [
+        {
+          "value": "atlas-ui",
+          "text": "atlas-ui"
+        },
+        {
+          "value": "shell",
+          "text": "shell"
+        },
+        {
+          "value": "nodejs",
+          "text": "nodejs"
+        },
+        {
+          "value": "python",
+          "text": "python"
         }
       ]
     }

@@ -7,60 +7,99 @@
       "heading": "About the n8n Workflow with MongoDB",
       "headingLevel": 2,
       "body": "The following screenshot demonstrates the workflow that\nyou will build in this tutorial. In this workflow, you create an AI agent\nthat uses two MongoDB nodes:\n\n- [MongoDB Atlas Vector Store Node](n8n-vector-store) to retrieve relevant documents from the sample data\n\n- [MongoDB Chat Memory Node](n8n-chat-memory) to store conversation history\n\nIt also uses OpenAI as the LLM and embedding model provider.\n\nWhen you send a message to the agent, it triggers the following actions:\n\n- The AI agent node processes the user message and determines the next action.\n\n- The AI agent checks whether it needs to make any tool calls.\n\n  - If yes, it calls the MongoDB Vector Store node\n    to retrieve documents.\n\n  - If not, it continues to the next action.\n\n- The agent generates a response using the\n  LLM that you configured for the workflow.\n\n- After each interaction, the MongoDB Chat Memory node\n  stores the conversation history.\n\n![Screenshot of AI agent workflow with n8n and MongoDB](/ai-integrations/images/n8n-mongodb-ai-agent-workflow.png)\n\n> **Note:** The red asterisks in the AI Agent node's configuration indicate required parameters.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "about-the-n8n-workflow-with-mongodb",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "Before you begin, ensure that you have the following:\n\n- [n8n installed](https://docs.n8n.io/hosting/).\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- The [Load Sample Data Into Atlas](sample-data) loaded into your MongoDB deployment.\n\n- An OpenAI API key, or an API key for any other supported provider of\n  LLMs and embedding models that you intend to use.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "When working with n8n and MongoDB, consider the following:\n\n- For MongoDB Atlas users, ensure that you add your n8n IP addresses to your\n  project's IP Access List. To learn more, see\n  [IP Access List](access-list).\n\n- When configuring the MongoDB Vector Store node, ensure that you\n  toggle the **Include Metadata** to **Off**.\n  If you don't toggle this setting to **Off**, the AI agent might not run\n  as the documents might be too large to load into the context window.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the Vector Search Index",
       "headingLevel": 2,
-      "body": "You must create a [index definition](avs-types-vector-search)\non your collection before you can use the MongoDB vector store node.Visual EditorSpecify plot\\_embedding as the field to index and specify\n`1536` dimensions.To configure the index, select Dot Product\nfrom the Similarity Method dropdown.JSON EditorPaste the following index definition in the JSON editor:```json\n{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}\n```To use a different index creation method, follow the steps in the\n[create a MongoDB Vector Search index with the Atlas UI](avs-create-index-procedure).\nUse the following configuration:```json\n{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding\",\n      \"numDimensions\": 1536,\n      \"similarity\": \"dotProduct\"\n    }\n  ]\n}\n```",
+      "body": "You must create a [index definition](avs-types-vector-search)\non your collection before you can use the MongoDB vector store node.\n\nVisual Editor\n\nTo configure the index, select Dot Product\nfrom the Similarity Method dropdown.\n\nJSON Editor\n\nTo use a different index creation method, follow the steps in the\n[create a MongoDB Vector Search index with the Atlas UI](avs-create-index-procedure).\nUse the following configuration:\n\n```json\n{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding\",\n      \"numDimensions\": 1536,\n      \"similarity\": \"dotProduct\"\n    }\n  ]\n}\n```",
       "codeBlocks": [
-        {
-          "language": "json",
-          "content": "{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}",
-          "tokenEstimate": 46
-        },
         {
           "language": "json",
           "content": "{\n  \"fields\": [\n    {\n      \"type\": \"vector\",\n      \"path\": \"plot_embedding\",\n      \"numDimensions\": 1536,\n      \"similarity\": \"dotProduct\"\n    }\n  ]\n}",
           "tokenEstimate": 46
         }
-      ]
+      ],
+      "slug": "create-the-vector-search-index",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Create the Vector Search Index",
+      "headingLevel": 2,
+      "body": "Specify plot\\_embedding as the field to index and specify\n`1536` dimensions.",
+      "codeBlocks": [],
+      "slug": "create-the-vector-search-index--vib",
+      "selections": {
+        "tabs": "vib"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Create the Vector Search Index",
+      "headingLevel": 2,
+      "body": "Paste the following index definition in the JSON editor:\n\n```json\n{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}\n```",
+      "codeBlocks": [
+        {
+          "language": "json",
+          "content": "{\n    \"fields\": [\n        {\n            \"type\": \"vector\",\n            \"numDimensions\": 1536,\n            \"path\": \"plot_embedding\",\n            \"similarity\": \"dotProduct\"\n        }\n    ]\n}",
+          "tokenEstimate": 46
+        }
+      ],
+      "slug": "create-the-vector-search-index--jsoneditor",
+      "selections": {
+        "tabs": "jsoneditor"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Configure Credentials in n8n",
       "headingLevel": 2,
       "body": "In this section, you complete the steps to configure\nthe required credentials in n8n.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "configure-credentials-in-n8n",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Open the Credentials configuration page.",
       "headingLevel": 3,
       "body": "In the upper right corner of the n8n home page, right click **Create Workflow**.\nAlternatively, select the **Credentials** tab and click **Add first credential**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-open-the-credentials-configuration-page",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Add credentials for your model provider.",
       "headingLevel": 3,
       "body": "- From the drop-down menu, select the credentials to configure.\n\n  For example, select **OpenAI** and click **Continue**.\n\n- To see which parameters to enter for your model provider,\n  check the [Credentials Library](https://docs.n8n.io/integrations/builtin/credentials/).\n\n  For example, for OpenAI, enter the API Key, the name of the organization, and the base URL.\n\n- Click **Save**. n8n adds the credential to your personal space.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-2-add-credentials-for-your-model-provider",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Add credentials for MongoDB.",
       "headingLevel": 3,
       "body": "Follow the same instructions described in the previous step\nto add your MongoDB credentials to n8n.\nSpecify the following values:\n\n| Setting            | Value                                                                                                             |\n| ------------------ | ----------------------------------------------------------------------------------------------------------------- |\n| Configuration Type | In the dropdown menu, select the Connection String method.                                                        |\n| Connection String  | Enter your MongoDB Connection String.To learn how to find your MongoDB connection string, see Connection Strings. |\n| Database           | Enter sample\\_mflix.                                                                                              |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-3-add-credentials-for-mongodb",
+      "variantAgnostic": true
     },
     {
       "heading": "Configure the AI Agent Workflow",
@@ -96,6 +135,24 @@
           "language": "text",
           "content": "Here are a few movies about time travel that you might enjoy:\n\nThe Time Traveler's Wife - A romantic drama about a Chicago librarian with a gene that causes him to involuntarily time travel, leading to complications in his marriage.\n\nTimecop - An officer working for a security agency that regulates time travel must battle for his life against a corrupt politician tied to his past.\n\nWe Are from the Future (My iz budushchego) - Four modern-day treasure seekers are unexpectedly transported into the midst of a World War II battle set in Russia.\n\nAbout Time - A young man discovers at the age of 21 that he can travel back in time. He attempts to improve his life, including finding love, but things don't turn out to be as simple as they seem.\n\nLet me know if you'd like any additional information about these films!",
           "tokenEstimate": 170
+        }
+      ],
+      "slug": "configure-the-ai-agent-workflow",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "vib",
+          "text": "vib"
+        },
+        {
+          "value": "jsoneditor",
+          "text": "jsoneditor"
         }
       ]
     }

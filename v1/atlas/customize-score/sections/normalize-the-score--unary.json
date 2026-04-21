@@ -1,0 +1,22 @@
+{
+  "heading": "Normalize the Score",
+  "headingLevel": 2,
+  "body": "**Input:**\n\n```json\ndb.movies.aggregate([{\n    \"$search\": {\n        \"text\": {\n          \"path\": \"title\",\n          \"query\": \"men\",\n          \"score\": {\n            \"function\": {\n              \"log\": {\n                \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 10\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    {\n      \"$limit\": 5\n    },\n    {\n      \"$addFields\": {\n        \"score\": {\n          \"$meta\": \"searchScore\"\n        }\n      }\n    },\n    {\n      \"$setWindowFields\": {\n        \"output\": {\n          \"maxScore\": {\n            \"$max\": \"$score\"\n          }\n        }\n      }\n    },\n    {\n      \"$addFields\": {\n        \"normalizedScore\": {\n          \"$divide\": [\n              \"$score\", \"$maxScore\"\n        ]\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"_id\": 0,\n        \"title\": 1,\n        \"score\": 1,\n        \"maxScore\": 1,\n        \"normalizedScore\": 1\n      }\n    }\n])\n```\n\n**Output:**\n\n```javascript\n[\n    {\n        title: '12 Angry Men',\n        score: 0.9493899941444397,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 1\n    },\n    {\n        title: 'The Men Who Built America',\n        score: 0.9344984292984009,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9843145968064908\n    },\n    {\n        title: 'No Country for Old Men',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    },\n    {\n        title: 'X-Men: Days of Future Past',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    },\n    {\n        title: 'The Best of Men',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([{\n    \"$search\": {\n        \"text\": {\n          \"path\": \"title\",\n          \"query\": \"men\",\n          \"score\": {\n            \"function\": {\n              \"log\": {\n                \"path\": {\n                \"value\": \"imdb.rating\",\n                \"undefined\": 10\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    {\n      \"$limit\": 5\n    },\n    {\n      \"$addFields\": {\n        \"score\": {\n          \"$meta\": \"searchScore\"\n        }\n      }\n    },\n    {\n      \"$setWindowFields\": {\n        \"output\": {\n          \"maxScore\": {\n            \"$max\": \"$score\"\n          }\n        }\n      }\n    },\n    {\n      \"$addFields\": {\n        \"normalizedScore\": {\n          \"$divide\": [\n              \"$score\", \"$maxScore\"\n        ]\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"_id\": 0,\n        \"title\": 1,\n        \"score\": 1,\n        \"maxScore\": 1,\n        \"normalizedScore\": 1\n      }\n    }\n])",
+      "tokenEstimate": 236
+    },
+    {
+      "language": "javascript",
+      "content": "[\n    {\n        title: '12 Angry Men',\n        score: 0.9493899941444397,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 1\n    },\n    {\n        title: 'The Men Who Built America',\n        score: 0.9344984292984009,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9843145968064908\n    },\n    {\n        title: 'No Country for Old Men',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    },\n    {\n        title: 'X-Men: Days of Future Past',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    },\n    {\n        title: 'The Best of Men',\n        score: 0.9084849953651428,\n        maxScore: 0.9493899941444397,\n        normalizedScore: 0.9569144408182233\n    }\n]",
+      "tokenEstimate": 269
+    }
+  ],
+  "slug": "normalize-the-score--unary",
+  "selections": {
+    "tabs": "unary"
+  },
+  "variantAgnostic": false
+}

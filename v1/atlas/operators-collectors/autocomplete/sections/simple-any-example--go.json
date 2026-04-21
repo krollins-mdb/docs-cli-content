@@ -1,0 +1,17 @@
+{
+  "heading": "Simple any Example",
+  "headingLevel": 4,
+  "body": "Each query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 4 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`.\n\n```go\npackage main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{{Key: \"autocomplete\", Value: bson.D{{Key: \"query\", Value: \"men with\"}, {Key: \"path\", Value: \"title\"}, {Key: \"tokenOrder\", Value: \"any\"}}}}}}\n\tlimitStage := bson.D{{Key: \"$limit\", Value: 4}}\n\tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"title\", Value: 1}, {Key: \"_id\", Value: 0}}}}\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{{Key: \"autocomplete\", Value: bson.D{{Key: \"query\", Value: \"men with\"}, {Key: \"path\", Value: \"title\"}, {Key: \"tokenOrder\", Value: \"any\"}}}}}}\n\tlimitStage := bson.D{{Key: \"$limit\", Value: 4}}\n\tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"title\", Value: 1}, {Key: \"_id\", Value: 0}}}}\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 323
+    }
+  ],
+  "slug": "simple-any-example--go",
+  "selections": {
+    "drivers": "go"
+  },
+  "variantAgnostic": false
+}

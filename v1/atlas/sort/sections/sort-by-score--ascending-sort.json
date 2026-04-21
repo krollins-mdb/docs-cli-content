@@ -1,0 +1,22 @@
+{
+  "heading": "Sort by Score",
+  "headingLevel": 3,
+  "body": "The following query uses the [$search](pipe.$search) stage to perform\nthe following actions:\n\n- Search for movies that have the term `story` in the title.\n\n- Sort the results by score in ascending order.\n\nThe query uses the [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to `5`\ndocuments. It also uses the [$project](manual/reference/operator/aggregation/project) stage to perform the\nfollowing actions:\n\n- Omit all fields except `title` in the results.\n\n- Add a field named `score`.\n\n**Input:**\n\n```json\ndb.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"story\"\n      },\n      \"sort\": {score: {$meta: \"searchScore\", order: 1}}\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": {$meta: \"searchScore\"}\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    title: 'Do You Believe in Miracles? The Story of the 1980 U.S. Hockey Team',\n    score: 0.8674521446228027\n  },\n  {\n    title: 'Once in a Lifetime: The Extraordinary Story of the New York Cosmos',\n    score: 0.9212141036987305\n  },\n  {\n    title: 'The Source: The Story of the Beats and the Beat Generation',\n    score: 0.9820802211761475\n  },\n  {\n    title: 'If These Knishes Could Talk: The Story of the NY Accent',\n    score: 0.9820802211761475\n  },\n  {\n    title: 'Dream Deceivers: The Story Behind James Vance vs. Judas Priest',\n    score: 1.051558256149292\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    \"$search\": {\n      \"text\": {\n        \"path\": \"title\",\n        \"query\": \"story\"\n      },\n      \"sort\": {score: {$meta: \"searchScore\", order: 1}}\n    }\n  },\n  {\n    \"$limit\": 5\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": {$meta: \"searchScore\"}\n    }\n  }\n])",
+      "tokenEstimate": 103
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    title: 'Do You Believe in Miracles? The Story of the 1980 U.S. Hockey Team',\n    score: 0.8674521446228027\n  },\n  {\n    title: 'Once in a Lifetime: The Extraordinary Story of the New York Cosmos',\n    score: 0.9212141036987305\n  },\n  {\n    title: 'The Source: The Story of the Beats and the Beat Generation',\n    score: 0.9820802211761475\n  },\n  {\n    title: 'If These Knishes Could Talk: The Story of the NY Accent',\n    score: 0.9820802211761475\n  },\n  {\n    title: 'Dream Deceivers: The Story Behind James Vance vs. Judas Priest',\n    score: 1.051558256149292\n  }\n]",
+      "tokenEstimate": 184
+    }
+  ],
+  "slug": "sort-by-score--ascending-sort",
+  "selections": {
+    "tabs": "ascending-sort"
+  },
+  "variantAgnostic": false
+}

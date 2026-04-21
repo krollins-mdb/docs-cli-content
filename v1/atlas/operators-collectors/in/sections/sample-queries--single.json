@@ -1,0 +1,22 @@
+{
+  "heading": "Sample Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the `in` operator to search the\n`birthdate` field, which contains a single value, for customers\nwho were born on given dates. The query uses the\n[$project](manual/reference/operator/aggregation/project) stage to:\n\n- Omit the `_id` field in the results.\n\n- Include only the `name` and `birthdate` fields in the\n  results.\n\n**Input:**\n\n```json\ndb.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]\n```\n\nMongoDB Search returns two documents that it matches with the dates\nspecified in the query.",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "db.customers.aggregate([\n  {\n    \"$search\": {\n      \"in\": {\n        \"path\": \"birthdate\",\n        \"value\": [ISODate(\"1977-03-02T02:20:31.000+00:00\"), ISODate(\"1977-03-01T00:00:00.000+00:00\"), ISODate(\"1977-05-06T21:57:35.000+00:00\")]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 0,\n      \"name\": 1,\n      \"birthdate\": 1\n    }\n  }\n])",
+      "tokenEstimate": 134
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    name: 'Elizabeth Ray',\n    birthdate: ISODate(\"1977-03-02T02:20:31.000Z\")\n  },\n  {\n    name: 'Brad Cardenas',\n    birthdate: ISODate(\"1977-05-06T21:57:35.000Z\")\n  }\n]",
+      "tokenEstimate": 71
+    }
+  ],
+  "slug": "sample-queries--single",
+  "selections": {
+    "tabs": "single"
+  },
+  "variantAgnostic": false
+}

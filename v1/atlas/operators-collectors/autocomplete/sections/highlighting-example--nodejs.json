@@ -1,0 +1,17 @@
+{
+  "heading": "Highlighting Example",
+  "headingLevel": 3,
+  "body": "The query includes a:\n\n- [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results.\n\n- [$project](manual/reference/operator/aggregation/project) stage to:\n\n  - return the document's score.\n\n  - exclude all fields except `title`.\n\n  - add a new field called `highlights`, which contains highlighting\n    information.\n\n```javascript\nconst { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri =\n    \"<connection-string>\";\n    \nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"sample_mflix\");\n        const coll = database.collection(\"movies\");\n\n        // define pipeline\n        const agg = [\n            {$search: {autocomplete: {query: \"ger\", path: \"title\"}, highlight:{path: \"title\"}}},\n            {$limit: 5},\n            {$project: {score: {$meta: \"searchScore\"}, _id: 0,title: 1, highlights: {$meta: \"searchHighlights\"}}}\n        ];\n        // run pipeline\n        const result = coll.aggregate(agg);\n\n        // print results\n        result.forEach((doc) => console.dir(JSON.stringify(doc)));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// connect to your Atlas cluster\nconst uri =\n    \"<connection-string>\";\n    \nconst client = new MongoClient(uri);\n\nasync function run() {\n    try {\n        await client.connect();\n\n        // set namespace\n        const database = client.db(\"sample_mflix\");\n        const coll = database.collection(\"movies\");\n\n        // define pipeline\n        const agg = [\n            {$search: {autocomplete: {query: \"ger\", path: \"title\"}, highlight:{path: \"title\"}}},\n            {$limit: 5},\n            {$project: {score: {$meta: \"searchScore\"}, _id: 0,title: 1, highlights: {$meta: \"searchHighlights\"}}}\n        ];\n        // run pipeline\n        const result = coll.aggregate(agg);\n\n        // print results\n        result.forEach((doc) => console.dir(JSON.stringify(doc)));\n    } finally {\n        await client.close();\n    }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 199
+    }
+  ],
+  "slug": "highlighting-example--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

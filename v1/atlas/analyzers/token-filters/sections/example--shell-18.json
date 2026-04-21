@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"spanishPluralStemmer\", \n  \"mappings\": {\n    \"fields\": {\n      \"text\": { \n        \"type\": \"document\",\n        \"fields\": {\n          \"es_MX\": {\n            \"analyzer\": \"spanishPluralStemmer\",\n            \"searchAnalyzer\": \"spanishPluralStemmer\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"spanishPluralStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"spanishPluralStemming\"\n        }\n      ]\n    }\n  ]\n})\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"punto\",\n        \"path\": \"text.es_MX\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.es_MX\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: 4,\n    text : {\n      es_MX: 'La página ha sido actualizada con los puntos de la agenda.',\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"spanishPluralStemmer\", \n  \"mappings\": {\n    \"fields\": {\n      \"text\": { \n        \"type\": \"document\",\n        \"fields\": {\n          \"es_MX\": {\n            \"analyzer\": \"spanishPluralStemmer\",\n            \"searchAnalyzer\": \"spanishPluralStemmer\",\n            \"type\": \"string\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"spanishPluralStemmer\",\n      \"charFilters\": [],\n      \"tokenizer\": {\n        \"type\": \"standard\"\n      },\n      \"tokenFilters\": [\n        {\n          \"type\": \"lowercase\"\n        },\n        {\n          \"type\": \"spanishPluralStemming\"\n        }\n      ]\n    }\n  ]\n})\n",
+      "tokenEstimate": 188
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"punto\",\n        \"path\": \"text.es_MX\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.es_MX\": 1\n    }\n  }\n])",
+      "tokenEstimate": 76
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: 4,\n    text : {\n      es_MX: 'La página ha sido actualizada con los puntos de la agenda.',\n    }\n  }\n]",
+      "tokenEstimate": 38
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

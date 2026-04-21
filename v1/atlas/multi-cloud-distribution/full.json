@@ -7,175 +7,335 @@
       "heading": "Considerations",
       "headingLevel": 2,
       "body": "- Atlas does not guarantee that host names remain consistent with\n  respect to node types during topology changes.\n\n  > **Example:** If you have a cluster named `foo123` containing an analytics\n  > node `foo123-shard-00-03-a1b2c.mongodb.net:27017`, Atlas does\n  > not guarantee that specific host name will continue to refer to an\n  > analytics node after a topology change, such as\n  > scaling a cluster to modify its\n  > number of nodes or regions.\n\n- In sharded clusters that use a [dedicated config server](config-server-types), Atlas distributes the three config server\n  nodes based on the number of electable regions in the cluster. If the\n  cluster has:\n\n  - Only one electable region, Atlas deploys all three config\n    nodes in that region.\n\n  - Two electable regions, Atlas deploys two config nodes in the\n    highest priority region and one config node in the second highest\n    priority region.\n\n  - Three or more electable regions, Atlas deploys one config node\n    in each of the three highest priority regions.\n\n- Having a large number of regions or having nodes spread across\n  long distances may lead to long election times or replication lag.\n\n- A cluster change that adds, removes, or modifies voting members will take longer, since\n  Atlas adds, removes, or modifies [voting members](manual/core/replica-set-elections) one at a time on a [Atlas High Availability](high-availability).\n\n- Clusters can span regions and cloud service providers. The total number\n  of nodes in clusters spanning across regions has a specific constraint\n  on a per-project basis.\n\n  Atlas limits the total number of nodes in other regions in one\n  project to a total of 40, **not** including:\n\n  - Google Cloud regions communicating with each other\n\n  - Free clusters\n\n  - Flex clusters\n\n  Sharded clusters include additional nodes. The electable nodes on\n  the dedicated Config Server Replica Set (CSRS) count towards the\n  total number of allowable nodes. Each sharded cluster has an\n  additional electable node per region as part of the dedicated CSRS. To\n  learn more, see [Replica Set Config Servers](manual/core/sharded-cluster-config-servers).\n\n  The total number of nodes between any two regions must meet this\n  constraint.\n\n  > **Example:** If an Atlas project has nodes in clusters spread across three\n  > regions:\n  >\n  > - 30 nodes in **Region A**\n  >\n  > - 10 nodes in **Region B**\n  >\n  > - 5 nodes in **Region C**\n  >\n  > You can only add 5 more nodes to **Region C** because:\n  >\n  > - If you exclude Region C, Region A + Region B = 40.\n  >\n  >\n  > - If you exclude Region B, Region A + Region C = 35, \\<= 40.\n  >\n  >\n  > - If you exclude Region A, Region B + Region C = 15, \\<= 40.\n  >\n  >\n  > - Each combination of regions with the added 5 nodes still meets\n  >   the per-project constraint:\n  >\n  >   - Region A + B = 40&#x20;\n  >\n  >   - Region A + C = 40&#x20;\n  >\n  >   - Region B + C = 20&#x20;\n\n  You can't create a multi-region cluster in a project if it has one or\n  more clusters spanning 40 or more nodes in other regions.\n\n  Contact Atlas [support](manual/support) for questions\n  or assistance with raising this limit.\n\n- Atlas provides built-in custom write concerns for multi-region\n  clusters. Use these write concerns to ensure your write operations\n  propagate to a desired number of regions, thereby ensuring data\n  consistency across your regions. To learn more, see\n  [Built-In Custom Write Concerns](built-in-custom-wc).\n\n- The number of availability zones, zones, or fault domains in a region has no effect on the number of MongoDB\n  nodes Atlas can deploy. MongoDB Atlas clusters are always made of\n  replica sets with a minimum of three MongoDB nodes.\n\n- If you use the [standard connection string format](manual/reference/connection-string)\n  rather than the DNS (Domain Name System) seedlist format, removing an entire region from an\n  existing cross-region cluster may result in a new connection string.\n\n  To verify the correct connection string after deploying the changes:\n\n  # Step 1: Click .\n\n- If you plan on creating one or more VPC (Virtual Private Cloud) peering connections on\n  your first `M10+` dedicated paid cluster for the selected region\n  or regions, first review the documentation on\n  VPC Peering Connections.\n\n- Atlas may use different cloud provider hardware for `M10` and `M20`\n  clusters in specific [Google Cloud Platform (GCP)](google-gcp) regions. As a result,\n  certain [Google Cloud Platform (GCP)](google-gcp) region combinations may not be supported by\n  multi-region `M10` and `M20` clusters.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Electable Nodes for High Availability",
       "headingLevel": 2,
       "body": "If you add regions with electable nodes, you:\n\n- increase data availability\n\n- reduce the impact of data center outages\n\nYou can deploy nodes to multiple regions within the same cloud provider\nor across multiple cloud providers.\n\nAtlas sets the node in the first row of the Electable\nnodes table as the Highest Priority region. Atlas\nprioritizes nodes in this region for [primary](manual/reference/glossary) eligibility. Other\nnodes rank in the order that they appear. For more information, see\n[Member Priority](manual/core/replica-set-elections).\n\nEach electable node can:\n\n- Participate in replica set elections\n\n- Become the [primary](manual/reference/glossary) while the majority of nodes in the\n  replica set remain available\n\n> **Important:**&#x20;\n>\n> When Global Writes are enabled, Global Clusters do not support dedicated search nodes.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "electable-nodes-for-high-availability",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Electable Nodes",
       "headingLevel": 3,
       "body": "You can add electable nodes in one cloud provider and region from the\n**Electable nodes for high availability** section.\n\nTo add an electable node:\n\n- Click **Add a provider/region**.\n\n- Select the cloud provider from the **Provider** dropdown.\n\n- Select the region from the **Region** dropdown.\n\n  When you change the **Provider** option, the\n  **Region** changes to a blank option. If you don't select a\n  region, Atlas displays an error when you click\n  **Create Cluster**.\n\n- Specify the desired number of **Nodes** for the provider and\n  region.\n\n  The total number of electable nodes across all providers and regions\n  in the cluster must equal **3**, **5**, or **7**.\n\nAtlas considers regions marked with a star as\nrecommended. These regions provide higher availability compared to\nother regions.\n\nTo learn more, see:\n\n- [availability zones](amazon-aws-availability-zones)\n\n- [GCP zones](google-gcp-availability-zones)\n\n- [availability zones](microsoft-azure-availability-zones)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-electable-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Remove Electable Nodes",
       "headingLevel": 3,
       "body": "To remove a node from a region, click the trash-alt icon to the\nright side of that region. You cannot remove a node in the\n**Highest Priority** region.\n\nTo learn more, see [Multi-Region Cluster Backups](multi-region-cloud-backup).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "remove-electable-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Change Electable Nodes to Read-Only Nodes",
       "headingLevel": 3,
       "body": "You can change an electable node to a [read-only nodes](deploy-read-only-replicas) by adding a read-only node and removing an\nelectable node at the same time. To learn more, see [Change Workload Purpose of Nodes](change-workload-purpose).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "change-electable-nodes-to-read-only-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Improve the Availability of a Cluster",
       "headingLevel": 3,
       "body": "To improve the redundancy and availability of a cluster, increase the\nnumber of electable nodes in that region. Every Atlas cluster has a\n**Highest Priority** region. If your cluster spans multiple\nregions, you can select which cloud provider region should be the\n**Highest Priority**.\n\nTo prevent loss of availability and performance, consider the following\nscenarios:\n\n| Point of Failure | How to Prevent this Point of Failure                                                                              |\n| ---------------- | ----------------------------------------------------------------------------------------------------------------- |\n| Cloud Provider   | Minimum of one node set in all three cloud providers. More than one node per region.                              |\n| Region           | Minimum of one node set in three or more different regions. More than one node per region.                        |\n| Node             | Three or more electable nodes in a Recommended region orThree or more electable nodes across two or more regions. |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "improve-the-availability-of-a-cluster",
+      "variantAgnostic": true
     },
     {
       "heading": "Change the Highest Priority Provider or Region",
       "headingLevel": 3,
       "body": "If you change the **Highest Priority** provider or region in an\nactive multi-region cluster, Atlas selects a new [primary](manual/reference/glossary)\nnode in the provider and region that you specify (assuming that the\nnumber of nodes in each provider and region remains the same and nothing\nelse is modified).\n\nIf Cloud Backup is enabled on your cluster when you change the\nprimary region, Atlas takes an on-demand snapshot and stores it in\nthe new primary region without waiting for the next scheduled snapshot.\nIf the new primary region was previously a secondary backup region for\n[snapshot copy distribution](snapshot-distribution), Atlas\nautomatically updates your [cluster-level backup policy](configure-backup-policy) to distribute snapshot copies from the new\nprimary region to the original primary region and other secondary\nregions.\n\n> **Example:** If you have an active 5-node cluster with the following\n> configuration:\n>\n> | Nodes | Provider                  | Region    | Priority |\n> | ----- | ------------------------- | --------- | -------- |\n> | 3     | AWS (Amazon Web Services) | us-east-1 | Highest  |\n> | 2     | Google Cloud              | us-west3  |          |\n>\n> To make the Google Cloud **us-west3** nodes the **Highest\n> Priority**, drag its row to the top of your cluster's\n> **Electable nodes** list. After this change, Atlas elects a\n> new **PRIMARY** in **us-west3**. Atlas doesn't start an initial\n> sync or re-provision hosts when changing this configuration.\n\n> **Important:** Certain circumstances may delay an election of a new\n> [primary](manual/reference/glossary).\n>\n> For example, a sharded cluster with heavy workloads on its [primary](manual/reference/glossary)\n> shard may delay the election. This results in not having all\n> primary nodes in the same region temporarily.\n>\n> To minimize these risks, avoid modifying your primary region during\n> periods of heavy workload.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "change-the-highest-priority-provider-or-region",
+      "variantAgnostic": true
     },
     {
       "heading": "Read-Only Nodes for Optimal Local Reads",
       "headingLevel": 2,
       "body": "Use read-only nodes to optimize local reads in the nodes' respective\nservice areas.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "read-only-nodes-for-optimal-local-reads",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Read-Only Nodes",
       "headingLevel": 3,
       "body": "You can add read-only nodes from the\n**Read-Only Nodes for Optimal Local Reads** section.\n\nTo add a read-only node in one cloud provider and region:\n\n- Click **Add a provider/region**.\n\n- Select the cloud provider from the **Provider** dropdown.\n\n- Select the region from the **Region** dropdown.\n\n  When you change the **Provider** option, the\n  **Region** changes to a blank option. If you don't select a\n  region, Atlas displays an error when you click\n  **Create Cluster**.\n\n- Specify the desired number of **Nodes** for the provider and\n  region.\n\nAtlas considers regions marked with a star as\nrecommended. These regions provide higher availability compared to\nother regions.\n\nRead-only nodes don't provide high availability because they don't\nparticipate in [elections](manual/reference/glossary). They can't become the\n[primary](manual/reference/glossary) for their cluster. To direct queries to read-only nodes,\nuse [pre-defined replica set tags](replica-set-tags).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-read-only-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Remove Read-Only Nodes",
       "headingLevel": 3,
       "body": "To remove all read-only nodes in one cloud provider and region, click\nthe trash-alt icon to the right of that cloud provider and\nregion.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "remove-read-only-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Change Workload Purpose of Nodes",
       "headingLevel": 3,
       "body": "You can change a node's workload purpose by adding and removing nodes at the\nsame time.\n\n> **Note:** You must add and remove the node within the same configuration change\n> to reuse a node. If you remove the node, save the change, then add the node,\n> Atlas provisions a new node instead.\n\nFor example, to change a read-only node to an [electable node](deploy-across-multiple-cloud-providers):\n\n- [add electable nodes](add-electable-node).\n\n- [Remove a read-only node](remove-read-only-node).\n\n- Click **Review Changes**.\n\n- Click **Apply Changes**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "change-workload-purpose-of-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Analytics Nodes for Workload Isolation",
       "headingLevel": 2,
       "body": "Use [analytics nodes](analytics-nodes-overview) to isolate\nqueries which you do not wish to contend with your operational\nworkload. Analytics nodes help handle data analysis operations, such as\nreporting queries from BI Connector for Atlas. To direct queries to analytics nodes,\nuse [pre-defined replica set tags](replica-set-tags).\n\nClick Add a region to select a region in which to\ndeploy analytics nodes. Specify the desired number of\nNodes for the region.\n\n> **Note:** The [readPreference](manual/reference/connection-string) and\n> [readPreferenceTags](manual/reference/connection-string) connection\n> string options are unavailable for the [mongo](manual/mongo) shell. To learn more, see [cursor.readPref()](manual/reference/method/cursor.readPref)\n> and [Mongo.setReadPref()](manual/reference/method/Mongo.setReadPref) instead.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "analytics-nodes-for-workload-isolation",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Analytics Nodes",
       "headingLevel": 3,
       "body": "You can add analytics nodes from the\n**Analytics nodes for workload isolation** section.\n\nTo add analytics nodes in one cloud provider and region:\n\n- Click **Add a provider/region**.\n\n- Select the cloud provider from the **Provider** dropdown.\n\n- Select the region from the **Region** dropdown.\n\n  When you change the **Provider** option, the\n  **Region** changes to a blank option. If you don't select a\n  region, Atlas displays an error when you click\n  **Create Cluster**.\n\n- Specify the desired number of **Nodes** for the provider and\n  region.\n\nAtlas considers regions marked with a star as\nrecommended. These regions provide higher availability compared to\nother regions.\n\nAnalytics nodes don't provide high availability because they don't\nparticipate in [elections](manual/reference/glossary). They can't become the\n[primary](manual/reference/glossary) for their cluster.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "add-analytics-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Select a Cluster Tier for Your Analytics Nodes",
       "headingLevel": 3,
       "body": "Your workloads can vary greatly between analytics and operational nodes.\nTo help manage this issue, for `M10+` clusters, you can\n[Select Cluster Tier](create-cluster-instance)\nappropriately sized for your analytics workload. You can select a\ncluster tier for your analytics nodes that's larger or smaller than\nthe cluster tier selected for your electable and read-only nodes\n(operational nodes). This functionality helps to ensure that you get\nthe performance required for your transactional and analytical queries\nwithout over or under provisioning your entire cluster for your\nanalytical workload.\n\nThe following considerations apply to the Analytics Tier\ntab and analytic nodes:\n\n> **Important:** If you select a cluster tier on the Analytics Tier\n> tab significantly below the cluster tier selected on the\n> Base Tier tab, [replication lag](manual/tutorial/troubleshoot-replica-sets)\n> might result. The analytics node might fall off the [oplog](manual/reference/glossary)\n> altogether.\n\n- If you select a General cluster tier on the\n  Analytics Tier tab and a Low-CPU cluster\n  tier on the Base Tier tab, disk auto-scaling isn't\n  supported for the cluster. Disk auto-scaling also isn't\n  supported if you select a General cluster tier on the\n  Base Tier tab and a Low-CPU cluster\n  tier on the Analytics Tier tab.\n\n- Disk size and IOPS must remain the same across all node\n  types.\n\n- Storage size must match between the Base Tier tab and\n  Analytics Tier tab. You can set the storage size on the\n  Base Tier tab.\n\n- If you want to select the Local NVME SSD class on the\n  Base Tier tab, the Analytics Tier tab\n  must have the same tier level selected.\n\n- If a cluster tier appears grayed out, the cluster tier isn't\n  compatible with the disk size of the cluster or the\n  Local NVME SSD class.\n\n- A cluster tier selected on the Analytics Tier tab is\n  priced the same as a cluster tier selected on the\n  Base Tier tab. However, when an\n  Analytics Tier is higher or lower than the\n  Base Tier, the price adjusts accordingly on a\n  prorated per-node basis. The pricing appears in the Atlas UI when\n  you create or edit a cluster. To learn more, see,\n  [Billing Cost Explorer](atlas-billing).\n\nAfter you [Analytics nodes](add-analytics-node), you can\n[Select Cluster Tier](create-cluster-instance)\nappropriately sized for your analytics workload.\n\n- In the **Cluster Tier** section, click the\n  **Analytics Tier** tab.\n\n- Select the **Cluster Tier**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "select-a-cluster-tier-for-your-analytics-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Remove Analytics Nodes",
       "headingLevel": 3,
       "body": "To remove all analytics nodes in one cloud provider and region, click\nthe trash-alt icon to the right of that cloud provider and\nregion.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "remove-analytics-nodes",
+      "variantAgnostic": true
     },
     {
       "heading": "Search Nodes for Workload Isolation",
       "headingLevel": 2,
       "body": "You can set the nodes in your cluster to run only the MongoDB Search\n`mongot` process. When you run the MongoDB Search `mongot` process\nseparately, you improve the availability and workload balancing of the\n`mongot` process. To learn more, see [Search Nodes](what-is-search-node).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "search-nodes-for-workload-isolation",
+      "variantAgnostic": true
     },
     {
       "heading": "Considerations",
       "headingLevel": 3,
       "body": "On `M10` or higher Atlas clusters running MongoDB v6.0 and\nhigher, you can configure Search Nodes separately from the database\nnodes. Review the following before deploying MongoDB Search nodes separately.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "considerations",
+      "variantAgnostic": true
     },
     {
       "heading": "Cluster Tier",
       "headingLevel": 4,
       "body": "You can deploy Search Nodes for dedicated (`M10` or higher)\nclusters only. You can't add Search Nodes on free (`M0`) tier clusters\nor Flex clusters. You can use the Atlas UI and the Atlas Administration API\nto provision Search Nodes for new and existing clusters on AWS (Amazon Web Services), Google Cloud, or Azure (Microsoft Azure).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "cluster-tier",
+      "variantAgnostic": true
     },
     {
       "heading": "Cloud Provider",
       "headingLevel": 4,
       "body": "You can host the Search Nodes on any cloud provider.\nYou can't deploy Search Nodes separately\nfor [Manage Global Clusters](global-clusters).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "cloud-provider",
+      "variantAgnostic": true
     },
     {
       "heading": "Cloud Provider Regions",
       "headingLevel": 4,
-      "body": "Atlas deploys the Search Nodes in the same AWS (Amazon Web Services), Google Cloud, or Azure (Microsoft Azure)\nregions as your electable, read-only, and analytics nodes.Atlas supports deploying Search Nodes separately for workload\nisolation in only specific AWS (Amazon Web Services), Google Cloud, and Azure (Microsoft Azure) regions. The\nfollowing Atlas UI behavior applies:* If you select any of the following AWS (Amazon Web Services) or Azure (Microsoft Azure) regions for your\n  cluster nodes first, Atlas disables the Search\n  nodes for workload isolation toggle.\n\n* If you enable Search nodes for workload isolation\n  first, Atlas disables the following in the dropdown for regions\n  under Electable nodes for high availability.Atlas doesn't support the following AWS (Amazon Web Services), Google Cloud, and Azure (Microsoft Azure)\nregions for search nodes.AWS| Region Name | AWS Region     |\n| ----------- | -------------- |\n| Paris       | eu-west-3      |\n| Zurich      | eu-central-2   |\n| Milan       | eu-south-1     |\n| Spain       | eu-south-2     |\n| UAE         | me-central-1   |\n| Bahrain     | me-south-1     |\n| Cape Town   | af-south-1     |\n| Hong Kong   | ap-east-1      |\n| Jakarta     | ap-southeast-3 |\n| Melbourne   | ap-south-4     |\n| Hyderabad   | ap-south-2     |Google Cloud| Region Name                | Google Cloud Region      |\n| -------------------------- | ------------------------ |\n| Queretaro, Mexico          | NORTH\\_AMERICA\\_SOUTH\\_1 |\n| Berlin, Germany            | EUROPE\\_WEST\\_10         |\n| Dammam, Saudi Arabia       | MIDDLE\\_EAST\\_CENTRAL\\_2 |\n| Johannesburg, South Africa | AFRICA\\_SOUTH\\_1         |Azure| Region Name                                            | Azure Region       |\n| ------------------------------------------------------ | ------------------ |\n| AUSTRALIA\\_CENTRAL                                     | australiacentral   |\n| AUSTRALIA\\_CENTRAL\\_2                                  | australiacentral2  |\n| AUSTRALIA\\_SOUTH\\_EAST                                 | australiasoutheast |\n| BRAZIL\\_SOUTHEAST                                      | brazilsoutheast    |\n| CANADA\\_EAST                                           | canadaeast         |\n| FRANCE\\_SOUTH                                          | francesouth        |\n| GERMANY\\_NORTH                                         | germanynorth       |\n| INDIA\\_WEST                                            | westindia          |\n| INDIA\\_SOUTH                                           | southindia         |\n| ITALY\\_NORTH (available for low-CPU Search Nodes only) | italynorth         |\n| JAPAN\\_WEST                                            | japanwest          |\n| KOREA\\_SOUTH                                           | koreasouth         |\n| NORWAY\\_WEST                                           | norwaywest         |\n| SOUTH\\_AFRICA\\_WEST                                    | southafricawest    |\n| SPAIN\\_CENTRAL                                         | spaincentral       |\n| SWEDEN\\_SOUTH                                          | swedensouth        |\n| SWITZERLAND\\_WEST                                      | switzerlandwest    |\n| UAE\\_CENTRAL                                           | uaecentral         |\n| UK\\_WEST                                               | ukwest             |\n| US\\_WEST\\_CENTRAL                                      | westcentralus      |\n| US\\_WEST                                               | westus             |\n| US\\_NORTH\\_CENTRAL                                     | northcentralus     |To deploy Search Nodes separately, you must select a supported AWS (Amazon Web Services), Google Cloud,\nor Azure (Microsoft Azure) region from the **Electable nodes for high availability**\ndropdown. To learn more about the supported regions, see [Cloud Providers and Regions](create-cluster-cloud-provider-region).\nAtlas automatically uses the same region for read-only and analytics\nnodes on your cluster. After deployment, you can't change the\ncloud provider or cloud provider region for your Atlas cluster.",
-      "codeBlocks": []
+      "body": "Atlas deploys the Search Nodes in the same AWS (Amazon Web Services), Google Cloud, or Azure (Microsoft Azure)\nregions as your electable, read-only, and analytics nodes.\n\nAtlas supports deploying Search Nodes separately for workload\nisolation in only specific AWS (Amazon Web Services), Google Cloud, and Azure (Microsoft Azure) regions. The\nfollowing Atlas UI behavior applies:\n\n- If you select any of the following AWS (Amazon Web Services) or Azure (Microsoft Azure) regions for your\n  cluster nodes first, Atlas disables the Search\n  nodes for workload isolation toggle.\n\n- If you enable Search nodes for workload isolation\n  first, Atlas disables the following in the dropdown for regions\n  under Electable nodes for high availability.\n\nAtlas doesn't support the following AWS (Amazon Web Services), Google Cloud, and Azure (Microsoft Azure)\nregions for search nodes.\n\nAWS\n\nGoogle Cloud\n\nAzure\n\nTo deploy Search Nodes separately, you must select a supported AWS (Amazon Web Services), Google Cloud,\nor Azure (Microsoft Azure) region from the **Electable nodes for high availability**\ndropdown. To learn more about the supported regions, see [Cloud Providers and Regions](create-cluster-cloud-provider-region).\nAtlas automatically uses the same region for read-only and analytics\nnodes on your cluster. After deployment, you can't change the\ncloud provider or cloud provider region for your Atlas cluster.",
+      "codeBlocks": [],
+      "slug": "cloud-provider-regions",
+      "variantAgnostic": true
     },
     {
       "heading": "Multi-Region and Multi-Cloud Clusters",
       "headingLevel": 5,
       "body": "Atlas supports deploying Search Nodes across multiple\nregions and cloud providers. When deploying Search Nodes\nfor multi-region or multi-cloud clusters, consider the following:\n\n- Atlas deploys the same number of Search Nodes\n  in each region.\n\n- All nodes across regions have the same [Search Tier](select-tiers-for-search-nodes).\n\n- If you use the [Atlas Administration API](atlas-admin-api)\n  to add a new region to existing Search Nodes, Atlas deploys\n  the same number of Search Nodes in the new region. However, if the\n  new region does not support the current search tier, the\n  request fails.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multi-region-and-multi-cloud-clusters",
+      "variantAgnostic": true
     },
     {
       "heading": "Sharded Clusters with Search Nodes",
       "headingLevel": 5,
       "body": "Atlas requires a minimum of two Search Nodes for every region in a\nAtlas cluster. This requirement applies to all cluster types,\nincluding sharded clusters.\n\nWhen deploying sharded clusters that rely heavily on MongoDB Search or\nMongoDB Vector Search, understanding the Search Node topology requirements is crucial\nfor ensuring high availability and optimal performance. The following\ntopology requirements apply specifically to sharded clusters with Search\nNodes:\n\n- **Multi-Region Deployments**: If your sharded cluster spans multiple\n  regions, Atlas automatically deploys the specified number of Search\n  Nodes in each region that contains database nodes.\n\n- **Minimum Number of Nodes**: Each region with database nodes must have at\n  least two Search Nodes to maintain availability during maintenance\n  operations or node failures.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "sharded-clusters-with-search-nodes",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Cloud Provider Regions",
+      "headingLevel": 4,
+      "body": "| Region Name | AWS Region     |\n| ----------- | -------------- |\n| Paris       | eu-west-3      |\n| Zurich      | eu-central-2   |\n| Milan       | eu-south-1     |\n| Spain       | eu-south-2     |\n| UAE         | me-central-1   |\n| Bahrain     | me-south-1     |\n| Cape Town   | af-south-1     |\n| Hong Kong   | ap-east-1      |\n| Jakarta     | ap-southeast-3 |\n| Melbourne   | ap-south-4     |\n| Hyderabad   | ap-south-2     |",
+      "codeBlocks": [],
+      "slug": "cloud-provider-regions--aws",
+      "selections": {
+        "cloud-provider": "aws"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Cloud Provider Regions",
+      "headingLevel": 4,
+      "body": "| Region Name                | Google Cloud Region      |\n| -------------------------- | ------------------------ |\n| Queretaro, Mexico          | NORTH\\_AMERICA\\_SOUTH\\_1 |\n| Berlin, Germany            | EUROPE\\_WEST\\_10         |\n| Dammam, Saudi Arabia       | MIDDLE\\_EAST\\_CENTRAL\\_2 |\n| Johannesburg, South Africa | AFRICA\\_SOUTH\\_1         |",
+      "codeBlocks": [],
+      "slug": "cloud-provider-regions--gcp",
+      "selections": {
+        "cloud-provider": "gcp"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Cloud Provider Regions",
+      "headingLevel": 4,
+      "body": "| Region Name                                            | Azure Region       |\n| ------------------------------------------------------ | ------------------ |\n| AUSTRALIA\\_CENTRAL                                     | australiacentral   |\n| AUSTRALIA\\_CENTRAL\\_2                                  | australiacentral2  |\n| AUSTRALIA\\_SOUTH\\_EAST                                 | australiasoutheast |\n| BRAZIL\\_SOUTHEAST                                      | brazilsoutheast    |\n| CANADA\\_EAST                                           | canadaeast         |\n| FRANCE\\_SOUTH                                          | francesouth        |\n| GERMANY\\_NORTH                                         | germanynorth       |\n| INDIA\\_WEST                                            | westindia          |\n| INDIA\\_SOUTH                                           | southindia         |\n| ITALY\\_NORTH (available for low-CPU Search Nodes only) | italynorth         |\n| JAPAN\\_WEST                                            | japanwest          |\n| KOREA\\_SOUTH                                           | koreasouth         |\n| NORWAY\\_WEST                                           | norwaywest         |\n| SOUTH\\_AFRICA\\_WEST                                    | southafricawest    |\n| SPAIN\\_CENTRAL                                         | spaincentral       |\n| SWEDEN\\_SOUTH                                          | swedensouth        |\n| SWITZERLAND\\_WEST                                      | switzerlandwest    |\n| UAE\\_CENTRAL                                           | uaecentral         |\n| UK\\_WEST                                               | ukwest             |\n| US\\_WEST\\_CENTRAL                                      | westcentralus      |\n| US\\_WEST                                               | westus             |\n| US\\_NORTH\\_CENTRAL                                     | northcentralus     |",
+      "codeBlocks": [],
+      "slug": "cloud-provider-regions--azure",
+      "selections": {
+        "cloud-provider": "azure"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Search Tier",
       "headingLevel": 4,
       "body": "You can select a search tier for your Search Nodes in the\nSearch Tier tab.\n\nBy default, Atlas deploys Search Nodes on\n`S20`. You can select a higher tier for faster queries and more\ncomplex aggregations, or a lower tier for smaller workloads. If you\nwant to downsize to a lower tier, the search tier must accommodate\nany existing search indexes, along with additional disk space for\nbumper files and logs.\n\nFor Search Nodes deployed on AWS (Amazon Web Services), Atlas provides different search\ntiers in different regions. If the search tier that you selected is not\navailable for your region, Atlas automatically deploys the search\nnodes in the next higher tier that is available in that region.\nTo learn more, see [AWS Search Tiers](amazon-aws-search-tiers).\n\nTo learn more about search tiers for Search Nodes deployed on Google Cloud\nor Azure (Microsoft Azure), see:\n\n- [GCP Search Tiers](google-gcp-search-tiers)\n\n- [Azure Search Tiers](microsoft-azure-search-tiers)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "search-tier",
+      "variantAgnostic": true
     },
     {
       "heading": "Enable Encryption at Rest",
       "headingLevel": 4,
       "body": "By default, MongoDB and [search processes](about-mongot) run on the same nodes.\nWith this architecture, customer-managed encryption applies to your database data,\nbut it does not apply to search indexes.\n\nWhen you enable [Search Nodes](what-is-search-node), search processes run on separate nodes. This allows\nyou to enable [Enable Customer Key Management for Search Nodes](enable-search-node-encryption),\nso you can encrypt both database data and search indexes with the same\ncustomer-managed keys for comprehensive encryption coverage.\n\n> **Note:** Database nodes and Search Nodes use different encryption methods\n> with the same customer-managed keys. Database nodes use the\n> [WiredTiger Encrypted Storage Engine](manual/core/security-encryption-at-rest),\n> while Search Nodes use encryption at the disk level.\n\nTo learn more, see\n[Enable Customer Key Management for Search Nodes](enable-search-node-encryption).\n\n> **Important:** This feature is available across KMS (Key Management Service) providers, but the\n> Search Nodes must be on AWS (Amazon Web Services).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "enable-encryption-at-rest",
+      "variantAgnostic": true
     },
     {
       "heading": "Add Search Nodes",
       "headingLevel": 3,
-      "body": "**Ui:**Atlas UITo configure separate Search Nodes on your Atlas cluster,\ndo the following:* Toggle **Multi-Cloud, Multi-Region & Workload\n  Isolation (M10+ clusters)** to **On**.\n\n* Toggle **Search nodes for workload isolation** to\n  **On**.\n\n* Specify the number of nodes to deploy. You can specify between\n  a minimum of 2 and a maximum of 32 nodes.\n\n  After deployment, you can modify the cluster to add and remove\n  any additional Search Nodes.\n\n  > **Note:** For multi-region clusters, Atlas deploys\n  > the specified number of nodes in each region.\n  > To learn more, see [Multi-Region and Multi-Cloud Clusters](multi-region-search-nodes).\n\n* Expand **Cluster Tier** to select a tier for your search\n  nodes in the **Search Tiers** tab.\n\n  To learn more about the different tiers for your Search Nodes, see\n  [Search Tier](select-tiers-for-search-nodes).**Atlascli:**Atlas CLITo create a search node for a cluster using the\nAtlas CLI, run the following command:```sh\n\natlas clusters search nodes create [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters search nodes create](atlas/cli/current/command/atlas-clusters-search-nodes-create).**Api:**Atlas Administration API> **Note:** You can add Search Nodes to existing Atlas cluster only\n> if you currently don't have any and have never created MongoDB Search\n> indexes on your cluster.To configure separate Search Nodes on your Atlas cluster,\nsend a `POST` request to the [MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource `/deployment` [endpoint](api/doc/atlas-admin-api-v2/operation/operation-creategroupclustersearchdeployment). You must specify the number of\nnodes and the [Search Tier](select-tiers-for-search-nodes). You can deploy between a minimum\nof 2 and a maximum of 32 nodes. To learn more, see\n[Create Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-creategroupclustersearchdeployment).When you add Search Nodes to a cluster that doesn't have any search\nnodes, the existing `mongot` processes running alongside `mongod`\ntail writes to the database that happen after MongoDB Search completed the\ninitial sync and the `mongot` processes on the new dedicated search\nnodes perform an initial sync on the required collections. This\nresults in dual reads during the migration process.",
+      "body": "Atlas UI\n\nAtlas CLI\n\nTo create a search node for a cluster using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters search nodes create [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters search nodes create](atlas/cli/current/command/atlas-clusters-search-nodes-create).\n\nAtlas Administration API\n\nWhen you add Search Nodes to a cluster that doesn't have any search\nnodes, the existing `mongot` processes running alongside `mongod`\ntail writes to the database that happen after MongoDB Search completed the\ninitial sync and the `mongot` processes on the new dedicated search\nnodes perform an initial sync on the required collections. This\nresults in dual reads during the migration process.",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas clusters search nodes create [options]\n",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "add-search-nodes",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Add Search Nodes",
+      "headingLevel": 3,
+      "body": "To configure separate Search Nodes on your Atlas cluster,\ndo the following:\n\n- Toggle **Multi-Cloud, Multi-Region & Workload\n  Isolation (M10+ clusters)** to **On**.\n\n- Toggle **Search nodes for workload isolation** to\n  **On**.\n\n- Specify the number of nodes to deploy. You can specify between\n  a minimum of 2 and a maximum of 32 nodes.\n\n  After deployment, you can modify the cluster to add and remove\n  any additional Search Nodes.\n\n  > **Note:** For multi-region clusters, Atlas deploys\n  > the specified number of nodes in each region.\n  > To learn more, see [Multi-Region and Multi-Cloud Clusters](multi-region-search-nodes).\n\n- Expand **Cluster Tier** to select a tier for your search\n  nodes in the **Search Tiers** tab.\n\n  To learn more about the different tiers for your Search Nodes, see\n  [Search Tier](select-tiers-for-search-nodes).",
+      "codeBlocks": [],
+      "slug": "add-search-nodes--ui",
+      "selections": {
+        "interface": "ui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Add Search Nodes",
+      "headingLevel": 3,
+      "body": "> **Note:** You can add Search Nodes to existing Atlas cluster only\n> if you currently don't have any and have never created MongoDB Search\n> indexes on your cluster.\n\nTo configure separate Search Nodes on your Atlas cluster,\nsend a `POST` request to the [MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource `/deployment` [endpoint](api/doc/atlas-admin-api-v2/operation/operation-creategroupclustersearchdeployment). You must specify the number of\nnodes and the [Search Tier](select-tiers-for-search-nodes). You can deploy between a minimum\nof 2 and a maximum of 32 nodes. To learn more, see\n[Create Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-creategroupclustersearchdeployment).",
+      "codeBlocks": [],
+      "slug": "add-search-nodes--api",
+      "selections": {
+        "interface": "api"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Remove Search Nodes",
       "headingLevel": 3,
-      "body": "**Ui:**Atlas UI**Remove-some:**Remove SomeTo remove some Search Nodes, adjust the **Number of\nSearch Nodes** setting under **Search nodes for workload\nisolation**. You can deploy between 2 and 32 Search Nodes on your\ncluster.**Remove-all:**Remove All> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.To remove all Search Nodes on your Atlas cluster,\ndo the following:* Toggle **Search nodes for workload isolation** to\n  **Off**.\n\n  You can now select any region from the available cloud\n  providers.\n\n* Click **Remove** to confirm in the **Are\n  you sure you want to remove Search Nodes?** modal.\n\n* Click **Review Changes**.\n\n* Click the checkbox to confirm that you understand and agree to\n  the considerations for deleting a cluster with Search Nodes.\n\n  There will be a brief interruption in processing your search\n  query results.\n\n* Click **Apply Changes**.**Atlascli:**Atlas CLI> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.To delete a search node for a cluster using the\nAtlas CLI, run the following command:```sh\n\natlas clusters search nodes delete [options]\n\n```To learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters search nodes delete](atlas/cli/current/command/atlas-clusters-search-nodes-delete).**Api:**Atlas Administration API**Remove-some:**Remove SomeTo add or remove Search Nodes or modify search tier on your\nAtlas cluster, send a `PATCH` request to the\n[MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource\n`/deployment` [Update Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-updateatlassearchdeployment) endpoint.You can specify the following:* The number of nodes to remove. If omitted, Atlas doesn't\n  change the current number of deployed nodes.\n\n* The [Search Tier](select-tiers-for-search-nodes) to use\n  to switch to a different search tier. If omitted, Atlas\n  doesn't modify the current search tier for the deployed nodes.To learn more, see [Update Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-updateatlassearchdeployment).**Remove-all:**Remove All> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.To remove all Search Nodes on your Atlas cluster,\nsend a `DELETE` request to the [MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource `/deployment` [endpoint](api/doc/atlas-admin-api-v2/operation/operation-deleteatlassearchdeployment). To learn more, see\n[Delete Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-deleteatlassearchdeployment).If you delete all existing Search Nodes on your cluster, there will\nbe an interruption in processing your search query results while\nAtlas migrates from `mongot` processes running separately on\ndedicated Search Nodes to `mongot` processes running alongside\n`mongod`. You can't run queries while indexes are building on the\nnode that hosts both the `mongot` and `mongod` processes, and you\nwill experience query downtime.",
+      "body": "Atlas UI\n\nRemove Some\n\nTo remove some Search Nodes, adjust the **Number of\nSearch Nodes** setting under **Search nodes for workload\nisolation**. You can deploy between 2 and 32 Search Nodes on your\ncluster.\n\nRemove All\n\n> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.\n\nTo remove all Search Nodes on your Atlas cluster,\ndo the following:\n\n- Toggle **Search nodes for workload isolation** to\n  **Off**.\n\n  You can now select any region from the available cloud\n  providers.\n\n- Click **Remove** to confirm in the **Are\n  you sure you want to remove Search Nodes?** modal.\n\n- Click **Review Changes**.\n\n- Click the checkbox to confirm that you understand and agree to\n  the considerations for deleting a cluster with Search Nodes.\n\n  There will be a brief interruption in processing your search\n  query results.\n\n- Click **Apply Changes**.\n\nAtlas CLI\n\nTo delete a search node for a cluster using the\nAtlas CLI, run the following command:\n\n```sh\n\natlas clusters search nodes delete [options]\n\n```\n\nTo learn more about the command syntax and parameters, see the\nAtlas CLI documentation for [atlas clusters search nodes delete](atlas/cli/current/command/atlas-clusters-search-nodes-delete).\n\nAtlas Administration API\n\nRemove Some\n\nTo add or remove Search Nodes or modify search tier on your\nAtlas cluster, send a `PATCH` request to the\n[MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource\n`/deployment` [Update Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-updateatlassearchdeployment) endpoint.\n\nYou can specify the following:\n\n- The number of nodes to remove. If omitted, Atlas doesn't\n  change the current number of deployed nodes.\n\n- The [Search Tier](select-tiers-for-search-nodes) to use\n  to switch to a different search tier. If omitted, Atlas\n  doesn't modify the current search tier for the deployed nodes.\n\nTo learn more, see [Update Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-updateatlassearchdeployment).\n\nRemove All\n\n> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.\n\nTo remove all Search Nodes on your Atlas cluster,\nsend a `DELETE` request to the [MongoDB Search](api/doc/atlas-admin-api-v2/group/endpoint-atlas-search) resource `/deployment` [endpoint](api/doc/atlas-admin-api-v2/operation/operation-deleteatlassearchdeployment). To learn more, see\n[Delete Search Nodes](api/doc/atlas-admin-api-v2/operation/operation-deleteatlassearchdeployment).\n\nIf you delete all existing Search Nodes on your cluster, there will\nbe an interruption in processing your search query results while\nAtlas migrates from `mongot` processes running separately on\ndedicated Search Nodes to `mongot` processes running alongside\n`mongod`. You can't run queries while indexes are building on the\nnode that hosts both the `mongot` and `mongod` processes, and you\nwill experience query downtime.",
       "codeBlocks": [
         {
           "language": "sh",
           "content": "\natlas clusters search nodes delete [options]\n",
           "tokenEstimate": 10
         }
-      ]
+      ],
+      "slug": "remove-search-nodes",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Remove Search Nodes",
+      "headingLevel": 3,
+      "body": "> **Important:** If you remove all Search Nodes, you lose\n> Search Node encryption with [Enable Customer Key Management for Search Nodes](enable-search-node-encryption). Your data\n> will still use Atlas's default encryption, but\n> your search workloads and indexes will no longer be\n> encrypted with your customer-managed keys.",
+      "codeBlocks": [],
+      "slug": "remove-search-nodes--atlascli",
+      "selections": {
+        "interface": "atlascli"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Connections to Multi-Cloud Deployments",
       "headingLevel": 2,
       "body": "If you're connecting to replica sets hosted in a multi-cloud deployment\nthrough a [private connection](conn-string-options), you can access\nonly the nodes in the same cloud provider and the same region that you're connecting\nfrom. This cloud provider might not have the [primary](manual/reference/glossary) node in its region.\nWhen this happens, you must specify the [secondary read preference](manual/core/read-preference)\nmode in the connection string to access the deployment. If you need access\nto all nodes for your multi-cloud deployment from your current provider through\na private connection, you must:\n\n- Configure a VPN in the current provider to each of the remaining\n  providers.\n\n- Configure a [private endpoint connections](private-endpoint) to Atlas\n  for each of the remaining providers.\n\nAs an alternative, we suggest creating sharded clusters for multi-cloud deployments accessed\nthrough a [private endpoint connections](private-endpoint). When you deploy a sharded\ncluster, whether single shard or multiple shards, you can connect to the cluster\nthrough the local private endpoints and perform read and write operations. You are not required\nto specify the secondary read preference mode, even if the cluster primary node(s) are located\nin a different region. The `mongos` in the cloud provider region you connect to will route the\nrequest to the primary node in a different region if needed. To learn more, see\n[Deploy a Sharded Cluster](create-cluster-sharding).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "connections-to-multi-cloud-deployments",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "cloud-provider",
+      "text": "cloud-provider",
+      "default": "aws",
+      "selections": [
+        {
+          "value": "aws",
+          "text": "aws"
+        },
+        {
+          "value": "gcp",
+          "text": "gcp"
+        },
+        {
+          "value": "azure",
+          "text": "azure"
+        }
+      ]
+    },
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "ui",
+      "selections": [
+        {
+          "value": "ui",
+          "text": "ui"
+        },
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "api",
+          "text": "api"
+        }
+      ]
     }
   ]
 }

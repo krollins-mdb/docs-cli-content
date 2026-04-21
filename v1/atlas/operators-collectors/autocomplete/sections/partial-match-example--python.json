@@ -1,0 +1,17 @@
+{
+  "heading": "Partial Match Example",
+  "headingLevel": 4,
+  "body": "The following code example:\n\n- Imports `pymongo`, MongoDB's Python driver, and the `dns`\n  module, which is required to connect `pymongo` to `Atlas`\n  using a DNS (Domain Name System) seed list connection string.\n\n- Creates an instance of the `MongoClient` class to establish a\n  connection to your cluster.\n\n- Runs a query that uses:\n\n  - [$search](pipe.$search) stage to look for a term\n\n  - [$limit](manual/reference/operator/aggregation/limit) stage to limit the output to 5 results\n\n  - [$project](manual/reference/operator/aggregation/project) stage to exclude all fields except `title`\n    and `plot`\n\n- Iterates over the cursor to print the documents that match the\n  query.\n\n```python\nimport pymongo\nimport dns\n\nclient = pymongo.MongoClient('<connection-string>')\nresult = client['sample_mflix']['movies'].aggregate([\n  {\n    '$search': {\n      'index': 'default',\n      'autocomplete': {\n        'path': 'plot',\n        'query': 'new purchase',\n        'tokenOrder': 'any',\n        'fuzzy': {\n          'maxEdits': 2,\n          'prefixLength': 1,\n          'maxExpansions': 256\n        }\n      },\n      'highlight': {\n        'path': 'plot'\n      }\n    }\n  }, {\n    '$limit': 5\n  }, {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'plot': 1,\n      'highlights': {\n        '$meta': 'searchHighlights'\n      }\n    }\n  }\n])\n\nfor i in result:\n  print(i)\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\nimport dns\n\nclient = pymongo.MongoClient('<connection-string>')\nresult = client['sample_mflix']['movies'].aggregate([\n  {\n    '$search': {\n      'index': 'default',\n      'autocomplete': {\n        'path': 'plot',\n        'query': 'new purchase',\n        'tokenOrder': 'any',\n        'fuzzy': {\n          'maxEdits': 2,\n          'prefixLength': 1,\n          'maxExpansions': 256\n        }\n      },\n      'highlight': {\n        'path': 'plot'\n      }\n    }\n  }, {\n    '$limit': 5\n  }, {\n    '$project': {\n      '_id': 0,\n      'title': 1,\n      'plot': 1,\n      'highlights': {\n        '$meta': 'searchHighlights'\n      }\n    }\n  }\n])\n\nfor i in result:\n  print(i)",
+      "tokenEstimate": 191
+    }
+  ],
+  "slug": "partial-match-example--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

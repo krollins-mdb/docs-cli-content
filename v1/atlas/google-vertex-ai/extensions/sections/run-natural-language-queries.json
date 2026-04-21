@@ -1,37 +1,8 @@
 {
   "heading": "Run Natural Language Queries",
   "headingLevel": 2,
-  "body": "In [Vertex AI](https://console.cloud.google.com/vertex-ai),\nclick **Extensions** in the left navigation menu.\nYour new extension named **MongoDB Vertex API Interpreter**\nappears in the list of extensions.The following examples demonstrates two different natural\nlanguage queries you can use to query your data in Atlas:In this example, you ask Vertex AI to find the release year of a specific movie\ntitled `A Corner in Wheat`. You can run this natural language query by using\nthe Vertex AI platform or your Colab notebook:**Vertex-ai:**Vertex AISelect the extension named **MongoDB Vertex API Interpreter**\nand enter the following natural language query:```\nFind the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies\n```![Screenshot of the Vertex AI response to the natural language query](/ai-integrations/images/avs/vertex-ai-extension-find-one.png)**Colab:**Colab NotebookPaste and run the following code in `mongodb-vertex-ai-extension.ipynb`\nto find the release date of a specific movie:```python\n## Please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_ONE_OP_ID'] = \"findone_mdb\"\n\n## NL Queries\nos.environ['FIND_ONE_NL_QUERY'] = \"Find the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\n\n### Test data setup\nos.environ['TITLE_FILTER_CLAUSE'] = \"A Corner in Wheat\"\n\nfrom vertexai.preview.generative_models import GenerativeModel, Tool\n\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindOneResponse = fc_chat.send_message(os.environ['FIND_ONE_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findOneResponse)\n``````python\nresponse = mdb_crud.execute(\n  operation_id = findOneResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findOneResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)\n```In this example, you ask Vertex AI to find all movies released in the year `1924`.\nYou can run this natural language query by using the Vertex AI platform or your Colab notebook:**Vertex-ai:**Vertex AISelect the extension named **MongoDB Vertex API Interpreter**\nand enter the following natural language query:```\ngive me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies\n```![Screenshot of the Vertex AI response to the natural language query](/ai-integrations/images/avs/vertex-ai-extension-find-all.png)**Colab:**Colab NotebookPaste and run the following code in `mongodb-vertex-ai-extension.ipynb`\nto find all movies released in a specific year:```python\n## This is just a sample values please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_MANY_OP_ID'] = \"findmany_mdb\"\n\n## NL Queries\nos.environ['FIND_MANY_NL_QUERY'] = \"give me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\nos.environ['YEAR'] = 1924\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindmanyResponse = fc_chat.send_message(os.environ['FIND_MANY_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findmanyResponse)\n``````python\nresponse = mdb_crud.execute(\n  operation_id = findmanyResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findmanyResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)\n```",
-  "codeBlocks": [
-    {
-      "language": "text",
-      "content": "Find the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies",
-      "tokenEstimate": 26
-    },
-    {
-      "language": "python",
-      "content": "## Please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_ONE_OP_ID'] = \"findone_mdb\"\n\n## NL Queries\nos.environ['FIND_ONE_NL_QUERY'] = \"Find the release year of the movie 'A Corner in Wheat' from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\n\n### Test data setup\nos.environ['TITLE_FILTER_CLAUSE'] = \"A Corner in Wheat\"\n\nfrom vertexai.preview.generative_models import GenerativeModel, Tool\n\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindOneResponse = fc_chat.send_message(os.environ['FIND_ONE_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findOneResponse)",
-      "tokenEstimate": 210
-    },
-    {
-      "language": "python",
-      "content": "response = mdb_crud.execute(\n  operation_id = findOneResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findOneResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)",
-      "tokenEstimate": 51
-    },
-    {
-      "language": "text",
-      "content": "give me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies",
-      "tokenEstimate": 22
-    },
-    {
-      "language": "python",
-      "content": "## This is just a sample values please replace accordingly to your project\n## Operation Ids\nos.environ['FIND_MANY_OP_ID'] = \"findmany_mdb\"\n\n## NL Queries\nos.environ['FIND_MANY_NL_QUERY'] = \"give me movies released in year 1924 from VertexAI-POC cluster, sample_mflix, movies\"\n\n## Mongodb Config\nos.environ['DATA_SOURCE'] = \"VertexAI-POC\"\nos.environ['DB_NAME'] = \"sample_mflix\"\nos.environ['COLLECTION_NAME'] = \"movies\"\nos.environ['YEAR'] = 1924\nfc_chat = GenerativeModel(os.environ['LLM_MODEL']).start_chat()\nfindmanyResponse = fc_chat.send_message(os.environ['FIND_MANY_NL_QUERY'],\n    tools=[Tool.from_dict({        \"function_declarations\": mdb_crud.operation_schemas()\n   })],\n)\nprint(findmanyResponse)",
-      "tokenEstimate": 189
-    },
-    {
-      "language": "python",
-      "content": "response = mdb_crud.execute(\n  operation_id = findmanyResponse.candidates[0].content.parts[0].function_call.name,\n  operation_params = findmanyResponse.candidates[0].content.parts[0].function_call.args\n)\nprint(response)",
-      "tokenEstimate": 53
-    }
-  ]
+  "body": "In [Vertex AI](https://console.cloud.google.com/vertex-ai),\nclick **Extensions** in the left navigation menu.\nYour new extension named **MongoDB Vertex API Interpreter**\nappears in the list of extensions.\n\nThe following examples demonstrates two different natural\nlanguage queries you can use to query your data in Atlas:\n\nIn this example, you ask Vertex AI to find the release year of a specific movie\ntitled `A Corner in Wheat`. You can run this natural language query by using\nthe Vertex AI platform or your Colab notebook:\n\nVertex AI\n\nColab Notebook\n\nIn this example, you ask Vertex AI to find all movies released in the year `1924`.\nYou can run this natural language query by using the Vertex AI platform or your Colab notebook:\n\nVertex AI\n\nColab Notebook",
+  "codeBlocks": [],
+  "slug": "run-natural-language-queries",
+  "variantAgnostic": true
 }

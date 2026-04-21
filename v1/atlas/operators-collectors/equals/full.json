@@ -7,7 +7,9 @@
       "heading": "Definition",
       "headingLevel": 2,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "definition",
+      "variantAgnostic": true
     },
     {
       "heading": "Syntax",
@@ -19,36 +21,64 @@
           "content": "{\n   $search: {\n      \"index\": <index name>, // optional, defaults to \"default\"\n      \"equals\": {\n         \"path\": \"<field-to-search>\",\n         \"value\": <boolean-value>|<objectId>|<number>|<date>|<string>,\n         \"score\": <score-options>\n      }\n   }\n}",
           "tokenEstimate": 69
         }
-      ]
+      ],
+      "slug": "syntax",
+      "variantAgnostic": true
     },
     {
       "heading": "Options",
       "headingLevel": 2,
       "body": "`equals` uses the following terms to construct a query:\n\n| Field | Type                                                    | Description                                                                                                                                                                                                                                                                                                                                                            | Required? |\n| ----- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |\n| path  | string                                                  | Indexed field to search.                                                                                                                                                                                                                                                                                                                                               | yes       |\n| value | boolean, objectId, number, date, string, uuid, or null. | Value to query for.                                                                                                                                                                                                                                                                                                                                                    | yes       |\n| score | object                                                  | Score to assign to matching search term results. Use one of the following options to modify the score:boost: multiply the result score by the given number.constant: replace the result score with the given number.function: replace the result score with the given expression.For information on using score in your query, see Score the Documents in the Results. | no        |",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "options",
+      "variantAgnostic": true
     },
     {
       "heading": "Scoring Behavior",
       "headingLevel": 2,
       "body": "By default, `equals` uses [constant](scoring-constant) scoring. Each\nmatching document receives a score of `1`.\n\nWhen querying array values, MongoDB Search assigns higher scores if more values\nin the array match the query.\n\nSee the [Examples](equals-query-examples) section for scoring examples.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "scoring-behavior",
+      "variantAgnostic": true
     },
     {
       "heading": "Examples",
       "headingLevel": 2,
       "body": "The following examples use a sample `users` collection.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "examples",
+      "variantAgnostic": true
     },
     {
       "heading": "Sample Collection",
       "headingLevel": 3,
-      "body": "The  `users` collection contains the following three documents:**mongosh:**MongoDB Shell```json&#xA;&#x20;:copyable:&#x20;true\n db.users.insertMany([\n  {\n    \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n    \"name\" : \"Jim Hall\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : true,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5ed6990aa1199b471010d70d\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n    ],\n    \"region\" : \"East\",\n    \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n    \"employee_number\" : 257,\n    \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n    \"job_title\": \"engineer\"\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n    \"name\" : \"Ellen Smith\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69537a5\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n    ],\n    \"region\" : \"Southwest\",\n    \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n    \"employee_number\" : 258,\n    \"job_title\": null\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n    \"name\" : \"Fred Osgood\",\n    \"verified_user\" : false,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : false\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69589a1\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n    ],\n    \"region\" : \"Northwest\",\n    \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n    \"employee_number\" : 259,\n    \"job_title\": null\n  }\n])\n```**Json:**Atlas UI```json\n{\n   \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n   \"name\" : \"Jim Hall\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : true,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5ed6990aa1199b471010d70d\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n   ],\n   \"region\" : \"East\",\n   \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n   \"employee_number\" : 257,\n   \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n   \"job_title\": \"engineer\"\n}\n``````json\n{\n   \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n   \"name\" : \"Ellen Smith\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69537a5\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n   ],\n   \"region\" : \"Southwest\",\n   \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n   \"employee_number\" : 258,\n   \"job_title\": null\n}\n``````json\n{\n   \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n   \"name\" : \"Fred Osgood\",\n   \"verified_user\" : false,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : false\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69589a1\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n   ],\n   \"region\" : \"Northwest\",\n   \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n   \"employee_number\" : 259,\n   \"job_title\": null\n}\n```",
+      "body": "The  `users` collection contains the following three documents:\n\nMongoDB Shell\n\nAtlas UI",
+      "codeBlocks": [],
+      "slug": "sample-collection",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Sample Collection",
+      "headingLevel": 3,
+      "body": "```json&#xA;&#x20;:copyable:&#x20;true\n db.users.insertMany([\n  {\n    \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n    \"name\" : \"Jim Hall\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : true,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5ed6990aa1199b471010d70d\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n    ],\n    \"region\" : \"East\",\n    \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n    \"employee_number\" : 257,\n    \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n    \"job_title\": \"engineer\"\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n    \"name\" : \"Ellen Smith\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69537a5\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n    ],\n    \"region\" : \"Southwest\",\n    \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n    \"employee_number\" : 258,\n    \"job_title\": null\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n    \"name\" : \"Fred Osgood\",\n    \"verified_user\" : false,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : false\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69589a1\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n    ],\n    \"region\" : \"Northwest\",\n    \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n    \"employee_number\" : 259,\n    \"job_title\": null\n  }\n])\n```",
       "codeBlocks": [
         {
           "language": "json\n :copyable: true",
           "content": " db.users.insertMany([\n  {\n    \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n    \"name\" : \"Jim Hall\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : true,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5ed6990aa1199b471010d70d\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n    ],\n    \"region\" : \"East\",\n    \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n    \"employee_number\" : 257,\n    \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n    \"job_title\": \"engineer\"\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n    \"name\" : \"Ellen Smith\",\n    \"verified_user\" : true,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : true\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69537a5\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n    ],\n    \"region\" : \"Southwest\",\n    \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n    \"employee_number\" : 258,\n    \"job_title\": null\n  },\n  {\n    \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n    \"name\" : \"Fred Osgood\",\n    \"verified_user\" : false,\n    \"account\" : {\n      \"new_user\" : false,\n      \"active_user\" : false\n    },\n    \"teammates\" : [\n      ObjectId(\"5a9427648b0beebeb69589a1\"),\n      ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n    ],\n    \"region\" : \"Northwest\",\n    \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n    \"employee_number\" : 259,\n    \"job_title\": null\n  }\n])",
           "tokenEstimate": 534
-        },
+        }
+      ],
+      "slug": "sample-collection--mongosh",
+      "selections": {
+        "interface": "mongosh"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Sample Collection",
+      "headingLevel": 3,
+      "body": "```json\n{\n   \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n   \"name\" : \"Jim Hall\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : true,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5ed6990aa1199b471010d70d\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n   ],\n   \"region\" : \"East\",\n   \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n   \"employee_number\" : 257,\n   \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n   \"job_title\": \"engineer\"\n}\n```\n\n```json\n{\n   \"_id\" : ObjectId(\"5ed6990aa1199b471010d70d\"),\n   \"name\" : \"Ellen Smith\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69537a5\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7881d1\")\n   ],\n   \"region\" : \"Southwest\",\n   \"account_created\" : ISODate(\"2022-05-04T05:01:08.000+00:00\"),\n   \"employee_number\" : 258,\n   \"job_title\": null\n}\n```\n\n```json\n{\n   \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n   \"name\" : \"Fred Osgood\",\n   \"verified_user\" : false,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : false\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69589a1\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n   ],\n   \"region\" : \"Northwest\",\n   \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n   \"employee_number\" : 259,\n   \"job_title\": null\n}\n```",
+      "codeBlocks": [
         {
           "language": "json",
           "content": "{\n   \"_id\" : ObjectId(\"5ed698faa1199b471010d70c\"),\n   \"name\" : \"Jim Hall\",\n   \"verified_user\" : true,\n   \"account\" : {\n     \"new_user\" : true,\n     \"active_user\" : true\n   },\n   \"teammates\" : [\n     ObjectId(\"5ed6990aa1199b471010d70d\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7885c8\")\n   ],\n   \"region\" : \"East\",\n   \"account_created\" : ISODate(\"2021-12-12T10:18:27.000+00:00\"),\n   \"employee_number\" : 257,\n   \"uuid\" : UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\"),\n   \"job_title\": \"engineer\"\n}",
@@ -64,7 +94,12 @@
           "content": "{\n   \"_id\" : ObjectId(\"5ed6994fa1199b471010d70e\"),\n   \"name\" : \"Fred Osgood\",\n   \"verified_user\" : false,\n   \"account\" : {\n     \"new_user\" : false,\n     \"active_user\" : false\n   },\n   \"teammates\" : [\n     ObjectId(\"5a9427648b0beebeb69589a1\"),\n     ObjectId(\"59b99dbdcfa9a34dcd7897d3\")\n   ],\n   \"region\" : \"Northwest\",\n   \"account_created\" : ISODate(\"2022-01-19T08:22:15.000+00:00\"),\n   \"employee_number\" : 259,\n   \"job_title\": null\n}",
           "tokenEstimate": 165
         }
-      ]
+      ],
+      "slug": "sample-collection--json",
+      "selections": {
+        "interface": "json"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Sample Index",
@@ -76,13 +111,17 @@
           "content": "{\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"name\": {\n        \"type\": \"token\",\n        \"normalizer\": \"lowercase\"\n      },\n      \"region\": [\n       {\n         \"type\": \"string\"\n       },\n       {\n         \"type\": \"token\"\n       }\n      ]\n    }\n  }\n}",
           "tokenEstimate": 75
         }
-      ]
+      ],
+      "slug": "sample-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Basic Example Queries",
       "headingLevel": 3,
       "body": "",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "basic-example-queries",
+      "variantAgnostic": true
     },
     {
       "heading": "Boolean Examples",
@@ -104,7 +143,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account.new_user\",\n        \"value\": true\n      }\n    }\n  }\n])",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "boolean-examples",
+      "variantAgnostic": true
     },
     {
       "heading": "ObjectId Example",
@@ -116,7 +157,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"teammates\",\n        \"value\": ObjectId(\"5a9427648b0beebeb69589a1\")\n      }\n    }\n  }\n])",
           "tokenEstimate": 52
         }
-      ]
+      ],
+      "slug": "objectid-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Date Example",
@@ -128,7 +171,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"account_created\",\n        \"value\": ISODate(\"2022-05-04T05:01:08.000+00:00\")\n      }\n    }\n  }\n])",
           "tokenEstimate": 57
         }
-      ]
+      ],
+      "slug": "date-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Number Example",
@@ -140,7 +185,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"employee_number\",\n        \"value\": 259\n      }\n    }\n  }\n])",
           "tokenEstimate": 38
         }
-      ]
+      ],
+      "slug": "number-example",
+      "variantAgnostic": true
     },
     {
       "heading": "String Example",
@@ -152,7 +199,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"name\",\n        \"value\": \"jim hall\"\n      }\n    }\n  }\n])",
           "tokenEstimate": 39
         }
-      ]
+      ],
+      "slug": "string-example",
+      "variantAgnostic": true
     },
     {
       "heading": "UUID Example",
@@ -164,7 +213,9 @@
           "content": "db.users.aggregate([\n  {\n    \"$search\": {\n      \"equals\": {\n        \"path\": \"uuid\",\n        \"value\": UUID(\"fac32260-b511-4c69-8485-a2be5b7dda9e\")\n      }\n    }\n  }\n])",
           "tokenEstimate": 58
         }
-      ]
+      ],
+      "slug": "uuid-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Null Example",
@@ -176,7 +227,9 @@
           "content": "db.users.aggregate([\n  {\n    $search: {\n      \"equals\": {\n        \"path\": \"job_title\",\n        \"value\": null\n      }\n    }\n  }\n])",
           "tokenEstimate": 37
         }
-      ]
+      ],
+      "slug": "null-example",
+      "variantAgnostic": true
     },
     {
       "heading": "Compound Example Queries",
@@ -208,7 +261,9 @@
           "content": "{ \"name\" : \"Ellen Smith\", \"score\" : 2 }",
           "tokenEstimate": 17
         }
-      ]
+      ],
+      "slug": "compound-example-queries",
+      "variantAgnostic": true
     },
     {
       "heading": "Metadata Examples",
@@ -234,6 +289,24 @@
           "language": "javascript",
           "content": "[\n  {\n    docs: [\n      {\n        _id: ObjectId('5ed698faa1199b471010d70c'),\n        name: 'Jim Hall',\n        region: 'East'\n      },\n      {\n        _id: ObjectId('5ed6990aa1199b471010d70d'),\n        name: 'Ellen Smith',\n        region: 'Southwest'\n      }\n    ],\n    meta: {\n      count: { lowerBound: Long('2') },\n      facet: {\n        regionFacet: {\n          buckets: [\n            { _id: 'East', count: Long('1') },\n            { _id: 'Southwest', count: Long('1') }\n          ]\n        }\n      }\n    }\n  }\n]",
           "tokenEstimate": 157
+        }
+      ],
+      "slug": "metadata-examples",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "selections": [
+        {
+          "value": "mongosh",
+          "text": "mongosh"
+        },
+        {
+          "value": "json",
+          "text": "json"
         }
       ]
     }

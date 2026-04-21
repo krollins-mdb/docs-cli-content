@@ -1,0 +1,22 @@
+{
+  "heading": "Bucket Results through Facet Queries",
+  "headingLevel": 3,
+  "body": "The following query uses the [$searchMeta](pipe.$searchMeta) stage to return\nunique values of movies that contain the term `Gravity` in the\n`title` field of the `movies` collection. The index definition of\nthis query limits the results returned from a\n[token](bson-data-types-token) index, where both the\n[autocomplete](autocomplete-ref) and [token](bson-data-types-token) types are on the `title` field.\n\nCopy and paste the following query into the\n**Query Editor**, and then click the **Search**\nbutton in the **Query Editor**.\n\n```javascript\n[\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"autocomplete\": {\n            \"query\": \"Gravity\",\n            \"path\": \"title\"\n          }\n        },\n        \"facets\": {\n          \"titleFacet\": {\n            \"type\": \"string\",\n            \"path\": \"title\"\n          }\n        }\n      }\n    }\n  }\n]\n\n```\n\n```js\ncount: Object\n  lowerBound: 5\nfacet: Object\n  titleFacet: Object\n    buckets: Array (3)\n    0: Object\n      _id: \"Gravity\"\n      count: 3\n    1: Object\n      _id: \"Defying Gravity\"\n      count: 1\n    2: Object\n      _id: \"Laws of Gravity\"\n      count: 1\n```\n\nThe Search Tester might not display all the fields in the\ndocuments it returns. To view all the fields, including the field that\nyou specify in the query path, expand the document in\nthe results.\n\nMongoDB Search returns documents that contain the term `Gravity` in the\n`title` field. The `count` field in the results indicate the number\nof documents in the collection with the same title. In the results,\nMongoDB Search found three documents in the collection with `Gravity` as its\ntitle, but MongoDB Search omitted the duplicate titles and returned only one\nmatching document.",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "[\n  {\n    \"$searchMeta\": {\n      \"facet\": {\n        \"operator\": {\n          \"autocomplete\": {\n            \"query\": \"Gravity\",\n            \"path\": \"title\"\n          }\n        },\n        \"facets\": {\n          \"titleFacet\": {\n            \"type\": \"string\",\n            \"path\": \"title\"\n          }\n        }\n      }\n    }\n  }\n]\n",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "js",
+      "content": "count: Object\n  lowerBound: 5\nfacet: Object\n  titleFacet: Object\n    buckets: Array (3)\n    0: Object\n      _id: \"Gravity\"\n      count: 3\n    1: Object\n      _id: \"Defying Gravity\"\n      count: 1\n    2: Object\n      _id: \"Laws of Gravity\"\n      count: 1",
+      "tokenEstimate": 90
+    }
+  ],
+  "slug": "bucket-results-through-facet-queries--atlas-ui",
+  "selections": {
+    "drivers": "atlas-ui"
+  },
+  "variantAgnostic": false
+}

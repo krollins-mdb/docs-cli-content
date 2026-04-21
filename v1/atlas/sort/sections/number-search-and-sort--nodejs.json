@@ -1,0 +1,27 @@
+{
+  "heading": "Number Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-numbers.js`\n  and paste the following code:\n\n  ```javascript\n  const { MongoClient } = require(\"mongodb\");\n\n  // Replace the uri string with your MongoDB deployments connection string.\n  const uri =\n    \"<connection-string>\";\n\n  const client = new MongoClient(uri);\n\n  async function run() {\n    try {\n      await client.connect();\n\n      // set namespace\n      const database = client.db(\"sample_mflix\");\n      const coll = database.collection(\"movies\");\n\n      // define pipeline\n      const agg = [\n        {\n          '$search': {\n            'index': 'default',\n            'range': {\n              'path': 'awards.wins', \n              'gte': 10\n            }, \n            'sort': {\n              'awards.wins': -1\n            }\n          }\n        }, {\n          '$limit': 5\n        }, {\n          '$project': {\n            '_id': 0, \n            'title': 1, \n            'awards.wins': 1\n          }\n        }\n      ];\n\n      // run pipeline\n      const result = await coll.aggregate(agg);\n\n      // print results\n      await result.forEach((doc) => console.log(doc));\n\n    } finally {\n      await client.close();\n    }\n  }\n  run().catch(console.dir);\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\nnode sort-by-numbers.js\n```\n\n**Output:**\n\n```json\n{ title: '12 Years a Slave', awards: { wins: 267 } }\n{ title: 'Gravity', awards: { wins: 231 } }\n{ title: 'Gravity', awards: { wins: 231 } }\n{\n  title: 'Birdman: Or (The Unexpected Virtue of Ignorance)',\n  awards: { wins: 210 }\n}\n{ title: 'Boyhood', awards: { wins: 185 } }\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "const { MongoClient } = require(\"mongodb\");\n\n// Replace the uri string with your MongoDB deployments connection string.\nconst uri =\n  \"<connection-string>\";\n\nconst client = new MongoClient(uri);\n\nasync function run() {\n  try {\n    await client.connect();\n\n    // set namespace\n    const database = client.db(\"sample_mflix\");\n    const coll = database.collection(\"movies\");\n\n    // define pipeline\n    const agg = [\n      {\n        '$search': {\n          'index': 'default',\n          'range': {\n            'path': 'awards.wins', \n            'gte': 10\n          }, \n          'sort': {\n            'awards.wins': -1\n          }\n        }\n      }, {\n        '$limit': 5\n      }, {\n        '$project': {\n          '_id': 0, \n          'title': 1, \n          'awards.wins': 1\n        }\n      }\n    ];\n\n    // run pipeline\n    const result = await coll.aggregate(agg);\n\n    // print results\n    await result.forEach((doc) => console.log(doc));\n\n  } finally {\n    await client.close();\n  }\n}\nrun().catch(console.dir);\n",
+      "tokenEstimate": 243
+    },
+    {
+      "language": "bash",
+      "content": "node sort-by-numbers.js",
+      "tokenEstimate": 6
+    },
+    {
+      "language": "json",
+      "content": "{ title: '12 Years a Slave', awards: { wins: 267 } }\n{ title: 'Gravity', awards: { wins: 231 } }\n{ title: 'Gravity', awards: { wins: 231 } }\n{\n  title: 'Birdman: Or (The Unexpected Virtue of Ignorance)',\n  awards: { wins: 210 }\n}\n{ title: 'Boyhood', awards: { wins: 185 } }",
+      "tokenEstimate": 93
+    }
+  ],
+  "slug": "number-search-and-sort--nodejs",
+  "selections": {
+    "drivers": "nodejs"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,17 @@
+{
+  "heading": "Step 3: Create the Main Function",
+  "headingLevel": 4,
+  "body": "- In the field **Function Name**, add\n  `additionWithRetryHandler`.\n\n- For the field **Function**, add the following code:\n\n  ```js\n  // randomly generates 1, 2, or 3\n  function getRandomOneTwoThree() {\n    return Math.floor(Math.random() * 3) + 1;\n  }\n\n  function additionOrFailure(num1, num2) {\n    // Throw error if getRandomOneTwoThree returns 1\n    const rand = getRandomOneTwoThree();\n    if (rand === 1) throw new Error(\"Uh oh!!\");\n    const sum = num1 + num2;\n    console.log(`Successful addition of ${num1} + ${num2}. Result: ${sum}`);\n\n    // Otherwise return the sum\n    return sum;\n  }\n\n  async function additionWithRetryHandler(\n    inputVar1,\n    inputVar2,\n    // create a new `operation_id` if one not provided\n    operationId = new BSON.ObjectId(),\n    // count number of attempts\n    retries = 0\n  ) {\n    const res = await context.functions.execute(\n      \"handleRetry\",\n      additionOrFailure,\n      \"additionWithRetryHandler\", // MUST BE NAME OF FUNCTION\n      operationId,\n      retries,\n      inputVar1,\n      inputVar2\n    );\n    return res;\n  }\n\n  exports = additionWithRetryHandler;\n\n  ```\n\n- Click **Save**.",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "// randomly generates 1, 2, or 3\nfunction getRandomOneTwoThree() {\n  return Math.floor(Math.random() * 3) + 1;\n}\n\nfunction additionOrFailure(num1, num2) {\n  // Throw error if getRandomOneTwoThree returns 1\n  const rand = getRandomOneTwoThree();\n  if (rand === 1) throw new Error(\"Uh oh!!\");\n  const sum = num1 + num2;\n  console.log(`Successful addition of ${num1} + ${num2}. Result: ${sum}`);\n\n  // Otherwise return the sum\n  return sum;\n}\n\nasync function additionWithRetryHandler(\n  inputVar1,\n  inputVar2,\n  // create a new `operation_id` if one not provided\n  operationId = new BSON.ObjectId(),\n  // count number of attempts\n  retries = 0\n) {\n  const res = await context.functions.execute(\n    \"handleRetry\",\n    additionOrFailure,\n    \"additionWithRetryHandler\", // MUST BE NAME OF FUNCTION\n    operationId,\n    retries,\n    inputVar1,\n    inputVar2\n  );\n  return res;\n}\n\nexports = additionWithRetryHandler;\n",
+      "tokenEstimate": 246
+    }
+  ],
+  "slug": "step-3-create-the-main-function--ui",
+  "selections": {
+    "interface": "ui"
+  },
+  "variantAgnostic": false
+}

@@ -8,5 +8,7 @@
       "content": "db.getSiblingDB(\"sourceDB1\").orders.aggregate(\n  [\n    {\n      $lookup: {\n        from: db: \"sourceDB2\", coll: \"catalog\",\n        let: { \"order_sku\": \"$item\" },\n        pipeline: [\n          {\n            $match: {\n              $expr: {\n                $eq: [\"$sku\", \"$$order_sku\"]\n              }\n            }\n          },\n          {\n            $lookup: {\n              from: db: \"sourceDB3\", coll: \"warehouses\",\n              pipeline: [\n                {\n                  $match: {\n                    $expr:{\n                      $eq : [\"$stock_item\", \"$$order_sku\"]\n                    }\n                  }\n                },\n                {\n                  $project : { \"instock\": 1, \"_id\": 0}\n                }\n              ],\n              as: \"wh\"\n            }\n          },\n          { \"$unwind\": \"$wh\" },\n          {\n            $project : { \"description\": 1, \"instock\": \"$wh.instock\", \"_id\": 0}\n          }\n        ],\n        as: \"inventory\"\n      },\n    },\n  ]\n)",
       "tokenEstimate": 230
     }
-  ]
+  ],
+  "slug": "nested-example",
+  "variantAgnostic": true
 }

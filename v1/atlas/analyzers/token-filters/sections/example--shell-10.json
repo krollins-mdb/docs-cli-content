@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"dynamic\": true,\n          \"fields\": {\n            \"sv_FI\": {\n              \"type\": \"string\",\n              \"analyzer\": \"longOnly\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"longOnly\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuFolding\"\n          },\n          {\n            \"type\": \"length\",\n            \"min\": 20\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"forsaljningsavdelningen\",\n        \"path\": \"text.sv_FI\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.sv_FI\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  {\n    _id: 2,\n    text: {\n      sv_FI: 'Först talade chefen för försäljningsavdelningen'\n    }\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"text\": {\n          \"type\": \"document\",\n          \"dynamic\": true,\n          \"fields\": {\n            \"sv_FI\": {\n              \"type\": \"string\",\n              \"analyzer\": \"longOnly\"\n            }\n          }\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"longOnly\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"icuFolding\"\n          },\n          {\n            \"type\": \"length\",\n            \"min\": 20\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 162
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"forsaljningsavdelningen\",\n        \"path\": \"text.sv_FI\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.sv_FI\": 1\n    }\n  }\n])",
+      "tokenEstimate": 84
+    },
+    {
+      "language": "js",
+      "content": "[\n  {\n    _id: 2,\n    text: {\n      sv_FI: 'Först talade chefen för försäljningsavdelningen'\n    }\n  }\n]",
+      "tokenEstimate": 42
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

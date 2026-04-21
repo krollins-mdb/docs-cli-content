@@ -1,22 +1,14 @@
 {
   "heading": "Filtering",
   "headingLevel": 3,
-  "body": "We also created a separate index definition on the collection\ncontaining all 15.3M items, which includes filters on two fields\nto enable pre-filtered queries against this dataset.```javascript\ndb.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)\n```We ran vector search queries, both unfiltered and filtered, against the large indexed dataset:**Unfiltered-query:**Unfiltered Query```python\n# unfiltered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]\n```**Filtered-query:**Filtered Query```python\n# filtered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n      \"filter\": {\"$and\": [{'price': {'$lte': 1000}}, {'category': {'$eq': \"Pet Supplies\"}}]}\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]\n```> **Note:** Both query patterns exclude the embedding fields in the output by using\n> [$project](manual/reference/operator/aggregation/project) stage. This is always recommended to reduce\n> latency unless you need embeddings in your results.",
+  "body": "We also created a separate index definition on the collection\ncontaining all 15.3M items, which includes filters on two fields\nto enable pre-filtered queries against this dataset.\n\n```javascript\ndb.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)\n```\n\nWe ran vector search queries, both unfiltered and filtered, against the large indexed dataset:\n\nUnfiltered Query\n\nFiltered Query\n\n> **Note:** Both query patterns exclude the embedding fields in the output by using\n> [$project](manual/reference/operator/aggregation/project) stage. This is always recommended to reduce\n> latency unless you need embeddings in your results.",
   "codeBlocks": [
     {
       "language": "javascript",
       "content": "db.large_amazon_dataset.createSearchIndex(\n  \"vectorSearch\",\n  \"large_vector_index\",\n  {\n    \"fields\": [\n      {\n        \"numDimensions\": 2048,\n        \"path\": \"embedding\",\n        \"quantization\": \"scalar\", // adjust to binary when needed\n        \"similarity\": \"dotProduct\",\n        \"type\": \"vector\"\n      },\n      {\n        \"path\": \"category\",\n        \"type\": \"filter\"\n      },\n      {\n        \"path\": \"price\",\n        \"type\": \"filter\"\n      }\n    ]\n  }\n)",
       "tokenEstimate": 119
-    },
-    {
-      "language": "python",
-      "content": "# unfiltered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
-      "tokenEstimate": 72
-    },
-    {
-      "language": "python",
-      "content": "# filtered query\nquery = [\n  {\n    \"$vectorSearch\": {\n      \"index\": \"large_vector_index\",\n      \"path\": \"embedding\",\n      \"queryVector\": embedding.tolist(),\n      \"limit\": k,\n      \"numCandidates\": candidates,\n      \"filter\": {\"$and\": [{'price': {'$lte': 1000}}, {'category': {'$eq': \"Pet Supplies\"}}]}\n    }\n  },\n  {\n    \"$project\": {\"embedding\": 0}\n  }\n]",
-      "tokenEstimate": 102
     }
-  ]
+  ],
+  "slug": "filtering",
+  "variantAgnostic": true
 }

@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n        \"title\": {\n          \"analyzer\": \"duplicateRemover\",\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"duplicateRemover\",\n        \"tokenFilters\": [\n          {\n            \"type\": \"keywordRepeat\"\n          },\n          {\n            \"type\": \"removeDuplicates\"\n          }\n        ],\n        \"tokenizer\": {\n            \"type\": \"whitespace\"\n        }\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"mee*\",\n        \"path\": \"title\",\n        \"allowAnalyzedField\": true\n       }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  { _id: 1, title: \"The team's weekly meeting\" },\n  { _id: 3, title: 'The regular board meeting' }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"dynamic\": false,\n      \"fields\": {\n        \"title\": {\n          \"analyzer\": \"duplicateRemover\",\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"duplicateRemover\",\n        \"tokenFilters\": [\n          {\n            \"type\": \"keywordRepeat\"\n          },\n          {\n            \"type\": \"removeDuplicates\"\n          }\n        ],\n        \"tokenizer\": {\n            \"type\": \"whitespace\"\n        }\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 128
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"mee*\",\n        \"path\": \"title\",\n        \"allowAnalyzedField\": true\n       }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "json",
+      "content": "[\n  { _id: 1, title: \"The team's weekly meeting\" },\n  { _id: 3, title: 'The regular board meeting' }\n]",
+      "tokenEstimate": 37
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

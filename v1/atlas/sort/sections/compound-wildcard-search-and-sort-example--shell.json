@@ -1,0 +1,22 @@
+{
+  "heading": "Compound Wildcard Search and Sort Example",
+  "headingLevel": 4,
+  "body": "**Input:**\n\n```js\ndb.movies.aggregate([{ \n  $search: { \n    \"index\": \"default\",\n    \"compound\": {\n      \"should\": [{\n        \"wildcard\": {\n          \"query\": [\"Prance*\"],\n          \"path\": \"title\",\n          \"allowAnalyzedField\": true\n        }\n      },\n      {\n        \"wildcard\": {\n          \"query\": [\"Prince*\"],\n          \"path\": \"title\",\n          \"allowAnalyzedField\": true\n        }\n      }]\n    },\n    \"sort\": {\n      \"title\": 1\n    }\n  }},\n  { \n    $limit: 5\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n\n```\n\n**Output:**\n\n```shell\n[\n  { title: 'Prancer', score: 1 },\n  { title: 'Prancer Returns', score: 1 },\n  { title: 'Prince', score: 1 },\n  { title: 'Prince Avalanche', score: 1 },\n  { title: 'Prince of Broadway', score: 1 }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "js",
+      "content": "db.movies.aggregate([{ \n  $search: { \n    \"index\": \"default\",\n    \"compound\": {\n      \"should\": [{\n        \"wildcard\": {\n          \"query\": [\"Prance*\"],\n          \"path\": \"title\",\n          \"allowAnalyzedField\": true\n        }\n      },\n      {\n        \"wildcard\": {\n          \"query\": [\"Prince*\"],\n          \"path\": \"title\",\n          \"allowAnalyzedField\": true\n        }\n      }]\n    },\n    \"sort\": {\n      \"title\": 1\n    }\n  }},\n  { \n    $limit: 5\n  },\n  {\n    $project: {\n      \"_id\": 0,\n      \"title\": 1,\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n",
+      "tokenEstimate": 168
+    },
+    {
+      "language": "shell",
+      "content": "[\n  { title: 'Prancer', score: 1 },\n  { title: 'Prancer Returns', score: 1 },\n  { title: 'Prince', score: 1 },\n  { title: 'Prince Avalanche', score: 1 },\n  { title: 'Prince of Broadway', score: 1 }\n]",
+      "tokenEstimate": 68
+    }
+  ],
+  "slug": "compound-wildcard-search-and-sort-example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

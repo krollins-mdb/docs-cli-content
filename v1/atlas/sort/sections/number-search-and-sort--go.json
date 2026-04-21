@@ -1,0 +1,27 @@
+{
+  "heading": "Number Search and Sort",
+  "headingLevel": 3,
+  "body": "- Create a new file named `sort-by-numbers.go`\n  and paste the following code:\n\n  ```go\n  package main\n\n  import (\n  \t\"context\"\n  \t\"fmt\"\n\n  \t\"go.mongodb.org/mongo-driver/v2/bson\"\n  \t\"go.mongodb.org/mongo-driver/v2/mongo\"\n  \t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n  )\n\n  func main() {\n  \t// connect to your Atlas cluster\n  \tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n  \tif err != nil {\n  \t\tpanic(err)\n  \t}\n  \tdefer client.Disconnect(context.TODO())\n\n  \t// set namespace\n  \tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n  \t// define pipeline stages\n  \tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{\n  \t\t{Key: \"index\", Value: \"default\"},\n  \t\t{Key: \"range\", Value: bson.D{\n  \t\t\t{Key: \"path\", Value: \"awards.wins\"},\n  \t\t\t{Key: \"gte\", Value: 10},\n  \t\t}},\n  \t\t{Key: \"sort\", Value: bson.D{{Key: \"awards.wins\", Value: -1}}},\n  \t}}}\n  \tlimitStage := bson.D{{Key: \"$limit\", Value: 5}}\n  \tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"title\", Value: 1}, {Key: \"awards.wins\", Value: 1}, {Key: \"_id\", Value: 0}}}}\n\n  \t// run pipeline\n  \tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n  \tif err != nil {\n  \t\tpanic(err)\n  \t}\n\n  \t// print results\n  \tvar results []bson.D\n  \tif err = cursor.All(context.TODO(), &results); err != nil {\n  \t\tpanic(err)\n  \t}\n  \tfor _, result := range results {\n  \t\tfmt.Println(result)\n  \t}\n  }\n\n  ```\n\n- Specify the `<connection-string>`.\n\n**Input:**\n\n```bash\ngo run sort-by-numbers.go\n```\n\n**Output:**\n\n```json\n[{title 12 Years a Slave} {awards [{wins 267}]}]\n[{title Gravity} {awards [{wins 231}]}]\n[{title Gravity} {awards [{wins 231}]}]\n[{title Birdman: Or (The Unexpected Virtue of Ignorance)} {awards [{wins 210}]}]\n[{title Boyhood} {awards [{wins 185}]}]\n```",
+  "codeBlocks": [
+    {
+      "language": "go",
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\n\t\"go.mongodb.org/mongo-driver/v2/bson\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo\"\n\t\"go.mongodb.org/mongo-driver/v2/mongo/options\"\n)\n\nfunc main() {\n\t// connect to your Atlas cluster\n\tclient, err := mongo.Connect(options.Client().ApplyURI(\"<connection-string>\"))\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\tdefer client.Disconnect(context.TODO())\n\n\t// set namespace\n\tcollection := client.Database(\"sample_mflix\").Collection(\"movies\")\n\n\t// define pipeline stages\n\tsearchStage := bson.D{{Key: \"$search\", Value: bson.D{\n\t\t{Key: \"index\", Value: \"default\"},\n\t\t{Key: \"range\", Value: bson.D{\n\t\t\t{Key: \"path\", Value: \"awards.wins\"},\n\t\t\t{Key: \"gte\", Value: 10},\n\t\t}},\n\t\t{Key: \"sort\", Value: bson.D{{Key: \"awards.wins\", Value: -1}}},\n\t}}}\n\tlimitStage := bson.D{{Key: \"$limit\", Value: 5}}\n\tprojectStage := bson.D{{Key: \"$project\", Value: bson.D{{Key: \"title\", Value: 1}, {Key: \"awards.wins\", Value: 1}, {Key: \"_id\", Value: 0}}}}\n\n\t// run pipeline\n\tcursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{searchStage, limitStage, projectStage})\n\tif err != nil {\n\t\tpanic(err)\n\t}\n\n\t// print results\n\tvar results []bson.D\n\tif err = cursor.All(context.TODO(), &results); err != nil {\n\t\tpanic(err)\n\t}\n\tfor _, result := range results {\n\t\tfmt.Println(result)\n\t}\n}\n",
+      "tokenEstimate": 378
+    },
+    {
+      "language": "bash",
+      "content": "go run sort-by-numbers.go",
+      "tokenEstimate": 7
+    },
+    {
+      "language": "json",
+      "content": "[{title 12 Years a Slave} {awards [{wins 267}]}]\n[{title Gravity} {awards [{wins 231}]}]\n[{title Gravity} {awards [{wins 231}]}]\n[{title Birdman: Or (The Unexpected Virtue of Ignorance)} {awards [{wins 210}]}]\n[{title Boyhood} {awards [{wins 185}]}]",
+      "tokenEstimate": 87
+    }
+  ],
+  "slug": "number-search-and-sort--go",
+  "selections": {
+    "drivers": "go"
+  },
+  "variantAgnostic": false
+}

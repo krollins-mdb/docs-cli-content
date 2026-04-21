@@ -1,27 +1,8 @@
 {
   "heading": "must and should Example",
   "headingLevel": 4,
-  "body": "The following queries use `must` to specify search conditions\nthat must be met and `should` to specify preference for documents\nthat contain the word `Fuji`.**Basic:**Basic ExampleFor this query, the `$project` pipeline stage excludes all\ndocument fields except `_id` and adds a `score` field, which\ndisplays the document's relevance score.**Input:**```javascript\ndb.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```javascript\n{ \"_id\" : 1, \"score\" : 0.6425117254257202 }\n{ \"_id\" : 3, \"score\" : 0.21649497747421265 }\n```The document with `_id: 1` has a higher score because its\n`description` field contains the word `Fuji`, satisfying the\n`should` clause.➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6613fe1753a026086724780b).**Compoundscore:**Compound Score ExampleThe following query also specifies a [constant](scoring-constant)\nscore of `3` for all the documents in the results. For this\nquery, the `$project` pipeline stage excludes all document\nfields except `_id` and adds a `score` field.**Input:**```javascript\ndb.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }],\n        \"score\": { \"constant\": { \"value\": 3 } }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])\n```**Output:**```javascript\n[ { _id: 1, score: 3 }, { _id: 3, score: 3 } ]\n```Both the documents receive the same score because the\n`constant` option in the query replaces the score of each\ndocument in the result with the number `3`.➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6613fe7b53a026086724780d).",
-  "codeBlocks": [
-    {
-      "language": "javascript",
-      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
-      "tokenEstimate": 106
-    },
-    {
-      "language": "javascript",
-      "content": "{ \"_id\" : 1, \"score\" : 0.6425117254257202 }\n{ \"_id\" : 3, \"score\" : 0.21649497747421265 }",
-      "tokenEstimate": 44
-    },
-    {
-      "language": "javascript",
-      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"Fuji\",\n            \"path\": \"description\"\n          }\n        }],\n        \"score\": { \"constant\": { \"value\": 3 } }\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"score\": { \"$meta\": \"searchScore\" }\n    }\n  }\n])",
-      "tokenEstimate": 122
-    },
-    {
-      "language": "javascript",
-      "content": "[ { _id: 1, score: 3 }, { _id: 3, score: 3 } ]",
-      "tokenEstimate": 26
-    }
-  ]
+  "body": "The following queries use `must` to specify search conditions\nthat must be met and `should` to specify preference for documents\nthat contain the word `Fuji`.\n\nBasic Example\n\nCompound Score Example",
+  "codeBlocks": [],
+  "slug": "must-and-should-example",
+  "variantAgnostic": true
 }

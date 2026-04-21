@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"message\": {\n          \"type\": \"string\",\n          \"analyzer\": \"wordDelimiterGraphFlatten\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"wordDelimiterGraphFlatten\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"wordDelimiterGraph\",\n            \"delimiterOptions\": {\n              \"generateWordParts\": true,\n              \"preserveOriginal\": true\n            },\n            \"protectedWords\": {\n              \"words\": [\n                \"SIGN_IN\"\n              ],\n              \"ignoreCase\": false\n            }\n          },\n          {\n            \"type\": \"flattenGraph\"\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"sign\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```json\n[\n  {\n    _id: 3,\n    message: 'try to sign-in'\n  }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"message\": {\n          \"type\": \"string\",\n          \"analyzer\": \"wordDelimiterGraphFlatten\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"wordDelimiterGraphFlatten\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"whitespace\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"wordDelimiterGraph\",\n            \"delimiterOptions\": {\n              \"generateWordParts\": true,\n              \"preserveOriginal\": true\n            },\n            \"protectedWords\": {\n              \"words\": [\n                \"SIGN_IN\"\n              ],\n              \"ignoreCase\": false\n            }\n          },\n          {\n            \"type\": \"flattenGraph\"\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 183
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"sign\",\n        \"path\": \"message\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"message\": 1\n    }\n  }\n])",
+      "tokenEstimate": 69
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: 3,\n    message: 'try to sign-in'\n  }\n]",
+      "tokenEstimate": 22
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

@@ -1,0 +1,22 @@
+{
+  "heading": "Example Configuration for S3 Data Store",
+  "headingLevel": 2,
+  "body": "> **Example:** Consider a S3 bucket `datacenter-alpha` containing data\n> collected from a datacenter:\n>\n> ```none\n> |--metrics\n> |--hardware\n> ```\n>\n> The `/metrics/hardware` path stores JSON files with metrics\n> derived from the datacenter hardware, where each filename is\n> the UNIX timestamp in milliseconds of the 24 hour period\n> covered by that file:\n>\n> ```none\n> /hardware/1564671291998.json\n> ```\n>\n> The following configuration:\n>\n> - Defines a federated database instance store on the `datacenter-alpha` S3 bucket in\n>   the `us-east-1` AWS region. The federated database instance store is specifically\n>   restricted to only datafiles in the `metrics` folder path.\n>\n> - Maps files from the `hardware` folder to a MongoDB database\n>   `datacenter-alpha-metrics` and collection `hardware`. The\n>   configuration mapping includes parsing logic for capturing the\n>   timestamp implied in the filename.\n>\n> ```json\n> {\n>   \"stores\" : [\n>     {\n>       \"name\" : \"datacenter-alpha\",\n>       \"provider\" : \"s3\",\n>       \"region\" : \"us-east-1\",\n>       \"bucket\" : \"datacenter-alpha\",\n>       \"additionalStorageClasses\" : [\n>         \"STANDARD_IA\"\n>       ],\n>       \"prefix\" : \"/metrics\",\n>       \"delimiter\" : \"/\"\n>     }\n>   ],\n>   \"databases\" : [\n>     {\n>       \"name\" : \"datacenter-alpha-metrics\",\n>       \"collections\" : [\n>         {\n>           \"name\" : \"hardware\",\n>           \"dataSources\" : [\n>             {\n>               \"storeName\" : \"datacenter-alpha\",\n>               \"path\" : \"/hardware/{date date}\"\n>             }\n>           ]\n>         }\n>       ]\n>     }\n>   ]\n> }\n> ```\n>\n> Atlas Data Federation parses the S3 bucket `datacenter-alpha` and processes all\n> files under `/metrics/hardware/`. The `collections` uses the\n> [definitions](adf-path-syntax) to map the filename to\n> the `date` field, which is an ISO-8601 date, in each document. If\n> a matching `date` field does not exist in a document, it will be\n> added.\n>\n> Users connected to the federated database instance can use the MongoDB Query Language\n> and supported aggregations to analyze data in the AWS (Amazon Web Services) S3 (Simple Storage Service) bucket\n> through the `datacenter-alpha-metrics.hardware` collection.\n\n> **See Also:**&#x20;\n>\n> - [Querying Data in S3](query-s3)\n>\n> - [UI](query-fdi)\n\nAtlas Data Federation supports Azure (Microsoft Azure) Blob Storage containers as federated database instance stores. You\nmust define mappings in your federated database instance to your Azure Blob Storage containers to run queries\nagainst your data.\n\n> **Note:** While we refer to blobs as files and delimiter-separated prefixes as\n> directories in this page, these blob storage services are not actually\n> file systems and don't have the same behaviors in all cases as files\n> on a hard drive.",
+  "codeBlocks": [
+    {
+      "language": "none",
+      "content": "|--metrics\n|--hardware",
+      "tokenEstimate": 5
+    },
+    {
+      "language": "none",
+      "content": "/hardware/1564671291998.json",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "json",
+      "content": "{\n  \"stores\" : [\n    {\n      \"name\" : \"datacenter-alpha\",\n      \"provider\" : \"s3\",\n      \"region\" : \"us-east-1\",\n      \"bucket\" : \"datacenter-alpha\",\n      \"additionalStorageClasses\" : [\n        \"STANDARD_IA\"\n      ],\n      \"prefix\" : \"/metrics\",\n      \"delimiter\" : \"/\"\n    }\n  ],\n  \"databases\" : [\n    {\n      \"name\" : \"datacenter-alpha-metrics\",\n      \"collections\" : [\n        {\n          \"name\" : \"hardware\",\n          \"dataSources\" : [\n            {\n              \"storeName\" : \"datacenter-alpha\",\n              \"path\" : \"/hardware/{date date}\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+      "tokenEstimate": 164
+    }
+  ]
+}

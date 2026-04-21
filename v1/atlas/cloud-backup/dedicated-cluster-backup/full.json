@@ -7,42 +7,54 @@
       "heading": "Single-Region Cluster Backups",
       "headingLevel": 2,
       "body": "With single-region cluster backups, Atlas:\n\n- Determines the order of nodes to try to snapshot using the following\n  algorithm:\n\n  - Snapshots on a secondary. 1 Then,\n\n  - Snapshots the node with the lowest priority if possible. 2\n    Then,\n\n  - Snapshots incrementally from one snapshot to the next if possible.\n    3 Then,\n\n  - Snapshots node lexically first by hostname.\n\n  1 If there is a tie, Atlas skips to the next step to determine the node to snapshot.\n\n  2 If there is a tie, Atlas then favors the node that can be snapshotted incrementally from the previous snapshot (i.e., node using the same disk).\n\n  3 If there is a tie, Atlas then favors the node with the lexicographically smallest hostname.\n\n- Once the node order is determined, tries to snapshot a node. If a\n  selected node is unhealthy, Atlas tries to snapshot the next\n  node that it favors.\n\n- Stores the snapshots in the same cloud region as the cluster.\n\n- Retains snapshots based on your\n  [base snapshot schedule](cloud-provider-retention-policy).\n\n![Cloud Backup of the Primary](/backup/images/cloud-provider-snapshot-single-region-primary.svg)\n\n![A Cloud Backup of the Secondary](/backup/images/cloud-provider-snapshot-single-region-secondary.svg)\n\nAtlas automatically creates a new snapshot storage volume if the\nexisting snapshot storage volume becomes invalid. Atlas creates the\nnew volume in the same region as the cluster's current primary.\nAtlas then takes a full-copy snapshot to maintain backup\navailability and continues using that member and its corresponding\nregion for further incremental snapshots.\n\nEvents that can cause an election to select a new node for the snapshot\nstorage volume include:\n\n- Changing the Atlas cluster tier,\n\n- Decreasing the Atlas cluster's storage volume,\n\n- Changing the Atlas cluster's region, and\n\n- Maintenance performed by Atlas or the cluster's cloud provider.\n\n> **See Also:** To learn more about snapshot retention, see\n> [base snapshot schedule](cloud-provider-retention-policy).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "single-region-cluster-backups",
+      "variantAgnostic": true
     },
     {
       "heading": "Multi-Region Cluster Backups",
       "headingLevel": 2,
       "body": "With multi-region cluster backups, Atlas:\n\n- Determines the order of nodes to snapshot using the following\n  algorithm:\n\n  - Snapshots in the highest priority region if possible. 1\n    Then,\n\n  - Snapshots on a secondary. 2 Then,\n\n  - Snapshots the node with the lowest priority if possible. 3\n    Then,\n\n  - Snapshots incrementally from one snapshot to the next if possible.\n    4 Then,\n\n  - Snapshots node lexically first by hostname.\n\n  1 If there is a tie, Atlas then compares based on the descending order of priority.\n\n  2 If there is a tie, Atlas skips to the next step to determine the node to snapshot.\n\n  3 If there is a tie, Atlas then favors the node that can be snapshotted incrementally from the previous snapshot (i.e., node using the same disk).\n\n  4 If there is a tie, Atlas then favors the node with the lexicographically smallest hostname.\n\n- Tries to snapshot a node once the node order is determined. If a\n  selected node is unhealthy, Atlas tries to snapshot the next\n  node that it favors.\n\n- Retains snapshots based on your [base snapshot schedule](cloud-provider-retention-policy).\n\n![Cloud Backup of the Primary](/backup/images/cloud-provider-snapshot-multi-region-primary.svg)\n\n![A Cloud Backup of the Secondary](/backup/images/cloud-provider-snapshot-multi-region-secondary.svg)\n\nAtlas automatically creates a new snapshot storage volume if the\nexisting snapshot storage volume becomes invalid. Atlas creates the\nnew volume in the same region as the cluster's current primary.\nAtlas then takes a full-copy snapshot to maintain backup\navailability and continues using that member and its corresponding\nregion for further incremental snapshots.\n\nEvents that can cause an election to select a new node for the snapshot\nstorage volume include:\n\n- Changing the Atlas cluster tier,\n\n- Decreasing the Atlas cluster's storage volume,\n\n- Changing the Atlas cluster's highest priority region, and\n\n- Maintenance performed by Atlas or the cluster's cloud provider.\n\n> **See Also:** To learn more about snapshot retention, see\n> [base snapshot schedule](cloud-provider-retention-policy).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "multi-region-cluster-backups",
+      "variantAgnostic": true
     },
     {
       "heading": "Global Cluster Backups",
       "headingLevel": 2,
       "body": "Atlas can back up Global Clusters using\nCloud Backups as their backup method. Atlas restores the shards\nin the source cluster to the corresponding shards in the target cluster\nusing the same order as specified in the cluster configuration.\n\n> **Example:** `shard0` in the source cluster is restored to `shard0` in the\n> target cluster.\n\n> **Note:** If you used the API (Application Programming Interface) to create your Global Cluster, the zones are\n> defined in the `replicationSpecs` parameter in the\n> [Create One Cluster](api/doc/atlas-admin-api-v2/operation/operation-creategroupcluster) and\n> [Modify One Cluster](api/doc/atlas-admin-api-v2/operation/operation-updategroupcluster) API (Application Programming Interface) endpoints.\n\nIf the cluster configurations of the source and target clusters do not\nmatch, shard data may migrate to a different cloud provider zone than\nwhere it resided in the source cluster. After Atlas completes the\nrestore operation, the MongoDB [balancer](manual/reference/glossary) for the target cluster\nmigrates the data back to the zone where it resided in the source\ncluster if your clusters meet the following requirements:\n\n- Both clusters have enabled a Global Cluster on the same\n  collection\n\n- Both clusters use the same [shard keys](manual/reference/glossary) for the\n  Global Writes-enabled collection\n\n> **Note:** If the Global Writes-enabled collection on the target cluster does\n> not contain any data, the MongoDB balancer for the cluster\n> automatically distributes any data that you later add to the\n> collection among the target cluster's shards.\n\nTo enable global writes on the target cluster:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "global-cluster-backups",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Enable global writes.",
       "headingLevel": 3,
       "body": "Click **Enable Global Writes**.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-1-enable-global-writes",
+      "variantAgnostic": true
     },
     {
       "heading": "Continuous Cloud Backups",
       "headingLevel": 2,
       "body": "Continuous Cloud Backups replay the [oplog](manual/reference/glossary) to restore a cluster from a\nparticular point in time within a window specified in the Backup\nPolicy.\n\nYou may opt to\n[Configure Backup Options for the Cluster](create-cluster-backups).\nConfigure your continuous cloud backup window with the\n[Backup Policy Editor](cps-backup-policies).\n\n> **Note:** Enabling continuous cloud backups increases the monthly cost of your\n> cluster.\n>\n> To learn more about the cost implications, see\n> [billing](billing-backup-cloud-provider-snapshots).\n\nYour cluster's snapshots stay within the cloud provider's storage\nservice under the cluster or shard's [highest priority region](deploy-across-multiple-regions). Oplog backups on AWS (Amazon Web Services) clusters\nuse standard AWS (Amazon Web Services) S3 (Simple Storage Service) encryption and Google Cloud clusters use standard [Google\nCloud Storage](https://cloud.google.com/storage) encryption.\n\nIn single-region and multi-region sharded clusters, Atlas creates\na separate backup for each shard in the shard's primary region.\n\n> **Note:**&#x20;\n>\n> Clusters with continuous cloud backups enabled store [oplog](manual/reference/glossary) data\n> in object storage according to your cloud provider:\n>\n> - S3 (Simple Storage Service) for AWS (Amazon Web Services)\n>\n> - Azure Blob Storage for Azure (Microsoft Azure)\n>\n> - Google Cloud Storage for Google Cloud\n\nThe following actions cause all existing oplog backups to be deleted.\nAll existing snapshots remain intact, but Atlas removes previously\npreserved oplog data when:\n\n- You disable continuous cloud backups for your cluster.\n\n- The cluster receives an excessive number of writes. The cluster\n  processes a large number of writes that causes the oplog to roll over\n  before backup collects it.\n\n  > **Example:**&#x20;\n  >\n  > - You sized your oplog for one hour of its usual write traffic,\n  >   say 1,000 operations.\n  >\n  > - Database activity results in a large number of writes to the\n  >   oplog, say 2,000 operations.\n  >\n  > - The number of writes result in the oplog dropping older\n  >   records. This example would lose 1,000 operations.\n  >\n  > - Backup should collect operation #1, but it collects #1,001\n  >   instead.\n\nIf you [Move a Cluster to a Different Region](move-cluster) your cluster's [highest priority region](deploy-across-multiple-regions) or if MongoDB\nmigrates oplog data to a different region:\n\n- Atlas retains data in both the old and new regions until your\n  continuous cloud backup window is represented in the new region. Once\n  the continuous cloud backup window is represented in the new region,\n  Atlas deletes the data in the old region.\n\n- You will be billed for storage in both the old and new regions for\n  the days following the region change. You must disable\n  continuous cloud backup and reenable it to prevent billing in both regions.\n\n  > **Note:** If you disable continuous cloud backup, Atlas will delete the\n  > continuous cloud backup history.\n\nWhen you use continuous cloud backups to restore a cluster from a previous\npoint in time, Atlas retains the cluster's [oplog](manual/reference/glossary). You\ncan use continuous cloud backups repeatedly to restore the cluster to any point\nin its continuous cloud backup window **except** between when you initiated a\nrestore and when Atlas completes a snapshot after the restore.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "continuous-cloud-backups",
+      "variantAgnostic": true
     },
     {
       "heading": "Consistency and Snapshots",
       "headingLevel": 2,
       "body": "Atlas maintains [causal consistency](manual/core/read-isolation-consistency-recency) when it takes snapshots\nexcept for the size statistics that [collStats](manual/reference/command/collStats) and\n`db.[collection].count()` report. The size statistics  that [collStats](manual/reference/command/collStats) and\n`db.[collection].count()` report might be inaccurate.\n\nAtlas coordinates the time across all shards for sharded clusters to ensure\nthat snapshots include all documents written to every shard and node as of the scheduled\nsnapshot time.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "consistency-and-snapshots",
+      "variantAgnostic": true
     },
     {
       "heading": "View M10+ Backup Snapshots",
       "headingLevel": 3,
-      "body": "**Atlascli:**Atlas CLITo list cloud backup snapshots for your project and cluster using the Atlas CLI, run the following command:```sh\n\natlas backups snapshots list <clusterName> [options]\n\n```To return the details for the snapshot you specify using the Atlas CLI, run the following command:```sh\n\natlas backups snapshots describe <snapshotId> [options]\n\n```To learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups snapshot list](atlas/cli/current/command/atlas-backups-snapshots-list) and\n[atlas backups snapshots describe](atlas/cli/current/command/atlas-backups-snapshots-describe).Related Links* [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n* [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)**Atlas UI:**Atlas UIAtlas displays existing snapshots for a given cluster on the\nSnapshots page. To view snapshots that Atlas has\nalready taken:Alternatively, to view a list of all `M10+` clusters with\ncloud backup enabled:If you choose to retain backups from a cluster you\nterminate, they remain accessible here under their source\ncluster name until they expire or you delete them.**Atlasapi:**Atlas Administration APIThe Atlas Administration API provides different endpoints for retrieving\nreplica set snapshots and sharded cluster snapshots.- [Return One Snapshot for One Replica Set Cluster](api/doc/atlas-admin-api-v2/operation/operation-getgroupclusterbackupsnapshot)\n\n- [Return All Snapshots for One Replica Set Cluster](api/doc/atlas-admin-api-v2/operation/operation-listgroupclusterbackupsnapshots)\n\n- [Return One Snapshot for One Sharded Cluster](api/doc/atlas-admin-api-v2/operation/operation-getgroupclusterbackupsnapshotshardedcluster)\n\n- [Return All Snapshots for One Sharded Cluster](api/doc/atlas-admin-api-v2/operation/operation-listgroupclusterbackupsnapshotshardedclusters)> **Note:**&#x20;\n>\n> To monitor a backup restore job until it completes, you must have\n> [Project Read Only](<Project Read Only>) access or higher to the specific project.\n>\n> To start a restore job, you must have [Project Backup Recovery Operator](<Project Backup Recovery Operator>), [Project Backup Manager](<Project Backup Manager>), or [Project Owner](<Project Owner>) access to the project.\n>\n> For cross-organization or cross-project restores, the required permissions\n> apply to both the source and target projects. You must have the necessary\n> permissions: [Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\n> in both projects to initiate or manage such restore operations.",
+      "body": "Atlas CLI\n\nTo list cloud backup snapshots for your project and cluster using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups snapshots list <clusterName> [options]\n\n```\n\nTo return the details for the snapshot you specify using the Atlas CLI, run the following command:\n\n```sh\n\natlas backups snapshots describe <snapshotId> [options]\n\n```\n\nTo learn more about the syntax and parameters for the previous commands, see the Atlas CLI documentation for\n[atlas backups snapshot list](atlas/cli/current/command/atlas-backups-snapshots-list) and\n[atlas backups snapshots describe](atlas/cli/current/command/atlas-backups-snapshots-describe).\n\nRelated Links\n\n- [Install the Atlas CLI](atlas/cli/current/install-atlas-cli)\n\n- [Connect to the Atlas CLI](atlas/cli/current/connect-atlas-cli)\n\nAtlas UI\n\nAtlas Administration API\n\n> **Note:**&#x20;\n>\n> To monitor a backup restore job until it completes, you must have\n> [Project Read Only](<Project Read Only>) access or higher to the specific project.\n>\n> To start a restore job, you must have [Project Backup Recovery Operator](<Project Backup Recovery Operator>), [Project Backup Manager](<Project Backup Manager>), or [Project Owner](<Project Owner>) access to the project.\n>\n> For cross-organization or cross-project restores, the required permissions\n> apply to both the source and target projects. You must have the necessary\n> permissions: [Project Backup Manager](<Project Backup Manager>) or [Project Owner](<Project Owner>)\n> in both projects to initiate or manage such restore operations.",
       "codeBlocks": [
         {
           "language": "sh",
@@ -53,6 +65,51 @@
           "language": "sh",
           "content": "\natlas backups snapshots describe <snapshotId> [options]\n",
           "tokenEstimate": 13
+        }
+      ],
+      "slug": "view-m10-backup-snapshots",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "View M10+ Backup Snapshots",
+      "headingLevel": 3,
+      "body": "Atlas displays existing snapshots for a given cluster on the\nSnapshots page. To view snapshots that Atlas has\nalready taken:\n\nAlternatively, to view a list of all `M10+` clusters with\ncloud backup enabled:\n\nIf you choose to retain backups from a cluster you\nterminate, they remain accessible here under their source\ncluster name until they expire or you delete them.",
+      "codeBlocks": [],
+      "slug": "view-m10-backup-snapshots--atlasui",
+      "selections": {
+        "interface": "atlasui"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "View M10+ Backup Snapshots",
+      "headingLevel": 3,
+      "body": "The Atlas Administration API provides different endpoints for retrieving\nreplica set snapshots and sharded cluster snapshots.\n\n- [Return One Snapshot for One Replica Set Cluster](api/doc/atlas-admin-api-v2/operation/operation-getgroupclusterbackupsnapshot)\n\n- [Return All Snapshots for One Replica Set Cluster](api/doc/atlas-admin-api-v2/operation/operation-listgroupclusterbackupsnapshots)\n\n- [Return One Snapshot for One Sharded Cluster](api/doc/atlas-admin-api-v2/operation/operation-getgroupclusterbackupsnapshotshardedcluster)\n\n- [Return All Snapshots for One Sharded Cluster](api/doc/atlas-admin-api-v2/operation/operation-listgroupclusterbackupsnapshotshardedclusters)",
+      "codeBlocks": [],
+      "slug": "view-m10-backup-snapshots--atlasapi",
+      "selections": {
+        "interface": "atlasapi"
+      },
+      "variantAgnostic": false
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "interface",
+      "text": "interface",
+      "default": "atlasui",
+      "selections": [
+        {
+          "value": "atlascli",
+          "text": "atlascli"
+        },
+        {
+          "value": "atlasui",
+          "text": "atlasui"
+        },
+        {
+          "value": "atlasapi",
+          "text": "atlasapi"
         }
       ]
     }

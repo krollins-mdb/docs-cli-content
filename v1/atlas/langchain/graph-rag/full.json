@@ -7,19 +7,25 @@
       "heading": "Background",
       "headingLevel": 2,
       "body": "[GraphRAG](https://microsoft.github.io/graphrag/)\nis an alternative approach to traditional [Retrieval-Augmented Generation (RAG) with MongoDB](avs-rag)\nthat structures data as a knowledge graph of entities and their\nrelationships instead of as vector embeddings. While vector-based RAG\nfinds documents that are semantically similar to the query, GraphRAG\nfinds connected entities to the query and traverses the relationships\nin the graph to retrieve relevant information.\n\nThis approach is particularly useful for answering relationship-based\nquestions like \"What is the connection between Company A and Company B?\"\nor \"Who is Person X's manager?\".\n\n`MongoDBGraphStore` is a component in the LangChain MongoDB integration\nthat allows you to implement GraphRAG by storing entities (nodes)\nand their relationships (edges) in a MongoDB collection. This component\nstores each entity as a document with relationship fields that\nreference other documents in your collection. It executes queries using\nthe [$graphLookup](manual/reference/operator/aggregation/graphLookup) aggregation stage.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "background",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- An environment to run interactive Python notebooks\n  such as [VS Code](https://code.visualstudio.com/docs/datascience/jupyter-notebooks)\n  or [Colab](https://colab.research.google.com).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Up the Environment",
       "headingLevel": 2,
       "body": "Set up the environment for this tutorial.\nCreate an interactive Python notebook by saving a file\nwith the `.ipynb` extension. This notebook allows you to\nrun Python code snippets individually, and you'll use\nit to run the code in this tutorial.\n\nTo set up your notebook environment:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Install and import dependencies.",
@@ -31,12 +37,14 @@
           "content": "pip install --quiet --upgrade pymongo langchain_community wikipedia langchain_openai langchain_mongodb",
           "tokenEstimate": 19
         }
-      ]
+      ],
+      "slug": "step-1-install-and-import-dependencies",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Define environment variables.",
       "headingLevel": 3,
-      "body": "Copy the following code example, replace the variables with your own values,\nthen run the code:\n\n| \\<api-key>           | Your OpenAI API key                          |\n| -------------------- | -------------------------------------------- |\n| \\<connection-string> | Your MongoDB cluster's SRV connection string |\n\n```python\nimport os\n\nos.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nMONGODB_URI = \"<connection-string>\"\nDB_NAME = \"langchain_db\"    # MongoDB database to store the knowledge graph\nCOLLECTION = \"wikipedia\"    # MongoDB collection to store the knowledge graph\n```\n\n> **Note:**&#x20;\n>\n> Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> <Tab tabid=\"cloud\">\n>   Atlas Cluster\n>\n>   Your connection string should use the following format:\n>\n>   ```\n>   mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n>   ```\n>\n>   To learn more, see [Driver](connect-via-driver).\n> </Tab>\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).",
+      "body": "Copy the following code example, replace the variables with your own values,\nthen run the code:\n\n| \\<api-key>           | Your OpenAI API key                          |\n| -------------------- | -------------------------------------------- |\n| \\<connection-string> | Your MongoDB cluster's SRV connection string |\n\n```python\nimport os\n\nos.environ[\"OPENAI_API_KEY\"] = \"<api-key>\"\nMONGODB_URI = \"<connection-string>\"\nDB_NAME = \"langchain_db\"    # MongoDB database to store the knowledge graph\nCOLLECTION = \"wikipedia\"    # MongoDB collection to store the knowledge graph\n```\n\n> **Note:**&#x20;\n>\n> Replace `<connection-string>` with the connection string for your\n> Atlas cluster or local Atlas deployment.\n>\n> Atlas Cluster\n>\n> Your connection string should use the following format:\n>\n> ```\n> mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n> ```\n>\n> To learn more, see [Driver](connect-via-driver).\n>\n> Local or Self-Managed\n>\n> Your connection string should use the\n> following format:\n>\n> ```\n> mongodb://localhost:<port-number>/?directConnection=true\n> ```\n>\n> To learn more, see [Connection Strings](manual/reference/connection-string).",
       "codeBlocks": [
         {
           "language": "python",
@@ -53,13 +61,17 @@
           "content": "mongodb://localhost:<port-number>/?directConnection=true",
           "tokenEstimate": 11
         }
-      ]
+      ],
+      "slug": "step-2-define-environment-variables",
+      "variantAgnostic": true
     },
     {
       "heading": "Use MongoDB as a Knowledge Graph",
       "headingLevel": 2,
       "body": "This section demonstrates how to use MongoDB as a\nknowledge graph for GraphRAG. Paste and run the following\ncode in your notebook:",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "use-mongodb-as-a-knowledge-graph",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Initialize the language model.",
@@ -71,7 +83,9 @@
           "content": "from langchain_openai import OpenAI\nfrom langchain.chat_models import init_chat_model\n\nchat_model = init_chat_model(\"gpt-4o\", model_provider=\"openai\", temperature=0)",
           "tokenEstimate": 42
         }
-      ]
+      ],
+      "slug": "step-1-initialize-the-language-model",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 2: Load the sample data.",
@@ -83,7 +97,9 @@
           "content": "from langchain_community.document_loaders import WikipediaLoader\nfrom langchain_text_splitters import TokenTextSplitter\n\nwikipedia_pages = WikipediaLoader(query=\"Sherlock Holmes\", load_max_docs=3).load()\n\ntext_splitter = TokenTextSplitter(chunk_size=1024, chunk_overlap=0)\nwikipedia_docs = text_splitter.split_documents(wikipedia_pages)",
           "tokenEstimate": 76
         }
-      ]
+      ],
+      "slug": "step-2-load-the-sample-data",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 3: Instantiate the graph store.",
@@ -95,7 +111,9 @@
           "content": "from langchain_mongodb.graphrag.graph import MongoDBGraphStore\n\ngraph_store = MongoDBGraphStore.from_connection_string(\n    connection_string = MONGODB_URI,\n    database_name = DB_NAME,\n    collection_name = COLLECTION,\n    entity_extraction_model = chat_model\n)",
           "tokenEstimate": 53
         }
-      ]
+      ],
+      "slug": "step-3-instantiate-the-graph-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 4: Add documents to the knowledge graph.",
@@ -107,13 +125,17 @@
           "content": "graph_store.add_documents(wikipedia_docs)",
           "tokenEstimate": 8
         }
-      ]
+      ],
+      "slug": "step-4-add-documents-to-the-knowledge-graph",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 5: (Optional) Visualize the knowledge graph.",
       "headingLevel": 3,
       "body": "You can visualize the graph structure using the `networkx` and `pyvis`\nlibraries. For an example, see the\n[notebook](https://github.com/mongodb/docs-notebooks/blob/main/ai-integrations/langchain-graphrag.ipynb).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "step-5-optional-visualize-the-knowledge-graph",
+      "variantAgnostic": true
     },
     {
       "heading": "Answer Questions about Your Data",
@@ -130,13 +152,33 @@
           "content": "Sherlock Holmes was inspired by Dr. Joseph Bell, a physician known for his keen observation and deductive reasoning, as acknowledged by Sir Arthur Conan Doyle, Holmes' creator.",
           "tokenEstimate": 35
         }
-      ]
+      ],
+      "slug": "answer-questions-about-your-data",
+      "variantAgnostic": true
     },
     {
       "heading": "Learn by Watching",
       "headingLevel": 2,
-      "body": "Watch this video to see a demo\nof the code used in this tutorial.*Duration: 2 Minutes*[https://www.youtube.com/watch?v=LHzOkwdRars](https://www.youtube.com/watch?v=LHzOkwdRars)",
-      "codeBlocks": []
+      "body": "Watch this video to see a demo\nof the code used in this tutorial.\n\n*Duration: 2 Minutes*\n\n[https://www.youtube.com/watch?v=LHzOkwdRars](https://www.youtube.com/watch?v=LHzOkwdRars)",
+      "codeBlocks": [],
+      "slug": "learn-by-watching",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "cloud",
+          "text": "cloud"
+        },
+        {
+          "value": "local",
+          "text": "local"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,22 @@
+{
+  "heading": "Basic Example",
+  "headingLevel": 4,
+  "body": "**Input:**\n\n```python\nimport pymongo\nimport dns.resolver\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<connection-string>\")\n\n# define pipeline\npipeline = [\n    {\n        \"$search\": {\n            \"geoWithin\": {\n                \"path\": \"address.location\",\n                \"box\": {\n                    \"bottomLeft\": {\n                        \"type\": \"Point\",\n                        \"coordinates\": [112.467, -55.050]\n                    },\n                    \"topRight\": {\n                        \"type\": \"Point\",\n                        \"coordinates\": [168.000, -9.133]\n                    }\n                }\n            }\n        }\n    },\n    {\n        \"$limit\": 3\n    },\n    {\n        \"$project\": {\n            \"_id\": 0,\n            \"name\": 1,\n            \"address\": 1\n        }\n    }\n]\n\n# run pipeline\nresult = client.sample_airbnb.listingsAndReviews.aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n\n```\n\n**Output:**\n\n```javascript\n{'name': 'Surry Hills Studio - Your Perfect Base in Sydney', 'address': {'street': 'Surry Hills, NSW, Australia', 'suburb': 'Darlinghurst', 'government_area': 'Sydney', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.21554, -33.88029], 'is_location_exact': True}}}\n{'name': 'Sydney Hyde Park City Apartment (checkin from 6am)', 'address': {'street': 'Darlinghurst, NSW, Australia', 'suburb': 'Darlinghurst', 'government_area': 'Sydney', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.21346, -33.87603], 'is_location_exact': False}}}\n{'name': \"THE Place to See Sydney's FIREWORKS\", 'address': {'street': 'Rozelle, NSW, Australia', 'suburb': 'Lilyfield/Rozelle', 'government_area': 'Leichhardt', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.17956, -33.86296], 'is_location_exact': True}}}\n```",
+  "codeBlocks": [
+    {
+      "language": "python",
+      "content": "import pymongo\nimport dns.resolver\n\n# connect to your Atlas cluster\nclient = pymongo.MongoClient(\"<connection-string>\")\n\n# define pipeline\npipeline = [\n    {\n        \"$search\": {\n            \"geoWithin\": {\n                \"path\": \"address.location\",\n                \"box\": {\n                    \"bottomLeft\": {\n                        \"type\": \"Point\",\n                        \"coordinates\": [112.467, -55.050]\n                    },\n                    \"topRight\": {\n                        \"type\": \"Point\",\n                        \"coordinates\": [168.000, -9.133]\n                    }\n                }\n            }\n        }\n    },\n    {\n        \"$limit\": 3\n    },\n    {\n        \"$project\": {\n            \"_id\": 0,\n            \"name\": 1,\n            \"address\": 1\n        }\n    }\n]\n\n# run pipeline\nresult = client.sample_airbnb.listingsAndReviews.aggregate(pipeline)\n\n# print results\nfor i in result:\n    print(i)\n",
+      "tokenEstimate": 199
+    },
+    {
+      "language": "javascript",
+      "content": "{'name': 'Surry Hills Studio - Your Perfect Base in Sydney', 'address': {'street': 'Surry Hills, NSW, Australia', 'suburb': 'Darlinghurst', 'government_area': 'Sydney', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.21554, -33.88029], 'is_location_exact': True}}}\n{'name': 'Sydney Hyde Park City Apartment (checkin from 6am)', 'address': {'street': 'Darlinghurst, NSW, Australia', 'suburb': 'Darlinghurst', 'government_area': 'Sydney', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.21346, -33.87603], 'is_location_exact': False}}}\n{'name': \"THE Place to See Sydney's FIREWORKS\", 'address': {'street': 'Rozelle, NSW, Australia', 'suburb': 'Lilyfield/Rozelle', 'government_area': 'Leichhardt', 'market': 'Sydney', 'country': 'Australia', 'country_code': 'AU', 'location': {'type': 'Point', 'coordinates': [151.17956, -33.86296], 'is_location_exact': True}}}",
+      "tokenEstimate": 302
+    }
+  ],
+  "slug": "basic-example--python",
+  "selections": {
+    "drivers": "python"
+  },
+  "variantAgnostic": false
+}

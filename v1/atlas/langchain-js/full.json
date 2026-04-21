@@ -7,13 +7,17 @@
       "heading": "Background",
       "headingLevel": 2,
       "body": "LangChain is an open-source framework that simplifies the creation of\nLLM applications through the use of \"chains.\" Chains are LangChain-specific\ncomponents that can be combined for a variety of AI use cases, including\nRAG (Retrieval-Augmented Generation).\n\nBy integrating MongoDB Vector Search with LangChain, you can use\nMongoDB as a vector database and use MongoDB Vector Search to\nimplement RAG (Retrieval-Augmented Generation) by retrieving semantically similar documents\nfrom your data. To learn more about RAG (Retrieval-Augmented Generation),\nsee [Retrieval-Augmented Generation (RAG) with MongoDB](ai-key-concepts).",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "background",
+      "variantAgnostic": true
     },
     {
       "heading": "Prerequisites",
       "headingLevel": 2,
       "body": "To complete this tutorial, you must have the following:\n\n- One of the following MongoDB cluster types:\n\n  - An [Create a Cluster](create-new-cluster)\n    running MongoDB version 6.0.11, 7.0.2, or later.\n    Ensure that your IP address (Internet Protocol address)\n    is included in your Atlas project's [IP Access List](access-list).\n\n  - A local Atlas deployment created using the Atlas CLI.\n    To learn more, see [Create a Local Atlas Deployment](atlas/cli/current/atlas-cli-deploy-local).\n\n  - A MongoDB Community or Enterprise cluster with\n    [Search and Vector Search](manual/administration/install-community) installed.\n\n- A Voyage AI API (Application Programming Interface) key. To create an API (Application Programming Interface) key, see [using](voyageai/management/api-keys).\n\n- An OpenAI API Key. You must have an OpenAI account with credits\n  available for API requests. To learn more about registering an OpenAI\n  account, see the [OpenAI API website](https://openai.com/api/).\n\n- A terminal and code editor to run your Node.js project.\n\n- [npm and Node.js](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed.",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "prerequisites",
+      "variantAgnostic": true
     },
     {
       "heading": "Set Up the Environment",
@@ -40,7 +44,9 @@
           "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
           "tokenEstimate": 21
         }
-      ]
+      ],
+      "slug": "set-up-the-environment",
+      "variantAgnostic": true
     },
     {
       "heading": "Use MongoDB as a Vector Store",
@@ -57,7 +63,9 @@
           "content": "node get-started.js",
           "tokenEstimate": 5
         }
-      ]
+      ],
+      "slug": "use-mongodb-as-a-vector-store",
+      "variantAgnostic": true
     },
     {
       "heading": "Create the MongoDB Vector Search Index",
@@ -74,12 +82,22 @@
           "content": "node get-started.js",
           "tokenEstimate": 5
         }
-      ]
+      ],
+      "slug": "create-the-mongodb-vector-search-index",
+      "variantAgnostic": true
     },
     {
       "heading": "Run Vector Search Queries",
       "headingLevel": 2,
-      "body": "This section demonstrates various queries that you can\nrun on your vectorized data. Now that you've created the index,\nadd the following code to your asynchronous function to run vector search\nqueries against your data.> **Note:** If you experience inaccurate results when querying\n> your data, your index might be taking longer\n> than expected to sync. Increase the number in the `setTimeout`\n> function to allow more time for the initial sync.<Tab tabid=\"semantic-search\">\n  Basic Semantic Search\n\n  # Step 1: Add the following code to your asynchronous function and save the file.\n\n  The following code uses the `similaritySearch` method\n  to perform a basic semantic search for\n  the string `MongoDB Atlas security`. It returns a\n  list of documents ranked by relevance with only the\n  `pageContent` and `pageNumber` fields.\n\n  ```javascript\n  // Basic semantic search\n  const basicOutput = await vectorStore.similaritySearch(\"MongoDB Atlas security\");\n  const basicResults = basicOutput.map((results => ({\n     pageContent: results.pageContent,\n     pageNumber: results.metadata.loc.pageNumber,\n  })))\n\n  console.log(\"Semantic Search Results:\")\n  console.log(basicResults)\n  ```\n\n  # Step 2: Run the following command to execute the query.\n\n  **Input:**\n\n  ```sh\n  node get-started.js\n  ```\n\n  **Output:**\n\n  ```json\n  Semantic Search Results:\n  [\n    {\n      pageContent: 'Atlas free tier, or download MongoDB for local \\n' +\n        'development.\\n' +\n        'Review the MongoDB manuals and tutorials in our \\n' +\n        'documentation. \\n' +\n        'More Resources\\n' +\n        'For more on getting started in MongoDB:',\n      pageNumber: 30\n    },\n    {\n      pageContent: 'read isolation.  \\n' +\n        'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n        'tools like Atlas Charts can be configured to read from analytics nodes only.',\n      pageNumber: 21\n    },\n    {\n      pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n        'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n      pageNumber: 27\n    },\n    {\n      pageContent: 'are updated, associated indexes must be maintained, incurring additional CPU and disk I/O overhead. \\n' +\n        'If you\\'re running fully managed databases on MongoDB Atlas, the built-in Performance Advisor',\n      pageNumber: 20\n    }\n  ]\n  ```\n</Tab>Semantic Search with FilteringYou can pre-filter your data by using an\nMQL (MongoDB Query Language) match expression\nthat compares the indexed field with another value in\nyour collection. You must index any metadata fields that you want to\nfilter by as the `filter` type. To learn more, see\n[index definition](avs-types-vector-search).> **Note:** You specified the `loc.pageNumber` field as a filter\n> when you [created the index](langchain-create-index)\n> for this tutorial.The following code uses the `similaritySearch` method\nto perform a semantic search for the string `MongoDB Atlas security`.\nIt specifies the following parameters:* The number of documents to return as `3`.\n\n* A pre-filter on the `loc.pageNumber` field that uses the [$eq](manual/reference/operator/query/eq) operator\n  to match documents appearing on page 17 only.It returns a list of documents ranked by relevance with only the\n`pageContent` and `pageNumber` fields.```javascript\n// Semantic search with metadata filter\nconst filteredOutput = await vectorStore.similaritySearch(\"MongoDB Atlas Search\", 3, {\n   preFilter: {\n      \"loc.pageNumber\": {\"$eq\": 22 },\n   }\n});\nconst filteredResults = filteredOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search with Filtering Results:\")\nconsole.log(filteredResults)\n```**Input:**```sh\nnode get-started.js\n```**Output:**```json\nSemantic Search with Filtering Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'Figure 9: Atlas Search queries are expressed through the MongoDB Query API and backed by the leading search engine library, \\n' +\n      'Apache Lucene.',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'consider using Atlas Search. The service is built on fully managed Apache Lucene but exposed to users \\n' +\n      'through the MongoDB Aggregation Framework.',\n    pageNumber: 22\n  }\n]\n```MMR SearchYou can also perform semantic search based on Max Marginal Relevance (MMR),\na measure of semantic relevance optimized for diversity.The following code uses the `maxMarginalRelevanceSearch` method\nto search for the string `MongoDB Atlas security`.\nIt also specifies an object that defines the following\noptional parameters:* `k` to limit the number of returned documents to `3`.\n\n* `fetchK` to fetch only `10` documents before passing\n  the documents to the MMR (Max Marginal Relevance) algorithm.It returns a list of documents ranked by relevance\nwith only the `pageContent` and `pageNumber` fields.```javascript\n// Max Marginal Relevance search\nconst mmrOutput = await vectorStore.maxMarginalRelevanceSearch(\"MongoDB Atlas security\", {\n   k: 3,\n   fetchK: 10,\n});\nconst mmrResults = mmrOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Max Marginal Relevance Search Results:\")\nconsole.log(mmrResults)\n```**Input:**```sh\nnode get-started.js\n```**Output:**```json\nMax Marginal Relevance Search Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n      'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n    pageNumber: 27\n  },\n  {\n    pageContent: 'read isolation.  \\n' +\n      'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n      'tools like Atlas Charts can be configured to read from analytics nodes only.',\n    pageNumber: 21\n  }\n]\n```> **See Also:** For more information, refer to\n> the [API reference](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html).",
+      "body": "This section demonstrates various queries that you can\nrun on your vectorized data. Now that you've created the index,\nadd the following code to your asynchronous function to run vector search\nqueries against your data.\n\n> **Note:** If you experience inaccurate results when querying\n> your data, your index might be taking longer\n> than expected to sync. Increase the number in the `setTimeout`\n> function to allow more time for the initial sync.\n\nBasic Semantic Search\n\nSemantic Search with Filtering\n\nMMR Search\n\n> **See Also:** For more information, refer to\n> the [API reference](https://api.js.langchain.com/classes/langchain_mongodb.MongoDBAtlasVectorSearch.html).",
+      "codeBlocks": [],
+      "slug": "run-vector-search-queries",
+      "variantAgnostic": true
+    },
+    {
+      "heading": "Run Vector Search Queries",
+      "headingLevel": 2,
+      "body": "The following code uses the `similaritySearch` method\nto perform a basic semantic search for\nthe string `MongoDB Atlas security`. It returns a\nlist of documents ranked by relevance with only the\n`pageContent` and `pageNumber` fields.\n\n```javascript\n// Basic semantic search\nconst basicOutput = await vectorStore.similaritySearch(\"MongoDB Atlas security\");\nconst basicResults = basicOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search Results:\")\nconsole.log(basicResults)\n```\n\n**Input:**\n\n```sh\nnode get-started.js\n```\n\n**Output:**\n\n```json\nSemantic Search Results:\n[\n  {\n    pageContent: 'Atlas free tier, or download MongoDB for local \\n' +\n      'development.\\n' +\n      'Review the MongoDB manuals and tutorials in our \\n' +\n      'documentation. \\n' +\n      'More Resources\\n' +\n      'For more on getting started in MongoDB:',\n    pageNumber: 30\n  },\n  {\n    pageContent: 'read isolation.  \\n' +\n      'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n      'tools like Atlas Charts can be configured to read from analytics nodes only.',\n    pageNumber: 21\n  },\n  {\n    pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n      'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n    pageNumber: 27\n  },\n  {\n    pageContent: 'are updated, associated indexes must be maintained, incurring additional CPU and disk I/O overhead. \\n' +\n      'If you\\'re running fully managed databases on MongoDB Atlas, the built-in Performance Advisor',\n    pageNumber: 20\n  }\n]\n```",
       "codeBlocks": [
         {
           "language": "javascript",
@@ -95,7 +113,19 @@
           "language": "json",
           "content": "Semantic Search Results:\n[\n  {\n    pageContent: 'Atlas free tier, or download MongoDB for local \\n' +\n      'development.\\n' +\n      'Review the MongoDB manuals and tutorials in our \\n' +\n      'documentation. \\n' +\n      'More Resources\\n' +\n      'For more on getting started in MongoDB:',\n    pageNumber: 30\n  },\n  {\n    pageContent: 'read isolation.  \\n' +\n      'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n      'tools like Atlas Charts can be configured to read from analytics nodes only.',\n    pageNumber: 21\n  },\n  {\n    pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n      'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n    pageNumber: 27\n  },\n  {\n    pageContent: 'are updated, associated indexes must be maintained, incurring additional CPU and disk I/O overhead. \\n' +\n      'If you\\'re running fully managed databases on MongoDB Atlas, the built-in Performance Advisor',\n    pageNumber: 20\n  }\n]",
           "tokenEstimate": 259
-        },
+        }
+      ],
+      "slug": "run-vector-search-queries--semantic-search",
+      "selections": {
+        "tabs": "semantic-search"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Run Vector Search Queries",
+      "headingLevel": 2,
+      "body": "You can pre-filter your data by using an\nMQL (MongoDB Query Language) match expression\nthat compares the indexed field with another value in\nyour collection. You must index any metadata fields that you want to\nfilter by as the `filter` type. To learn more, see\n[index definition](avs-types-vector-search).\n\n> **Note:** You specified the `loc.pageNumber` field as a filter\n> when you [created the index](langchain-create-index)\n> for this tutorial.\n\nThe following code uses the `similaritySearch` method\nto perform a semantic search for the string `MongoDB Atlas security`.\nIt specifies the following parameters:\n\n- The number of documents to return as `3`.\n\n- A pre-filter on the `loc.pageNumber` field that uses the [$eq](manual/reference/operator/query/eq) operator\n  to match documents appearing on page 17 only.\n\nIt returns a list of documents ranked by relevance with only the\n`pageContent` and `pageNumber` fields.\n\n```javascript\n// Semantic search with metadata filter\nconst filteredOutput = await vectorStore.similaritySearch(\"MongoDB Atlas Search\", 3, {\n   preFilter: {\n      \"loc.pageNumber\": {\"$eq\": 22 },\n   }\n});\nconst filteredResults = filteredOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search with Filtering Results:\")\nconsole.log(filteredResults)\n```\n\n**Input:**\n\n```sh\nnode get-started.js\n```\n\n**Output:**\n\n```json\nSemantic Search with Filtering Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'Figure 9: Atlas Search queries are expressed through the MongoDB Query API and backed by the leading search engine library, \\n' +\n      'Apache Lucene.',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'consider using Atlas Search. The service is built on fully managed Apache Lucene but exposed to users \\n' +\n      'through the MongoDB Aggregation Framework.',\n    pageNumber: 22\n  }\n]\n```",
+      "codeBlocks": [
         {
           "language": "javascript",
           "content": "// Semantic search with metadata filter\nconst filteredOutput = await vectorStore.similaritySearch(\"MongoDB Atlas Search\", 3, {\n   preFilter: {\n      \"loc.pageNumber\": {\"$eq\": 22 },\n   }\n});\nconst filteredResults = filteredOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Semantic Search with Filtering Results:\")\nconsole.log(filteredResults)",
@@ -110,7 +140,19 @@
           "language": "json",
           "content": "Semantic Search with Filtering Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'Figure 9: Atlas Search queries are expressed through the MongoDB Query API and backed by the leading search engine library, \\n' +\n      'Apache Lucene.',\n    pageNumber: 22\n  },\n  {\n    pageContent: 'consider using Atlas Search. The service is built on fully managed Apache Lucene but exposed to users \\n' +\n      'through the MongoDB Aggregation Framework.',\n    pageNumber: 22\n  }\n]",
           "tokenEstimate": 134
-        },
+        }
+      ],
+      "slug": "run-vector-search-queries--semantic-search-filter",
+      "selections": {
+        "tabs": "semantic-search-filter"
+      },
+      "variantAgnostic": false
+    },
+    {
+      "heading": "Run Vector Search Queries",
+      "headingLevel": 2,
+      "body": "You can also perform semantic search based on Max Marginal Relevance (MMR),\na measure of semantic relevance optimized for diversity.\n\nThe following code uses the `maxMarginalRelevanceSearch` method\nto search for the string `MongoDB Atlas security`.\nIt also specifies an object that defines the following\noptional parameters:\n\n- `k` to limit the number of returned documents to `3`.\n\n- `fetchK` to fetch only `10` documents before passing\n  the documents to the MMR (Max Marginal Relevance) algorithm.\n\nIt returns a list of documents ranked by relevance\nwith only the `pageContent` and `pageNumber` fields.\n\n```javascript\n// Max Marginal Relevance search\nconst mmrOutput = await vectorStore.maxMarginalRelevanceSearch(\"MongoDB Atlas security\", {\n   k: 3,\n   fetchK: 10,\n});\nconst mmrResults = mmrOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Max Marginal Relevance Search Results:\")\nconsole.log(mmrResults)\n```\n\n**Input:**\n\n```sh\nnode get-started.js\n```\n\n**Output:**\n\n```json\nMax Marginal Relevance Search Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n      'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n    pageNumber: 27\n  },\n  {\n    pageContent: 'read isolation.  \\n' +\n      'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n      'tools like Atlas Charts can be configured to read from analytics nodes only.',\n    pageNumber: 21\n  }\n]\n```",
+      "codeBlocks": [
         {
           "language": "javascript",
           "content": "// Max Marginal Relevance search\nconst mmrOutput = await vectorStore.maxMarginalRelevanceSearch(\"MongoDB Atlas security\", {\n   k: 3,\n   fetchK: 10,\n});\nconst mmrResults = mmrOutput.map((results => ({\n   pageContent: results.pageContent,\n   pageNumber: results.metadata.loc.pageNumber,\n})))\n\nconsole.log(\"Max Marginal Relevance Search Results:\")\nconsole.log(mmrResults)",
@@ -126,13 +168,20 @@
           "content": "Max Marginal Relevance Search Results:\n[\n  {\n    pageContent: 'Atlas Search is built for the MongoDB document data model and provides higher performance and',\n    pageNumber: 22\n  },\n  {\n    pageContent: '• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\n' +\n      'Global Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or',\n    pageNumber: 27\n  },\n  {\n    pageContent: 'read isolation.  \\n' +\n      'With MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\n' +\n      'tools like Atlas Charts can be configured to read from analytics nodes only.',\n    pageNumber: 21\n  }\n]",
           "tokenEstimate": 162
         }
-      ]
+      ],
+      "slug": "run-vector-search-queries--mmr-search",
+      "selections": {
+        "tabs": "mmr-search"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Answer Questions on Your Data",
       "headingLevel": 2,
-      "body": "This section demonstrates two different RAG (Retrieval-Augmented Generation) implementations using\nMongoDB Vector Search and LangChain. Now that you've used MongoDB Vector Search\nto retrieve semantically similar documents, use the following\ncode examples to prompt the LLM to answer\nquestions against the documents returned by MongoDB Vector Search.**Langchain-js-rag:**Basic RAG",
-      "codeBlocks": []
+      "body": "This section demonstrates two different RAG (Retrieval-Augmented Generation) implementations using\nMongoDB Vector Search and LangChain. Now that you've used MongoDB Vector Search\nto retrieve semantically similar documents, use the following\ncode examples to prompt the LLM to answer\nquestions against the documents returned by MongoDB Vector Search.\n\nBasic RAG",
+      "codeBlocks": [],
+      "slug": "answer-questions-on-your-data",
+      "variantAgnostic": true
     },
     {
       "heading": "Step 1: Add the following code to your asynchronous function and save the file.",
@@ -144,12 +193,17 @@
           "content": "// Implement RAG to answer questions on your data \nconst retriever = vectorStore.asRetriever();\nconst prompt =\n  PromptTemplate.fromTemplate(`Answer the question based on the following context:\n  {context}\n\n  Question: {question}`);\nconst model = new ChatOpenAI({});\nconst chain = RunnableSequence.from([\n  {\n    context: retriever.pipe(formatDocumentsAsString),\n    question: new RunnablePassthrough(),\n  },\n  prompt,\n  model,\n  new StringOutputParser(),\n]);\n\n// Prompt the LLM\nconst question = \"How can I secure my MongoDB Atlas cluster?\";  \nconst answer = await chain.invoke(question);\nconsole.log(\"Question: \" + question);\nconsole.log(\"Answer: \" + answer);\n\n// Return source documents\nconst retrievedResults = await retriever.getRelevantDocuments(question)\nconst documents = retrievedResults.map((documents => ({\n  pageContent: documents.pageContent,\n  pageNumber: documents.metadata.loc.pageNumber,\n})))\nconsole.log(\"\\nSource documents:\\n\" + JSON.stringify(documents, 1, 2))\n",
           "tokenEstimate": 215
         }
-      ]
+      ],
+      "slug": "step-1-add-the-following-code-to-your-asynchronous-function-and-save-the-file--langchain-js-rag",
+      "selections": {
+        "tabs": "langchain-js-rag"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Run the following command to execute your file.",
       "headingLevel": 3,
-      "body": "After you save the file, run the following command.\nThe generated response might vary.**Input:**```sh\nnode get-started.js\n```**Output:**```json\nQuestion: How can I secure my MongoDB Atlas cluster?\nAnswer: The given context does not explicitly provide detailed steps to secure a MongoDB Atlas cluster. However, based on general best practices, here are some common steps to secure your MongoDB Atlas cluster:\n\n1. **Enable Network Access Controls**: Configure IP whitelists to only allow connections from trusted IP addresses.\n2. **Use Strong Authentication and Authorization**: Enable SCRAM (Salted Challenge Response Authentication Mechanism) for authenticating users and define roles with specific permissions.\n3. **Encrypt Data**: Ensure data is encrypted both at rest and in transit by default in MongoDB Atlas.\n4. **Enable VPC Peering (if applicable)**: Use Virtual Private Cloud (VPC) peering for secure and private connections.\n5. **Monitor Activity**: Use MongoDB Atlas's built-in monitoring to track cluster activity and detect unauthorized attempts or anomalies.\n6. **Implement Automated Backups**: Secure backups and ensure they are protected from unauthorized access.\n7. **Educate Yourself**: Continuously refer to the MongoDB documentation and follow security best practices.\n\nIt is recommended to visit the MongoDB documentation and security guides for the most accurate and detailed steps tailored to your specific use case.\n\nSource documents:\n[\n  {\n    \"pageContent\": \"Atlas free tier, or download MongoDB for local \\ndevelopment.\\nReview the MongoDB manuals and tutorials in our \\ndocumentation. \\nMore Resources\\nFor more on getting started in MongoDB:\",\n    \"pageNumber\": 30\n  },\n  {\n    \"pageContent\": \"read isolation.  \\nWith MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\ntools like Atlas Charts can be configured to read from analytics nodes only.\",\n    \"pageNumber\": 21\n  },\n  {\n    \"pageContent\": \"• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\nGlobal Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or\",\n    \"pageNumber\": 27\n  },\n  {\n    \"pageContent\": \"22\\nWorkload Type: Search\\nIf your application requires rich full-text search functionality and you are running MongoDB on Atlas,\",\n    \"pageNumber\": 22\n  }\n]\n```**Langchain-js-rag-filtering:**RAG with Filtering and MMR Search",
+      "body": "After you save the file, run the following command.\nThe generated response might vary.\n\n**Input:**\n\n```sh\nnode get-started.js\n```\n\n**Output:**\n\n```json\nQuestion: How can I secure my MongoDB Atlas cluster?\nAnswer: The given context does not explicitly provide detailed steps to secure a MongoDB Atlas cluster. However, based on general best practices, here are some common steps to secure your MongoDB Atlas cluster:\n\n1. **Enable Network Access Controls**: Configure IP whitelists to only allow connections from trusted IP addresses.\n2. **Use Strong Authentication and Authorization**: Enable SCRAM (Salted Challenge Response Authentication Mechanism) for authenticating users and define roles with specific permissions.\n3. **Encrypt Data**: Ensure data is encrypted both at rest and in transit by default in MongoDB Atlas.\n4. **Enable VPC Peering (if applicable)**: Use Virtual Private Cloud (VPC) peering for secure and private connections.\n5. **Monitor Activity**: Use MongoDB Atlas's built-in monitoring to track cluster activity and detect unauthorized attempts or anomalies.\n6. **Implement Automated Backups**: Secure backups and ensure they are protected from unauthorized access.\n7. **Educate Yourself**: Continuously refer to the MongoDB documentation and follow security best practices.\n\nIt is recommended to visit the MongoDB documentation and security guides for the most accurate and detailed steps tailored to your specific use case.\n\nSource documents:\n[\n  {\n    \"pageContent\": \"Atlas free tier, or download MongoDB for local \\ndevelopment.\\nReview the MongoDB manuals and tutorials in our \\ndocumentation. \\nMore Resources\\nFor more on getting started in MongoDB:\",\n    \"pageNumber\": 30\n  },\n  {\n    \"pageContent\": \"read isolation.  \\nWith MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\ntools like Atlas Charts can be configured to read from analytics nodes only.\",\n    \"pageNumber\": 21\n  },\n  {\n    \"pageContent\": \"• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\nGlobal Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or\",\n    \"pageNumber\": 27\n  },\n  {\n    \"pageContent\": \"22\\nWorkload Type: Search\\nIf your application requires rich full-text search functionality and you are running MongoDB on Atlas,\",\n    \"pageNumber\": 22\n  }\n]\n```\n\nRAG with Filtering and MMR Search",
       "codeBlocks": [
         {
           "language": "sh",
@@ -161,7 +215,12 @@
           "content": "Question: How can I secure my MongoDB Atlas cluster?\nAnswer: The given context does not explicitly provide detailed steps to secure a MongoDB Atlas cluster. However, based on general best practices, here are some common steps to secure your MongoDB Atlas cluster:\n\n1. **Enable Network Access Controls**: Configure IP whitelists to only allow connections from trusted IP addresses.\n2. **Use Strong Authentication and Authorization**: Enable SCRAM (Salted Challenge Response Authentication Mechanism) for authenticating users and define roles with specific permissions.\n3. **Encrypt Data**: Ensure data is encrypted both at rest and in transit by default in MongoDB Atlas.\n4. **Enable VPC Peering (if applicable)**: Use Virtual Private Cloud (VPC) peering for secure and private connections.\n5. **Monitor Activity**: Use MongoDB Atlas's built-in monitoring to track cluster activity and detect unauthorized attempts or anomalies.\n6. **Implement Automated Backups**: Secure backups and ensure they are protected from unauthorized access.\n7. **Educate Yourself**: Continuously refer to the MongoDB documentation and follow security best practices.\n\nIt is recommended to visit the MongoDB documentation and security guides for the most accurate and detailed steps tailored to your specific use case.\n\nSource documents:\n[\n  {\n    \"pageContent\": \"Atlas free tier, or download MongoDB for local \\ndevelopment.\\nReview the MongoDB manuals and tutorials in our \\ndocumentation. \\nMore Resources\\nFor more on getting started in MongoDB:\",\n    \"pageNumber\": 30\n  },\n  {\n    \"pageContent\": \"read isolation.  \\nWith MongoDB Atlas, you can achieve workload isolation with dedicated analytics nodes. Visualization \\ntools like Atlas Charts can be configured to read from analytics nodes only.\",\n    \"pageNumber\": 21\n  },\n  {\n    \"pageContent\": \"• Zoned Sharding — You can define specific rules governing data placement in a sharded cluster.\\nGlobal Clusters in MongoDB Atlas allows you to quickly implement zoned sharding using a visual UI or\",\n    \"pageNumber\": 27\n  },\n  {\n    \"pageContent\": \"22\\nWorkload Type: Search\\nIf your application requires rich full-text search functionality and you are running MongoDB on Atlas,\",\n    \"pageNumber\": 22\n  }\n]",
           "tokenEstimate": 460
         }
-      ]
+      ],
+      "slug": "step-2-run-the-following-command-to-execute-your-file--langchain-js-rag",
+      "selections": {
+        "tabs": "langchain-js-rag"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 1: Add the following code to your asynchronous function and save the file.",
@@ -173,7 +232,12 @@
           "content": "// Implement RAG to answer questions on your data \nconst retriever = await vectorStore.asRetriever({\n    searchType: \"mmr\", // Defaults to \"similarity\n    filter: { preFilter: { \"loc.pageNumber\": { \"$eq\": 17 } } },\n    searchKwargs: {\n      fetchK: 20,\n      lambda: 0.1,\n    },\n  });\nconst prompt =\n  PromptTemplate.fromTemplate(`Answer the question based on the following context:\n  {context}\n\n  Question: {question}`);\nconst model = new ChatOpenAI({});\nconst chain = RunnableSequence.from([\n  {\n    context: retriever.pipe(formatDocumentsAsString),\n    question: new RunnablePassthrough(),\n  },\n  prompt,\n  model,\n  new StringOutputParser(),\n]);\n\n// Prompt the LLM\nconst question = \"How can I secure my MongoDB Atlas cluster?\";  \nconst answer = await chain.invoke(question);\nconsole.log(\"Question: \" + question);\nconsole.log(\"Answer: \" + answer);\n\n// Return source documents\nconst retrievedResults = await retriever.getRelevantDocuments(question)\nconst documents = retrievedResults.map((documents => ({\n  pageContent: documents.pageContent,\n  pageNumber: documents.metadata.loc.pageNumber,\n})))\nconsole.log(\"\\nSource documents:\\n\" + JSON.stringify(documents, 1, 2))\n",
           "tokenEstimate": 278
         }
-      ]
+      ],
+      "slug": "step-1-add-the-following-code-to-your-asynchronous-function-and-save-the-file--langchain-js-rag-filtering",
+      "selections": {
+        "tabs": "langchain-js-rag-filtering"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Step 2: Run the following command to execute your file.",
@@ -190,13 +254,48 @@
           "content": "Question: How can I secure my MongoDB Atlas cluster?\nAnswer: To secure your MongoDB Atlas cluster, you can implement the following best practices:\n\n1. **Enable Authentication and Authorization**\n   Ensure that authentication is enabled, which is the default for MongoDB Atlas. Use role-based access control (RBAC) to grant users only the permissions they need.\n\n2. **Use Strong Passwords or Authentication Mechanisms**\n   Avoid simple passwords. Use strong, complex passwords for all database users. Alternatively, use certificate-based authentication or federated authentication with your identity provider.\n\n3. **Whitelist IP Addresses**\n   Configure your Access List (IP Whitelist) to restrict access to trusted IP addresses. This ensures that only specified IP addresses can connect to your cluster.\n\n4. **Enable Network Encryption (TLS/SSL)**\n   MongoDB Atlas supports TLS/SSL by default for securing data in transit. Ensure applications are configured to connect with SSL/TLS-enabled settings.\n\n5. **Use End-to-End Encryption (Client-Side Field-Level Encryption)**\n   Implement client-side field-level encryption to ensure sensitive fields are encrypted end-to-end.\n\n6. **Regularly Rotate Authentication Credentials**\n   Periodically rotate users' passwords or access keys to mitigate the risks of credential exposure.\n\n7. **Use Private Networking**\n   If supported, use Virtual Private Cloud (VPC) peering or private endpoints, such as AWS PrivateLink, to connect securely to your MongoDB Atlas cluster without using the public internet.\n\n8. **Enable Database Auditing**\n   Enable auditing to track database activity and detect potential anomalies or unauthorized access.\n\n9. **Enable Backup and Data Recovery**\n   Regularly back up your data using MongoDB Atlas' automated backup systems to ensure business continuity in case of accidental deletions or data loss.\n\n10. **Keep the MongoDB Drivers Updated**\n    Use the latest version of MongoDB drivers in your application to benefit from security updates and enhancements.\n\n11. **Monitor and Set Alerts**\n    Use MongoDB Atlas' monitoring tools to track metrics and set up alerts for suspicious activities or unusual resource consumption.\n\n12. **Implement Application-Level Security**\n    Ensure your application properly handles user authentication, session management, and input sanitization to prevent unauthorized access or injection attacks.\n\n13. **Watch for Security Best Practices Updates**\n    Regularly review MongoDB Atlas documentation and security advisories to stay aware of new features and recommendations.\n\nBy following these practices, you can greatly enhance the security posture of your MongoDB Atlas cluster.\n\nSource documents:\n[\n  {\n    \"pageContent\": \"Optimizing Data  \\nAccess Patterns\\nNative tools in MongoDB for improving query \\nperformance and reducing overhead.\",\n    \"pageNumber\": 17\n  }\n]",
           "tokenEstimate": 541
         }
-      ]
+      ],
+      "slug": "step-2-run-the-following-command-to-execute-your-file--langchain-js-rag-filtering",
+      "selections": {
+        "tabs": "langchain-js-rag-filtering"
+      },
+      "variantAgnostic": false
     },
     {
       "heading": "Next Steps",
       "headingLevel": 2,
       "body": "To learn how to integrate MongoDB Vector Search with LangGraph, see [LangGraph JS/TS](langgraph-js).\n\nMongoDB also provides the following developer resources:\n\n- [MongoDB Developer GitHub Repository](https://github.com//mongodb-developer)\n\n> **See Also:**&#x20;\n>\n> - [LangChain JS/TS Documentation](https://js.langchain.com/docs/integrations/vectorstores/mongodb_atlas)\n>\n> - [LangChain JS/TS API Reference](https://api.js.langchain.com/modules/langchain_mongodb.html)",
-      "codeBlocks": []
+      "codeBlocks": [],
+      "slug": "next-steps",
+      "variantAgnostic": true
+    }
+  ],
+  "variantAxes": [
+    {
+      "value": "tabs",
+      "text": "tabs",
+      "selections": [
+        {
+          "value": "semantic-search",
+          "text": "semantic-search"
+        },
+        {
+          "value": "semantic-search-filter",
+          "text": "semantic-search-filter"
+        },
+        {
+          "value": "mmr-search",
+          "text": "mmr-search"
+        },
+        {
+          "value": "langchain-js-rag",
+          "text": "langchain-js-rag"
+        },
+        {
+          "value": "langchain-js-rag-filtering",
+          "text": "langchain-js-rag-filtering"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,32 @@
+{
+  "heading": "Create a {+fts} Index on the Materialized View",
+  "headingLevel": 2,
+  "body": "In this section, you can learn how to create a MongoDB Search index on the `monthlyPhoneTransactions`\ncollection.\n\nCreate a `CreateIndex.java` file in your `search-materialized-view` project directory,\nand copy and paste the following code into this file.\n\n```java\nimport com.mongodb.client.*;\nimport org.bson.Document;\n\npublic class CreateIndexExample {\n    public static void main(String[] args) {\n        // Replace the connection string with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n        \n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_supplies\");\n            MongoCollection<Document> collection = database.getCollection(\"monthlyPhoneTransactions\");\n            String indexName = \"monthlySalesIndex\";\n\n            // Create the MongoDB Search index definition for the document field\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            );\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n\n```\n\nReplace `<connection-string>` with the connection string for your\nAtlas cluster or local Atlas deployment.\n\nAtlas Cluster\n\nYour connection string should use the following format:\n\n```\nmongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net\n```\n\nTo learn more, see [Driver](connect-via-driver).\n\nLocal or Self-Managed\n\nYour connection string should use the\nfollowing format:\n\n```\nmongodb://localhost:<port-number>/?directConnection=true\n```\n\nTo learn more, see [Connection Strings](manual/reference/connection-string).\n\nCompile and run your application in your IDE or your shell.\n\n**Input:**\n\n```shell\njavac CreateIndex.java\njava CreateIndex\n```\n\n**Output:**\n\n```\nNew index name: monthlySalesIndex\n```",
+  "codeBlocks": [
+    {
+      "language": "java",
+      "content": "import com.mongodb.client.*;\nimport org.bson.Document;\n\npublic class CreateIndexExample {\n    public static void main(String[] args) {\n        // Replace the connection string with your MongoDB deployment's connection string\n        String connectionString = \"<connection-string>\";\n        \n        try (MongoClient mongoClient = MongoClients.create(connectionString)) {\n            MongoDatabase database = mongoClient.getDatabase(\"sample_supplies\");\n            MongoCollection<Document> collection = database.getCollection(\"monthlyPhoneTransactions\");\n            String indexName = \"monthlySalesIndex\";\n\n            // Create the MongoDB Search index definition for the document field\n            Document searchIdx = new Document(\n                    \"mappings\",\n                    new Document(\"dynamic\", true)\n            );\n            collection.createSearchIndex(indexName, searchIdx);\n            System.out.println(\"New index name: \" + indexName);\n        } catch (Exception e) {\n            System.err.println(\"Error creating Atlas Search index: \" + e.getMessage());\n        }\n    }\n}\n",
+      "tokenEstimate": 193
+    },
+    {
+      "language": "text",
+      "content": "mongodb+srv://<db_username>:<db_password>@<clusterName>.<hostname>.mongodb.net",
+      "tokenEstimate": 21
+    },
+    {
+      "language": "text",
+      "content": "mongodb://localhost:<port-number>/?directConnection=true",
+      "tokenEstimate": 11
+    },
+    {
+      "language": "shell",
+      "content": "javac CreateIndex.java\njava CreateIndex",
+      "tokenEstimate": 9
+    },
+    {
+      "language": "text",
+      "content": "New index name: monthlySalesIndex",
+      "tokenEstimate": 7
+    }
+  ]
+}

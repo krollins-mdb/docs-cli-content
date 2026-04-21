@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"titleAutocomplete\",\n          \"searchAnalyzer\": \"lucene.keyword\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"titleAutocomplete\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"englishPossessive\"\n          },\n          {\n            \"type\": \"nGram\",\n            \"minGram\": 4,\n            \"maxGram\": 7\n          }\n        ]\n      }\n    ]\n  }\n)\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"meet*\",\n        \"path\": \"title\",\n        \"allowAnalyzedField\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[\n  { _id: 1, title: 'The team's weekly meeting' },\n  { _id: 3, title: 'The regular board meeting' }\n]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\n  \"default\",\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\",\n          \"analyzer\": \"titleAutocomplete\",\n          \"searchAnalyzer\": \"lucene.keyword\"\n        }\n      }\n    },\n    \"analyzers\": [\n      {\n        \"name\": \"titleAutocomplete\",\n        \"charFilters\": [],\n        \"tokenizer\": {\n          \"type\": \"standard\"\n        },\n        \"tokenFilters\": [\n          {\n            \"type\": \"englishPossessive\"\n          },\n          {\n            \"type\": \"nGram\",\n            \"minGram\": 4,\n            \"maxGram\": 7\n          }\n        ]\n      }\n    ]\n  }\n)\n",
+      "tokenEstimate": 155
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"wildcard\": {\n        \"query\": \"meet*\",\n        \"path\": \"title\",\n        \"allowAnalyzedField\": true\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"title\": 1\n    }\n  }\n])",
+      "tokenEstimate": 80
+    },
+    {
+      "language": "js",
+      "content": "[\n  { _id: 1, title: 'The team's weekly meeting' },\n  { _id: 3, title: 'The regular board meeting' }\n]",
+      "tokenEstimate": 37
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

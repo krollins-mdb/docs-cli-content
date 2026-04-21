@@ -1,0 +1,27 @@
+{
+  "heading": "Example",
+  "headingLevel": 3,
+  "body": "```javascript\ndb.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"lucene.keyword\",\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"page_updated_by\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"email\": {\n            \"type\": \"string\",\n            \"analyzer\": \"emailAutocompleteIndex\",\n            \"searchAnalyzer\": \"emailAutocompleteSearch\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"emailAutocompleteIndex\",\n      \"charFilters\": [\n        {\n          \"mappings\": {\n            \"@\": \"AT\"\n          },\n          \"type\": \"mapping\"\n        }\n      ],\n      \"tokenizer\": {\n        \"maxTokenLength\": 15,\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": [\n        {\n          \"maxShingleSize\": 3,\n          \"minShingleSize\": 2,\n          \"type\": \"shingle\"\n        },\n        {\n          \"maxGram\": 15,\n          \"minGram\": 2,\n          \"type\": \"edgeGram\"\n        }\n      ]\n    },\n    {\n      \"name\": \"emailAutocompleteSearch\",\n      \"charFilters\": [\n        {\n          \"mappings\": {\n            \"@\": \"AT\"\n          },\n          \"type\": \"mapping\"\n        }\n      ],\n      \"tokenizer\": {\n        \"maxTokenLength\": 15,\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n})\n\n```\n\n**Input:**\n\n```json\ndb.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"auerbach@ex\",\n        \"path\": \"page_updated_by.email\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.es_MX\": 1\n    }\n  }\n])\n```\n\n**Output:**\n\n```js\n[ { _id: 1, page_updated_by: { email: 'auerbach@example.com' } } ]\n```",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.minutes.createSearchIndex(\"default\", {\n  \"analyzer\": \"lucene.keyword\",\n  \"mappings\": {\n    \"dynamic\": true,\n    \"fields\": {\n      \"page_updated_by\": {\n        \"type\": \"document\",\n        \"fields\": {\n          \"email\": {\n            \"type\": \"string\",\n            \"analyzer\": \"emailAutocompleteIndex\",\n            \"searchAnalyzer\": \"emailAutocompleteSearch\"\n          }\n        }\n      }\n    }\n  },\n  \"analyzers\": [\n    {\n      \"name\": \"emailAutocompleteIndex\",\n      \"charFilters\": [\n        {\n          \"mappings\": {\n            \"@\": \"AT\"\n          },\n          \"type\": \"mapping\"\n        }\n      ],\n      \"tokenizer\": {\n        \"maxTokenLength\": 15,\n        \"type\": \"whitespace\"\n      },\n      \"tokenFilters\": [\n        {\n          \"maxShingleSize\": 3,\n          \"minShingleSize\": 2,\n          \"type\": \"shingle\"\n        },\n        {\n          \"maxGram\": 15,\n          \"minGram\": 2,\n          \"type\": \"edgeGram\"\n        }\n      ]\n    },\n    {\n      \"name\": \"emailAutocompleteSearch\",\n      \"charFilters\": [\n        {\n          \"mappings\": {\n            \"@\": \"AT\"\n          },\n          \"type\": \"mapping\"\n        }\n      ],\n      \"tokenizer\": {\n        \"maxTokenLength\": 15,\n        \"type\": \"whitespace\"\n      }\n    }\n  ]\n})\n",
+      "tokenEstimate": 318
+    },
+    {
+      "language": "json",
+      "content": "db.minutes.aggregate([\n  {\n    \"$search\": {\n      \"index\": \"default\",\n      \"text\": {\n        \"query\": \"auerbach@ex\",\n        \"path\": \"page_updated_by.email\"\n      }\n    }\n  },\n  {\n    \"$project\": {\n      \"_id\": 1,\n      \"text.es_MX\": 1\n    }\n  }\n])",
+      "tokenEstimate": 78
+    },
+    {
+      "language": "js",
+      "content": "[ { _id: 1, page_updated_by: { email: 'auerbach@example.com' } } ]",
+      "tokenEstimate": 24
+    }
+  ],
+  "slug": "example--shell",
+  "selections": {
+    "drivers": "shell"
+  },
+  "variantAgnostic": false
+}

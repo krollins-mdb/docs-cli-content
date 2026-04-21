@@ -1,0 +1,22 @@
+{
+  "heading": "filter Examples",
+  "headingLevel": 4,
+  "body": "The following query uses the following clauses:\n\n- `must` and `filter` to specify search conditions which must\n  be met.\n\n- `should` to specify preference for documents containing the\n  word  `banana`. The `should` clause doesn't include the\n  `minimumShouldMatch` option. When you omit\n  `minimumShouldMatch`, it defaults to `0`.\n\n**Input:**\n\n```javascript\ndb.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"banana\",\n            \"path\": \"description\"\n          }\n        }],\n        \"filter\": [{\n          \"text\": {\n            \"query\": \"granny\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  }\n])\n```\n\n**Output:**\n\n```javascript\n{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}\n```\n\nThe returned document fulfills all the requirements for inclusion:\n\n- Both the `must` clause and the `filter` clause match.\n\n- The `minimumShouldMatch` value is not specified, so it\n  defaults to `0`. As a result, the `should` clause fails\n  and still returns a document.\n\n➤ Try this in the [MongoDB Search Playground](https://search-playground.mongodb.com/tools/code-sandbox/snapshots/6614008353a026086724780f).",
+  "codeBlocks": [
+    {
+      "language": "javascript",
+      "content": "db.fruit.aggregate([\n  {\n    \"$search\": {\n      \"compound\": {\n        \"must\": [{\n          \"text\": {\n            \"query\": \"varieties\",\n            \"path\": \"description\"\n          }\n        }],\n        \"should\": [{\n          \"text\": {\n            \"query\": \"banana\",\n            \"path\": \"description\"\n          }\n        }],\n        \"filter\": [{\n          \"text\": {\n            \"query\": \"granny\",\n            \"path\": \"description\"\n          }\n        }]\n      }\n    }\n  }\n])",
+      "tokenEstimate": 110
+    },
+    {
+      "language": "javascript",
+      "content": "{\n  \"_id\" : 1,\n  \"type\" : \"apple\",\n  \"description\" : \"Apples come in several varieties, including Fuji, Granny Smith, and Honeycrisp.\",\n  \"category\" : \"nonorganic\",\n  \"in_stock\" : false\n}",
+      "tokenEstimate": 59
+    }
+  ],
+  "slug": "filter-examples--basic",
+  "selections": {
+    "tabs": "basic"
+  },
+  "variantAgnostic": false
+}

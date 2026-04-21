@@ -1,0 +1,27 @@
+{
+  "heading": "Examples",
+  "headingLevel": 2,
+  "body": "- Create the index using the following index definition. The\n  index definition for the collection specifies the following\n  fields:\n\n  - Index `title` field\n\n  - Store `imdb.rating` and `imdb.votes` fields\n\n  ```json\n  {\n    \"mappings\": {\n      \"fields\": {\n        \"title\": {\n          \"type\": \"string\"\n        }\n      }\n    },\n    \"storedSource\": {\n      \"include\": [\n        \"imdb.rating\",\n        \"imdb.votes\"\n      ]\n    }\n  }\n  ```\n\n- Run the following query against the collection:\n\n  ```json\n  db.movies.aggregate([\n    {\n      // search and output documents\n      $search: {\n        \"text\": {\n          \"query\": \"baseball\",\n          \"path\": \"title\"\n        },\n        \"returnStoredSource\": true // return stored fields only\n      }\n    },\n    // filter dataset from $search stage using $match\n    {\n      $match: {$or: [ { \"imdb.rating\": { $gt: 8.2 } }, { \"imdb.votes\": { $gte: 4500 } } ]}\n    },\n    // perform full document lookup for matched documents only\n    {\n      $lookup: {\n        from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n      }\n    }\n  ])\n  ```\n\n  The query returns the following documents:\n\n  ```json\n  [\n    {\n      _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n      imdb: { rating: 9.1, votes: 2460 },\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    },\n    {\n      _id: ObjectId(\"573a1399f29313caabced370\"),\n      imdb: { rating: 5.8, votes: 7617 },\n      document: [\n        { ... } // full document returned by $lookup\n      ]\n    }\n  ]\n  ```",
+  "codeBlocks": [
+    {
+      "language": "json",
+      "content": "{\n  \"mappings\": {\n    \"fields\": {\n      \"title\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"storedSource\": {\n    \"include\": [\n      \"imdb.rating\",\n      \"imdb.votes\"\n    ]\n  }\n}",
+      "tokenEstimate": 59
+    },
+    {
+      "language": "json",
+      "content": "db.movies.aggregate([\n  {\n    // search and output documents\n    $search: {\n      \"text\": {\n        \"query\": \"baseball\",\n        \"path\": \"title\"\n      },\n      \"returnStoredSource\": true // return stored fields only\n    }\n  },\n  // filter dataset from $search stage using $match\n  {\n    $match: {$or: [ { \"imdb.rating\": { $gt: 8.2 } }, { \"imdb.votes\": { $gte: 4500 } } ]}\n  },\n  // perform full document lookup for matched documents only\n  {\n    $lookup: {\n      from: \"movies\", localField: \"_id\", foreignField: \"_id\", as: \"document\"\n    }\n  }\n])",
+      "tokenEstimate": 160
+    },
+    {
+      "language": "json",
+      "content": "[\n  {\n    _id: ObjectId(\"573a1399f29313caabcee1aa\"),\n    imdb: { rating: 9.1, votes: 2460 },\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  },\n  {\n    _id: ObjectId(\"573a1399f29313caabced370\"),\n    imdb: { rating: 5.8, votes: 7617 },\n    document: [\n      { ... } // full document returned by $lookup\n    ]\n  }\n]",
+      "tokenEstimate": 117
+    }
+  ],
+  "slug": "examples--matcheg",
+  "selections": {
+    "tabs": "matcheg"
+  },
+  "variantAgnostic": false
+}
